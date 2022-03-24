@@ -1,0 +1,10 @@
+mutation delete_cart(
+  $id: ID!
+){
+  record_delete(
+    id:$id
+  ) {
+    id
+    deleted_at
+  }
+}

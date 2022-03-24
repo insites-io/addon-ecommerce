@@ -1,0 +1,38 @@
+
+{%- assign status = status | downcase -%}
+{%- case status -%}
+    {%- when 'success' -%}
+        {%- comment -%}Successful payment{%- endcomment -%}
+        {%- assign api_name = "modules/insites_ecommerce/insites_order_success" -%}
+        {%- assign endpoint_name = "insites_success_endpoint" -%}
+       
+    {%- when 'refund' -%}
+        {%- comment -%}Refund payment{%- endcomment -%}
+        {%- assign api_name = "modules/insites_ecommerce/insites_order_refunded" -%}
+        {%- assign endpoint_name = "insites_refund_endpoint" -%}
+
+    {%- else -%}
+        {%- comment -%}Failed payment{%- endcomment -%}
+        {%- assign api_name = "modules/insites_ecommerce/insites_order_failed" -%}
+        {%- assign endpoint_name = "insites_failed_endpoint" -%}
+
+{%- endcase -%}
+
+{%- comment -%}Verify that API endpoint was configured{%- endcomment -%}
+{%- graphql check_endpoint = 'modules/ins_template_ecommerce/system/get_api_endpoint',
+    name: endpoint_name
+    | dig: "items" | dig: "results" | first -%}
+
+{% log api_name, type: "==== Trigger API call: api_name ====" %}
+{% log check_endpoint, type: "==== Trigger API call: api_name ====" %}
+
+{%- if check_endpoint.properties.endpoint != nil -%}
+    {% comment %} Send API Call {% endcomment %}
+    {%- graphql trigger = "modules/ins_template_ecommerce/system/trigger_api_call",
+        name: api_name,
+        data: data -%}
+    {% log trigger, type: "Checkout: Send API call" %}
+{%- else -%}
+    {% comment %} Failed API Call, missing configuration {% endcomment %}
+    {% log "Checkout: API call not sent, configuration is not available" %}
+{%- endif -%}

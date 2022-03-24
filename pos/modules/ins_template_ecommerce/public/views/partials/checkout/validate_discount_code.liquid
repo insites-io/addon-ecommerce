@@ -1,0 +1,196 @@
+{% comment %}
+This partial accepts:
+payload: {
+    check_duplicates: Boolean
+    form_update: Boolean 
+    form_delete: Boolean 
+    form_id: ID / String
+    user_id: ID! / String!
+    discount_code: String!
+}
+{% endcomment %}
+
+
+{% log payload, type: "Validate discount code payload" %}
+{%- parse_json 'filter_properties' -%}
+    [
+        { "name": "discount_code", "value": "{{ payload.discount_code | default: blank }}" },
+        { "name": "is_enabled", "value_boolean": true }
+    ]
+{%- endparse_json -%}
+
+{% comment %} Step 1: Check if code is enabled {% endcomment %}
+{% graphql discount = "modules/ins_template_ecommerce/discount_code/get_discount_code"
+    page: 1, size: 1
+    filter_properties: filter_properties
+    | dig: 'items' | dig: 'results' | first %}
+    
+{% comment %} Step 2: Check if code enabled & date is valid {% endcomment %}
+{%- assign code_active = discount.properties.release_date | is_date_before: 'now' -%}
+{%- assign not_expired = discount.properties.expiry_date | is_date_in_past -%} 
+{%- if not_expired -%}
+    {%- assign not_expired = false -%}
+{%- else -%}
+    {%- assign not_expired = true -%}
+{%- endif -%}
+{% if discount.properties.is_enabled and code_active and not_expired %}
+    {% comment %} Step 2-A: If valid, check if code is already been used to avoid duplicate{% endcomment %}
+    {%- if payload.check_duplicates -%}
+        {% graphql current_codes = "modules/ins_template_ecommerce/discount_code/get_cart_discount_codes", 
+            user_id: payload.user_id,
+            discount_code: discount.id,
+            discount_debited: false
+            | dig: 'items' %}
+    {%- endif -%}
+
+    {%- if current_codes.results.size > 0 -%}
+        {%- assign message = "Discount code has already been applied." -%}
+        {%- assign is_valid = "duplicate" -%}
+    {%- else -%}
+
+        {% comment %} Step 3.1: If valid, validate if discount code # of uses has not been reached {% endcomment %}
+        {%- if discount.properties.minimum_cart_value > 0 -%}
+            {% include 'modules/ins_template_ecommerce/checkout/compute_order_summary'
+                user_id: payload.user_id %}
+
+            {%- assign current_amount = context.exports.order.sub_total | divided_by: 100 -%}
+            {%- assign min_val = discount.properties.minimum_cart_value -%}
+            {% comment %} current_amount: {{ context.exports.order.sub_total }} <br>
+            min_val: {{ min_val }} {% endcomment %}
+            {%- if min_val > current_amount -%}
+                {% assign min_val = min_val | pricify %}
+                {% assign message = "Sorry, you need to have at least " | append: min_val | append: " amount of item(s) on your cart to use this discount code." %}
+                {% assign is_valid = "minimum value was not met" %}
+            {%- endif -%}
+        {%- endif -%}
+
+        {% comment %} Step 3.2: If valid, validate if discount code # of uses has not been reached {% endcomment %}
+        {%- if discount.properties.unlimited_use != true -%}
+            {%- if discount.properties.number_of_use <= 0  -%}
+                {% assign message = "Sorry, the discount code's maximum uses has been reached." %}
+                {% assign is_valid = "limited use" %}
+            {%- endif -%}
+        {%- endif -%}
+
+        {% comment %} Step 3.3: If valid, validate if discount code # of uses per user has not been reached {% endcomment %}
+        {%- if discount.properties.unlimited_per_user != true -%}
+            {%- if discount.properties.use_per_user <= current_codes.total_entries  -%}
+                {% assign message = "Sorry, you have reached the limit of using this discount code." %}
+                {% assign is_valid = "limited use per user" %}
+            {%- endif -%}
+        {%- endif -%}
+
+        {% comment %}Step 4: If discount code is still valid, continue other validation checks {% endcomment %}
+        {%- if is_valid == blank or is_valid == "" or is_valid == true  -%}
+            {% comment %} Step 4-1: If valid, check if cart applies to any items within the cart item{% endcomment %}
+            {%- graphql cart = "modules/ins_template_ecommerce/cart/get_cart",
+                user_id: payload.user_id
+                status: "Cart"
+            | dig: 'items' | dig: 'results' %}
+
+            {%- liquid 
+                assign product_ids = cart | map: "product_id" | flatten
+                assign discount_products = product_ids 
+                assign discount_cart_ids = "" | split: ","
+
+                log discount, type: "Discount props ====== " 
+                log discount_products, type: "Cart product ids ====== " 
+
+                if discount.properties.apply_to == "all" or discount.properties.apply_to_total == true
+                    for item in cart 
+                        assign discount_cart_ids = discount_cart_ids | add_to_array: item.id
+                    endfor
+                else
+                    if discount.properties.apply_to == "modules/insites_ecommerce/insites_product"
+                        assign discount_accepted_ids = discount.properties.apply_to_products 
+                        log discount_accepted_ids, type: "Product product ids ====== " 
+
+                    elsif discount.properties.apply_to == "modules/insites_ecommerce/insites_category"
+                        graphql category_products = "modules/ins_template_ecommerce/shop/get_product_multiple_categories", category: discount.properties.apply_to_categories | dig: 'items' | dig: 'results' | map: 'id'
+                        assign discount_accepted_ids = category_products 
+
+                        log discount_accepted_ids, type: "Category product ids ====== " 
+                    endif
+                    
+                    assign discount_products = product_ids | intersection: discount_accepted_ids
+                    for item in cart 
+                        assign exist = discount_products | is_included_in_array: item.product_id 
+                        log exist, type: "Checking cart item exist ??"
+                        if exist
+                            assign discount_cart_ids = discount_cart_ids | add_to_array: item.id
+                        endif
+                    endfor
+                
+                endif
+
+
+                log discount_products, type: "Discounted Products ids ====== " 
+                log discount_cart_ids, type: "Discounted Cart ids ====== " 
+            -%}
+
+            {%- if discount_products and discount_products.size > 0 -%}
+                {% comment %} Step 4-A: If valid, save discount code on 'insites_cart_discount_code' {% endcomment %}
+                {%- assign message = discount.properties.success_message | default: "Discount code has been applied." -%}
+                {%- assign is_valid = true -%}
+                
+                {% log discount_cart_ids, type: "Discount is valid, apply to cart ids ====== " %}
+                
+                {%- if payload.form_update == true -%}
+                    {% graphql update_code = "modules/ins_template_ecommerce/discount_code/update_cart_discount_code",
+                        id: payload.form_id
+                        discount_code_id: discount.id,
+                        discount_name: discount.properties.discount_name,
+                        discount_code: discount.properties.discount_code,
+                        discount_type: discount.properties.discount_type,
+                        discount_value: discount.properties.discount_value,
+                        discounted_cart_ids: discount_cart_ids %}
+                    {% log update_code, type: "Cart Discount Updated ====== " %}
+                {%- endif -%}
+            {%- else -%}
+                {% comment %} Step 4-B: Else invalid, return error & delete from 'cart_discount_code' {% endcomment %}
+                {% assign message = "There are no products in your cart is eligible for this discount code." %}
+                {% assign is_valid = "no products" %}
+                {%log "No products elegible" %}
+
+            {%- endif -%}
+
+        {%- endif -%}
+        
+    {%- endif -%}
+{% else %}
+  {% comment %} Step 2-B: Discount code exist, but disabled / expired / not yet active. {% endcomment %}
+  {% comment %} Return state true with discount code's error message {% endcomment %}
+  {% assign message = discount.properties.error_message | default: "Sorry, that discount code is not valid. Please check the code has been entered correctly and is within the validation period." %}
+  {% assign is_valid = "invalid / expired" %}
+{% endif %}
+
+
+{%- comment -%} ==== API RESPONSE ==== {%- endcomment -%}
+{%- comment -%}Status code 400: API or GraphQL error{%- endcomment -%}
+{%- if discount == blank or discount == '' %}
+    {%- assign status = 400 -%}
+    {%- assign message = "Discount code is not found or has been deleted." -%}
+    {%- assign is_valid = "not found" -%}
+{%- endif -%}
+
+{% comment %} 
+    OPTIONAL STEP: 
+     - If payload.form_delete === true and code is not valid, auto delete cart discount code if invalid 
+{% endcomment %}
+{%- if payload.form_delete == true and is_valid != true -%}
+    {% graphql delete_code = "modules/ins_template_ecommerce/discount_code/delete_cart_discount_code",
+        id: payload.form_id
+        | dig: 'items' %}
+    {% log delete_code, type: "Discount code invalid / accepted, discount entry and has been deleted " %}
+{%- endif -%}
+
+{%- parse_json validate_code -%}
+{
+  "is_valid": "{{ is_valid }}",
+  "message": "{{ message }}"
+}
+{%- endparse_json -%}
+
+{% log validate_code, type: "Validation complete: "%}
+
+{% liquid return validate_code %}

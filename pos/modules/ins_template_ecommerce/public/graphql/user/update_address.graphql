@@ -1,0 +1,57 @@
+mutation update_address (
+  $id: ID!,
+  $source_id: String!,
+  $source_name: String!,
+  $name: String!,
+  $address_1: String,
+  $address_2: String,
+  $address_3: String,
+  $city: String,
+  $county: String,
+  $district: String,
+  $suburb: String,
+  $state: String,
+  $country: String,
+  $country_code: String,
+  $postcode: String,
+  $latitude: String,
+  $longitude: String,
+  $geojson: JSONPayload,
+  $last_updated_by_id: String,
+  $is_enabled: Boolean,
+  $use_geojson: Boolean
+) {
+  items: record_update(
+    id: $id,
+    record: {
+      table: "modules/insites_core/insites_address",
+    	properties: [
+        { name: "source_id", value: $source_id }
+        { name: "source_name", value: $source_name }
+        { name: "name", value: $name }
+        { name: "address_1", value: $address_1 }
+        { name: "address_2", value: $address_2 }
+        { name: "address_3", value: $address_3 }
+        { name: "city", value: $city }
+        { name: "county", value: $county }
+        { name: "district", value: $district }
+        { name: "suburb", value: $suburb }
+        { name: "state", value: $state }
+        { name: "country", value: $country }
+        { name: "country_code", value: $country_code }
+        { name: "postcode", value: $postcode }
+        { name: "latitude", value: $latitude }
+        { name: "longitude", value: $longitude } 
+        { name: "geojson", value_json: $geojson } 
+        { name: "last_updated_by_id", value: $last_updated_by_id }
+        { name: "is_enabled", value_boolean: $is_enabled }
+        { name: "use_geojson", value_boolean: $use_geojson }
+      ]
+    }
+  ) {
+    id
+    created_at
+    updated_at
+    properties
+  }
+} 

@@ -1,0 +1,124 @@
+---
+slug: order-history
+layout: modules/ins_template_ecommerce/user-profile-layout
+redirect_to: |-
+  {%- if context.params.slug2 -%}
+    {%- graphql user_data = 'modules/ins_template_ecommerce/account/get_current_user' -%}
+    {%- assign user = user_data.current_user -%}
+    {% graphql order = "modules/ins_template_ecommerce/orders/get_order_details",
+      id: context.params.slug2 
+      user_id: user.id 
+    | dig: 'items' | dig: 'results' | first %}
+    {%- if order and order.size > 0 -%}
+    {%- else -%}
+      /404
+    {%- endif -%}
+  {%- endif -%}
+metadata: {
+    "status": "published",
+    "page_type": "system", ## content, system or endpoint
+    "og:url": "",
+    "og:type": "",
+    "og:image": "",
+    "og:title": "Order History",
+    "og:description": "Order History",
+    "og:site_name": "",
+    "meta_title": "Order History",
+    "page_title": "Order History",
+    "meta_description": "Order History",
+    "canonical_url": "",
+    "search_engine_visibility": false,
+    "sitemap_enabled": false,
+    "sitemap_priority": "1.0",## primary order (DESC)
+    "sitemap_order": "99", ## secondary order (ASC)
+    "sitemap_changefreq": "never"
+}
+authorization_policies:
+  - modules/ins_template_ecommerce/customer_logged_in
+---
+
+{%- graphql user_data = 'modules/ins_template_ecommerce/account/get_current_user' -%}
+{%- assign user = user_data.current_user -%}
+
+{%- if user.customer -%}
+  {%- assign prof = user.customer[0] -%}
+  {%- if prof != blank  -%}
+    {%- if prof.is_activated -%}
+      {%- assign verified = true -%}
+    {%- else -%}
+      {%- assign verified = false -%}
+    {%- endif -%}  
+  {%- endif -%}
+{%- endif -%}
+
+
+{%- if context.params.slug2 -%}
+
+<div class="grid-container order-history">
+  {%- include 'modules/ins_template_ecommerce/user/order_history_detail', order_id: context.params.slug2 -%}
+</div>
+
+{%- else -%}
+
+
+{%- assign page_num = context.params.page | default: 1 -%}
+{%- assign page_size = context.params.per_page | default: 10 -%}
+
+{%- parse_json filters -%}
+{
+    "user_id": "{{user.id}}",
+    "page": {{page_num}},
+    "size": {{page_size}}
+}
+{%- endparse_json -%}
+
+{%- graphql order_list = 'modules/ins_template_ecommerce/orders/get_orders', 
+    args: filters -%}
+
+<div class="grid-container order-history">
+    <div class="grid-x grid-padding-x">
+        <div class="small cell">
+          <h1>Order History</h1>
+          <p>Check the status of your order and review your order history.</p>
+        </div>
+
+        <div class="small cell spacer x-large"></div>
+
+        {%- include 'modules/ins_template_ecommerce/user/order_history_table', order_list: order_list -%}
+    </div>
+</div>
+
+{%- if order_list.items.total_entries > 0 -%}
+<script>
+let maxCount = {{ order_list.items.total_entries }};
+let tableHeaders = [
+    { label: "Order Number", hasLink: true },
+    { label: "Items", type: 'number' },
+    { label: "Total Price", type: 'currency' },
+    { label: "Shipping Address" },
+    { label: "Date Ordered" },
+    { label: "Status", hasTag: true }
+  ];
+let tableContent = {{ order_list.items }};
+
+</script>
+{%- endif -%}
+
+
+
+{%- endif -%}
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+{%- if context.environment == "staging" -%}
+  <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ins_template_ecommerce/scripts/user-profile.js' | asset_url }}"></script>
+{%- else -%}
+  <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.min.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ins_template_ecommerce/scripts/user-profile.min.js' | asset_url }}"></script>
+{%- endif -%}
+
+
+
+
+

@@ -1,0 +1,41 @@
+---
+slug: pay-bill
+layout: modules/ins_template_ecommerce/checkout-layout
+# enable_profiler: true
+searchable: "true"
+max_deep_level: 3
+metadata: {
+    "status": "published",
+    "page_type": "content", ## content, system or endpoint
+    "og:url": "{{ context.exports.global.company_url | strip }}",
+    "og:type": "",
+    "og:image": "",
+    "og:title": "Pay Bill | {{ context.exports.global.company_name | strip }}",
+    "og:description": "Pay Bill | {{ context.exports.global.company_name | strip }}",
+    "og:site_name": "{{ context.exports.global.company_name | strip }}",
+    "meta_title": "Pay Bill | {{ context.exports.global.company_name | strip }}",
+    "page_title": "Pay Bill | {{ context.exports.global.company_name | strip }}",
+    "meta_description": "Pay Bill | {{ context.exports.global.company_name | strip }}",
+    "canonical_url": "",
+    "search_engine_visibility": true,
+    "sitemap_enabled": true,
+    "sitemap_priority": "1.0",## primary order (DESC)
+    "sitemap_order": "10", ## secondary order (ASC)
+    "sitemap_changefreq": "daily"
+}
+---
+
+<div class="grid-x grid-padding-x">
+    <div class="large-12 medium-12 small-12 cell text-center">
+        <h1 class="heading-1">Pay Your Bill</h1>
+        <div class="spacer xxxx-large"></div>
+    </div>
+    
+    <div class="large-7 medium-12 small-12 cell">
+        {%- include_form "modules/ins_template_ecommerce/pay_bills" -%}
+    </div>
+    <div class="large-4 large-offset-1 medium-12 small-12 cell">
+        <div class="hide-for-large spacer xxx-large"></div>
+        {% include 'modules/ins_template_ecommerce/pay_bills/payment_summary' %}
+    </div>
+</div>

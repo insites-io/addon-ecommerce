@@ -1,0 +1,100 @@
+{%- if context.current_user.id -%}
+    {%- assign user_id = context.current_user.id -%}
+{%- else -%}
+    {%- assign user_id = context.session.session_id -%}
+{%- endif -%}
+
+{%- graphql cartList = 'modules/ins_template_ecommerce/cart/get_cart',
+    user_id: user_id, status: "Cart" -%}
+
+{%- if cartList.items.total_entries > 0 -%}
+    <div id="shopping-cart-list" class="shopping-cart grid-x grid-padding-x grid-padding-y">
+        {%- for cart_item in cartList.items.results -%}
+            {% comment %} Get cart product details {% endcomment %}
+            {% assign max_qty = main_product.properties.stock -%}
+            {% graphql main_product = 'modules/ins_template_ecommerce/shop/get_product_detail', 
+                id: cart_item.properties.product_id | fetch: "items" | fetch: "results" | first -%}
+            {%- assign cart_img =  main_product.main_image[0].file.versions['88x66'] -%}
+            
+            {% comment %} Get cart product variant details {% endcomment %}
+            {%- if cart_item.properties.product_variant_id -%}
+                {%- graphql product_variant = 'modules/ins_template_ecommerce/shop/get_product_variants', 
+                    id: cart_item.properties.product_variant_id  | fetch: "items" | fetch: "results" | first -%}
+                {%- assign max_qty = product_variant.properties.stock -%}
+                {%- if product_variant.gallery_1[0].file.url -%}
+                    {%- assign cart_img = product_variant.gallery_1[0].file.versions['88x66'] -%}
+                {%- endif -%}
+            {%- endif -%}
+
+            <div class="cell cart-item-cont">
+                <ins-card steady no-padding>
+                    <div class="product-info flex-container">
+                        <div class="img-cont">
+                            {%- if main_product.main_image[0].file.url -%}
+                                <img src="{{ cart_img }}" alt="{{ cart_item.properties.product_name }}" />
+                            {%- else -%}
+                                {%- include 'modules/ins_template_website/content/placeholder-image', size: 'small' -%}
+                            {%- endif -%}
+                        </div>
+                        <div class="spacer"></div>
+                        <div class="info flex-child-grow">
+                            <div>
+                                <p class="heading-6 color-font-head">{{ cart_item.properties.product_name }}</p>
+                            </div>
+                            <div class="body-paragraph color-font-body">
+                                <p>
+                                {%- if cart_item.properties.product_variant_id -%}
+                                {{ cart_item.properties.product_variant_sku }}
+                                {%- else -%}
+                                {{ cart_item.properties.product_sku }}
+                                {%- endif -%}
+                                </p>
+                            </div>
+                            <div class="spacer small"></div>
+                            <div class="body-small color-font-body">
+                                Price: {{ cart_item.properties.product_price | divided_by: 100.0 | pricify }}
+                            </div>
+                            <div class="body-small color-font-body">
+                                {{ cart_item.properties.product_variant }}
+                            </div>
+                        </div>
+                        <div class="spacer"></div>
+                        <div class="others text-right large-flex-child-shrink flex-child-auto">
+                            <div class="spacer hide-for-large"></div>
+                            <div>
+                                {%- include_form 'modules/ins_template_ecommerce/remove_from_cart', id: cart_item.id  -%}
+                            </div>
+                            <div class="spacer small"></div>
+                            <div id="total-amount" class="cart-price color-font-head">
+                                {%- assign amount_total = cart_item.properties.product_price | times: cart_item.properties.quantity -%}
+                                {{ amount_total | divided_by: 100.0 | pricify }}
+                            </div>
+                            <div class="spacer x-small"></div>
+                            <div>
+                                <ins-input-stepper
+                                    id="qty-cart-{{ cart_item.id }}" 
+                                    class="quantity-cart" 
+                                    value="{{ cart_item.properties.quantity }}" 
+                                    step="1" min="1" 
+                                    max="{{ max_qty }}" 
+                                    small>
+                                </ins-input-stepper>
+                            </div>
+
+                        </div>
+
+                    </div>
+            </div>
+        {%- endfor -%}
+        
+    </div>
+{%- else -%}
+    <div id="shopping-cart-list" class="shopping-cart grid-x grid-padding-x grid-padding-y">
+        <div class="small-12 cell">
+            <ins-card steady class="empty-state">
+                <span>No Cart Items</span>
+            </ins-card>
+        </div>
+    </div>
+{%- endif -%}
+

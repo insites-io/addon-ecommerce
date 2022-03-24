@@ -1,0 +1,27 @@
+{%- comment -%}
+    Checkout page + form
+{%- endcomment -%}
+<div class="grid-x grid-padding-x">
+    <div class="large-offset-2 medium-offset-1 small-offset-0 large-8 medium-10 small-12 cell">
+        {% include 'modules/ins_template_ecommerce/layout/checkout_steps', 
+            clickable: true %}
+    </div>
+</div>
+<div class="spacer xxxx-large"></div>
+
+<div class="grid-x grid-padding-x">
+    <div class="large-7 medium-12 small-12 cell">
+        <!-- Checkout Form -->
+        {% include_form 'modules/ins_template_ecommerce/checkout' %}
+        <!-- END: Checkout Form -->
+    </div>
+    <div class="large-4 large-offset-1 medium-12 small-12 cell">
+        <div class="hide-for-large spacer xxx-large"></div>
+        {% include 'modules/ins_template_ecommerce/layout/order_summary', 
+            show_product: true,
+            status: "Cart",
+            check
+            form_update: true,
+            form_delete: true %}
+    </div>
+</div>

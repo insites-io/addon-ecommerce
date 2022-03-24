@@ -1,0 +1,12 @@
+name: notify_out_of_stock
+properties:
+- name: email
+  type: string
+- name: product_id
+  type: string
+- name: product_name
+  type: string
+- name: product_sku
+  type: string
+- name: product_variant
+  type: string

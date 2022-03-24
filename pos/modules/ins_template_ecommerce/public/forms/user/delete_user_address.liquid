@@ -1,0 +1,21 @@
+---
+name: delete_user_address
+resource: modules/insites_core/insites_address
+resource_owner: anyone
+redirect_to: /account-information
+flash_alert: "Error-RemoveAddress"
+flash_notice: "Success-RemoveAddress"
+fields: {}
+---
+
+{% form 
+    html-id: "delete-address"
+    html-novalidate: true
+    html-enctype="multipart/form-data"
+    html-onsubmit:"return UserProfileScript.methods.validateForm(event);"
+    method: "delete" %}
+  <ins-button id="deleteAddressBtn-main"label="DELETE ADDRESS" color="red" type="submit"
+    class="{{ class }}">
+  </ins-button>
+{% endform %}
+

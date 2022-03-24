@@ -1,0 +1,20 @@
+<li>
+    <ins-accordion menu>
+        <ins-accordion-item 
+            heading="Products" 
+            link="/products"
+            open-icon="icon-plus"
+            close-icon="icon-minus"
+            {% if item.link contains context.params.slug %} active {% endif %} 
+            >
+            {%- graphql parent_category = 'modules/ins_template_ecommerce/shop/get_parent_category', page: 1, size: 100 -%}
+            {%- if parent_category.items and parent_category.items.total_entries > 0 -%}
+            {%- for catMenu in parent_category.items.results -%}
+                <ins-accordion-link label="{{ catMenu.properties.name }}" {% if context.params.slug2 == catMenu.properties.slug %} class="active" {% endif %} 
+                link="/products/{{ catMenu.properties.slug }}" link-target="_self"></ins-accordion-link>
+            {%- endfor -%}
+            {%- endif -%}
+        </ins-accordion-item>
+    </ins-accordion>
+
+</li>

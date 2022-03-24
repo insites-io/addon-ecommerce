@@ -1,0 +1,186 @@
+
+<ins-drawer 
+    show-header="false" 
+    position="left"
+    id="mobile-filter-drawer">
+
+
+{%- comment -%} Step: Check if category or main product page {%- endcomment -%}
+{%- if context.params.slug2 -%}
+
+{%- comment -%} Sub-Step: Get the Category Info of slug2 {%- endcomment -%}
+{%- graphql category_info = 'modules/ins_template_ecommerce/shop/get_category', slug: context.params.slug2 -%}
+{%- assign cat_info = category_info.items.results[0] -%}
+{%- comment -%} Sub-Step: Create a filter to get the subcategory of the parent category {%- endcomment -%}
+{%- parse_json params -%}
+{
+    "parent_ids": ["{{ cat_info.id }}"]
+}
+{%- endparse_json -%}
+{%- graphql sub_category_data = 'modules/ins_template_ecommerce/shop/get_category', args: params -%}
+
+<div class="grid-x">
+    <div class="small-12 cell">
+        <div class="text-right align-right">
+            <ins-button label="" icon="icon-close-1" id="mobile-filter-cls"></ins-button>
+        </div>
+    </div> 
+    <div class="small-12 cell">
+        <div id="sub-categories" class="sub-category no-icons">
+            {%- for subcat in sub_category_data.items.results -%}
+                {%- parse_json sub_params -%}
+                { "parent_ids": ["{{ subcat.id }}"] }
+                {%- endparse_json -%}
+                {%- graphql lvl_two_cat_data = 'modules/ins_template_ecommerce/shop/get_category', args: sub_params -%}
+
+                {%- if lvl_two_cat_data.items and lvl_two_cat_data.items.total_entries > 0 -%}
+                <ins-accordion menu>
+                    <ins-accordion-item id="sub-{{subcat.id}}" class="sub-cat-accor" heading="{{subcat.properties.name}}" arrow-activated>
+                        {%- for lvltwosub in lvl_two_cat_data.items.results -%}
+                        <div class="sub-cat" id="sub-{{lvltwosub.id}}">{{lvltwosub.properties.name}}</div>
+                        {%- endfor -%}
+                    </ins-accordion-item>
+                </ins-accordion>
+                {%- else -%}
+                <div class="sub-cat" id="sub-{{subcat.id}}">{{subcat.properties.name}}</div>
+                {%- endif -%}    
+            {%- endfor -%}
+        </div>
+        <div class="spacer x-large"></div>
+    </div>
+</div>
+
+{%- else -%}
+
+{%- comment -%} Sub-Step: Get all the list of the parent category  {%- endcomment -%}
+{%- graphql parent_category = 'modules/ins_template_ecommerce/shop/get_parent_category', page: 1, size: 100 -%}
+{%- if parent_category.items and parent_category.items.total_entries > 0 -%}
+
+<div class="grid-x">
+    <div class="small-12 cell">
+        <div class="text-right align-right">
+            <ins-button label="" icon="icon-close-1" id="mobile-filter-cls"></ins-button>
+        </div>
+    </div> 
+    <div class="small-12 cell">
+        <div id="main-categories" class="main-category no-icons">
+        {%- for catMenu in parent_category.items.results -%}
+            <a href="/products/{{catMenu.properties.slug}}" class="cat">
+                {{ catMenu.properties.name }}
+            </a>
+        {%- endfor -%}
+        </div>
+        <div class="spacer x-large"></div>
+    </div>
+</div>
+{%- endif -%}
+
+{%- endif -%}
+
+</ins-drawer>
+
+
+
+{%- comment -%}
+
+{%- assign cat_slug = context.params.slug2 -%}
+{%- graphql category_info = 'modules/ins_template_ecommerce/shop/get_category', slug: cat_slug -%}
+{%- assign cat_info = category_info.items.results[0] -%}
+{%- parse_json params -%}
+{
+    "parent_ids": ["{{ cat_info.id }}"]
+}
+{%- endparse_json -%}
+
+{%- graphql sub_category_data = 'modules/ins_template_ecommerce/shop/get_category', args: params -%}
+
+<ins-drawer 
+    show-header="false" 
+    position="left"
+    id="mobile-filter-drawer">
+    <div class="text-right align-right">
+        <ins-button label="" icon="icon-close-1" id="mobile-filter-cls"></ins-button>
+    </div>
+
+    <div id="sub-categories" class="sub-category no-icons">
+        {%- for subcat in sub_category_data.items.results -%}
+            {%- parse_json sub_params -%}
+            { "parent_ids": ["{{ subcat.id }}"] }
+            {%- endparse_json -%}
+            {%- graphql lvl_two_cat_data = 'modules/ins_template_ecommerce/shop/get_category', args: sub_params -%}
+            {%- if lvl_two_cat_data.items and lvl_two_cat_data.items.total_entries > 0 -%}
+            <ins-accordion menu>
+                <ins-accordion-item id="sub-{{subcat.id}}" class="sub-cat-accor" heading="{{subcat.properties.name}}" arrow-activated>
+                    {%- for lvltwosub in lvl_two_cat_data.items.results -%}
+                    
+                    <div class="sub-cat" id="sub-{{lvltwosub.id}}">{{lvltwosub.properties.name}}</div>
+                    {%- endfor -%}
+                </ins-accordion-item>
+            </ins-accordion>
+            {%- else -%}
+            <div class="sub-cat" id="sub-{{subcat.id}}">{{subcat.properties.name}}</div>
+            
+            {%- endif -%}
+        
+        {%- endfor -%}
+    </div>
+    
+    <div class="spacer x-large"></div>
+
+    <p class="heading-3">Filters</p>
+    <div class="spacer x-large cell"></div>
+
+    <div class="filter-price">
+        <p class="heading-6">Price</p>
+        <div class="spacer small cell"></div>
+        <div class="grid-x grid-padding-x ">
+            <div class="auto cell">
+                <ins-input
+                    id="filter-min-price"
+                    small
+                    placeholder="from"
+                    label="From"
+                    field="number">
+                </ins-input>
+            </div>
+            <div class="shrink cell">-</div>
+            <div class="auto cell">
+                <ins-input
+                    id="filter-max-price"
+                    small
+                    placeholder="to"
+                    label="To"
+                    field="number">
+                </ins-input>
+            </div>
+        </div>
+    </div>
+
+    <div class="spacer x-large"></div>
+            
+        <div class="grid-x grid-padding-x">
+            <div class="small-12 cell">
+                <ins-button 
+                    id="apply-filter-btn"
+                    label="Apply Filters" 
+                    class="capitalize full"
+                    solid
+                    size="normal">
+                </ins-button>
+            </div>
+            <div class="spacer small cell"></div>
+            <div class="small-12 cell">
+                <ins-button 
+                    id="clear-filter-btn"
+                    label="Clear All" 
+                    class="capitalize full"
+                    outlined
+                    size="normal">
+                </ins-button>
+            </div>
+        </div>
+
+
+</ins-drawer>
+
+{%- endcomment -%}

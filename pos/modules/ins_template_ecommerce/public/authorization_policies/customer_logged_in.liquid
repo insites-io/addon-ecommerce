@@ -1,0 +1,10 @@
+---
+name: customer_logged_in
+---
+{% graphql data = 'modules/ins_template_ecommerce/account/get_current_user' %}
+{% if data.current_user.customer %}
+    {% assign prof = data.current_user.customer %}
+    {% if prof != blank %}
+        true
+    {% endif %}
+{% endif %} 

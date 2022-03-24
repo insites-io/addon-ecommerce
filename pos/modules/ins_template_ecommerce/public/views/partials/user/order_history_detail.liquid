@@ -1,0 +1,201 @@
+{% graphql order = "modules/ins_template_ecommerce/orders/get_order_details",
+    id: context.params.slug2 
+    | dig: 'items' | dig: 'results' | first %}
+
+
+{%- if order -%}
+
+    <div class="grid-x grid-padding-x">
+        <div class="small-12 cell">
+          <h1 class="heading-1">Order Number: {{ order.id }}</h1>
+        </div>
+    </div>
+    <div class="spacer xxxx-large"></div>
+
+    <div class="grid-x grid-padding-x">
+        <div class="large-7 medium-12 small-12 cell">
+            <h2 class="heading-2">Order Details</h2>
+            <div class="spacer x-large"></div>
+            {%- comment -%} Contact & Payment Details {%- endcomment -%}
+            <div class="grid-x grid-padding-x">
+                <div class="large-5 medium-5 small-12 cell">
+                    <h3 class="heading-3 color-font-sub">Order Contact</h3>
+                    <div class="spacer small"></div>
+                    {%- if order.properties.billing_company_name -%}
+                    <p class="font-cabin">{{ order.properties.billing_company_name }}</p>
+                    {%- endif -%}
+                    <p>{{ order.properties.billing_first_name | append: ' ' | append: order.properties.billing_last_name }}</p>
+                    <p>{{ order.properties.billing_email }}</p>
+                    <p>{{ order.properties.billing_phone }}</p>
+                    <div class="spacer x-large"></div>
+                </div>
+
+                <div class="large-5 large-offset-1 medium-5 medium-offset-1 small-12 cell">
+                    <h3 class="heading-3 color-font-sub">Payment Details</h3>
+                    <div class="spacer small"></div>
+                    <p>{{ order.payment.card_brand | upcase }} **** **** **** {{ order.payment.card_last4 }}</p>
+                    {%- assign month = order.payment.card_exp_month -%}
+                    {%- if order.payment.card_exp_month.size < 2 -%}
+                        {%- assign month = "0" | append: order.payment.card_exp_month -%}
+                    {%- endif -%}
+                    <p>{{ month }} / {{ order.payment.card_exp_year }}</p>
+                    <div class="spacer x-large"></div>
+                </div>
+            </div>
+        
+            {%- comment -%} Addresses Details {%- endcomment -%}
+            <div class="grid-x grid-padding-x">
+                <div class="large-5 medium-5 small-12 cell">
+                    <h3 class="heading-3 color-font-sub">Shipping Address</h3>
+                    <div class="spacer small"></div>
+                    {%- assign shipping_address = "" -%}
+                    {%- if order.properties.shipping_address_1 and order.properties.shipping_address_1 != '' -%}
+                        {%- assign shipping_address = shipping_address | append: order.properties.shipping_address_1 | append : ", " -%}
+                    {%- endif -%}
+                    {%- if order.properties.shipping_address_2 and order.properties.shipping_address_2 != '' -%}
+                        {%- assign shipping_address = shipping_address | append: order.properties.shipping_address_2 | append : ", " -%}
+                    {%- endif -%}
+                    {%- if order.properties.shipping_address_3 and order.properties.shipping_address_3 != '' -%}
+                        {%- assign shipping_address = shipping_address | append: order.properties.shipping_address_3 | append : ", " -%}
+                    {%- endif -%}
+                    {%- if order.properties.shipping_city and order.properties.shipping_city != '' -%}
+                        {%- assign shipping_address = shipping_address | append: order.properties.shipping_city | append : ", " -%}
+                    {%- endif -%}
+                    {%- if order.properties.shipping_state and order.properties.shipping_state != '' -%}
+                        {%- assign shipping_address = shipping_address | append: order.properties.shipping_state | append : " " -%}
+                    {%- endif -%}
+                    {%- if order.properties.shipping_postcode and order.properties.shipping_postcode != '' -%}
+                        {%- assign shipping_address = shipping_address | append: order.properties.shipping_postcode | append : ", " -%}
+                    {%- endif -%}
+                    {%- if order.properties.shipping_country and order.properties.shipping_country != '' -%}
+                        {%- assign shipping_address = shipping_address | append: order.properties.shipping_country | append : " " -%}
+                    {%- endif -%}
+
+                    {%- if order.properties.shipping_company_name -%}
+                    <p class="font-cabin">{{ order.properties.shipping_company_name }}</p>
+                    {%- endif -%}
+                    <p class="font-cabin">{{ order.properties.shipping_first_name | append: ' ' | append: order.properties.shipping_last_name }}</p>
+                    <p class="font-cabin">{{ order.properties.shipping_email }}</p>
+                    <p class="font-cabin">{{ order.properties.shipping_phone }}</p>
+                    <p>{{ shipping_address }}</p>
+                    <div class="spacer x-large"></div>
+                </div>
+                <div class="large-5 large-offset-1 medium-5 medium-offset-1 small-12 cell">
+                    <h3 class="heading-3 color-font-sub">Billing Address</h3>
+                    <div class="spacer small"></div>
+                    {%- assign billing_address = "" -%}
+                    {%- if order.properties.billing_address_1 and order.properties.billing_address_1 != '' -%}
+                        {%- assign billing_address = billing_address | append: order.properties.billing_address_1 | append : ", " -%}
+                    {%- endif -%}
+                    {%- if order.properties.billing_address_2 and order.properties.billing_address_2 != '' -%}
+                        {%- assign billing_address = billing_address | append: order.properties.billing_address_2 | append : ", " -%}
+                    {%- endif -%}
+                    {%- if order.properties.billing_address_3 and order.properties.billing_address_3 != '' -%}
+                        {%- assign billing_address = billing_address | append: order.properties.billing_address_3 | append : ", " -%}
+                    {%- endif -%}
+                    {%- if order.properties.billing_city and order.properties.billing_city != '' -%}
+                        {%- assign billing_address = billing_address | append: order.properties.billing_city | append : ", " -%}
+                    {%- endif -%}
+                    {%- if order.properties.billing_state and order.properties.billing_state != '' -%}
+                        {%- assign billing_address = billing_address | append: order.properties.billing_state | append : " " -%}
+                    {%- endif -%}
+                    {%- if order.properties.billing_postcode and order.properties.billing_postcode != '' -%}
+                        {%- assign billing_address = billing_address | append: order.properties.billing_postcode | append : ", " -%}
+                    {%- endif -%}
+                    {%- if order.properties.billing_country and order.properties.billing_country != '' -%}
+                        {%- assign billing_address = billing_address | append: order.properties.billing_country | append : " " -%}
+                    {%- endif -%}
+                    <p>{{ billing_address }}</p>
+                    <div class="spacer x-large"></div>
+                </div>
+            </div>
+
+            {% comment %} Order & Shipping Status  {% endcomment %}
+            <div class="grid-x grid-padding-x">
+                <div class="large-5 medium-5 small-12 cell">
+                    <h3 class="heading-3 color-font-sub">Order Status</h3>
+                    <div class="spacer small"></div>
+                    {%- assign order_status = order.properties.order_status -%}
+                    {%- case order_status -%}
+                        {% when 'Complete' %}
+                            {% assign color = "green" %}
+                        {% when 'Open' %}
+                            {% assign color = "orange" %}
+                        {% when 'Pending' %}
+                            {% assign color = "orange" %}
+                        {% when 'Processing' %}
+                            {% assign color = "blue" %}
+                        {% when 'On Hold' %}
+                            {% assign color = "neutral" %}
+                        {% when 'Cancelled' %}
+                            {% assign color = "red" %}
+                        {% else %}
+                            {% assign color = "neutral" %}
+                    {%- endcase -%}
+                    <ins-tag label="{{ order_status }}" color="{{ color }}" tooltip="{{ order_status }}"></ins-tag>
+                    <div class="spacer x-large show-for-small-only"></div>
+                </div>
+                <div class="large-5 large-offset-1 medium-5 medium-offset-1 small-12 cell">
+                    <h3 class="heading-3 color-font-sub">Shipping Instructions</h3>
+                    <div class="spacer small"></div>
+                    <div class="preserve-line-break">{{ order.properties.shipping_instructions | default: '-' }}</div>
+                </div>
+            </div>
+
+            {% comment %} Cart Details {% endcomment %}
+            <div class="spacer xxx-large"></div>
+            <div class="grid-x grid-padding-x">
+                <div class="small-12 cell">
+                    <h2 class="heading-2">Cart Details</h2>
+                    <div class="spacer x-large"></div>
+                </div>
+            </div>
+            <div class="grid-x grid-padding-x body-large">
+                <div class="large-12 medium-12 small-12 cell grid-x cart-detail-container">
+                {%- if order.cart.size > 0 -%}
+                    {%- for cart_item in order.cart -%}
+                        <div class="small-6 medium-6 large-6 cell">
+                            {{ cart_item.properties.product_name }}
+                            <p class="body-small">{{ cart_item.properties.product_variant }}</p>
+                        </div>
+
+                        <div class="small-3 medium-3 large-1 cell text-right">
+                            {{ cart_item.properties.quantity }} {{ cart_item.product.unit_label | default: 'x'}}
+                        </div>
+
+                        <div class="small-3 medium-3 large-4 cell text-right">
+                            {%- assign product_price = cart_item.properties.product_price | times: cart_item.properties.quantity | divided_by: 100.0 | advanced_format: '%.2f' | default: "0.00" -%}
+                            {%- assign product_price = product_price | pricify -%}
+                            {%- unless product_price contains '.' -%}
+                                {%- assign product_price = product_price | append: '.00' -%}
+                            {%- endunless -%}
+                            {{ product_price }}
+                        </div>
+                        
+                        <div class="small-12 cell spacer small"></div>
+
+                    {%- endfor -%}
+                {%- endif -%}
+                </div>
+            </div>
+        </div>
+
+        <div class="large-5 medium-12 small-12 cell">
+            {%- comment -%}Payment Details: Customer is not logged in{%- endcomment -%}
+            <div class="spacer xxx-large hide-for-large-only"></div>
+            <div class="grid-x grid-padding-x">
+                <div class="large-12 medium-12 small-12 cell">
+                    
+                    {% include 'modules/ins_template_ecommerce/layout/order_summary', 
+                        show_product: false,
+                        order_id: context.params.slug2 %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+{%- else -%}
+
+{%- endif -%}

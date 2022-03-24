@@ -1,0 +1,49 @@
+query get_orders (
+  $page: Int = 1,
+  $size: Int = 10,
+  $keyword: String,
+  $dateFrom: String,
+  $user_id: String,
+  $dateTo: String,
+  $sortBy: [RecordsSortInput!] = { updated_at: { order: DESC } }
+) {
+  items: records (
+    per_page: $size,
+    page: $page,
+    filter: {
+      table: {
+        value: "modules/insites_ecommerce/insites_order"
+      },
+      properties: [
+        { name: "order_number", contains: $keyword }
+        { name: "user_id", value: $user_id }
+      ],
+      updated_at: {
+        gte: $dateFrom
+        lte: $dateTo
+      }
+    },
+    sort: $sortBy
+  ) {
+    current_page
+    per_page
+    total_pages
+    total_entries
+    results {
+      id
+      created_at
+      properties
+      user: related_user(join_on_property: "user_id") {
+        id
+        name
+        email
+      }
+      cart: related_records(
+        table: "modules/insites_ecommerce/insites_cart"
+        foreign_property: "order_id", 
+        join_on_property: "id") {
+          quantity: property(name: "quantity")
+      }
+    }
+  }
+}

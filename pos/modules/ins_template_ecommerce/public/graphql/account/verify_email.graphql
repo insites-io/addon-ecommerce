@@ -1,0 +1,36 @@
+mutation verify_email(
+  $id: ID!
+  $token: String!
+) {
+  items: user_update(
+    id: $id
+    user: {
+      profiles: [
+        {
+          name: "modules/insites_core/insites_default",
+          values: {
+            properties: [
+              { name: "password_token", value: $token }
+            ]
+          }
+        },
+        {
+          name: "modules/ins_template_ecommerce/customer",
+          values:{
+            properties:[
+              { name: "is_activated", value: "true" }
+            ]
+          }
+        }
+      ]
+    }
+    form_name: "modules/ins_template_ecommerce/verify_email"
+  ) {
+    id
+    profiles{
+        id
+        profile_type
+        properties
+    }
+  }
+}

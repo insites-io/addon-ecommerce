@@ -1,0 +1,30 @@
+mutation create_credit_card (
+  $gateway_id: String!
+  $gateway_customer_id: String!
+  $user_id: String!
+  $external_id: String
+  $brand: String!
+  $exp_month: String!
+  $exp_year: String!
+  $last4: String!
+) {
+  items: record_create(
+    record: {
+      table: "modules/insites_ecommerce/insites_credit_card"
+      properties: [
+        { name: "gateway_id", value: $gateway_id }
+        { name: "gateway_customer_id", value: $gateway_customer_id }
+        { name: "user_id", value: $user_id }
+        { name: "external_id", value: $external_id }
+        { name: "brand", value: $brand }
+        { name: "exp_month", value: $exp_month }
+        { name: "exp_year", value: $exp_year }
+        { name: "last4", value: $last4 }
+      ]
+    }
+  ) {
+    id
+    created_at
+    properties
+  }
+}

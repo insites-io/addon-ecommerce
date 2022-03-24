@@ -1,0 +1,6 @@
+name: customer
+properties:
+ - name: is_enabled
+   type: boolean
+ - name: is_activated
+   type: boolean

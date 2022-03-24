@@ -1,0 +1,164 @@
+---
+name: pay_bills
+resource: modules/insites_ecommerce/insites_cart
+resource_owner: anyone
+redirect_to: >
+    {%- graphql cart = 'modules/ins_template_ecommerce/cart/get_cart', 
+        id: form.id 
+        | dig: "items" | dig: "results" | first -%}
+    /payment-confirmation?order_id={{ cart.properties.order_id }}
+fields:
+    properties:
+    ## Payment Details
+        product_name: ## Invoice number
+            validation:
+                presence:  
+                    message: Invoice number is required 
+        status: ## Cart status = "Cart"
+        quantity:
+        order_id:
+        product_price:
+            validation:
+                presence:  
+                    message: Amount should be greater than 0
+                numericality:
+                    message: Amount should be greater than 0
+        tax_amount:
+        shipping_amount:
+        cc_charge_amount:
+            property_options:
+                virtual: true
+
+        ## Order Details
+        company_name:
+            property_options:
+                virtual: true
+        billing_first_name:
+            property_options:
+                virtual: true
+            validation:
+                presence:  
+                    message: First name is required 
+        billing_last_name:
+            property_options:
+                virtual: true
+            validation:
+                presence:  
+                    message: Last name is required 
+        billing_email:
+            property_options:
+                virtual: true
+            validation:
+                email: 
+                    message: Please use a valid email address
+                presence:  
+                    message: Please use a valid email address
+        billing_phone:
+            property_options:
+                virtual: true
+        billing_address_id:
+            property_options:
+                virtual: true
+        billing_address_1:
+            property_options:
+                virtual: true
+            validation:
+                presence:  
+                    message: Address is required 
+        billing_address_2:
+            property_options:
+                virtual: true
+        billing_address_3:
+            property_options:
+                virtual: true
+        billing_city:
+            property_options:
+                virtual: true
+            validation:
+                presence:  
+                    message: City name is required 
+        billing_state:
+            property_options:
+                virtual: true
+            validation:
+                presence:
+                    message: State is required 
+        billing_country:
+            property_options:
+                virtual: true
+            validation:
+                presence:  
+                    message: Country is required 
+        billing_postcode:
+            property_options:
+                virtual: true
+            validation:
+                presence:  
+                    message: Postcode is required 
+default_payload: |-
+  {
+    "properties_attributes":{
+        "status": "Cart",
+        "quantity": 1,
+        "shipping_amount": 0.0
+    }
+  }
+callback_actions: >
+    {%- comment -%}
+    These actions are made intentionally on `callback_actions` and not on `async_callback_action` bec.
+    confirmation page needs to be able to see the 'payment details' & cart summary. 
+    {%- endcomment -%}
+    {%- include 'modules/insites_core/insites_admin/insites_create_crm_on_submit',
+        email: form.properties.billing_email,
+        first_name: form.properties.billing_first_name,
+        last_name: form.properties.billing_last_name,
+        mobile_phone_number: form.properties.phone_number,
+        model_id: form.id -%}
+    
+    {% log form.properties.company_name, type: "Pay Bills: Callback CRM Company" %}
+    {%- include 'modules/ins_template_ecommerce/checkout/create_crm_company_on_submit',
+        user_id: context.exports.user_id,
+        company_name: form.properties.company_name -%}
+
+    
+    {%- comment -%}START: Bills payment callback process {%- endcomment -%}
+    {%- include 'modules/ins_template_ecommerce/pay_bills/callback_init', 
+        context: context,
+        form: form -%}
+    {%- comment -%}END: Bills payment callback process{%- endcomment -%}
+---
+
+{% form 
+    html-id: "checkout-form"
+    html-onsubmit:"return Checkout.events.payBillsSubmit(event);"
+    html-novalidate: true %}
+
+    <input type="hidden" id="hidden_billing_phone" 
+        name="{{ form.fields.properties.billing_phone.name }}"
+        value="{{ form.fields.properties.billing_phone.value }}" />
+
+    <!-- Invoice Details -->
+    {% include 'modules/ins_template_ecommerce/pay_bills/invoice_details' %}
+    <!-- END: Invoice Details -->
+    
+    <div class="spacer xxx-large"></div>
+    <!-- Payment Details -->
+    {%- include 'modules/insites_stripe/shared/api_credentials' -%}
+    {%- comment -%} 
+    Stripe API keys 
+    - pOS `context.exports.payments`
+        context.exports.payments.gateway = stripe object
+        context.exports.payments.live_mode = true/false (gateway mode: test / live)
+        context.exports.payments.secret = ~ stripe secret key ~
+    {%- endcomment -%}
+
+    {% include 'modules/ins_template_ecommerce/pay_bills/payment_details' %}
+    <!-- END Payment Details -->
+    
+{% endform %}
+
+<!-- Stripe Element -->
+{%- include 'modules/ins_template_ecommerce/forms/stripe_element',
+    cc_field_id: "checkout-credit-card"
+    email_field_id: "billing-email" -%}
+<!-- END Stripe Element -->

@@ -1,0 +1,30 @@
+---
+slug: api/check_user_email_signup
+format: json
+method: get
+searchable: false
+metadata: {
+    "status": "published",
+    "page_type": "endpoint", ## content, system or endpoint
+    "og:url": "",
+    "og:type": "",
+    "og:image": "",
+    "og:title": "Check User Email API",
+    "og:description": "Check User Email API",
+    "og:site_name": "",
+    "meta_title": "Check User Email API",
+    "page_title": "Check User Email API",
+    "meta_description": "Check User Email API",
+    "canonical_url": "",
+    "search_engine_visibility": false,
+    "sitemap_enabled": false,
+    "sitemap_priority": "1.0",## primary order (DESC)
+    "sitemap_order": "9999", ## secondary order (ASC)
+    "sitemap_changefreq": "never"
+}
+---
+
+{%- assign email = context.params.email | default: null -%}
+{%- graphql results = "modules/ins_template_ecommerce/account/check_user_email_signup", email: email -%}
+
+{{ results }}

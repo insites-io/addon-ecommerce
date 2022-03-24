@@ -1,0 +1,88 @@
+---
+slug: account-information/address
+layout: modules/ins_template_ecommerce/user-profile-layout
+metadata: {
+    "status": "published",
+    "page_type": "system", ## content, system or endpoint
+    "og:url": "",
+    "og:type": "",
+    "og:image": "",
+    "og:title": "Address",
+    "og:description": "Address",
+    "og:site_name": "",
+    "meta_title": "Address",
+    "page_title": "Address",
+    "meta_description": "Address",
+    "canonical_url": "",
+    "search_engine_visibility": false,
+    "sitemap_enabled": false,
+    "sitemap_priority": "1.0",## primary order (DESC)
+    "sitemap_order": "99", ## secondary order (ASC)
+    "sitemap_changefreq": "never"
+}
+authorization_policies:
+  - modules/ins_template_ecommerce/customer_logged_in
+---
+
+{%- if context.flash.notice != blank -%}
+
+  {%- assign tmpMsg = context.flash.notice | split: "-" -%}
+  {%- if tmpMsg[2] and tmpMsg[2] == 'patch' -%}
+    {%- parse_json messageInfo -%}
+    {
+    "title" : "Address Updated",
+    "type": "success",
+    "message": "<p>Your address has been updated! <br/>Go back to your <a href='/account-information'>profile.</a></p>"
+    }
+    {%- endparse_json -%}
+  {%- else -%}
+    {%- parse_json messageInfo -%}
+    {
+    "title" : "Address Added",
+    "type": "success",
+    "message": "<p>Your address has been added! <br/>Go back to your <a href='/account-information'>profile.</a></p>"
+    }
+    {%- endparse_json -%}
+  {%- endif -%}
+
+  {%- include 'modules/ins_template_ecommerce/system/form-result', messageInfo: messageInfo -%}
+  
+{%- else -%}
+
+<div class="my-address">
+  <div class="grid-x grid-padding-x">
+    <div class="small cell grid-x grid-padding-x align-bottom">
+      <div class="large-12 medium-12 small-12 cell">
+      {%- if context.params.slug3 -%}
+      <h1 class="heading-1 color-font-head">Edit Address</h1>
+      {%- else -%}
+      <h1 class="heading-1 color-font-head">Add New Address</h1>
+      {%- endif -%}
+      </div>
+    </div>
+    <div class="small cell spacer x-large"></div>
+    <div class="small cell grid-x">
+      <div class="large-7 medium-10 small-12 cell">
+        {%- if context.params.slug3 -%}
+        {%- include_form 'modules/ins_template_ecommerce/update_user_address', id: context.params.slug3 -%}
+        {%- else -%}
+        {%- include_form 'modules/ins_template_ecommerce/update_user_address' -%}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{%- endif -%}
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+{%- if context.environment == "staging" -%}
+  <script src="{{ 'modules/ins_template_ecommerce/scripts/checkout/address-lookup.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ins_template_ecommerce/scripts/user-profile.js' | asset_url }}"></script>
+{%- else -%}
+  <script src="{{ 'modules/ins_template_ecommerce/scripts/checkout/address-lookup.min.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.min.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ins_template_ecommerce/scripts/user-profile.min.js' | asset_url }}"></script>
+{%- endif -%}

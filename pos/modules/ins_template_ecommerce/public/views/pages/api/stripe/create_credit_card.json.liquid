@@ -1,0 +1,168 @@
+---
+slug: api/stripe/create-credit-card
+format: json
+method: post
+searchable: false
+# enable_profiler: true
+searchable: false
+metadata: {
+  status: "published",
+  search_engine_visibility: "false",
+  sitemap_priority: 0.0, ## primary order (DESC)
+  sitemap_order: 9999, ## secondary order (ASC)
+  sitemap_changefreq: "never"
+}
+---
+
+{%- comment -%}
+payload:
+{
+    "email": "",
+    "first_name": "".
+    "last_name": "",
+    "stripe_credit_card": "" = ie. tok_12sed9Sd31o or card_8osndlknsu21
+}
+{%- endcomment -%}
+
+{%- assign payload = context.params.payload | parse_json -%}
+{%- assign status = 200 -%}
+{% assign response = "{}" | parse_json %}
+
+{%- assign stripe_customer_id = blank -%}
+{%- assign user_id = blank -%}
+{%- assign customer_email = payload.email | strip -%}
+
+{%- comment -%} STEP 1: Check Stripe Customer Data {%- endcomment -%}
+{%- graphql stripe_customer = "modules/ins_template_ecommerce/customer/get_customer_model" 
+    email: customer_email,
+    gateway_name: "Stripe" 
+    | dig: "items" | dig: "results" | first -%}
+{% log "Check existing stripe / customer model ?? ==== " %}
+
+{%- if stripe_customer.id -%}
+{%- comment -%}Step 1-A: Customer Stripe data exist. Proceed create stripe credit card {%- endcomment -%}
+
+{%- comment -%}Step 1-A.1: Get updated 'user' data{%- endcomment -%}
+    {%- graphql user = "modules/ins_template_ecommerce/user/get_user_by_email" 
+        email: customer_email
+        | dig: "items" | dig: "results" | first -%}
+    
+    {%- assign customer_model_id = stripe_customer.id | downcase -%}
+    {%- assign user_id = user.id -%}
+    {%- assign customer_name = user.first_name | append: ' ' | append: user.last_name -%}
+    {%- assign account_verified = user.customer[0].is_activated -%}
+
+{%- comment -%}Step 1-A.2: Update customer model data{%- endcomment -%}
+    {%- graphql customer_model = "modules/ins_template_ecommerce/customer/update_customer_model", 
+        id: customer_model_id
+        user_id: user_id,
+        name: customer_name | dig: "items" -%}
+    
+    {% log "===== Customer model updated =====" %}
+    
+{%- comment -%}Step 1-A.3: Customer Stripe data exist. Proceed create stripe credit card {%- endcomment -%}
+    {%- assign stripe_customer_id = customer_model.properties.gateway_id -%}
+    {% log "Exist True ---- stripe_customer_id ----" %}
+
+    {%- assign check_new = payload.stripe_credit_card | split: '_' | first | downcase -%}
+    {% log "-- credit card type --" %}
+    {%- if check_new == 'tok' -%}
+        {%- comment -%}Create new card object payload {%- endcomment -%}
+        {% parse_json stripe_card %}
+        {
+            "customer_id": "{{ stripe_customer_id | default: user_id }}",
+            "source": "{{ payload.stripe_credit_card }}"
+        }
+        {% endparse_json %}
+        {%- comment -%} Bind Card to user only if account is 'verified' {%- endcomment -%}
+        {%- if account_verified -%}
+            {%- assign bind_card_user_id = user_id | default: blank -%}
+        {%- endif -%}
+        {%- comment -%}Create new card on Stripe API {%- endcomment -%}
+        {%- capture new_stripe_credit_card -%}
+            {%- include 'modules/ins_template_ecommerce/stripe/credit_card/create_credit_card', 
+                stripe_card: stripe_card,
+                user_id: bind_card_user_id
+                return: true -%}
+        {%- endcapture -%}
+        {%- assign new_stripe_credit_card = new_stripe_credit_card | strip_newlines | strip -%}
+    {%- elsif check_new == 'card' -%}
+        {%- comment -%}Payload already a stripe credit card. DO NOTHING {%- endcomment -%}
+        {%- assign new_stripe_credit_card = payload.stripe_credit_card -%}
+    {%- endif -%}
+    {%- assign response = response | add_hash_key: 'items', new_stripe_credit_card -%}
+{%- else -%}
+{%- comment -%}Step 1-B: New customer: Create Stripe customer data{%- endcomment -%}
+    {%- graphql user = "modules/ins_template_ecommerce/user/get_user_by_email" 
+        email: customer_email
+        | dig: "items" | dig: "results" | first -%}
+    {%- assign user_id = user.id -%}
+    {%- assign customer_name = user.first_name | append: ' ' | append: user.last_name -%}
+
+    {% parse_json "stripe_customer" %}
+    {
+        "email": "{{ customer_email }}",
+        "name": "{{ customer_name }}",
+        "source": "{{ payload.stripe_credit_card }}",
+        "description": ""
+    }
+    {% endparse_json %}
+    {%- comment -%}
+        TODO: Push bugfix 'api create_customer' on INS STRIPE module
+        - optional 'source' payload
+    {%- endcomment -%}
+    {% graphql stripe_create_customer = 'modules/ins_template_ecommerce/system/trigger_api_call', 
+        name: "modules/ins_template_ecommerce/create_customer",
+        data: stripe_customer
+        | dig: 'items' | dig: 'response' %}
+    {% comment %} End TODO {% endcomment %}
+
+    {%- assign stripe_create_customer = stripe_create_customer.body | parse_json  -%}
+    {% log "===== STRIPE API Response from 'create_customer' =====" %}
+    {%- assign stripe_customer_id = stripe_create_customer.id -%}
+    {% log "===== Stripe Customer ID =====" %}
+    
+
+    {%- comment -%}Save Stripe credit card to pOS model{%- endcomment -%}
+    {%- assign stripe_card = stripe_create_customer.sources.data[0] -%}
+    {% parse_json credit_card %}
+    {
+        "gateway_id": "{{ stripe_card.id }}",
+        "gateway_customer_id": "{{ stripe_customer_id }}",
+        "user_id": "{{ user_id }}",
+        "brand": "{{ stripe_card.brand }}",
+        "exp_month": "{{ stripe_card.exp_month }}",
+        "exp_year": "{{ stripe_card.exp_year }}",
+        "last4": "{{ stripe_card.last4 }}"
+    }
+    {% endparse_json %}
+
+    {% graphql card_model = "modules/ins_template_ecommerce/credit_card/create_credit_card"
+        args: credit_card %}
+    {%- comment -%}END Save Stripe card to pOS {%- endcomment -%}
+
+    {% parse_json customer_data %}
+    {
+        "gateway_id": "{{ stripe_create_customer.id }}",
+        "gateway_name": "Stripe",
+        {%- if charge_to_this_card -%}
+            "default_source": "{{ charge_to_this_card }}",
+        {%- endif -%}
+        "external_id": "",
+        "user_id": "{{ user_id }}",
+        "email": "{{ customer_email }}",
+        "name": "{{ customer_name }}"
+        
+    }
+    {% endparse_json %}
+    {%- graphql customer_model = "modules/ins_template_ecommerce/customer/create_customer_model", 
+        args: customer_data -%}
+    {%- assign response = customer_model -%}
+    {% log response, type: "===== Created Customer model =====" %}
+{%- endif -%}
+
+{%- comment -%}
+  Return GraphQL reposponse & status code 200 or 400
+{%- endcomment -%}
+{{ response }}
+{%- response_status status -%}

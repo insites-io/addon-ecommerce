@@ -1,0 +1,20 @@
+<li>
+<ins-dropdown lined label="Products" link="/products"
+    {% if item.link contains context.params.slug %}
+        class="active"
+    {% endif %}>
+    <ul class="text-left">
+        {%- graphql parent_category = 'modules/ins_template_ecommerce/shop/get_parent_category', page: 1, size: 100 -%}
+        {%- if parent_category.items and parent_category.items.total_entries > 0 -%}
+        {%- for catMenu in parent_category.items.results -%}
+        <li
+            {% if context.params.slug2 == catMenu.properties.slug %}
+            class="li-active"
+            {%- endif -%}>
+            <a href="/products/{{catMenu.properties.slug}}">{{ catMenu.properties.name }}</a>
+        </li>
+        {%- endfor -%}
+        {%- endif -%}
+    </ul>
+</ins-dropdown>
+</li>

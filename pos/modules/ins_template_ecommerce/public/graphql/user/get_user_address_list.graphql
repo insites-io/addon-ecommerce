@@ -1,0 +1,25 @@
+query get_user_address_list(
+  $user_id: String,
+  $page: Int = 1,
+  $size: Int = 50
+){
+  items: records(
+    page: $page
+    per_page: $size
+    filter:{
+      table: { value: "modules/insites_core/insites_address" } 
+      deleted_at: { exists: false }
+      properties:[
+        { name:"source_id", value: $user_id }
+        { name:"is_enabled", value_boolean: true }
+      ]
+    }
+  ){
+    total_entries
+    total_pages
+    results{
+      id
+      properties
+    }
+  }
+}

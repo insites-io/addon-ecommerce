@@ -1,0 +1,215 @@
+<div id="shipping-details" class="hide">
+    <h2 class="heading-1">Shipping</h2>
+    <div class="spacer xxx-large"></div>
+        <h2 class="heading-2">Shipping Contact</h2>
+    <div class="spacer x-large"></div>
+    <ins-checkbox class="inline"
+        id="same-shipping"
+        {% if context.current_user %} checked {% endif %}
+        label="My shipping details are the same as my account details">
+    </ins-checkbox>
+    <div class="spacer"></div>
+
+    {% comment %} Contact Person Fields {% endcomment %}
+    <div class="grid-x grid-padding-x shipping-contact-person">
+        <div class="large-12 medium-12 small-12 cell">
+            <ins-input account-details-field
+                class="label-input"
+                label="Company Name" 
+                placeholder="Company Name"
+                field="text"
+                id="shipping-company-name"
+                value=""
+                name="{{ form.fields.properties.shipping_company_name.name }}">
+            </ins-input>
+        </div>
+        <div class="large-6 medium-6 small-12 cell">
+            <ins-input required validate
+                label="First Name*" 
+                placeholder="First Name"
+                name="{{ form.fields.properties.shipping_first_name.name }}" 
+                value="{{ context.current_user.first_name }}"
+                {% if form.errors['properties.shipping_first_name'] %} has-error {% endif %}
+                error-message="{{ form.fields.properties.shipping_first_name.validation.rules.presence.message }}">
+            </ins-input>
+        </div>
+        <div class="large-6 medium-6 small-12 cell">
+            <ins-input required validate
+                label="Last Name*" 
+                placeholder="Last Name"
+                name="{{ form.fields.properties.shipping_last_name.name }}" 
+                value="{{ context.current_user.last_name }}"
+                {% if form.errors['properties.shipping_last_name'] %} has-error {% endif %}
+                error-message="{{ form.fields.properties.shipping_last_name.validation.rules.presence.message }}">
+            </ins-input>
+        </div>
+        <div class="large-6 medium-6 small-12 cell">
+            <ins-input required validate
+                label="Email*" 
+                placeholder="Email"
+                field="email"
+                name="{{ form.fields.properties.shipping_email.name }}" 
+                value="{{ context.current_user.email }}"
+                {% if form.errors['properties.shipping_email'] %} has-error {% endif %}
+                error-message="{{ form.fields.properties.shipping_email.validation.rules.presence.message }}">
+            </ins-input>
+        </div>
+        <div class="large-6 medium-6 small-12 cell">
+            {%- graphql data = 'modules/ins_template_ecommerce/account/get_current_user' -%}
+            <ins-input-tel
+                class="label-input"
+                id="shipping_phone"
+                label="Mobile Phone"
+                phonenum-value="{{ data.current_user.insites_contact_number[0].mobile_phone_number }}" 
+                phonenum-placeholder="Mobile Phone" no-areacode>
+            </ins-input-tel>
+
+        </div>
+    </div>
+    {% comment %}END: Contact Person Fields {% endcomment %}
+
+    <div class="spacer xxx-large"></div>
+    <div class="validate-address">
+        <div class="grid-x grid-padding-x">
+            <div class="large-6 medium-6 small-12 cell">
+                <h2 class="heading-2">Shipping Address</h2>
+            </div>
+            <div class="large-6 medium-6 small-12 cell text-right">
+                {% comment %} {%- if context.current_user.id -%}
+                    <div class="spacer x-small"></div>
+                    <ins-button type="button"
+                        class="add-address-btn"
+                        name="shipping-address-fields"
+                        size="small"
+                        icon="icon-plus"
+                        label="New Address">
+                    </ins-button>
+                {%- endif -%} {% endcomment %}
+            </div>
+        </div>
+
+        <div class="spacer x-large"></div>
+        
+        <p class="error-message hide">Shipping address is required.</p>
+        {%- if context.current_user.id -%}
+            {%- graphql addresses = "modules/ins_template_ecommerce/user/get_user_address_list", 
+                user_id: context.current_user.id 
+                | dig: "items" | dig: "results" -%}
+            
+            {%- comment -%}Address cards{%- endcomment -%}
+            {%- include 'modules/ins_template_ecommerce/layout/address_cards', 
+                addresses: addresses,
+                type: 'shipping' -%}
+
+        {%- endif -%}
+        
+        {% comment %} Shipping Address Fields {% endcomment %}
+        <div id="shipping-address-fields" required class="address-fields">
+            <div class="grid-x grid-padding-x">
+                <div class="large-12 medium-12 small-12 cell">
+                    <ins-input address-lookup 
+                        label="Search Addresss" 
+                        id="shipping-address-search"
+                        name="shipping"
+                        placeholder="Search Addresss"
+                        icon="icon-map-pin">
+                    </ins-input>
+                    <input type="hidden" shipping-address-field
+                        id="shipping_address_id"
+                        name="{{ form.fields.properties.shipping_address_id.name }}" />
+                </div>
+                <div class="large-6 medium-6 small-12 cell">
+                    <ins-input shipping-address-field
+                        required validate
+                        label="Address 1*" 
+                        id="shipping_address_1"
+                        placeholder="Address 1"
+                        name="{{ form.fields.properties.shipping_address_1.name }}" 
+                        value="{{ form.fields.properties.shipping_address_1.value }}" 
+                        {% if form.errors['properties.shipping_address_1'] %} has-error {% endif %}
+                        error-message="{{ form.fields.properties.shipping_address_1.validation.rules.presence.message }}">
+                    </ins-input>
+                </div>
+                <div class="large-6 medium-6 small-12 cell">
+                    <ins-input shipping-address-field
+                        label="Address 2" 
+                        id="shipping_address_2"
+                        placeholder="Address 2"
+                        name="{{ form.fields.properties.shipping_address_2.name }}" 
+                        value="{{ form.fields.properties.shipping_address_2.value }}" 
+                        {% if form.errors['properties.shipping_address_2'] %} has-error {% endif %}
+                        error-message="{{ form.fields.properties.shipping_address_2.validation.rules.presence.message }}">
+                    </ins-input>
+                </div>
+                <div class="large-6 medium-6 small-12 cell">
+                    <ins-input shipping-address-field
+                        required validate
+                        label="City*" 
+                        id="shipping_city"
+                        placeholder="City"
+                        name="{{ form.fields.properties.shipping_city.name }}" 
+                        value="{{ form.fields.properties.shipping_city.value }}" 
+                        {% if form.errors['properties.shipping_city'] %} has-error {% endif %}
+                        error-message="{{ form.fields.properties.shipping_city.validation.rules.presence.message }}">
+                    </ins-input>
+                </div>
+                <div class="large-6 medium-6 small-12 cell">
+                    <ins-input shipping-address-field
+                        required validate
+                        label="State*" 
+                        id="shipping_state"
+                        placeholder="State"
+                        name="{{ form.fields.properties.shipping_state.name }}" 
+                        value="{{ form.fields.properties.shipping_state.value }}" 
+                        {% if form.errors['properties.shipping_state'] %} has-error {% endif %}
+                        error-message="{{ form.fields.properties.shipping_state.validation.rules.presence.message }}">
+                    </ins-input>
+                </div>
+                <div class="large-6 medium-6 small-12 cell">
+                    <ins-input shipping-address-field
+                        required validate
+                        label="Zip / Postal Code*" 
+                        id="shipping_postcode"
+                        placeholder="Zip / Postal Code"
+                        name="{{ form.fields.properties.shipping_postcode.name }}" 
+                        value="{{ form.fields.properties.shipping_postcode.value }}" 
+                        {% if form.errors['properties.shipping_postcode'] %} has-error {% endif %}
+                        error-message="{{ form.fields.properties.shipping_postcode.validation.rules.presence.message }}">
+                    </ins-input>
+                </div>
+                <div class="large-6 medium-6 small-12 cell">
+                    <ins-input shipping-address-field
+                        required validate
+                        label="Country*" 
+                        id="shipping_country"
+                        placeholder="Country"
+                        name="{{ form.fields.properties.shipping_country.name }}" 
+                        value="{{ form.fields.properties.shipping_country.value }}" 
+                        {% if form.errors['properties.shipping_country'] %} has-error {% endif %}
+                        error-message="{{ form.fields.properties.shipping_country.validation.rules.presence.message }}">
+                    </ins-input>
+                </div>
+                <div class="large-12 medium-12 small-12 cell">
+                    <ins-textarea 
+                        label="Shipping Instructions"
+                        placeholder="Shipping Instructions"
+                        name="{{ form.fields.properties.shipping_instructions.name }}" 
+                        value="{{ form.fields.properties.shipping_instructions.value }}" >
+                    </ins-textarea>
+                </div>
+            </div>
+        </div>
+        {% comment %}END:Shipping Address Fields {% endcomment %}
+    </div>
+
+    <div class="grid-x grid-padding-x">
+        <div class="large-12 medium-12 small-12 cell text-right">
+            <div class="spacer small"></div>
+            <ins-button solid type="button"
+                class="checkout-step-btn"
+                data=2
+                label="Proceed to Payment">
+            </ins-button>
+        </div>
+    </div>
+</div>

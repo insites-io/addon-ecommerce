@@ -1,0 +1,382 @@
+{%- if user_id -%}
+    {%- comment -%}Optional parameter to get specific user's cart{%- endcomment -%}
+    {%- assign user_id = user_id -%}
+{%- else -%}
+    {%- unless order_id -%}
+        {%- comment -%}Automatically get & set user_id parameter {%- endcomment -%}
+        {%- if context.current_user.id -%}
+            {%- assign user_id = context.current_user.id -%}
+        {%- else -%}
+            {%- assign user_id = context.session.session_id -%}
+        {%- endif -%}
+    {%- endunless -%}
+{%- endif -%}
+
+
+{%- if order_id -%}
+    {%- assign discount_debited = true -%}
+{%- else -%}
+    {%- assign discount_debited = false -%}
+{%- endif -%}
+
+{% comment %} STEP 1: Get discount object, and create array for discounts info {% endcomment %}
+{% graphql cart_discount_codes = 'modules/ins_template_ecommerce/discount_code/get_cart_discount_codes', 
+    page: 1,
+    size: 50,
+    user_id: user_id,
+    order_id: order_id,
+    discount_debited: discount_debited
+    apply_to_total: false
+    | dig: 'items' | dig: 'results' %}
+
+{%- assign cart_discount_codes_list = "" | split: "," -%}
+{%- for item in cart_discount_codes -%}
+    {%- for id in item.discounted_cart_ids -%}
+    {%- assign discount_object = "{}" | parse_json -%}
+        {%- liquid 
+            assign discount_object = discount_object | add_hash_key: "discount_cart_id", item.id
+            assign discount_object = discount_object | add_hash_key: "cart_id", id
+            assign discount_object = discount_object | add_hash_key: "discount_code_id", item.discount_code.id
+            assign discount_object = discount_object | add_hash_key: "apply_to_total", item.discount_code.properties.apply_to_total
+            assign discount_object = discount_object | add_hash_key: "multiply_by_quantity", item.discount_code.properties.multiply_by_quantity
+            if order_id
+                assign discount_object = discount_object | add_hash_key: "discount_code", item.properties
+            else
+                assign discount_object = discount_object | add_hash_key: "discount_code", item.discount_code.properties
+            endif
+            assign cart_discount_codes_list = cart_discount_codes_list | add_to_array: discount_object  
+        -%}
+    {% comment %} discount_object: {{ discount_object }} <br> {% endcomment %}
+    {%- endfor -%}
+{%- endfor -%}
+
+{% comment %} Step 2: Get Cart items {% endcomment %}
+{%- unless order_id -%}
+    {%- assign status = "Cart" -%}
+{%- endunless -%} 
+
+{% comment %} cart_discount_codes_list {{ cart_discount_codes_list }} <br><br> {% endcomment %}
+{% graphql cart = 'modules/ins_template_ecommerce/cart/get_cart', 
+    id: cart_id,
+    ids: cart_ids,
+    user_id: user_id, 
+    order_id: order_id,
+    status: status
+    | dig: 'items' | dig: 'results' %}
+
+{%- assign cart_ids = "" | split: ',' %}
+{%- assign cart_discount_code_ids = "" | split: ',' %}
+{%- assign discount_code_ids = "" | split: ',' %}
+{%- assign free_shipping = false -%}
+
+{% comment %} cart_discount_codes_list: {{ cart_discount_codes_list }} {% endcomment %}
+{%- for item in cart -%}
+    {% comment %} DEV NOTES:
+        - 'cart_discount_codes_list' is an array of all discount codes applied to cart/checkout
+        - if a discount code is set to apply_to == 'all', it will have the cart IDs in it 
+        - here, we're checking from the array, if the 'cart id' we're looping exists/matches
+         from the discount code's list of cart ids eligible for its discount to be applied to,
+        - if we get an object returned, we save it on 'discount_code' variable. This means 
+        the cart entry is discountable, and computation is adjusted accordingly
+        - Discount is accumulative, meaning if 2 or more discount applies for the 
+        same product, both will add up. 
+        - Computation will always base from the original product amount (ie. for % discount)
+    {% endcomment %}
+    {%- assign discount = cart_discount_codes_list | detect: cart_id: item.id -%}
+    {%- assign max_shipping_discount_value = item.properties.shipping_amount -%}
+    {%- assign max_price_discount_value = item.properties.product_price -%}
+
+    {%- assign item_amount = item.properties.product_price -%}
+    {%- if item.properties.free_shipping == true -%}
+        {%- assign item_shipping = 0 -%}
+    {%- else -%}
+        {%- assign item_shipping = item.properties.shipping_amount -%}
+    {%- endif -%}
+    {%- assign cart_ids = cart_ids | add_to_array: item.id -%}
+    
+    {% comment %} <h5>START: {{ item.properties.product_name }} = Price: ${{ item_amount }} *** Shipping Fee: {{ item_shipping }}</h5> {% endcomment %}
+    {%- if discount -%}
+        {%- for code in cart_discount_codes_list -%}
+            {%- assign discount_code = false -%}
+            {%- assign cart_discount_code_ids = cart_discount_code_ids | add_to_array: code.discount_cart_id | uniq -%}
+
+            {% comment %} If we get cart_id == item.id, means cart entry is discountable {% endcomment %}
+            {%- if code.cart_id == item.id and code.apply_to_total == false -%}
+                {%- assign discount_code_ids = discount_code_ids | add_to_array: code.discount_code_id | uniq -%}
+                {%- assign discount_code = code -%}
+                {%- assign discount_code = discount_code.discount_code -%}
+                {%- assign type = discount_code.discount_type | downcase -%}
+
+                {% comment %} <p> DISCOUNT CODE: {{ discount_code.discount_name }} ==== Type: {{ type }} </p> {% endcomment %}
+                {% comment %}Step 0: Check if discount is multipliable by cart qty {% endcomment %}
+                {%- if code.multiply_by_quantity -%}
+                    {%- assign discount_qty = item.properties.quantity -%}
+                    {%- assign cart_qty = 0 -%}
+                {%- else -%}
+                    {%- assign discount_qty = 1 -%}
+                    {%- assign cart_qty = item.properties.quantity | minus: discount_qty -%}
+                {%- endif -%}
+
+                {% comment %}Step 1: Check discount type: "Fixed Value / Percent Value" {% endcomment %}
+                {%- if type contains "fix" -%}
+                    {%- assign discount_value = discount_code.discount_value | times: 100 -%}
+                {%- elsif type contains "percent" -%}
+                    {%- assign discount_value = discount_code.discount_value | divided_by: 100 -%}
+                {%- endif -%}
+
+                {%- unless forloop.first -%}
+                    {%- assign has_been_discounted = true -%}
+                {%- endunless -%}
+
+                {% comment %}Step 2: Check discount type: "Shipping / Product Amount" {% endcomment %}
+                {%- if type contains "shipping" -%}
+                    {% comment %} <p>**** DISCOUNT SHIPPING ****</p> {% endcomment %}
+                    {% comment %} DISCOUNT FOR SHIPPING {% endcomment %}
+
+                    {%- if max_shipping_discount_value > 0 -%}
+                        {% comment %} If value > 0, continue to allow discounts {% endcomment %}
+                        {%- if has_been_discounted -%}
+                            {%- assign item_amount = item_amount -%}
+                        {%- else -%}
+                            {%- assign item_amount = item.properties.product_price -%}
+                        {%- endif -%}
+
+                        {%- if type contains "fix" and free_shipping == false -%}
+                            {%- assign item_shipping = item_shipping | minus: discount_value -%}
+                            {% comment %} - less shipping discount = {{ discount_value }} {% endcomment %}
+                            
+                        {%- elsif type contains "percent" and free_shipping == false -%}
+                            {%- assign discount_value = item.properties.shipping_amount | times: discount_value -%}
+                            {%- assign item_shipping = item_shipping | minus: discount_value -%}
+                            {% comment %} - less shipping discount = {{ discount_value }} {% endcomment %}
+                            
+                        {%- elsif type contains 'free shipping' -%}
+                            {% comment %} **** free shipping {{ discount_code.multiply_by_quantity }}<br>
+                            *** product: {{ item.properties.product_name }} - shipping: {{ item.properties.shipping_amount }} <br> {% endcomment %}
+
+                            {%- assign discount_value = item.properties.shipping_amount -%}
+                            {%- assign item_shipping = 0 -%}
+                            {%- if discount_code.apply_to == 'all' -%}
+                                {%- assign free_shipping = true -%}
+                            {%- endif -%}
+                        {%- endif -%}
+
+                        {%- if discount_value > max_shipping_discount_value -%}
+                            {%- assign discount_value = max_shipping_discount_value -%}
+                        {%- endif -%}
+
+                        {%- assign max_shipping_discount_value = max_shipping_discount_value | minus: discount_value -%}
+                        {%- assign discount_value = discount_value | times: discount_qty -%}
+                    {%- else -%}
+                        {% comment %} Discount amount exceeded shipping price... prevent further discounts {% endcomment %}
+                        {%- assign discount_value = 0 -%}
+
+                    {%- endif -%}
+                    
+                    {% comment %} END DISCOUNT FOR SHIPPING {% endcomment %}
+                    
+                {%- else -%}
+                    {% comment %} <p>**** DISCOUNT PRODUCT VALUE ****</p> {% endcomment %}
+                    {% comment %} DISCOUNT IS FOR PRODUCT {% endcomment %}
+
+                    {%- if max_price_discount_value > 0 -%}
+                        {% comment %} If value > 0, continue to allow discounts {% endcomment %}
+                        {%- if has_been_discounted -%}
+                            {%- assign item_shipping = item_shipping -%}
+                        {%- else -%}
+                            {%- assign item_shipping = item.properties.shipping_amount -%}
+                        {%- endif -%}
+
+                        {%- if type contains "fix" -%}
+                            {%- assign item_amount = item.properties.product_price | minus: discount_value -%}
+                            {% comment %} - less discount = {{ discount_value }} {% endcomment %}
+                        {%- elsif type contains "percent" -%}
+                            {%- assign discount_value = item.properties.product_price | times: discount_value -%}
+                            {%- assign item_amount = item_amount | minus: discount_value -%}
+                            {% comment %} - less discount = {{ discount_value }} {% endcomment %}
+                        {%- endif -%}
+
+                        {%- if discount_value > max_price_discount_value -%}
+                            {%- assign discount_value = max_price_discount_value -%}
+                        {%- endif -%}
+
+                        {%- assign max_price_discount_value = max_price_discount_value | minus: discount_value -%}
+                        {%- assign discount_value = discount_value | times: discount_qty -%}
+                    {%- else -%}
+                        {% comment %} Discount amount exceeded product price... prevent further discounts {% endcomment %}
+                        {%- assign discount_value = 0 -%}
+                    {%- endif -%}
+                    {% comment %} END DISCOUNT FOR AMOUNT {% endcomment %}
+
+                {%- endif -%}
+                {% comment %}Update 'total_discount_amount' {% endcomment %}
+                {%- assign total_discount_amount = total_discount_amount | plus: discount_value -%}
+                {% comment %} <p>total_discount_amount: {{ total_discount_amount }}</p><br><br> {% endcomment %}
+
+            {%- else -%}
+                {% comment %} Else, discount is for 'overall total' and will be computed at the end {% endcomment %}
+                {%- assign item_amount = item_amount -%}
+                {%- assign item_shipping = item_shipping -%}
+                {%- assign discount_qty = item.properties.quantity -%}
+            {%- endif -%}
+
+        {%- endfor -%}
+
+        {%- assign item_amount = item_amount | times: discount_qty -%}
+        {%- assign item_shipping = item_shipping | times: discount_qty -%}
+        {%- if cart_qty > 0 -%}
+            {% comment %}IF there 'non discounted items' 
+                = product orignal product price x remaining qty + discounted amount
+            {% endcomment %}
+            {%- if item_amount < 0 -%}
+                {%- assign item_amount = 0 -%}
+            {%- endif -%}
+            {%- assign remaining_item_amount = item.properties.product_price | times: cart_qty -%}
+            {%- assign item_amount = item_amount | plus: remaining_item_amount -%}
+
+            {%- unless free_shipping == true -%}
+                {%- assign remaining_item_shipping = item.properties.shipping_amount | times: cart_qty -%}
+                {%- assign item_shipping = item_shipping | plus: remaining_item_shipping -%}
+            {%- endunless -%}
+        {%- endif -%}
+
+        {% comment %} After deducting all discounts, update item value for sub-total & shipping {% endcomment %}
+        {% comment %} <h5> --- AFTER DISCOUNT: {{ item.properties.product_name }} - subtotal: {{ item_amount }} *** shipping subtotal: {{ item_shipping }}</h5> {% endcomment %}
+    {%- else -%}
+        {% comment %} <br>----- No discount: Compute regular price ----<br> {% endcomment %}
+        {% comment %} ELSE: Not discountable {% endcomment %}
+        {%- assign item_amount = item.properties.product_price | times: item.properties.quantity -%}
+        {%- assign item_shipping = item.properties.shipping_amount | times: item.properties.quantity -%}
+        
+    {%- endif -%}
+
+    {% comment %} CHECKER: Make sure no negative money value {% endcomment %}
+    {%- if item_amount < 0 -%}
+        {%- assign item_amount = 0 -%}
+    {%- endif -%}
+    {%- if item_shipping < 0 -%}
+        {%- assign item_shipping = 0 -%}
+    {%- endif -%}
+
+    {%- assign item_tax = item.properties.tax_amount | times: item.properties.quantity -%}
+
+    {%- assign product_price = item.properties.product_price | times: item.properties.quantity -%}
+    {%- assign product_shipping = item.properties.shipping_amount | times: item.properties.quantity -%}
+    
+    {% comment %} DISCOUNTED {% endcomment %}
+    {%- assign discounted_sub_total = discounted_sub_total | plus: item_amount -%}
+    {% comment %} {%- assign discounted_sub_total = discounted_sub_total | minus: total_discount_amount -%} {% endcomment %}
+    {%- assign discounted_shipping_amount = discounted_shipping_amount | plus: item_shipping -%}
+
+    {% comment %} NOT DISCOUNTED {% endcomment %}
+    {%- assign sub_total = sub_total | plus: product_price -%}
+    {%- assign shipping_amount = shipping_amount | plus: product_shipping -%}
+
+    {%- assign tax_amount = tax_amount | plus: item_tax -%}
+{%- endfor -%}
+
+
+{% comment %}Step 3: Get Discount for overall total {% endcomment %}
+{% graphql total_discounts = 'modules/ins_template_ecommerce/discount_code/get_cart_discount_codes', 
+    page: 1,
+    size: 50,
+    user_id: user_id,
+    order_id: order_id,
+    discount_debited: discount_debited
+    | dig: 'items' | dig: 'results' %}
+
+{%- for code in total_discounts -%}
+    {%- liquid 
+        assign apply_to_total = code.discount_code.properties.apply_to_total 
+        if order_id 
+            assign discount_code = code.properties 
+        else
+            assign discount_code = code.discount_code.properties
+        endif  -%}
+
+    {%- if apply_to_total == true -%}
+        {%- assign type = discount_code.discount_type | downcase -%}
+        {%- if type contains "free shipping" -%}
+            {%- assign free_shipping = true -%}
+            {%- assign discount_shipping_total_value = discount_shipping_total_value | plus: discounted_shipping_amount -%}
+        {%- elsif type contains "fix" -%}
+            {%- assign discount_value = discount_code.discount_value | times: 100 -%}
+            {%- assign discount_total_value = discount_total_value | plus: discount_value -%}
+        {%- elsif type contains "percent" -%}
+            {%- assign discount_value = discount_code.discount_value | divided_by: 100 -%}
+            {%- assign total_percent_discount = total_percent_discount | plus: discount_value -%}
+        {%- endif -%}
+    {%- endif -%}
+
+{%- endfor -%}
+
+{% comment %} CHECKER: Max 100% discount {% endcomment %}
+{%- if total_percent_discount > 1 -%}
+    {%- assign total_percent_discount = 1 -%}
+{%- endif -%}
+
+{% comment %} 
+    - Overall percent discount is computed from 'sub_total' value prior to discounts.
+    - If needed be, this can be changed to reference 'discounted_sub_total' instead.
+{% endcomment %}
+{%- assign total_percent_discount = sub_total | times: total_percent_discount -%}
+{%- assign discount_total_value = discount_total_value | plus: total_percent_discount -%}
+
+{% comment %} CHECKER: Prevent negative sub total value {% endcomment %}
+{%- if discounted_sub_total > 0 -%}
+    {%- if discount_total_value > discounted_sub_total -%}
+        {%- assign discount_total_value = discounted_sub_total -%}
+    {%- endif -%}
+{%- else -%}
+    {%- assign discount_total_value = 0 -%}
+{%- endif -%}
+
+{%- assign discounted_sub_total = discounted_sub_total | minus: discount_total_value -%}
+{%- if discounted_sub_total < 0 -%}
+    {%- assign discounted_sub_total = 0 -%}
+{%- endif -%}
+
+
+{% comment %} CHECKER: Prevent negative shipping value {% endcomment %}
+{%- if discounted_shipping_amount > 0 -%}
+    {%- if discount_shipping_total_value > discounted_shipping_amount -%}
+        {%- assign discount_shipping_total_value = discounted_shipping_amount -%}
+    {%- endif -%}
+{%- else -%}
+    {%- assign discount_shipping_total_value = 0 -%}
+{%- endif -%}
+
+{%- assign discounted_shipping_amount = discounted_shipping_amount | minus: discount_shipping_total_value -%}
+{%- if discounted_shipping_amount < 0 -%}
+    {%- assign discounted_shipping_amount = 0 -%}
+{%- endif -%}
+
+
+{% comment %} 
+Compute Total Values:
+ - IMPORTANT: Tax is NEVER part of the discount computation, thus it is always payable as its native value.
+{% endcomment %}
+{%- assign original = sub_total | plus: shipping_amount -%}
+{%- assign total_amount = discounted_sub_total | plus: discounted_shipping_amount | plus: tax_amount -%} 
+{%- assign total_discount_amount = total_discount_amount | plus: discount_total_value | plus: discount_shipping_total_value -%}
+
+{% comment %} CHECKER: Prevent total discount to exceed original amount values{% endcomment %}
+{%- if total_discount_amount > original  -%}
+    {%- assign total_discount_amount = original -%}
+{%- endif -%}
+
+{% parse_json order %}
+{
+    "cart_ids": {{ cart_ids | default: "[]" }},
+    "sub_total": {{ sub_total | default: 0.0 }},
+    "shipping_amount": {{ shipping_amount | default: 0.0 }},
+    "tax_amount": {{ tax_amount | default: 0.0 }},
+    "total_amount": {{ total_amount | default: 0.0 }},
+    "free_shipping": {{ free_shipping | default: false }},
+    "cart_discount_code_ids": {{ cart_discount_code_ids | default: "[]" }},
+    "discount_code_ids": {{ discount_code_ids | default: "[]" }},
+    "total_discount_amount": {{ total_discount_amount | default: 0.0 }}
+}
+{% endparse_json %}
+
+{% export order %}
