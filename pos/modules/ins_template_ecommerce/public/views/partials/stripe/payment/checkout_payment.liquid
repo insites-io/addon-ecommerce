@@ -174,7 +174,7 @@
 {% log create_charge, type: "=== START PROCESS: STRIPE PAYMENT ==="%}
 
 {% graphql stripe_create_charge = 'modules/ins_template_ecommerce/system/trigger_api_call', 
-    name: "modules/insites_stripe/create_payment",
+    name: "modules/insites_ecommerce/create_payment",
     data: create_charge 
     | dig: "items" | dig: "response" %}
 

@@ -23,15 +23,11 @@ It is assumed that the developers / users have knowledge of using these:
 ## Module Dependencies
 Please make sure to install these modules from pOS marketplace before you deploy to your instance.
 
- - Insites Core v2.11.0^
- - Insites Database Manager v3.0.3^
- - Insites Site Manager v1.6.1^
- - Insites Ecommerce  v1.0.1^
- - Insites Stripe v1.0.1^ 
- - Insites Site Manager v1.6.1^
- - Insites CRM Activities v1.2.3^
- - Insites Event Stream v1.1.2^
- - Insites Website Template v1.0.2^
+ - Insites Core v5.0.0^
+ - Insites Database Manager v5.0.0^
+ - Insites Layouts v5.0.0^
+ - Insites Ecommerce  v5.0.0^
+ - Insites Website Template v5.0.0^
 
  ## Features
 - Sign Up

@@ -1,6 +1,6 @@
 
 {% graphql stripe_create_card = 'modules/ins_template_ecommerce/system/trigger_api_call', 
-    name: "modules/insites_stripe/create_card",
+    name: "modules/insites_ecommerce/create_card",
     data: stripe_card
     | dig: 'items' | dig: 'response' %}
     
