@@ -7,9 +7,20 @@ trigger_condition: true
 from: >
     {%- include 'modules/insites_core/email_layout/autoresponder_from' -%}
 reply_to: >
-    {%- include 'modules/insites_core/email_layout/autoresponder_reply_to' -%}
-cc:
-bcc:
+    {%- include 'modules/insites_ecommerce/email_layout/email_data'
+      status: "success",
+      type: 'autoresponder',
+      field: 'reply_to' -%}
+cc: >
+    {%- include 'modules/insites_ecommerce/email_layout/email_data'
+      status: "success",
+      type: 'autoresponder',
+      field: 'cc' -%}
+bcc: >
+    {%- include 'modules/insites_ecommerce/email_layout/email_data'
+      status: "success",
+      type: 'autoresponder',
+      field: 'bcc' -%}
 subject: Bill payment successful
 layout: modules/insites_core/insites_external_email_layout
 ---

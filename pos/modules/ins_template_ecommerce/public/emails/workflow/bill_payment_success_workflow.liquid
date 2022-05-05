@@ -4,13 +4,27 @@ delay: 0
 enabled: true
 trigger_condition: true
 to: >
-    {%- include 'modules/insites_core/email_layout/workflow_to' -%}
+    {%- include 'modules/insites_ecommerce/email_layout/email_data'
+      status: "success",
+      type: 'workflow',
+      field: 'to' -%}
 from: >
     {%- include 'modules/insites_core/email_layout/workflow_from' -%}
 reply_to: >
-    {%- include 'modules/insites_core/email_layout/workflow_reply_to' -%}
-cc:
-bcc:
+    {%- include 'modules/insites_ecommerce/email_layout/email_data'
+      status: "success",
+      type: 'workflow',
+      field: 'reply_to' -%}
+cc: >
+    {%- include 'modules/insites_ecommerce/email_layout/email_data'
+      status: "success",
+      type: 'workflow',
+      field: 'cc' -%}
+bcc: >
+    {%- include 'modules/insites_ecommerce/email_layout/email_data'
+      status: "success",
+      type: 'workflow',
+      field: 'bcc' -%}
 subject: Bill payment successful
 layout: modules/insites_core/insites_internal_email_layout
 ---
