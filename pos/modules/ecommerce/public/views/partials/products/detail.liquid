@@ -2,7 +2,7 @@
 <!-- Load product information by getting the third slug -->
 {%- endcomment -%}
 {%- assign prod_slug = context.params.slug2 -%}
-{%- graphql raw_product_info = 'modules/ins_template_ecommerce/shop/get_product_detail', slug: prod_slug -%}
+{%- graphql raw_product_info = 'modules/ecommerce/shop/get_product_detail', slug: prod_slug -%}
 {%- assign product_info = raw_product_info.items.results[0] -%}
 
 {%- comment -%}SEO Settings{%- endcomment -%}
@@ -27,11 +27,11 @@
     "name": "{{ product_info.properties.variant_schema }}"
 }
 {%- endparse_json -%}
-{%- graphql raw_product_variants = 'modules/ins_template_ecommerce/shop/get_product_variants', args: params -%}
+{%- graphql raw_product_variants = 'modules/ecommerce/shop/get_product_variants', args: params -%}
 {%- comment -%}
 <!-- Load the schema of the variants and create array for checking which variant will be included -->
 {%- endcomment -%}
-{%- graphql raw_variant_schema = 'modules/ins_template_ecommerce/shop/get_product_schema', name: product_info.properties.variant_schema -%}
+{%- graphql raw_variant_schema = 'modules/ecommerce/shop/get_product_schema', name: product_info.properties.variant_schema -%}
 {%- assign variant_array = "," | split: "," -%} 
 {%- for variants in raw_variant_schema.items.results[0].properties -%}
 {%- if variants.metadata.is_system_field == false -%}
@@ -159,7 +159,7 @@
                         </div>
                     {%- endfor -%}   
                 {%- else -%}
-                    {%- include 'modules/ins_template_website/content/placeholder-image', size: 'large' -%}
+                    {%- include 'modules/website/content/placeholder-image', size: 'large' -%}
                 {%- endif -%}
             {%- endif -%}
         </div>
@@ -214,7 +214,7 @@
                 </div>
                 <div class="small-12 cell spacer x-large"></div>
                 <div class="small-12 cell">
-                    {%- include_form 'modules/ins_template_ecommerce/notify_out_of_stock', product_info: product_info -%}
+                    {%- include_form 'modules/ecommerce/notify_out_of_stock', product_info: product_info -%}
                 </div>
                 <div class="small-12 cell spacer large"></div>
             </div>
@@ -260,7 +260,7 @@
                     <div class="spacer x-large"></div>
                 </div>
                 <div class="small-12 cell">
-                    {%- include_form 'modules/ins_template_ecommerce/add_to_cart', product_info: product_info  -%}
+                    {%- include_form 'modules/ecommerce/add_to_cart', product_info: product_info  -%}
                 </div>
             </div>
 
@@ -272,7 +272,7 @@
                 </div>
                 <div class="small-12 cell spacer x-large"></div>
                 <div class="small-12 cell">
-                    {%- include_form 'modules/ins_template_ecommerce/notify_out_of_stock', product_info: product_info -%}
+                    {%- include_form 'modules/ecommerce/notify_out_of_stock', product_info: product_info -%}
                 </div>
                 <div class="small-12 cell spacer large"></div>
                 

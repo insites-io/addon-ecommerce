@@ -1,4 +1,4 @@
-{% graphql order = "modules/ins_template_ecommerce/orders/get_order_details",
+{% graphql order = "modules/ecommerce/orders/get_order_details",
     id: context.params.slug2 
     | dig: 'items' | dig: 'results' | first %}
 
@@ -186,7 +186,7 @@
             <div class="grid-x grid-padding-x">
                 <div class="large-12 medium-12 small-12 cell">
                     
-                    {% include 'modules/ins_template_ecommerce/layout/order_summary', 
+                    {% include 'modules/ecommerce/layout/order_summary', 
                         show_product: false,
                         order_id: context.params.slug2 %}
                 </div>

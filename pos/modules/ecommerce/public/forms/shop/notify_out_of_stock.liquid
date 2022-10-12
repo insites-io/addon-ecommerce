@@ -1,6 +1,6 @@
 ---
 name: notify_out_of_stock
-resource: modules/ins_template_ecommerce/notify_out_of_stock
+resource: modules/ecommerce/notify_out_of_stock
 resource_owner: anyone
 flash_alert: Error-OutStockNotify
 flash_notice: Success-OutStockNotify
@@ -17,12 +17,12 @@ fields:
     product_sku:
     product_variant:
 email_notifications:
-    - modules/ins_template_ecommerce/out_of_stock_inquire_email
-    - modules/ins_template_ecommerce/out_of_stock_workflow
+    - modules/ecommerce/out_of_stock_inquire_email
+    - modules/ecommerce/out_of_stock_workflow
 #    - modules/insites_core/insites_internal_email
 ---
 
-{%- graphql user_data = 'modules/ins_template_ecommerce/account/get_current_user' -%}
+{%- graphql user_data = 'modules/ecommerce/account/get_current_user' -%}
 {%- assign user = user_data.current_user -%}
 
 {%- form 

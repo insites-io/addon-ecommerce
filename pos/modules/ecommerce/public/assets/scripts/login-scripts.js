@@ -138,7 +138,7 @@ let LoginScript = (function () {
                         let lengProfile = data.results[0].profiles.length;
                         //For loop lighter than findIndex
                         for(let a = 0; a < lengProfile; a++){
-                            if(data.results[0].profiles[a].profile_type == "modules/ins_template_ecommerce/customer"){
+                            if(data.results[0].profiles[a].profile_type == "modules/ecommerce/customer"){
                                 ind = a;
                                 break;
                             }

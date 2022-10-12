@@ -3,7 +3,7 @@ name: pay_bills
 resource: modules/insites_ecommerce/insites_cart
 resource_owner: anyone
 redirect_to: >
-    {%- graphql cart = 'modules/ins_template_ecommerce/cart/get_cart', 
+    {%- graphql cart = 'modules/ecommerce/cart/get_cart', 
         id: form.id 
         | dig: "items" | dig: "results" | first -%}
     /payment-confirmation?order_id={{ cart.properties.order_id }}
@@ -116,13 +116,13 @@ callback_actions: >
         model_id: form.id -%}
     
     {% log form.properties.company_name, type: "Pay Bills: Callback CRM Company" %}
-    {%- include 'modules/ins_template_ecommerce/checkout/create_crm_company_on_submit',
+    {%- include 'modules/ecommerce/checkout/create_crm_company_on_submit',
         user_id: context.exports.user_id,
         company_name: form.properties.company_name -%}
 
     
     {%- comment -%}START: Bills payment callback process {%- endcomment -%}
-    {%- include 'modules/ins_template_ecommerce/pay_bills/callback_init', 
+    {%- include 'modules/ecommerce/pay_bills/callback_init', 
         context: context,
         form: form -%}
     {%- comment -%}END: Bills payment callback process{%- endcomment -%}
@@ -138,7 +138,7 @@ callback_actions: >
         value="{{ form.fields.properties.billing_phone.value }}" />
 
     <!-- Invoice Details -->
-    {% include 'modules/ins_template_ecommerce/pay_bills/invoice_details' %}
+    {% include 'modules/ecommerce/pay_bills/invoice_details' %}
     <!-- END: Invoice Details -->
     
     <div class="spacer xxx-large"></div>
@@ -152,13 +152,13 @@ callback_actions: >
         context.exports.payments.secret = ~ stripe secret key ~
     {%- endcomment -%}
 
-    {% include 'modules/ins_template_ecommerce/pay_bills/payment_details' %}
+    {% include 'modules/ecommerce/pay_bills/payment_details' %}
     <!-- END Payment Details -->
     
 {% endform %}
 
 <!-- Stripe Element -->
-{%- include 'modules/ins_template_ecommerce/forms/stripe_element',
+{%- include 'modules/ecommerce/forms/stripe_element',
     cc_field_id: "checkout-credit-card"
     email_field_id: "billing-email" -%}
 <!-- END Stripe Element -->

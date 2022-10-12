@@ -10,7 +10,7 @@
 {%- assign account_verified = account_verified | default: false -%} 
 
 {%- comment -%} STEP 1: Stripe Customer  {%- endcomment -%}
-{%- graphql stripe_customer = "modules/ins_template_ecommerce/customer/get_customer_model" 
+{%- graphql stripe_customer = "modules/ecommerce/customer/get_customer_model" 
     email: customer_email,
     gateway_name: "Stripe" 
     | dig: "items" | dig: "results" | first -%}
@@ -20,7 +20,7 @@
 {%- comment -%}Step 1-A: Customer Stripe data exist. Proceed payment process {%- endcomment -%}
 
 {%- comment -%}Step 1-A.1: Get updated 'user' data{%- endcomment -%}
-    {%- graphql user = "modules/ins_template_ecommerce/user/get_user_by_email" 
+    {%- graphql user = "modules/ecommerce/user/get_user_by_email" 
         email: customer_email
         | dig: "items" | dig: "results" | first -%}
     
@@ -29,7 +29,7 @@
     {%- assign customer_name = user.first_name | append: ' ' | append: user.last_name -%}
 
 {%- comment -%}Step 1-A.2: Update customer model data{%- endcomment -%}
-    {%- graphql customer_model = "modules/ins_template_ecommerce/customer/update_customer_model", 
+    {%- graphql customer_model = "modules/ecommerce/customer/update_customer_model", 
         id: customer_model_id
         user_id: user_id,
         name: customer_name | dig: "items" -%}
@@ -55,7 +55,7 @@
             {%- if account_verified and user_id -%}
                 {%- assign bind_card_user_id = user_id | default: blank -%}
             {%- endif -%}
-            {%- include 'modules/ins_template_ecommerce/stripe/credit_card/create_credit_card', 
+            {%- include 'modules/ecommerce/stripe/credit_card/create_credit_card', 
                 stripe_card: stripe_card,
                 user_id: bind_card_user_id
                 return: true -%}
@@ -66,10 +66,10 @@
         {%- if context.current_user.id and account_verified -%}
         {% comment %} Optional: Update Credit Card, if user is logged in & verified, set user_id {% endcomment %}
         {% comment %} 
-            {%- graphql current_card = "modules/ins_template_ecommerce/credit_card/get_credit_card", 
+            {%- graphql current_card = "modules/ecommerce/credit_card/get_credit_card", 
                 gateway_id: charge_to_this_card,
                 size: 1 | dig: 'items' | dig: 'results' | first -%}
-            {%- graphql update_credit_card = 'modules/ins_template_ecommerce/credit_card/update_credit_card',
+            {%- graphql update_credit_card = 'modules/ecommerce/credit_card/update_credit_card',
                 id: current_card.id,
                 user_id: user_id | dig: 'items' -%}
             {% log update_credit_card, type: "---- Updated CREDIT CARD ----" %}
@@ -81,7 +81,7 @@
 {%- else -%}
 {%- comment -%}Step 1-B: New customer: Create Stripe customer data{%- endcomment -%}
     {%- unless user_id -%}
-        {%- graphql user = "modules/ins_template_ecommerce/user/get_user_by_email" 
+        {%- graphql user = "modules/ecommerce/user/get_user_by_email" 
             email: customer_email
             | dig: "items" | dig: "results" | first -%}
         {%- assign user_id = user.id -%}
@@ -98,8 +98,8 @@
     {%- comment -%}
         - optional 'source' payload
     {%- endcomment -%}
-    {% graphql stripe_create_customer = 'modules/ins_template_ecommerce/system/trigger_api_call', 
-        name: "modules/ins_template_ecommerce/create_customer",
+    {% graphql stripe_create_customer = 'modules/ecommerce/system/trigger_api_call', 
+        name: "modules/ecommerce/create_customer",
         data: stripe_customer
         | dig: 'items' | dig: 'response' %}
     {% comment %} End TODO {% endcomment %}
@@ -123,7 +123,7 @@
     {% endparse_json %}
 
     {% log credit_card, type: "---- Stripe PAYLOAD: create_credit_card ----" %}
-    {% graphql card_model = "modules/ins_template_ecommerce/credit_card/create_credit_card"
+    {% graphql card_model = "modules/ecommerce/credit_card/create_credit_card"
         args: credit_card %}
     {%- comment -%}END Save Stripe card to pOS {%- endcomment -%}
     {% log card_model, type: "---- Stripe RESPONSE : create_credit_card ----" %}
@@ -143,7 +143,7 @@
     }
     {% endparse_json %}
     {% log customer_data, type: "===== Create Customer PAYLOAD =====" %}
-    {%- graphql customer_model = "modules/ins_template_ecommerce/customer/create_customer_model", 
+    {%- graphql customer_model = "modules/ecommerce/customer/create_customer_model", 
         args: customer_data -%}
     {% log customer_model, type: "===== Created Customer model =====" %}
 {%- endif -%}
@@ -173,7 +173,7 @@
 
 {% log create_charge, type: "=== START PROCESS: STRIPE PAYMENT ==="%}
 
-{% graphql stripe_create_charge = 'modules/ins_template_ecommerce/system/trigger_api_call', 
+{% graphql stripe_create_charge = 'modules/ecommerce/system/trigger_api_call', 
     name: "modules/insites_ecommerce/create_payment",
     data: create_charge 
     | dig: "items" | dig: "response" %}

@@ -16,7 +16,7 @@
 
 
 {%- comment -%}Step 2.0: Create payment data{%- endcomment -%}
-{% graphql payment = "modules/ins_template_ecommerce/payment/create_payment", 
+{% graphql payment = "modules/ecommerce/payment/create_payment", 
     order_id: order_id,
     payment_source: "Payment Gateway",
     payment_status: order_payment_status,
@@ -46,7 +46,7 @@
     {% log context.exports.payment_response, type: "payment_response" %}
 {% log context.exports.order.cart_ids, type: "---- Cart IDs ----" %}
 
-{% graphql cart = "modules/ins_template_ecommerce/cart/update_status_cart_ids", 
+{% graphql cart = "modules/ecommerce/cart/update_status_cart_ids", 
     ids: context.exports.order.cart_ids,
     status: cart_status,
     user_id: user_id,
@@ -57,7 +57,7 @@
 
 {% comment %}Step 2.2: Update Cart Discount IDs {% endcomment %}
 {% log context.exports.order.cart_discount_code_idsan, type: "---- Update Cart Discount IDs ----" %}
-{% graphql cart_discount_codes = "modules/ins_template_ecommerce/discount_code/callback_update_cart_discount_codes",
+{% graphql cart_discount_codes = "modules/ecommerce/discount_code/callback_update_cart_discount_codes",
     ids: context.exports.order.cart_discount_code_ids,
     discount_debited: true,
     user_id: user_id,
@@ -67,7 +67,7 @@
 
 
 {%- comment -%}Step 2.3: Update order status fields{%- endcomment -%}
-{% graphql updated_order = "modules/ins_template_ecommerce/orders/update_order", 
+{% graphql updated_order = "modules/ecommerce/orders/update_order", 
     id: form.id,
     amount_due: amount_due,
     date_time: date_time,
@@ -90,7 +90,7 @@
     
     {% comment %} Discount Code inventory {% endcomment %}
     {% log context.exports.order.discount_code_ids, type: "---- Update Discount IDs inventory ----" %}
-    {% graphql discount_codes = "modules/ins_template_ecommerce/discount_code/callback_update_discount_codes",
+    {% graphql discount_codes = "modules/ecommerce/discount_code/callback_update_discount_codes",
         ids: context.exports.order.discount_code_ids %}
     {% log discount_codes, type: "==== Discount Codes Max # of Use Updated ====" %} 
 
@@ -100,7 +100,7 @@
         {% log context.exports.order.cart_ids, type: "Update card ids" %}
         {%- for cart_id in context.exports.order.cart_ids -%}
             {%- comment -%}2.3.1 Check if cart item was variant or main product{%- endcomment -%}
-            {%- graphql cart = 'modules/ins_template_ecommerce/cart/get_cart', 
+            {%- graphql cart = 'modules/ecommerce/cart/get_cart', 
                 id: cart_id
                 | dig: 'items' | dig: 'results' | first -%}
             {% log cart, type: "==== Cart ==== " %}
@@ -119,7 +119,7 @@
             
             {%- comment -%}2.3.2 Deduct purchase from model variant / product{%- endcomment -%}
             {%- if cart_item_id -%}
-                {%- graphql stock = "modules/ins_template_ecommerce/orders/update_stock_purchased"
+                {%- graphql stock = "modules/ecommerce/orders/update_stock_purchased"
                     id: cart_item_id
                     model_name: model_name
                     qty: qty_purchased -%}

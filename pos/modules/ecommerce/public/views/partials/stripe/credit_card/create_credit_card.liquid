@@ -1,5 +1,5 @@
 
-{% graphql stripe_create_card = 'modules/ins_template_ecommerce/system/trigger_api_call', 
+{% graphql stripe_create_card = 'modules/ecommerce/system/trigger_api_call', 
     name: "modules/insites_ecommerce/create_card",
     data: stripe_card
     | dig: 'items' | dig: 'response' %}
@@ -18,7 +18,7 @@
     }
     {% endparse_json %}
     {% comment %} Create pOS credit card model {% endcomment %}
-    {% graphql card_model = "modules/ins_template_ecommerce/credit_card/create_credit_card"
+    {% graphql card_model = "modules/ecommerce/credit_card/create_credit_card"
         args: credit_card | dig: "items" %}
     {% log "---- POS Card model ----" %}
 

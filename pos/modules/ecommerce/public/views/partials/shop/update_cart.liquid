@@ -10,12 +10,12 @@
 {%- comment -%}Step 1: Get product or variant added to cart{%- endcomment -%}
 {%- if form.properties.product_variant_id -%}
     {%- comment -%}Step 1-A: check if added is 'variant' {%- endcomment -%}
-    {% graphql product = 'modules/ins_template_ecommerce/shop/get_product_variants', 
+    {% graphql product = 'modules/ecommerce/shop/get_product_variants', 
         id: form.properties.product_variant_id 
         | fetch: "items" | fetch: "results" | first -%}
 {%- else -%}
     {%- comment -%}Step 1-B: check if added is 'main product' {%- endcomment -%}    
-    {% graphql product = 'modules/ins_template_ecommerce/shop/get_product_detail', 
+    {% graphql product = 'modules/ecommerce/shop/get_product_detail', 
         id: form.properties.product_id 
         | fetch: "items" | fetch: "results" | first -%}
 {%- endif -%}
@@ -23,7 +23,7 @@
 {%- comment -%}Step 2: Check if product / variant exist (have match in cart){%- endcomment -%}
 {%- assign not_id = form.id | split: "," -%} 
 {%- assign update_cart_id = form.id -%} 
-{%- graphql cart = 'modules/ins_template_ecommerce/cart/get_cart', 
+{%- graphql cart = 'modules/ecommerce/cart/get_cart', 
     not_id: not_id,
     user_id: user_id, 
     product_id: form.properties.product_id, 
@@ -61,7 +61,7 @@
 
 
 {%- comment -%}Step 4: Update the older instance of the item in cart {%- endcomment -%}
-{%- graphql update_cart = "modules/ins_template_ecommerce/cart/update_cart", 
+{%- graphql update_cart = "modules/ecommerce/cart/update_cart", 
     id: update_cart_id,
     quantity: cart_qty,
     product_price: product_price,
@@ -72,7 +72,7 @@
 {%- comment -%}Step 5: Update & delete duplicate cart items{%- endcomment -%}
 {%- if cart -%}
     {%- comment -%}Delete duplicate product on cart - pOS hard delete{%- endcomment -%}
-    {%- graphql delete_cart = "modules/ins_template_ecommerce/cart/delete_cart", id: form.id -%}
+    {%- graphql delete_cart = "modules/ecommerce/cart/delete_cart", id: form.id -%}
 {%- endif -%}
 {%- comment -%}Export data (if needed){%- endcomment -%}
 

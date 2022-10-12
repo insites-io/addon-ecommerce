@@ -15,9 +15,9 @@ flash_notice: Success-EmailVerification
 flash_alert: Error-EmailVerification
 
 callback_actions: |-
-    {% graphql g = 'modules/ins_template_ecommerce/account/generate_user_temporary_token', email: form.email %}
+    {% graphql g = 'modules/ecommerce/account/generate_user_temporary_token', email: form.email %}
     {% if g.items.results[0] %}
-      {% graphql res = 'modules/ins_template_ecommerce/account/set_email_verification_token', 
+      {% graphql res = 'modules/ecommerce/account/set_email_verification_token', 
         id: g.items.results[0].id, 
         token: g.items.results[0].temporary_token %}
         {% log res %}

@@ -1,6 +1,6 @@
 ---
 slug: account-information/address
-layout: modules/ins_template_ecommerce/user-profile-layout
+layout: modules/ecommerce/user-profile-layout
 metadata: {
     "status": "published",
     "page_type": "system", ## content, system or endpoint
@@ -21,7 +21,7 @@ metadata: {
     "sitemap_changefreq": "never"
 }
 authorization_policies:
-  - modules/ins_template_ecommerce/customer_logged_in
+  - modules/ecommerce/customer_logged_in
 ---
 
 {%- if context.flash.notice != blank -%}
@@ -45,7 +45,7 @@ authorization_policies:
     {%- endparse_json -%}
   {%- endif -%}
 
-  {%- include 'modules/ins_template_ecommerce/system/form-result', messageInfo: messageInfo -%}
+  {%- include 'modules/ecommerce/system/form-result', messageInfo: messageInfo -%}
   
 {%- else -%}
 
@@ -64,9 +64,9 @@ authorization_policies:
     <div class="small cell grid-x">
       <div class="large-7 medium-10 small-12 cell">
         {%- if context.params.slug3 -%}
-        {%- include_form 'modules/ins_template_ecommerce/update_user_address', id: context.params.slug3 -%}
+        {%- include_form 'modules/ecommerce/update_user_address', id: context.params.slug3 -%}
         {%- else -%}
-        {%- include_form 'modules/ins_template_ecommerce/update_user_address' -%}
+        {%- include_form 'modules/ecommerce/update_user_address' -%}
         {%- endif -%}
       </div>
     </div>
@@ -78,11 +78,11 @@ authorization_policies:
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
 {%- if context.environment == "staging" -%}
-  <script src="{{ 'modules/ins_template_ecommerce/scripts/checkout/address-lookup.js' | asset_url }}"></script>
-  <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.js' | asset_url }}"></script>
-  <script src="{{ 'modules/ins_template_ecommerce/scripts/user-profile.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ecommerce/scripts/checkout/address-lookup.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ecommerce/scripts/user-profile.js' | asset_url }}"></script>
 {%- else -%}
-  <script src="{{ 'modules/ins_template_ecommerce/scripts/checkout/address-lookup.min.js' | asset_url }}"></script>
-  <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.min.js' | asset_url }}"></script>
-  <script src="{{ 'modules/ins_template_ecommerce/scripts/user-profile.min.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ecommerce/scripts/checkout/address-lookup.min.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ecommerce/scripts/user-profile.min.js' | asset_url }}"></script>
 {%- endif -%}

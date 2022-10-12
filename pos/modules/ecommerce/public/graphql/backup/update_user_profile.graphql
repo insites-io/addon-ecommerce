@@ -5,7 +5,7 @@ mutation update_user_profile (
   $email: String!
 ) {
   items: user_update(
-    form_name: "modules/ins_template_ecommerce/update_user_info"
+    form_name: "modules/ecommerce/update_user_info"
     id: $id
     user:{
       first_name: $first_name,

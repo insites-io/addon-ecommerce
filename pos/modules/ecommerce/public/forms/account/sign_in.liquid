@@ -27,7 +27,7 @@ fields:
 callback_actions: >
   {%- comment -%}GET Cart data{%- endcomment -%}
   {% log context.session.session_id, type: "==== Sign-in callback: Session ID ====" %}
-  {% include 'modules/ins_template_ecommerce/checkout/compute_order_summary',
+  {% include 'modules/ecommerce/checkout/compute_order_summary',
      user_id: context.session.session_id %}
   
   {% log form.id, type: "==== Sign-in callback: User ID ====" %}
@@ -35,14 +35,14 @@ callback_actions: >
 
   {%- comment -%}Update cart user_id{%- endcomment -%}
   {%- assign user_id = form.id | downcase -%}
-  {% graphql cart = "modules/ins_template_ecommerce/cart/update_status_cart_ids", 
+  {% graphql cart = "modules/ecommerce/cart/update_status_cart_ids", 
       ids: context.exports.order.cart_ids,
       user_id: user_id %}
   {% log cart, type: "==== Sign-in callback: Cart Updated ====" %}
 
 
   {%- comment -%}Update cart discount code user_id{%- endcomment -%}
-  {% graphql cart_discount_codes = "modules/ins_template_ecommerce/discount_code/callback_update_cart_discount_codes",
+  {% graphql cart_discount_codes = "modules/ecommerce/discount_code/callback_update_cart_discount_codes",
     ids: context.exports.order.cart_discount_code_ids,
     user_id: user_id %}
   {% log cart_discount_codes, type: "==== Sign-in callback: Cart Discount Codes Updated ====" %}

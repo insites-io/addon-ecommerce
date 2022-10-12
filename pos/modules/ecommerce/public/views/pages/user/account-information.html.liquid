@@ -1,6 +1,6 @@
 ---
 slug: account-information
-layout: modules/ins_template_ecommerce/user-profile-layout
+layout: modules/ecommerce/user-profile-layout
 metadata: {
     "status": "published",
     "page_type": "system", ## content, system or endpoint
@@ -21,10 +21,10 @@ metadata: {
     "sitemap_changefreq": "never"
 }
 authorization_policies:
-  - modules/ins_template_ecommerce/customer_logged_in
+  - modules/ecommerce/customer_logged_in
 ---
 
-{%- graphql user_data = 'modules/ins_template_ecommerce/account/get_current_user' -%}
+{%- graphql user_data = 'modules/ecommerce/account/get_current_user' -%}
 {%- assign user = user_data.current_user -%}
 
 {%- if user.customer -%}
@@ -51,7 +51,7 @@ authorization_policies:
           {%- if verified == false -%}
           <div class="small-12 cell text-center">
             <div class="spacer"></div>
-            {%- include_form "modules/ins_template_ecommerce/resend_verification", 
+            {%- include_form "modules/ecommerce/resend_verification", 
               id: context.current_user.id -%}
           </div>
           {%- endif -%}
@@ -62,13 +62,13 @@ authorization_policies:
         <div class="large-4 medium-6 small-12 cell">
             <h2 class="heading-2 color-font-sub">Account Details</h2>
             <div class="spacer x-large"></div>
-            {%- include_form 'modules/ins_template_ecommerce/update_user_info', id: user.id -%}
+            {%- include_form 'modules/ecommerce/update_user_info', id: user.id -%}
         </div>
         <div class="large-4 large-offset-1 medium-6 small-12 cell">
             <div class="spacer xxx-large show-for-small-only"></div>
             <h2 class="heading-2 color-font-sub">Change Password</h2>
             <div class="spacer x-large"></div>
-            {% include_form 'modules/ins_template_ecommerce/update_user_password', id: user.id %}
+            {% include_form 'modules/ecommerce/update_user_password', id: user.id %}
         </div>
       </div>
     </div>
@@ -92,7 +92,7 @@ authorization_policies:
         <div id="card-options-list" card-grid="large-4 medium-6 small-12" 
           class="grid-x grid-padding-x">
           {%- if context.current_user.id -%}
-            {%- graphql cards = "modules/ins_template_ecommerce/credit_card/get_credit_card", 
+            {%- graphql cards = "modules/ecommerce/credit_card/get_credit_card", 
               user_id: context.current_user.id
               size: 50 | dig: 'items' -%}
             {%- if cards.total_entries > 0 -%}
@@ -121,7 +121,7 @@ authorization_policies:
           </div>
         </div>
 
-        {%- include 'modules/ins_template_ecommerce/forms/stripe_element',
+        {%- include 'modules/ecommerce/forms/stripe_element',
           email_field_id: "email" -%}
 
         {%- else -%}
@@ -150,7 +150,7 @@ authorization_policies:
       </div>
     
       <div class="spacer x-large"></div>
-      {%- graphql address_data = 'modules/ins_template_ecommerce/user/get_user_address_list', user_id: user.id -%}
+      {%- graphql address_data = 'modules/ecommerce/user/get_user_address_list', user_id: user.id -%}
       {%- if address_data.items and address_data.items.total_entries > 0 -%}
       {%- assign addresses = address_data.items.results -%}
               
@@ -203,13 +203,13 @@ authorization_policies:
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
 {%- if context.environment == "staging" -%}
-  <script src="{{ 'modules/ins_template_ecommerce/services/stripeServices.js' | asset_url }}"></script>
-  <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.js' | asset_url }}"></script>
-  <script src="{{ 'modules/ins_template_ecommerce/scripts/user-profile.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ecommerce/services/stripeServices.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ecommerce/scripts/user-profile.js' | asset_url }}"></script>
 {%- else -%}
-  <script src="{{ 'modules/ins_template_ecommerce/services/stripeServices.min.js' | asset_url }}"></script>
-  <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.min.js' | asset_url }}"></script>
-  <script src="{{ 'modules/ins_template_ecommerce/scripts/user-profile.min.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ecommerce/services/stripeServices.min.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ecommerce/scripts/user-profile.min.js' | asset_url }}"></script>
 {%- endif -%}
 
 

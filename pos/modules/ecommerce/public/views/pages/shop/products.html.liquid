@@ -1,13 +1,13 @@
 ---
 slug: products
-layout: modules/ins_template_ecommerce/shop-layout
+layout: modules/ecommerce/shop-layout
 # enable_profiler: true
 searchable: "true"
 max_deep_level: 2
 redirect_to: |-
   {%- if context.params.slug2 -%}
-    {%- graphql slug2_cat = 'modules/ins_template_ecommerce/shop/get_category', slug: context.params.slug2 -%}
-    {%- graphql slug2_prod = 'modules/ins_template_ecommerce/shop/get_product_detail', slug: context.params.slug2 -%}
+    {%- graphql slug2_cat = 'modules/ecommerce/shop/get_category', slug: context.params.slug2 -%}
+    {%- graphql slug2_prod = 'modules/ecommerce/shop/get_product_detail', slug: context.params.slug2 -%}
     {%- if slug2_cat and slug2_cat.items.total_entries > 0 -%}
     {%- elsif slug2_prod and slug2_prod.items.total_entries > 0 -%}
     {%- else -%}
@@ -49,7 +49,7 @@ metadata: {
 ##
 ##    {%- comment -%}Check if product details page, add variant to cache rule{%- endcomment -%}
 ##    {%- if context.params.slug2  -%}
-##        {%- graphql product = 'modules/ins_template_ecommerce/shop/get_product_detail', 
+##        {%- graphql product = 'modules/ecommerce/shop/get_product_detail', 
 ##            slug: context.params.slug2 | dig: "items" | dig: "results" | first -%}
 ## 
 ##        {%- if product.properties.variant_enabled and product.properties.variant_schema != '' -%}
@@ -57,10 +57,37 @@ metadata: {
 ##        {%- endif -%}
 ##    {%- endif -%}
 ## 
-##    {%- include "modules/ins_template_website/generate_cache_key", models: models -%}
+##    {%- include "modules/website/generate_cache_key", models: models -%}
+dynamic_cache:
+  layout: true
+  key: |-
+    {%- parse_json models -%}
+    [
+      "modules/insites_layouts/insites_global_content",
+      "modules/insites_ecommerce/insites_category",
+      "modules/insites_ecommerce/insites_product",
+      "modules/insites_ecommerce/insites_settings",
+      "modules/insites_ecommerce/insites_freight_suppliers"
+    ]
+    {%- endparse_json -%}
+
+
+    {%- comment -%}Check if product details page, add variant to cache rule{%- endcomment -%}
+    {%- if context.params.slug2  -%}
+        {%- graphql product = 'modules/ecommerce/shop/get_product_detail', 
+            slug: context.params.slug2 | dig: "items" | dig: "results" | first -%}
+ 
+        {%- if product.properties.variant_enabled and product.properties.variant_schema != '' -%}
+            {%- assign models = models | add_to_array: product.properties.variant_schema -%}
+        {%- endif -%}
+    {%- endif -%}
+
+    {%- assign models = 'now' | date: '%y%m%d%h%i%s' -%}
+ 
+    {%- include "modules/website/generate_cache_key", models: models -%}
 ---
 
-{% comment -%}
+{% comment -%} 
 URL Structures: 
 /products/mens-shoes
 /products/mens-shoes/product_id
@@ -70,14 +97,14 @@ URL Structures:
 {%- comment -%}Check if has slug2{%- endcomment -%}
 {%- if context.params.slug2 -%}
     {%- comment -%}Check via graphql if there is a category with slug2{%- endcomment -%}
-    {%- graphql slug2_cat = 'modules/ins_template_ecommerce/shop/get_category', slug: context.params.slug2 -%}
+    {%- graphql slug2_cat = 'modules/ecommerce/shop/get_category', slug: context.params.slug2 -%}
     {%- if slug2_cat.items and slug2_cat.items.total_entries > 0 -%}
     {%- assign category_slug2 = slug2_cat.items.results[0] -%}
     {%- assign slug_type = 'category' -%}
     {%- endif -%}
 
     {%- comment -%}Check via graphql if there is a product with slug2{%- endcomment -%}
-    {%- graphql slug2_prod = 'modules/ins_template_ecommerce/shop/get_product_detail', slug: context.params.slug2 -%}
+    {%- graphql slug2_prod = 'modules/ecommerce/shop/get_product_detail', slug: context.params.slug2 -%}
     {%- if slug2_prod.items and slug2_prod.items.total_entries > 0 -%}
     {%- assign product_slug2 = slug2_prod.items.results[0] -%}
     {%- assign slug_type = 'product' -%}
@@ -92,48 +119,48 @@ URL Structures:
 
     {%- if context.params.slug2 -%}
         {%- if slug_type == 'product' -%}
-        {%- include 'modules/ins_template_ecommerce/products/detail' -%}
+        {%- include 'modules/ecommerce/products/detail' -%}
         {%- else -%}
-        {%- include 'modules/ins_template_ecommerce/products/list' -%}
+        {%- include 'modules/ecommerce/products/list' -%}
         {%- endif -%}
     {%- else -%}
-        {%- include 'modules/ins_template_ecommerce/products/list' -%}
+        {%- include 'modules/ecommerce/products/list' -%}
     {%- endif -%}
 
 </div>
 
-
+fwevsvregrdf
 
 {%- if context.params.slug2 -%}
 
     {%- if slug_type == 'product' -%}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
         {%- if context.environment == "staging" -%}
-            <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.js' | asset_url }}"></script>
-            <script src="{{ 'modules/ins_template_ecommerce/scripts/product-detail.js' | asset_url }}"></script>
+            <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
+            <script src="{{ 'modules/ecommerce/scripts/product-detail.js' | asset_url }}"></script>
         {%- else -%}
-            <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.min.js' | asset_url }}"></script>
-            <script src="{{ 'modules/ins_template_ecommerce/scripts/product-detail.min.js' | asset_url }}"></script>
+            <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
+            <script src="{{ 'modules/ecommerce/scripts/product-detail.min.js' | asset_url }}"></script>
         {%- endif -%}
     {%- else -%}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
         {%- if context.environment == "staging" -%}
-            <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.js' | asset_url }}"></script>
-            <script src="{{ 'modules/ins_template_ecommerce/scripts/product-list.js' | asset_url }}"></script>
+            <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
+            <script src="{{ 'modules/ecommerce/scripts/product-list.js' | asset_url }}"></script>
         {%- else -%}
-            <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.min.js' | asset_url }}"></script>
-            <script src="{{ 'modules/ins_template_ecommerce/scripts/product-list.min.js' | asset_url }}"></script>
+            <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
+            <script src="{{ 'modules/ecommerce/scripts/product-list.min.js' | asset_url }}"></script>
         {%- endif -%}
     {%- endif -%}
 
 {%- else -%}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
     {%- if context.environment == "staging" -%}
-        <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.js' | asset_url }}"></script>
-        <script src="{{ 'modules/ins_template_ecommerce/scripts/product-list.js' | asset_url }}"></script>
+        <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
+        <script src="{{ 'modules/ecommerce/scripts/product-list.js' | asset_url }}"></script>
     {%- else -%}
-        <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.min.js' | asset_url }}"></script>
-        <script src="{{ 'modules/ins_template_ecommerce/scripts/product-list.min.js' | asset_url }}"></script>
+        <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
+        <script src="{{ 'modules/ecommerce/scripts/product-list.min.js' | asset_url }}"></script>
     {%- endif -%}
 {%- endif -%}
 

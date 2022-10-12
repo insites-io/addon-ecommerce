@@ -29,7 +29,7 @@ metadata: {
 {%- assign payload = context.params.payload | parse_json -%}
 {%- assign status = 200 -%}
 
-{%- graphql response = 'modules/ins_template_ecommerce/shop/get_product_list', args: payload -%}
+{%- graphql response = 'modules/ecommerce/shop/get_product_list', args: payload -%}
 
 {% parse_json data %}
     {{ response | dig: "items" }}

@@ -5,7 +5,7 @@ resource_owner: anyone
 fields:
   email:
   profiles:
-    modules/ins_template_ecommerce/customer:
+    modules/ecommerce/customer:
       properties:
         is_enabled:
           property_options:
@@ -15,7 +15,7 @@ fields:
             default: true
 ---
 {% form %}
-    <input type="hidden" name="{{ form.fields.profiles['modules/ins_template_ecommerce/customer'].properties.is_enabled.name }}" value="{{ form.fields.profiles['modules/ins_template_ecommerce/customer'].properties.is_enabled.value }}">
-    <input type="hidden" name="{{ form.fields.profiles['modules/ins_template_ecommerce/customer'].properties.is_activated.name }}" value="true">
+    <input type="hidden" name="{{ form.fields.profiles['modules/ecommerce/customer'].properties.is_enabled.name }}" value="{{ form.fields.profiles['modules/ecommerce/customer'].properties.is_enabled.value }}">
+    <input type="hidden" name="{{ form.fields.profiles['modules/ecommerce/customer'].properties.is_activated.name }}" value="true">
 {% endform %}
 

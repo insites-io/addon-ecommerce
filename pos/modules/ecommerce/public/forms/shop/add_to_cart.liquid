@@ -31,10 +31,10 @@ default_payload: |-
     }
   }
 callback_actions: >
-  {% include 'modules/ins_template_ecommerce/shop/update_cart' %}
+  {% include 'modules/ecommerce/shop/update_cart' %}
 
   {% comment %} Check & Update Cart Discount Codes {% endcomment %}
-  {% graphql discount_codes = "modules/ins_template_ecommerce/discount_code/get_cart_discount_codes" 
+  {% graphql discount_codes = "modules/ecommerce/discount_code/get_cart_discount_codes" 
         user_id: form.properties.user_id,
         discount_debited: false
         | dig: 'items' | dig: 'results' %}
@@ -51,12 +51,12 @@ callback_actions: >
         "discount_code": "{{ code.discount_code }}"
     }
     {% endparse_json %}
-    {% function validate_code = "modules/ins_template_ecommerce/checkout/validate_discount_code"
+    {% function validate_code = "modules/ecommerce/checkout/validate_discount_code"
         payload: payload %}
   {%- endfor -%}
 ---
 
-{%- graphql user_data = 'modules/ins_template_ecommerce/account/get_current_user' -%}
+{%- graphql user_data = 'modules/ecommerce/account/get_current_user' -%}
 {%- assign user = user_data.current_user -%}
 
 {%- if user -%}

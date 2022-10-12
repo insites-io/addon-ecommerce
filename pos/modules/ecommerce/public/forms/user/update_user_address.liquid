@@ -42,7 +42,7 @@ fields:
         readonly: true
 ---
 
-{%- graphql user_data = 'modules/ins_template_ecommerce/account/get_current_user' -%}
+{%- graphql user_data = 'modules/ecommerce/account/get_current_user' -%}
 {%- assign user = user_data.current_user -%}
 
 {%- form 
@@ -176,7 +176,7 @@ fields:
 {%- if context.params.slug3 -%}
 <div class="grid-x grid-padding-x show-for-small-only">
     <div class="small-12 cell">
-    {%- include_form 'modules/ins_template_ecommerce/delete_user_address', id: context.params.slug3, class: "full" -%}
+    {%- include_form 'modules/ecommerce/delete_user_address', id: context.params.slug3, class: "full" -%}
     </div>
 {%- endif -%}
 </div>

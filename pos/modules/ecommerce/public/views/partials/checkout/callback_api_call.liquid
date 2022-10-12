@@ -19,7 +19,7 @@
 {%- endcase -%}
 
 {%- comment -%}Verify that API endpoint was configured{%- endcomment -%}
-{%- graphql check_endpoint = 'modules/ins_template_ecommerce/system/get_api_endpoint',
+{%- graphql check_endpoint = 'modules/ecommerce/system/get_api_endpoint',
     name: endpoint_name
     | dig: "items" | dig: "results" | first -%}
 
@@ -28,7 +28,7 @@
 
 {%- if check_endpoint.properties.endpoint != nil -%}
     {% comment %} Send API Call {% endcomment %}
-    {%- graphql trigger = "modules/ins_template_ecommerce/system/trigger_api_call",
+    {%- graphql trigger = "modules/ecommerce/system/trigger_api_call",
         name: api_name,
         data: data -%}
     {% log trigger, type: "Checkout: Send API call" %}

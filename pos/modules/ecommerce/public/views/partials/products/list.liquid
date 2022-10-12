@@ -5,7 +5,7 @@
 {%- if context.params.slug2 -%}
 
 {%- comment -%} Sub-Step: Check if category is existing {%- endcomment -%}
-{%- graphql main_category_info = 'modules/ins_template_ecommerce/shop/get_category', slug: context.params.slug2 -%}
+{%- graphql main_category_info = 'modules/ecommerce/shop/get_category', slug: context.params.slug2 -%}
 {%- assign main_cat_info = main_category_info.items.results[0] -%}
 
 {%- comment -%} Sub-Step: SEO Settings For Category{%- endcomment -%}
@@ -40,7 +40,7 @@
 {%- content_for 'og_image' -%}{%- endcontent_for -%}
 
 {%- comment -%} Get enabled categories {%- endcomment -%}
-{%- graphql main_category_info = 'modules/ins_template_ecommerce/shop/get_category' 
+{%- graphql main_category_info = 'modules/ecommerce/shop/get_category' 
     | dig: "items" | dig: "results" -%}
 
 {%- endif -%}
@@ -112,12 +112,12 @@
 Step: Call the search GraphQL with the parameters
 <!-- This GraphQL is optimized for the list, thus not including gallery and variant items -->
 {%- endcomment -%}
-{%- graphql product_list_data = 'modules/ins_template_ecommerce/shop/search_products', args: filters -%}
+{%- graphql product_list_data = 'modules/ecommerce/shop/search_products', args: filters -%}
 
 {%- assign sub_category_data = 1 -%} {% comment %} 1 = show sidebar {% endcomment %}
 {%- if context.params.slug2 -%}
     {%- comment -%} Sub-Step: Check if category exists for sidebar {%- endcomment -%}
-    {%- graphql category_info = 'modules/ins_template_ecommerce/shop/get_category', slug: context.params.slug2 -%}
+    {%- graphql category_info = 'modules/ecommerce/shop/get_category', slug: context.params.slug2 -%}
     {%- assign cat_info = category_info.items.results[0] -%}
 
     {%- comment -%} Sub-Step: Create a filter to get the subcategory of the parent category {%- endcomment -%}
@@ -126,7 +126,7 @@ Step: Call the search GraphQL with the parameters
         "parent_ids": ["{{ cat_info.id }}"]
     }
     {%- endparse_json -%}
-    {%- graphql sub_category_data = 'modules/ins_template_ecommerce/shop/get_category', args: params 
+    {%- graphql sub_category_data = 'modules/ecommerce/shop/get_category', args: params 
         | dig: "items" | dig: "total_entries" -%}
 {%- endif -%}
 
@@ -159,7 +159,7 @@ Step: Call the search GraphQL with the parameters
         <div class="spacer small"></div>
         {%- else -%}
         <div class="filter-wrap">
-            {%- include 'modules/ins_template_ecommerce/products/filters' -%}
+            {%- include 'modules/ecommerce/products/filters' -%}
         </div>
         {%- endif -%}
     </div>
@@ -168,7 +168,7 @@ Step: Call the search GraphQL with the parameters
     <div class="large-9 medium-12 small-12 cell">
         <div class="product-view search-cont grid-x flex-container">
             <div class="large-flex-child-shrink medium-flex-child-shrink flex-child-auto">
-                {%- graphql parent_category = 'modules/ins_template_ecommerce/shop/get_parent_category', page: 1, size: 100 -%}
+                {%- graphql parent_category = 'modules/ecommerce/shop/get_parent_category', page: 1, size: 100 -%}
                 <ins-select 
                     id="categorySelect" 
                     small>
@@ -235,7 +235,7 @@ Step: Call the search GraphQL with the parameters
                 ]}
             }
             {%- endparse_json -%}
-            {%- graphql product_variants = 'modules/ins_template_ecommerce/shop/get_product_variants', args: params -%}
+            {%- graphql product_variants = 'modules/ecommerce/shop/get_product_variants', args: params -%}
                 {%- if product_variants.items.total_entries > 0 -%}
                 {%- for prod_var in product_variants.items.results -%}
                     {%- if prod_var.properties.on_sale -%}
@@ -274,7 +274,7 @@ Step: Call the search GraphQL with the parameters
                                         <img src="{{ product.main_image[0].file.versions['296x222'] }}" alt="{{ product.properties.name }}" />
                                     {% endif %}
                                 {%- else -%}
-                                    {%- include 'modules/ins_template_website/content/placeholder-image', size: 'medium' -%}
+                                    {%- include 'modules/website/content/placeholder-image', size: 'medium' -%}
                                 {%- endif -%}
                             </div>
                             <div class="spacer x-large"></div>
@@ -379,5 +379,5 @@ Step: Call the search GraphQL with the parameters
 
 
 {%- if context.device.device_type == "smartphone" -%}
-    {%- include 'modules/ins_template_ecommerce/products/mobile_filter' -%}
+    {%- include 'modules/ecommerce/products/mobile_filter' -%}
 {%- endif -%}

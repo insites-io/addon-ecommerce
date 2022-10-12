@@ -123,12 +123,12 @@ default_payload: >
     {%- comment -%}
     Get Gateway Settings from eCommerce settings 
     {%- endcomment -%}
-    {%- graphql settings = "modules/ins_template_ecommerce/system/get_settings" 
+    {%- graphql settings = "modules/ecommerce/system/get_settings" 
         | dig: 'items' | dig: 'results' | first | dig: 'properties' -%}
     {%- comment -%}
     Get Cart Summary
     {%- endcomment -%}
-    {% include 'modules/ins_template_ecommerce/checkout/compute_order_summary' %}
+    {% include 'modules/ecommerce/checkout/compute_order_summary' %}
     {
         "properties_attributes": {
             "is_enabled": true,
@@ -163,7 +163,7 @@ callback_actions: >
         model_id: form.id -%}
 
     {% log company_name, type: "Callback CRM Company" %}
-    {%- include 'modules/ins_template_ecommerce/checkout/create_crm_company_on_submit',
+    {%- include 'modules/ecommerce/checkout/create_crm_company_on_submit',
         user_id: context.exports.user_id,
         company_name: form.properties.billing_company_name -%}
 
@@ -172,7 +172,7 @@ callback_actions: >
         - Create / Update models
         - Trigger Email & API callback via GraphQL
     {%- endcomment -%}
-    {%- include 'modules/ins_template_ecommerce/checkout/callback_init', 
+    {%- include 'modules/ecommerce/checkout/callback_init', 
         form: form
         context: context -%}
     {%- comment -%}END: Checkout callback process{%- endcomment -%}
@@ -192,11 +192,11 @@ callback_actions: >
         value="{{ form.fields.properties.shipping_phone.value }}" /> 
 
     <!-- Account Details -->
-    {% include 'modules/ins_template_ecommerce/checkout/account_details' %}
+    {% include 'modules/ecommerce/checkout/account_details' %}
     <!-- END: Contact Person Fields -->
 
     <!-- Shipping Details -->
-    {% include 'modules/ins_template_ecommerce/checkout/shipping_details' %}
+    {% include 'modules/ecommerce/checkout/shipping_details' %}
     <!-- END: Shipping Details -->
 
     <!-- Payment Details -->
@@ -209,13 +209,13 @@ callback_actions: >
         context.exports.payments.secret = ~ stripe secret key ~
     {%- endcomment -%}
 
-    {% include 'modules/ins_template_ecommerce/checkout/payment_details' %}
+    {% include 'modules/ecommerce/checkout/payment_details' %}
     <!-- END Payment Details -->
     
 {% endform %}
 
 <!-- Stripe Element -->
-{%- include 'modules/ins_template_ecommerce/forms/stripe_element',
+{%- include 'modules/ecommerce/forms/stripe_element',
     cc_field_id: "checkout-credit-card"
     email_field_id: "billing-email" -%}
 <!-- END Stripe Element -->

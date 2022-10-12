@@ -5,17 +5,17 @@
 {%- case status -%}
     {%- when 'success' -%}
         {%- comment -%}Successful payment{%- endcomment -%}
-        {%- assign email_name = "modules/ins_template_ecommerce/bill_payment_success" -%}
-        {%- assign workflow_name = "modules/ins_template_ecommerce/bill_payment_success_workflow" -%}
+        {%- assign email_name = "modules/ecommerce/bill_payment_success" -%}
+        {%- assign workflow_name = "modules/ecommerce/bill_payment_success_workflow" -%}
     {%- else -%}
         {%- comment -%}Failed payment{%- endcomment -%}
-        {%- assign email_name = "modules/ins_template_ecommerce/bill_payment_failed" -%}
-        {%- assign workflow_name = "modules/ins_template_ecommerce/bill_payment_failed_workflow" -%}
+        {%- assign email_name = "modules/ecommerce/bill_payment_failed" -%}
+        {%- assign workflow_name = "modules/ecommerce/bill_payment_failed_workflow" -%}
 {%- endcase -%}
 
 {%- if email_name -%}
     {% comment %} Autoresponder /  Email notification {% endcomment %}
-    {%- graphql trigger = "modules/ins_template_ecommerce/system/trigger_email_notification",
+    {%- graphql trigger = "modules/ecommerce/system/trigger_email_notification",
         name: email_name,
         data: data -%}
     {% log trigger, type: "Bill Payment: Send autoresponder" %}
@@ -23,7 +23,7 @@
 
 {%- if workflow_name -%}
     {% comment %} Workflow notification {% endcomment %}
-    {%- graphql trigger = "modules/ins_template_ecommerce/system/trigger_email_notification",
+    {%- graphql trigger = "modules/ecommerce/system/trigger_email_notification",
         name: workflow_name,
         data: data -%}
     {% log trigger, type: "Bill Payment: Send Workflow" %}

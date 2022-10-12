@@ -6,7 +6,7 @@
         My Cart
     </a>
 </li>
-{%- graphql user_data = 'modules/ins_template_ecommerce/account/get_current_user' -%}
+{%- graphql user_data = 'modules/ecommerce/account/get_current_user' -%}
 {%- assign user = user_data.current_user -%}
 <li class="user-info small">
     {%- if user -%}
@@ -18,7 +18,7 @@
                 <ul>
                     <li><a href="/account-information">Account Information</a></li>
                     <li><a href="/order-history">Order History</a></li>
-                    <li>{% include_form 'modules/ins_template_ecommerce/log_out' %}</li>
+                    <li>{% include_form 'modules/ecommerce/log_out' %}</li>
                 </ul>
             </ins-accordion-item>
         </ins-accordion>

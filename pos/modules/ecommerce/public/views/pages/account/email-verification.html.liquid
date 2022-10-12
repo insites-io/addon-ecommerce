@@ -1,6 +1,6 @@
 ---
 slug: email-verification
-layout: modules/ins_template_website/system_pages
+layout: modules/website/system_pages
 # enable_profiler: true
 searchable: true
 max_deep_level: 1
@@ -28,14 +28,14 @@ metadata: {
 ##   key: |-
 ##     {%- parse_json models -%}
 ##       [
-##         "modules/ins_template_website/main_menu",
+##         "modules/website/main_menu",
 ##         "modules/insites_layouts/insites_global_content"
 ##       ]
 ##     {%- endparse_json -%}
-##     {%- include "modules/ins_template_website/dynamic_cache_key", models: models -%}
+##     {%- include "modules/website/dynamic_cache_key", models: models -%}
 ---
 
-{%- graphql g = 'modules/ins_template_ecommerce/account/get_user_with_password_token', email: params.email -%}
+{%- graphql g = 'modules/ecommerce/account/get_user_with_password_token', email: params.email -%}
 {% assign token = context.location.search.token %}
 {% assign user_id = g.users.results[0].id %}
 {% assign token_valid = token | is_token_valid: user_id %}
@@ -55,7 +55,7 @@ metadata: {
     </div>
 
 {% else %}
-    {% graphql verifyResult = 'modules/ins_template_ecommerce/account/verify_email', 
+    {% graphql verifyResult = 'modules/ecommerce/account/verify_email', 
         id: user_id, token: g.users.results[0].default[0].password_token %}
 
     {% if verifyResult.items  %}
@@ -67,7 +67,7 @@ metadata: {
             "message": "<p><strong>Your email has been verified. You may now continue to <a href='/sign-in'>sign in</a>.</strong></p>"
         }
         {%- endparse_json -%}
-        {%- include 'modules/ins_template_ecommerce/system/form-result', messageInfo: messageInfo -%}
+        {%- include 'modules/ecommerce/system/form-result', messageInfo: messageInfo -%}
 
     {% endif %}
     

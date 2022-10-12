@@ -1,6 +1,6 @@
 ---
 slug: sign-in
-layout: modules/ins_template_website/system_pages
+layout: modules/website/system_pages
 # enable_profiler: true
 searchable: true
 max_deep_level: 1
@@ -28,11 +28,11 @@ metadata: {
 ##   key: |-
 ##     {%- parse_json models -%}
 ##       [
-##         "modules/ins_template_website/main_menu",
+##         "modules/website/main_menu",
 ##         "modules/insites_layouts/insites_global_content"
 ##       ]
 ##     {%- endparse_json -%}
-##     {%- include "modules/ins_template_website/dynamic_cache_key", models: models -%}
+##     {%- include "modules/website/dynamic_cache_key", models: models -%}
 ---
 {%- if context.current_user -%}
     {%- assign link = "/account-information" -%}
@@ -48,15 +48,15 @@ metadata: {
     <div class="large-offset-4 large-4 medium-offset-3 medium-6 small-12 cell">
         <h1 class="heading-1 text-center">Sign in</h1>
         <div class="spacer x-large"></div>
-            {%- include_form 'modules/ins_template_ecommerce/sign_in' -%}
+            {%- include_form 'modules/ecommerce/sign_in' -%}
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
 {%- if context.environment == "staging" -%}
-    <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.js' | asset_url }}"></script>
-    <script src="{{ 'modules/ins_template_ecommerce/scripts/login-scripts.js' | asset_url }}"></script>
+    <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
+    <script src="{{ 'modules/ecommerce/scripts/login-scripts.js' | asset_url }}"></script>
 {%- else -%}
-    <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.min.js' | asset_url }}"></script>
-    <script src="{{ 'modules/ins_template_ecommerce/scripts/login-scripts.min.js' | asset_url }}"></script>
+    <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
+    <script src="{{ 'modules/ecommerce/scripts/login-scripts.min.js' | asset_url }}"></script>
 {%- endif -%}

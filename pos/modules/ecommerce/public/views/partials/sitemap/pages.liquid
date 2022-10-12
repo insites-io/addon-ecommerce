@@ -1,5 +1,5 @@
 {%- assign parent_slug = "/products" -%}
-{%- graphql product_list = 'modules/ins_template_ecommerce/shop/get_product_list', 
+{%- graphql product_list = 'modules/ecommerce/shop/get_product_list', 
     page: 1, size: 500, is_enabled: true, is_archived: false -%} 
 {%- if product_list.items.total_entries > 0 -%}
     {%- comment -%}Loop pagination{%- endcomment -%}

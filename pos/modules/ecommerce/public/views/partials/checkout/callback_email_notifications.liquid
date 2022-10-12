@@ -19,7 +19,7 @@
 {% comment %} Autoresponder /  Email notification {% endcomment %}
 {%- assign autoresponder_enabled = false -%}
 {% log email_name, type: "==== Trigger autoresponder notification: email_name ====" %}
-    {% graphql autoresponder_enabled = "modules/ins_template_ecommerce/system/get_email_notif", 
+    {% graphql autoresponder_enabled = "modules/ecommerce/system/get_email_notif", 
         name: email_name 
         | dig: "items" | dig: "results" | first | dig: "metadata" | dig: "is_enabled" %}
     
@@ -27,7 +27,7 @@
     {% log autoresponder_enabled, type: "==== Email autoresponder enabled ? ====" %}
     
     {%- if autoresponder_enabled == "true" or autoresponder_enabled == true -%}
-        {%- graphql trigger = "modules/ins_template_ecommerce/system/trigger_email_notification",
+        {%- graphql trigger = "modules/ecommerce/system/trigger_email_notification",
             name: email_name,
             data: data -%}
         {% log trigger, type: "Checkout: Send autoresponder" %}
@@ -37,7 +37,7 @@
 {% comment %} Workflow notification {% endcomment %}
 {%- assign workflow_enabled = false -%}
 {% log workflow_name, type: "==== Trigger workflow notification: workflow_name ====" %}
-    {% graphql workflow_enabled = "modules/ins_template_ecommerce/system/get_email_notif", 
+    {% graphql workflow_enabled = "modules/ecommerce/system/get_email_notif", 
         name: workflow_name 
         | dig: "items" | dig: "results" | first | dig: "metadata" | dig: "is_enabled" %}
         
@@ -47,7 +47,7 @@
 {% log data, type: "data_workflow_enabled" %}
 
     {%- if workflow_enabled == "true" or workflow_enabled == true -%}
-        {%- graphql trigger = "modules/ins_template_ecommerce/system/trigger_email_notification",
+        {%- graphql trigger = "modules/ecommerce/system/trigger_email_notification",
             name: workflow_name,
             data: data -%}
         {% log trigger, type: "Checkout: Send Workflow" %}

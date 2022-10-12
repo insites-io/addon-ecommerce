@@ -23,11 +23,11 @@ callback_actions: >
         "discount_code": "{{ form.properties.temp_discount_code }}"
     }
     {%- endparse_json -%}
-    {% include "modules/ins_template_ecommerce/checkout/validate_discount_code" 
+    {% include "modules/ecommerce/checkout/validate_discount_code" 
         payload: payload %}
 ---
 
-{%- graphql user_data = 'modules/ins_template_ecommerce/account/get_current_user' -%}
+{%- graphql user_data = 'modules/ecommerce/account/get_current_user' -%}
 {%- assign user = user_data.current_user -%}
 
 {%- if user -%}

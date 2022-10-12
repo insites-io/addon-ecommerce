@@ -1,5 +1,5 @@
 {%- comment -%} Get Gateway Settings from eCommerce settings  {%- endcomment -%}
-{%- graphql settings = "modules/ins_template_ecommerce/system/get_settings" 
+{%- graphql settings = "modules/ecommerce/system/get_settings" 
     | dig: 'items' | dig: 'results' | first | dig: 'properties' -%}
 
 {% comment %} Compute values {% endcomment %}
@@ -25,7 +25,7 @@
 {% endparse_json %}
 
 {% comment %} Check session / user id {% endcomment %}
-{%- graphql user_data = 'modules/ins_template_ecommerce/account/get_current_user' -%}
+{%- graphql user_data = 'modules/ecommerce/account/get_current_user' -%}
 {%- assign user = user_data.current_user -%}
 {%- if user -%}
     {%- assign user_id = user.id -%}
@@ -44,7 +44,7 @@
 {%- endcomment -%}
 
 {% comment %} Step 1: Create cart record for 'cc bill amount 1.7%' {% endcomment %}
-{%- graphql cc_cart = "modules/ins_template_ecommerce/cart/create_cart", 
+{%- graphql cc_cart = "modules/ecommerce/cart/create_cart", 
     user_id: user_id,
     quantity: 1,
     product_name: "Credit Card Surcharge",
@@ -52,7 +52,7 @@
     | dig: "items" -%}
 
 {% comment %} Step 2:  Update cart amount as 'Stripe amount' centavos {% endcomment %}
-{%- graphql updated_cart = "modules/ins_template_ecommerce/cart/update_cart", 
+{%- graphql updated_cart = "modules/ecommerce/cart/update_cart", 
     id: form.id,
     user_id: user_id,
     quantity: 1,
@@ -65,7 +65,7 @@
 {%- assign currency = settings.currency | default: 'AUD' -%}
 {%- assign order_value = payable.product_price | plus: payable.cc_charge_amount -%}
 
-{%- graphql order = "modules/ins_template_ecommerce/orders/create_order", 
+{%- graphql order = "modules/ecommerce/orders/create_order", 
     date_time: date_time,
     user_id: user_id,
     billing_first_name: form.properties.billing_first_name,
@@ -108,20 +108,20 @@
 {% log "==== Processing checkout and payment ====" %}
 
 {%- comment -%}GET Cart data{%- endcomment -%}
-{% include 'modules/ins_template_ecommerce/checkout/compute_order_summary',
+{% include 'modules/ecommerce/checkout/compute_order_summary',
     cart_ids: cart_ids %}
 
 {%- comment -%}
 Step 1: Get gateway settings from INS Ecommerce settings and process payment
 {%- endcomment -%}
-{%- graphql settings = "modules/ins_template_ecommerce/system/get_settings" 
+{%- graphql settings = "modules/ecommerce/system/get_settings" 
     | dig: 'items' | dig: 'results' | first | dig: 'properties' -%}
 {%- assign gateway = settings.gateway_name | downcase -%}
 {%- assign payment_status = "Failed" -%}
 {%- case gateway -%}
     {%- when 'stripe' -%}
         {%- comment -%}Step 1-A: Stripe payment process{%- endcomment -%}
-        {%- include 'modules/ins_template_ecommerce/stripe/payment/checkout_payment', 
+        {%- include 'modules/ecommerce/stripe/payment/checkout_payment', 
             form: order,
             user_id: context.exports.user_id,
             company_id: context.exports.company_id,
@@ -157,7 +157,7 @@ Step 1: Get gateway settings from INS Ecommerce settings and process payment
 {%- comment -%}
 Step 2: Update inventory, cart and order models.
 {%- endcomment -%}
-{% include 'modules/ins_template_ecommerce/checkout/callback_update_models'
+{% include 'modules/ecommerce/checkout/callback_update_models'
     status: status,
     cart_status: cart_status,
     order_status: order_status,
@@ -172,17 +172,17 @@ Step 2: Update inventory, cart and order models.
 Step 3: (optional) Create address models
 {%- endcomment -%}
 {%- if context.current_user.id -%}
-    {% include 'modules/ins_template_ecommerce/checkout/callback_create_address', 
+    {% include 'modules/ecommerce/checkout/callback_create_address', 
         user_id: user_id,
         form: order %}
 {%- endif -%}
 
 
 
-{% graphql order = "modules/ins_template_ecommerce/orders/get_order_details",
+{% graphql order = "modules/ecommerce/orders/get_order_details",
     id: order_id 
     | dig: 'items' | dig: 'results' | first %}
-{% graphql cart = "modules/ins_template_ecommerce/cart/get_cart",
+{% graphql cart = "modules/ecommerce/cart/get_cart",
     order_id: order_id 
     | dig: 'items' | dig: 'results' %}
 
@@ -211,6 +211,6 @@ Step 4: Trigger autoresponder, workflow email & API
 {% log status, type: "==== Email & API: status ====" %}
 
 {%- comment -%}Step 4.1 Workflow & Email Notification{%- endcomment -%}
-{% include 'modules/ins_template_ecommerce/pay_bills/callback_email_notifications', 
+{% include 'modules/ecommerce/pay_bills/callback_email_notifications', 
     status: status,
     data: data %}

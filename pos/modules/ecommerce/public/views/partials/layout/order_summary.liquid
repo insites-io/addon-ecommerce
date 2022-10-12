@@ -15,7 +15,7 @@
             {%- endif -%}
         {%- endunless -%}
     
-        {% graphql cart = 'modules/ins_template_ecommerce/cart/get_cart', 
+        {% graphql cart = 'modules/ecommerce/cart/get_cart', 
             user_id: user_id, 
             status: cart_status, 
             order_id: order_id
@@ -62,7 +62,7 @@
     {%- endif -%}
     
     {% comment %}--- GET ORDER COMPUTATION SUMMARY ---{% endcomment %}
-    {%- include 'modules/ins_template_ecommerce/checkout/compute_order_summary' 
+    {%- include 'modules/ecommerce/checkout/compute_order_summary' 
         order_id: order_id,
         user_id: user_id -%}
 
@@ -121,7 +121,7 @@
         {%- assign discount_debited = false -%}
     {%- endif -%}
     
-    {% graphql discount_codes = "modules/ins_template_ecommerce/discount_code/get_cart_discount_codes" 
+    {% graphql discount_codes = "modules/ecommerce/discount_code/get_cart_discount_codes" 
         user_id: user_id,
         order_id: order_id,
         discount_debited: discount_debited,
@@ -169,7 +169,7 @@
                     }
                     {% endparse_json %}
                     
-                    {% function validate_code = "modules/ins_template_ecommerce/checkout/validate_discount_code"
+                    {% function validate_code = "modules/ecommerce/checkout/validate_discount_code"
                         payload: payload %}
                     {% comment %} End Function {% endcomment %}
                 {%- endif -%}

@@ -34,7 +34,7 @@ fields:
           property_options:
             default: true
             readonly: true
-    modules/ins_template_ecommerce/customer:
+    modules/ecommerce/customer:
       properties:
         is_enabled:
           property_options:
@@ -50,7 +50,7 @@ default_payload: |-
   {
     "fields": {
       "profiles":{
-        "modules/ins_template_ecommerce/customer":{
+        "modules/ecommerce/customer":{
           "properties_attributes": {
             "is_enabled" : true,
             "is_activated" : false
@@ -60,9 +60,9 @@ default_payload: |-
     }
   }
 callback_actions: |-
-  {% graphql g = 'modules/ins_template_ecommerce/account/generate_user_temporary_token', email: form.email %}
+  {% graphql g = 'modules/ecommerce/account/generate_user_temporary_token', email: form.email %}
   {% if g.items.results[0] %}
-    {% graphql res = 'modules/ins_template_ecommerce/account/set_email_verification_token', id: g.items.results[0].id, token: g.items.results[0].temporary_token %}
+    {% graphql res = 'modules/ecommerce/account/set_email_verification_token', id: g.items.results[0].id, token: g.items.results[0].temporary_token %}
   {% endif %}    
 ---
 
@@ -128,8 +128,8 @@ callback_actions: |-
             </ins-input>
 
             <input type="hidden" name="{{ form.fields.profiles['modules/insites_core/insites_customer'].properties.is_enabled.name }}" value="{{ form.fields.profiles['modules/insites_core/insites_customer'].properties.is_enabled.value }}">
-            <input type="hidden" name="{{ form.fields.profiles['modules/ins_template_ecommerce/customer'].properties.is_enabled.name }}" value="{{ form.fields.profiles['modules/ins_template_ecommerce/customer'].properties.is_enabled.value }}">
-            <input type="hidden" name="{{ form.fields.profiles['modules/ins_template_ecommerce/customer'].properties.is_activated.name }}" value="{{ form.fields.profiles['modules/ins_template_ecommerce/customer'].properties.is_activated.value }}">
+            <input type="hidden" name="{{ form.fields.profiles['modules/ecommerce/customer'].properties.is_enabled.name }}" value="{{ form.fields.profiles['modules/ecommerce/customer'].properties.is_enabled.value }}">
+            <input type="hidden" name="{{ form.fields.profiles['modules/ecommerce/customer'].properties.is_activated.name }}" value="{{ form.fields.profiles['modules/ecommerce/customer'].properties.is_activated.value }}">
 
             <div>
                 <p>By creating an account, you agree to our <a href="/privacy-policy">Privacy Policy</a> and <a href="terms-and-conditions">Terms of use</a>.</p>

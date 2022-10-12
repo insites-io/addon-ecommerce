@@ -1,8 +1,8 @@
 {%- if order_id -%}
-    {% graphql order = "modules/ins_template_ecommerce/orders/get_order_details",
+    {% graphql order = "modules/ecommerce/orders/get_order_details",
         id: context.params.order_id 
         | dig: 'items' | dig: 'results' | first %}
-    {% graphql cart = "modules/ins_template_ecommerce/cart/get_cart",
+    {% graphql cart = "modules/ecommerce/cart/get_cart",
         order_id: context.params.order_id 
         | dig: 'items' | dig: 'results' %}
     {% assign amountPayable = cart[0].properties.product_price | divided_by: 100 %}

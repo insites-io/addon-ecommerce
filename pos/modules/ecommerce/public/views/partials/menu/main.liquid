@@ -4,7 +4,7 @@
         class="active"
     {% endif %}>
     <ul class="text-left">
-        {%- graphql parent_category = 'modules/ins_template_ecommerce/shop/get_parent_category', page: 1, size: 100 -%}
+        {%- graphql parent_category = 'modules/ecommerce/shop/get_parent_category', page: 1, size: 100 -%}
         {%- if parent_category.items and parent_category.items.total_entries > 0 -%}
         {%- for catMenu in parent_category.items.results -%}
         <li

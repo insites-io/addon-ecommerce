@@ -5,11 +5,11 @@
     {%- assign user_id = context.session.session_id -%}
 {%- endif -%}
 
-{%- graphql cartList = 'modules/ins_template_ecommerce/cart/get_cart',
+{%- graphql cartList = 'modules/ecommerce/cart/get_cart',
     user_id: user_id, status: "Cart" -%}
 
 
-{%- graphql user_data = 'modules/ins_template_ecommerce/account/get_current_user' -%}
+{%- graphql user_data = 'modules/ecommerce/account/get_current_user' -%}
 {%- assign user = user_data.current_user -%}
 
 {%- if user -%}
@@ -17,7 +17,7 @@
     <ul>
         <li><a href="/account-information">Account Information</a></li>
         <li><a href="/order-history">Order History</a></li>
-        <li>{% include_form 'modules/ins_template_ecommerce/log_out' %}</li>
+        <li>{% include_form 'modules/ecommerce/log_out' %}</li>
     </ul>
 </ins-dropdown>
 {%- else -%}

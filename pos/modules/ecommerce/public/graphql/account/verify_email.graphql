@@ -15,7 +15,7 @@ mutation verify_email(
           }
         },
         {
-          name: "modules/ins_template_ecommerce/customer",
+          name: "modules/ecommerce/customer",
           values:{
             properties:[
               { name: "is_activated", value: "true" }
@@ -24,7 +24,7 @@ mutation verify_email(
         }
       ]
     }
-    form_name: "modules/ins_template_ecommerce/verify_email"
+    form_name: "modules/ecommerce/verify_email"
   ) {
     id
     profiles{

@@ -1,6 +1,6 @@
 ---
 slug: confirmation
-layout: modules/ins_template_ecommerce/checkout-layout
+layout: modules/ecommerce/checkout-layout
 # enable_profiler: true
 searchable: "true"
 max_deep_level: 3
@@ -24,17 +24,17 @@ metadata: {
     "sitemap_changefreq": "never"
 }
 authorization_policies:
-    - modules/ins_template_ecommerce/order_created_date_valid 
-#    - modules/ins_template_ecommerce/customer_logged_in  ## commented out to allow 'guest customer' to view order confirmation
+    - modules/ecommerce/order_created_date_valid 
+#    - modules/ecommerce/customer_logged_in  ## commented out to allow 'guest customer' to view order confirmation
 ---
 
-{%- graphql data = 'modules/ins_template_ecommerce/account/get_current_user' -%}
+{%- graphql data = 'modules/ecommerce/account/get_current_user' -%}
 {%- assign account_verified = data.current_user.customer[0].is_activated -%}
 
 
 <div class="grid-x grid-padding-x">
     <div class="large-offset-2 medium-offset-1 small-offset-0 large-8 medium-10 small-12 cell">
-        {% include 'modules/ins_template_ecommerce/layout/checkout_steps' %}
+        {% include 'modules/ecommerce/layout/checkout_steps' %}
     </div>
 </div>
 
@@ -52,7 +52,7 @@ authorization_policies:
     <div class="large-7 medium-6 small-12 cell">
         <h2 class="heading-2">Order Details</h2>
         <div class="spacer xx-large"></div>
-        {% graphql order = "modules/ins_template_ecommerce/orders/get_order_details",
+        {% graphql order = "modules/ecommerce/orders/get_order_details",
             id: context.params.order_id 
             | dig: 'items' | dig: 'results' | first %}
 
@@ -154,7 +154,7 @@ authorization_policies:
             <div class="large-12 medium-12 small-12 cell">
                 <div class="spacer xxx-large"></div>
                 {%- unless context.current_user.id and account_verified -%}
-                    {% include 'modules/ins_template_ecommerce/layout/order_summary', 
+                    {% include 'modules/ecommerce/layout/order_summary', 
                     show_product: true,
                     order_id: context.params.order_id %}
                 {%- endunless -%}
@@ -165,12 +165,12 @@ authorization_policies:
         {% comment %} <div class="spacer xxxx-large show-for-small-only"></div> {% endcomment %}
         {%- comment -%}Payment Details: Customer is logged in{%- endcomment -%}
         {%- if context.current_user.id and account_verified -%}
-            {% include 'modules/ins_template_ecommerce/layout/order_summary', 
+            {% include 'modules/ecommerce/layout/order_summary', 
                 show_product: true,
                 order_id: context.params.order_id %}
         {%- else -%}
             <div class="spacer xxx-large show-for-small-only"></div>
-            {% include_form "modules/ins_template_ecommerce/checkout_set_password", 
+            {% include_form "modules/ecommerce/checkout_set_password", 
                 id: order.properties.user_id
                 data: order %}
         {%- endif -%}

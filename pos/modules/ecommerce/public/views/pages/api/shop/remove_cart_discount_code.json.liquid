@@ -36,7 +36,7 @@ metadata: {
     {%- assign user_id = context.session.session_id -%}
 {%- endif -%}
 
-{% graphql discount = "modules/ins_template_ecommerce/discount_code/get_cart_discount_codes"
+{% graphql discount = "modules/ecommerce/discount_code/get_cart_discount_codes"
     page: 1, size: 1
     id: id,
     user_id: user_id,
@@ -45,7 +45,7 @@ metadata: {
 
 {% comment %} Step 2: If it is valid, cart discount code can be deleted {% endcomment %}
 {%- if discount -%}
-    {% graphql remove = "modules/ins_template_ecommerce/discount_code/delete_cart_discount_code",
+    {% graphql remove = "modules/ecommerce/discount_code/delete_cart_discount_code",
         id: id %}
 {%- endif -%}
 

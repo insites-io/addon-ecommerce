@@ -27,7 +27,7 @@
             </ins-input>
             <div id="card-options-list" card-grid="large-6 medium-6 small-12" class="grid-x grid-padding-x">
                 {%- if context.current_user.id -%}
-                    {%- graphql cards = "modules/ins_template_ecommerce/credit_card/get_credit_card", 
+                    {%- graphql cards = "modules/ecommerce/credit_card/get_credit_card", 
                         user_id: context.current_user.id
                         size: 50 | dig: 'items' -%}
                     {%- if cards.total_entries > 0 -%}
@@ -82,12 +82,12 @@
         <div class="spacer x-large"></div>
         <p class="error-message hide">Billing address is required.</p>
         {%- if context.current_user.id -%}
-            {%- graphql addresses = "modules/ins_template_ecommerce/user/get_user_address_list", 
+            {%- graphql addresses = "modules/ecommerce/user/get_user_address_list", 
                 user_id: context.current_user.id 
                 | dig: "items" | dig: "results" -%}
 
             {%- comment -%}Address cards{%- endcomment -%}
-            {%- include 'modules/ins_template_ecommerce/layout/address_cards', 
+            {%- include 'modules/ecommerce/layout/address_cards', 
                 addresses: addresses,
                 type: 'billing' -%}
         {%- endif -%}
@@ -185,11 +185,11 @@
     </div>
 
     {%- comment -%}Check if there's items to pay for{%- endcomment -%}
-    {%- include 'modules/ins_template_ecommerce/checkout/compute_order_summary' -%}
+    {%- include 'modules/ecommerce/checkout/compute_order_summary' -%}
     <div class="grid-x grid-padding-x">
         <div class="large-12 medium-12 small-12 cell text-right">
             <div class="spacer small"></div>
-            {%- graphql settings = "modules/ins_template_ecommerce/system/get_settings" 
+            {%- graphql settings = "modules/ecommerce/system/get_settings" 
                 | dig: 'items' | dig: 'results' | first | dig: 'properties' -%}
             
             {%- assign gateway = settings.gateway_name | downcase | strip -%}

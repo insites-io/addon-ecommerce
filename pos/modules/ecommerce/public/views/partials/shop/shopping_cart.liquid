@@ -4,7 +4,7 @@
     {%- assign user_id = context.session.session_id -%}
 {%- endif -%}
 
-{%- graphql cartList = 'modules/ins_template_ecommerce/cart/get_cart',
+{%- graphql cartList = 'modules/ecommerce/cart/get_cart',
     user_id: user_id, status: "Cart" -%}
 
 {%- if cartList.items.total_entries > 0 -%}
@@ -12,13 +12,13 @@
         {%- for cart_item in cartList.items.results -%}
             {% comment %} Get cart product details {% endcomment %}
             {% assign max_qty = main_product.properties.stock -%}
-            {% graphql main_product = 'modules/ins_template_ecommerce/shop/get_product_detail', 
+            {% graphql main_product = 'modules/ecommerce/shop/get_product_detail', 
                 id: cart_item.properties.product_id | fetch: "items" | fetch: "results" | first -%}
             {%- assign cart_img =  main_product.main_image[0].file.versions['88x66'] -%}
             
             {% comment %} Get cart product variant details {% endcomment %}
             {%- if cart_item.properties.product_variant_id -%}
-                {%- graphql product_variant = 'modules/ins_template_ecommerce/shop/get_product_variants', 
+                {%- graphql product_variant = 'modules/ecommerce/shop/get_product_variants', 
                     id: cart_item.properties.product_variant_id  | fetch: "items" | fetch: "results" | first -%}
                 {%- assign max_qty = product_variant.properties.stock -%}
                 {%- if product_variant.gallery_1[0].file.url -%}
@@ -33,7 +33,7 @@
                             {%- if main_product.main_image[0].file.url -%}
                                 <img src="{{ cart_img }}" alt="{{ cart_item.properties.product_name }}" />
                             {%- else -%}
-                                {%- include 'modules/ins_template_website/content/placeholder-image', size: 'small' -%}
+                                {%- include 'modules/website/content/placeholder-image', size: 'small' -%}
                             {%- endif -%}
                         </div>
                         <div class="spacer"></div>
@@ -62,7 +62,7 @@
                         <div class="others text-right large-flex-child-shrink flex-child-auto">
                             <div class="spacer hide-for-large"></div>
                             <div>
-                                {%- include_form 'modules/ins_template_ecommerce/remove_from_cart', id: cart_item.id  -%}
+                                {%- include_form 'modules/ecommerce/remove_from_cart', id: cart_item.id  -%}
                             </div>
                             <div class="spacer small"></div>
                             <div id="total-amount" class="cart-price color-font-head">

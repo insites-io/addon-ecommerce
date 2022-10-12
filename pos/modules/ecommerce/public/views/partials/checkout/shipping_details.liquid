@@ -55,7 +55,7 @@
             </ins-input>
         </div>
         <div class="large-6 medium-6 small-12 cell">
-            {%- graphql data = 'modules/ins_template_ecommerce/account/get_current_user' -%}
+            {%- graphql data = 'modules/ecommerce/account/get_current_user' -%}
             <ins-input-tel
                 class="label-input"
                 id="shipping_phone"
@@ -92,12 +92,12 @@
         
         <p class="error-message hide">Shipping address is required.</p>
         {%- if context.current_user.id -%}
-            {%- graphql addresses = "modules/ins_template_ecommerce/user/get_user_address_list", 
+            {%- graphql addresses = "modules/ecommerce/user/get_user_address_list", 
                 user_id: context.current_user.id 
                 | dig: "items" | dig: "results" -%}
             
             {%- comment -%}Address cards{%- endcomment -%}
-            {%- include 'modules/ins_template_ecommerce/layout/address_cards', 
+            {%- include 'modules/ecommerce/layout/address_cards', 
                 addresses: addresses,
                 type: 'shipping' -%}
 

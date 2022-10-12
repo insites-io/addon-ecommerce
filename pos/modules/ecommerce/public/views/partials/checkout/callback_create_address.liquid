@@ -1,6 +1,6 @@
 {%- comment -%}Create address models{%- endcomment -%}
 {%- unless form.properties.skip_shipping_address or form.properties.shipping_address_id -%}
-    {%- graphql create_address = "modules/ins_template_ecommerce/user/create_address" 
+    {%- graphql create_address = "modules/ecommerce/user/create_address" 
         source_id: user_id
         source_name: "Users"
         name: ""
@@ -13,7 +13,7 @@
         postcode: form.properties.shipping_postcode -%}
 {%- endunless -%}
 {%- unless form.properties.skip_billing_address or form.properties.billing_address_id -%}
-    {%- graphql create_address = "modules/ins_template_ecommerce/user/create_address" 
+    {%- graphql create_address = "modules/ecommerce/user/create_address" 
         source_id: user_id
         source_name: "Users"
         name: ""

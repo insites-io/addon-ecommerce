@@ -26,7 +26,7 @@ query get_user_by_email (
       
       ## INS ECO Customer
       customer: profiles(
-        profile_type: "modules/ins_template_ecommerce/customer"
+        profile_type: "modules/ecommerce/customer"
       ) {
         is_enabled: property_boolean(name: "is_enabled")
         is_activated: property_boolean(name: "is_activated")

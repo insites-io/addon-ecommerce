@@ -28,10 +28,10 @@ metadata: {
 {%- assign payload = context.params.payload | parse_json -%}
 {%- assign status = 200 -%}
 
-{%- graphql response = 'modules/ins_template_ecommerce/cart/update_cart', args: payload -%}
+{%- graphql response = 'modules/ecommerce/cart/update_cart', args: payload -%}
 
 {%- comment -%}
-{%- graphql response = 'modules/ins_template_ecommerce/cart/create_cart', args: payload -%}
+{%- graphql response = 'modules/ecommerce/cart/create_cart', args: payload -%}
 {%- endcomment -%}
 
 {% parse_json data %}

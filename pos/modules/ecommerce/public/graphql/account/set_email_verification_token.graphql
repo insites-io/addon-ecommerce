@@ -16,7 +16,7 @@ mutation set_email_verification_token(
         }
       ]
     }
-    form_name: "modules/ins_template_ecommerce/set_email_verification_token"
+    form_name: "modules/ecommerce/set_email_verification_token"
   ) {
     id
   }

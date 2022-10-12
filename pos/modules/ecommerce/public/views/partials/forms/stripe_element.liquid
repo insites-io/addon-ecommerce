@@ -51,9 +51,9 @@
 </script>
 
 {%- if context.environment == "staging" -%}
-    <script src="{{ 'modules/ins_template_ecommerce/scripts/stripe/stripe-element.js' | asset_url }}"></script> 
-    <script src="{{ 'modules/ins_template_ecommerce/scripts/stripe/stripe-model.js' | asset_url }}"></script> 
+    <script src="{{ 'modules/ecommerce/scripts/stripe/stripe-element.js' | asset_url }}"></script> 
+    <script src="{{ 'modules/ecommerce/scripts/stripe/stripe-model.js' | asset_url }}"></script> 
 {%- else -%}
-    <script src="{{ 'modules/ins_template_ecommerce/scripts/stripe/stripe-element.min.js' | asset_url }}"></script> 
-    <script src="{{ 'modules/ins_template_ecommerce/scripts/stripe/stripe-model.min.js' | asset_url }}"></script> 
+    <script src="{{ 'modules/ecommerce/scripts/stripe/stripe-element.min.js' | asset_url }}"></script> 
+    <script src="{{ 'modules/ecommerce/scripts/stripe/stripe-model.min.js' | asset_url }}"></script> 
 {%- endif -%}

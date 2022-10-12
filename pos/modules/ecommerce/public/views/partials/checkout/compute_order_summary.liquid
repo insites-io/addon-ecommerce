@@ -20,7 +20,7 @@
 {%- endif -%}
 
 {% comment %} STEP 1: Get discount object, and create array for discounts info {% endcomment %}
-{% graphql cart_discount_codes = 'modules/ins_template_ecommerce/discount_code/get_cart_discount_codes', 
+{% graphql cart_discount_codes = 'modules/ecommerce/discount_code/get_cart_discount_codes', 
     page: 1,
     size: 50,
     user_id: user_id,
@@ -56,7 +56,7 @@
 {%- endunless -%} 
 
 {% comment %} cart_discount_codes_list {{ cart_discount_codes_list }} <br><br> {% endcomment %}
-{% graphql cart = 'modules/ins_template_ecommerce/cart/get_cart', 
+{% graphql cart = 'modules/ecommerce/cart/get_cart', 
     id: cart_id,
     ids: cart_ids,
     user_id: user_id, 
@@ -277,7 +277,7 @@
 
 
 {% comment %}Step 3: Get Discount for overall total {% endcomment %}
-{% graphql total_discounts = 'modules/ins_template_ecommerce/discount_code/get_cart_discount_codes', 
+{% graphql total_discounts = 'modules/ecommerce/discount_code/get_cart_discount_codes', 
     page: 1,
     size: 50,
     user_id: user_id,

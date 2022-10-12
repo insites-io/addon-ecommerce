@@ -1,21 +1,21 @@
 {% log "================ START CALLBACK INIT: Processing checkout and payment ================" %}
 
 {%- comment -%}GET Cart data{%- endcomment -%}
-{% include 'modules/ins_template_ecommerce/checkout/compute_order_summary',
+{% include 'modules/ecommerce/checkout/compute_order_summary',
     cart_id: cart_id,
     cart_ids: cart_ids %}
 
 {%- comment -%}
 Step 1: Get gateway settings from INS Ecommerce settings and process payment
 {%- endcomment -%}
-{%- graphql settings = "modules/ins_template_ecommerce/system/get_settings" 
+{%- graphql settings = "modules/ecommerce/system/get_settings" 
     | dig: 'items' | dig: 'results' | first | dig: 'properties' -%}
 {%- assign gateway = settings.gateway_name | downcase -%}
 {%- assign payment_status = "Failed" -%}
 {%- case gateway -%}
     {%- when 'stripe' -%}
         {%- comment -%}Step 1-A: Stripe payment process{%- endcomment -%}
-        {%- include 'modules/ins_template_ecommerce/stripe/payment/checkout_payment', 
+        {%- include 'modules/ecommerce/stripe/payment/checkout_payment', 
             form: form,
             user_id: context.exports.user_id,
             company_id: context.exports.company_id,
@@ -52,7 +52,7 @@ Step 1: Get gateway settings from INS Ecommerce settings and process payment
 {%- comment -%}
 Step 2: Update inventory, cart and order models.
 {%- endcomment -%}
-{% include 'modules/ins_template_ecommerce/checkout/callback_update_models'
+{% include 'modules/ecommerce/checkout/callback_update_models'
     status: status,
     cart_status: cart_status,
     order_status: order_status,
@@ -67,7 +67,7 @@ Step 2: Update inventory, cart and order models.
 Step 3: (optional) Create address models
 {%- endcomment -%}
 {%- if context.current_user.id -%}
-    {% include 'modules/ins_template_ecommerce/checkout/callback_create_address', 
+    {% include 'modules/ecommerce/checkout/callback_create_address', 
         user_id: user_id,
         form: form %}
 {%- endif -%}
@@ -98,11 +98,11 @@ Step 4: Trigger autoresponder, workflow email & API
 {% log status, type: "==== Email & API: status ====" %}
 
     {%- comment -%}Step 4.1 Workflow & Email Notification{%- endcomment -%}
-    {% include 'modules/ins_template_ecommerce/checkout/callback_email_notifications', 
+    {% include 'modules/ecommerce/checkout/callback_email_notifications', 
         status: status,
         data: data %}
 
     {%- comment -%}Step 4.2: Trigger API Call{%- endcomment -%}
-    {% include 'modules/ins_template_ecommerce/checkout/callback_api_call', 
+    {% include 'modules/ecommerce/checkout/callback_api_call', 
         status: status,
         data: data %}

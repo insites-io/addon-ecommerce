@@ -1,11 +1,11 @@
 ---
 slug: order-history
-layout: modules/ins_template_ecommerce/user-profile-layout
+layout: modules/ecommerce/user-profile-layout
 redirect_to: |-
   {%- if context.params.slug2 -%}
-    {%- graphql user_data = 'modules/ins_template_ecommerce/account/get_current_user' -%}
+    {%- graphql user_data = 'modules/ecommerce/account/get_current_user' -%}
     {%- assign user = user_data.current_user -%}
-    {% graphql order = "modules/ins_template_ecommerce/orders/get_order_details",
+    {% graphql order = "modules/ecommerce/orders/get_order_details",
       id: context.params.slug2 
       user_id: user.id 
     | dig: 'items' | dig: 'results' | first %}
@@ -34,10 +34,10 @@ metadata: {
     "sitemap_changefreq": "never"
 }
 authorization_policies:
-  - modules/ins_template_ecommerce/customer_logged_in
+  - modules/ecommerce/customer_logged_in
 ---
 
-{%- graphql user_data = 'modules/ins_template_ecommerce/account/get_current_user' -%}
+{%- graphql user_data = 'modules/ecommerce/account/get_current_user' -%}
 {%- assign user = user_data.current_user -%}
 
 {%- if user.customer -%}
@@ -55,7 +55,7 @@ authorization_policies:
 {%- if context.params.slug2 -%}
 
 <div class="grid-container order-history">
-  {%- include 'modules/ins_template_ecommerce/user/order_history_detail', order_id: context.params.slug2 -%}
+  {%- include 'modules/ecommerce/user/order_history_detail', order_id: context.params.slug2 -%}
 </div>
 
 {%- else -%}
@@ -72,7 +72,7 @@ authorization_policies:
 }
 {%- endparse_json -%}
 
-{%- graphql order_list = 'modules/ins_template_ecommerce/orders/get_orders', 
+{%- graphql order_list = 'modules/ecommerce/orders/get_orders', 
     args: filters -%}
 
 <div class="grid-container order-history">
@@ -84,7 +84,7 @@ authorization_policies:
 
         <div class="small cell spacer x-large"></div>
 
-        {%- include 'modules/ins_template_ecommerce/user/order_history_table', order_list: order_list -%}
+        {%- include 'modules/ecommerce/user/order_history_table', order_list: order_list -%}
     </div>
 </div>
 
@@ -111,11 +111,11 @@ let tableContent = {{ order_list.items }};
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
 {%- if context.environment == "staging" -%}
-  <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.js' | asset_url }}"></script>
-  <script src="{{ 'modules/ins_template_ecommerce/scripts/user-profile.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ecommerce/scripts/user-profile.js' | asset_url }}"></script>
 {%- else -%}
-  <script src="{{ 'modules/ins_template_ecommerce/services/apiServices.min.js' | asset_url }}"></script>
-  <script src="{{ 'modules/ins_template_ecommerce/scripts/user-profile.min.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
+  <script src="{{ 'modules/ecommerce/scripts/user-profile.min.js' | asset_url }}"></script>
 {%- endif -%}
 
 

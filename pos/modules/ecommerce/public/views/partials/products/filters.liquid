@@ -2,7 +2,7 @@
 {%- if context.params.slug2 -%}
 
     {%- comment -%} Sub-Step: Get the Category Info of slug2 {%- endcomment -%}
-    {%- graphql category_info = 'modules/ins_template_ecommerce/shop/get_category', slug: context.params.slug2 -%}
+    {%- graphql category_info = 'modules/ecommerce/shop/get_category', slug: context.params.slug2 -%}
     {%- assign cat_info = category_info.items.results[0] -%}
     {%- comment -%} Sub-Step: Create a filter to get the subcategory of the parent category {%- endcomment -%}
     {%- parse_json params -%}
@@ -10,7 +10,7 @@
         "parent_ids": ["{{ cat_info.id }}"]
     }
     {%- endparse_json -%}
-    {%- graphql sub_category_data = 'modules/ins_template_ecommerce/shop/get_category', args: params -%}
+    {%- graphql sub_category_data = 'modules/ecommerce/shop/get_category', args: params -%}
 
 
     <div class="grid-x">
@@ -20,7 +20,7 @@
                     {%- parse_json sub_params -%}
                     { "parent_ids": ["{{ subcat.id }}"] }
                     {%- endparse_json -%}
-                    {%- graphql lvl_two_cat_data = 'modules/ins_template_ecommerce/shop/get_category', args: sub_params -%}
+                    {%- graphql lvl_two_cat_data = 'modules/ecommerce/shop/get_category', args: sub_params -%}
 
                     {%- if lvl_two_cat_data.items and lvl_two_cat_data.items.total_entries > 0 -%}
                     <ins-accordion menu>
@@ -54,7 +54,7 @@
 {%- else -%}
 
     {%- comment -%} Sub-Step: Get all the list of the parent category  {%- endcomment -%}
-    {%- graphql parent_category = 'modules/ins_template_ecommerce/shop/get_parent_category', page: 1, size: 100 -%}
+    {%- graphql parent_category = 'modules/ecommerce/shop/get_parent_category', page: 1, size: 100 -%}
     {%- if parent_category.items and parent_category.items.total_entries > 0 -%}
 
     <div class="grid-x">
