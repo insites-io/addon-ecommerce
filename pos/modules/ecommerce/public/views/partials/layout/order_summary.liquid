@@ -94,20 +94,7 @@
                 {{ shipping_cost }}
             </div>
         </div>
-        <div class="spacer x-small"></div>
-        <div class="grid-x grid-padding-x">
-            <div class="large-6 medium-6 small-6 cell">
-                Tax
-            </div>
-            <div class="large-6 medium-6 small-6 cell text-right">
-                {%- assign tax_amount = context.exports.order.tax_amount | divided_by: 100 | advanced_format: '%.2f' | default: "0.00" -%}
-                {%- assign tax_amount = tax_amount | pricify -%}
-                {%- unless tax_amount contains '.' -%}
-                    {%- assign tax_amount = tax_amount | append: '.00' -%}
-                {%- endunless -%}
-                {{ tax_amount }}
-            </div>
-        </div>
+        
     </div>
 
     <div class="spacer medium"></div>
@@ -126,6 +113,17 @@
         order_id: order_id,
         discount_debited: discount_debited,
         | dig: 'items' | dig: 'results' %}
+
+{%- parse_json test -%}
+{
+    "user_id": "{{user_id}}",
+    "order_id": "{{order_id}}",
+    "discount_debited": "{{discount_debited}}"
+}
+{%- endparse_json -%}
+{% log test, type: "Test discount_codes" %}
+{% log discount_codes, type: "Test discount_codes graphql" %}
+{% log context.exports.order, type: "Test context.exports.order" %}
 
     {% if discount_codes.size > 0 %}
         <div class="list-discount-codes">
@@ -217,12 +215,28 @@
                 {%- endif -%}
             {%- endfor -%}
         </div>
-        <div class="spacer medium"></div>
-        <hr>
-        <div class="spacer medium"></div>
+        <div class="spacer medium"></div>                
     {%- endif -%}
 
     {% comment %} END Discount Codes {% endcomment %}
+
+    
+    <div class="grid-x grid-padding-x">
+        <div class="large-6 medium-6 small-6 cell">
+            Tax
+        </div>
+        <div class="large-6 medium-6 small-6 cell text-right">
+            {%- assign tax_amount = context.exports.order.tax_amount | divided_by: 100 | advanced_format: '%.2f' | default: "0.00" -%}
+            {%- assign tax_amount = tax_amount | pricify -%}
+            {%- unless tax_amount contains '.' -%}
+                {%- assign tax_amount = tax_amount | append: '.00' -%}
+            {%- endunless -%}
+            {{ tax_amount }}
+        </div>
+    </div>
+    <div class="spacer medium"></div>    
+    <hr>
+    <div class="spacer medium"></div>
 
     <div class="grid-x grid-padding-x">
         <div class="large-6 medium-6 small-6 cell">

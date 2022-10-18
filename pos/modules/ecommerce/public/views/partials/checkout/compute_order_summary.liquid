@@ -64,6 +64,20 @@
     status: status
     | dig: 'items' | dig: 'results' %}
 
+{%- parse_json test_cart -%}
+{
+    "id": "{{cart_id}}",
+    "ids": "{{cart_ids}}",
+    "user_id": "{{user_id}}", 
+    "order_id": "{{order_id}}",
+    "status": "{{status}}"
+}
+{%- endparse_json -%}
+{% log test_cart, type: "Test test_cart" %}
+{% log cart, type: "Test cart" %}   
+{% log cart_discount_codes, type: "Test cart_discount_codes" %} 
+{% log cart_discount_codes_list, type: "Test cart_discount_codes_list" %}  
+
 {%- assign cart_ids = "" | split: ',' %}
 {%- assign cart_discount_code_ids = "" | split: ',' %}
 {%- assign discount_code_ids = "" | split: ',' %}
