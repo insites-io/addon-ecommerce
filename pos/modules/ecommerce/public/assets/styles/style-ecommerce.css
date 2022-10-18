@@ -668,7 +668,8 @@ screen and (max-width: 640px) {
 }
 
 .order-summary,
-.order-subtotal {
+.order-subtotal,
+.tax div {
     color: var(--font-color-sub);
     /* body-large */
     font-family: var(--font-family-03);
