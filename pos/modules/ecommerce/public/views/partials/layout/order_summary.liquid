@@ -121,9 +121,6 @@
     "discount_debited": "{{discount_debited}}"
 }
 {%- endparse_json -%}
-{% log test, type: "Test discount_codes" %}
-{% log discount_codes, type: "Test discount_codes graphql" %}
-{% log context.exports.order, type: "Test context.exports.order" %}
 
     {% if discount_codes.size > 0 %}
         <div class="list-discount-codes">

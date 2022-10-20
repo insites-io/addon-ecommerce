@@ -1,48 +1,55 @@
-{%- comment -%} Step: Check if category or main product page {%- endcomment -%}
-{%- if context.params.slug2 -%}
+{%- comment -%} 
+    Parameter from parent
+    - parent_id (id of current category)
+{%- endcomment -%} 
 
-    {%- comment -%} Sub-Step: Get the Category Info of slug2 {%- endcomment -%}
-    {%- graphql category_info = 'modules/ecommerce/shop/get_category', slug: context.params.slug2 -%}
-    {%- assign cat_info = category_info.items.results[0] -%}
+{%- comment -%} Step: Check if category or main product page {%- endcomment -%}
+{%- if context.params.slug2 -%}    
     {%- comment -%} Sub-Step: Create a filter to get the subcategory of the parent category {%- endcomment -%}
     {%- parse_json params -%}
     {
-        "parent_ids": ["{{ cat_info.id }}"]
+        "parent_ids": ["{{ parent_id }}"],
+        "is_show_more": true
     }
     {%- endparse_json -%}
-    {%- graphql sub_category_data = 'modules/ecommerce/shop/get_category', args: params -%}
-
+    {%- graphql sub_category_data = 'modules/ecommerce/shop/get_category_ids', args: params -%}
+    {% comment %} {% log sub_category_data, type: "Test sub_category_data: "%} {% endcomment %}
 
     <div class="grid-x">
         <div class="small-12 cell">
             <div id="sub-categories" class="sub-category no-icons">
                 {%- for subcat in sub_category_data.items.results -%}
                     {%- parse_json sub_params -%}
-                    { "parent_ids": ["{{ subcat.id }}"] }
+                    { 
+                        "parent_ids": ["{{ subcat.id }}"], 
+                        "is_show_more": true                 
+                    }
                     {%- endparse_json -%}
-                    {%- graphql lvl_two_cat_data = 'modules/ecommerce/shop/get_category', args: sub_params -%}
+                    {%- graphql lvl_two_cat_data = 'modules/ecommerce/shop/get_category_ids', args: sub_params -%}
+
+                    {% comment %} {% log lvl_two_cat_data, type: "Test lvl_two_cat_data: "%}  {% endcomment %}
 
                     {%- if lvl_two_cat_data.items and lvl_two_cat_data.items.total_entries > 0 -%}
                     <ins-accordion menu>
                         <ins-accordion-item id="sub-{{subcat.id}}"
                             class="sub-cat-accor ui-sidebar" 
-                            heading="{{subcat.properties.name}}" 
-                            link="{{subcat.properties.slug}}"
+                            heading="{{subcat.name}}" 
+                            link="{{subcat.slug}}"
                             link-target="_self" 
                             open-icon="icon-plus"
                             close-icon="icon-minus"
-                            {% if context.params.slug2 == 'subcat.properties.slug'%}active{% endif %} 
+                            {% if context.params.slug2 == 'subcat.slug'%}active{% endif %} 
                             arrow-activated>
                             {%- for lvltwosub in lvl_two_cat_data.items.results -%}
-                                <a href="{{lvltwosub.properties.slug}}">
-                                    <div class="ui-sidebar" id="sub-{{lvltwosub.id}}">{{lvltwosub.properties.name}}</div>
+                                <a href="{{lvltwosub.slug}}">
+                                    <div class="ui-sidebar" id="sub-{{lvltwosub.id}}">{{lvltwosub.name}}</div>
                                 </a>
                             {%- endfor -%}
                         </ins-accordion-item>
                     </ins-accordion>
                     {%- else -%}
-                    <a href="{{subcat.properties.slug}}">
-                        <div class="ui-sidebar" id="sub-{{subcat.id}}">{{subcat.properties.name}}</div>
+                    <a href="{{subcat.slug}}">
+                        <div class="ui-sidebar" id="sub-{{subcat.id}}">{{subcat.name}}</div>
                     </a>
                     {%- endif -%}
                 {%- endfor -%}
@@ -54,15 +61,17 @@
 {%- else -%}
 
     {%- comment -%} Sub-Step: Get all the list of the parent category  {%- endcomment -%}
-    {%- graphql parent_category = 'modules/ecommerce/shop/get_parent_category', page: 1, size: 100 -%}
+    {%- graphql parent_category = 'modules/ecommerce/shop/get_category_parent', page: 1, size: 100 -%}
+    {% comment %} {% log parent_category, type: "Test parent_category: "%}  {% endcomment %}
+
     {%- if parent_category.items and parent_category.items.total_entries > 0 -%}
 
     <div class="grid-x">
         <div class="small-12 cell">
             <div id="main-categories" class="main-category no-icons">
             {%- for catMenu in parent_category.items.results -%}
-                <a href="/products/{{catMenu.properties.slug}}" class="cat ui-sidebar">
-                    {{ catMenu.properties.name }}
+                <a href="/products/{{catMenu.slug}}" class="cat ui-sidebar">
+                    {{ catMenu.name }}
                 </a>
             {%- endfor -%}
             </div>

@@ -37,29 +37,27 @@ query search_products(
       id 
       created_at
       updated_at
-      properties
-      # name: property(name: "name")
-      # slug: property(name: "slug")
-      # sku: property(name: "sku")
-      # stock: property(name: "stock")
-      # is_enabled: property(name: "is_enabled")
-      # is_featured: property(name: "is_featured")
-      # variant_enabled: property(name: "variant_enabled")
-      # variant_schema: property(name: "variant_schema")
-      # on_sale: property(name: "on_sale")
-      # regular_price: property(name: "regular_price")
-      # sale_price: property(name: "sale_price")
-      # short_description: property(name: "short_description")
+      # properties
+      name: property(name: "name")
+      slug: property(name: "slug")
+      sku: property(name: "sku")
+      stock: property(name: "stock")
+      is_enabled: property(name: "is_enabled")
+      is_featured: property(name: "is_featured")
+      variant_enabled: property(name: "variant_enabled")
+      variant_schema: property(name: "variant_schema")
+      on_sale: property(name: "on_sale")
+      regular_price: property(name: "regular_price")
+      sale_price: property(name: "sale_price")
+      short_description: property(name: "short_description")
       main_image:related_records(
         table: "modules/insites_ecommerce/insites_product_uploads"
         foreign_property: "id"
         join_on_property: "main_image"
       ) {
-        id
         file: property_upload( name: "file"){
           url
-          file_name
-          versions
+          versions(names:["296x222", "712x534"])
         }
       }
     }

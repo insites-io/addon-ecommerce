@@ -4,7 +4,7 @@ query get_product_variants (
   $page: Int = 1
   $size: Int = 500
   $is_enabled: Boolean = true,
-  $properties: [ModelsFilterInput!]
+  $properties: [RecordsFilterInput!]
   $sort_by: [RecordsSortInput!] = { 
     properties: { name: "stock", order: DESC }
   }
@@ -31,6 +31,10 @@ query get_product_variants (
       created_at
       updated_at
       properties
+
+      size: property(name: "size")   
+      color: property(name: "color") 
+      #plant_name: property(name: "plant_name") 
       
       ## Gallery
       gallery_1: related_records(
@@ -43,6 +47,8 @@ query get_product_variants (
           url
           file_name
           versions 
+          small: versions(names: "56x42")
+          medium: versions(names: "712x534")
         }
       }
     }
