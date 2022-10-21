@@ -35,13 +35,13 @@ metadata: {
 ##     {%- include "modules/website/dynamic_cache_key", models: models -%}
 ---
 
-{%- graphql g = 'modules/ecommerce/account/get_user_with_password_token', email: params.email -%}
+{%- graphql g = 'modules/ecommerce/account/get_user_with_password_token', email: params.email | dig: 'users' | dig: 'results' | first -%}
 {% assign token = context.location.search.token %}
-{% assign user_id = g.users.results[0].id %}
+{% assign user_id = g.id %}
 {% assign token_valid = token | is_token_valid: user_id %}
 
 {% if user_id == blank or token_valid == false 
-        or g.users.results[0].default[0].password_token != params.token %}
+        or g.default[0].password_token != params.token %}
 
     <div class="sign-up">
         <div class="grid-x align-center">
@@ -56,7 +56,7 @@ metadata: {
 
 {% else %}
     {% graphql verifyResult = 'modules/ecommerce/account/verify_email', 
-        id: user_id, token: g.users.results[0].default[0].password_token %}
+        id: user_id, token: g.default[0].password_token %}
 
     {% if verifyResult.items  %}
 

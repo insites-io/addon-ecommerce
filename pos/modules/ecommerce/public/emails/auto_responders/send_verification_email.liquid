@@ -14,7 +14,7 @@ subject: Email verification
 layout: modules/insites_core/insites_admin/insites_external_email_layout
 ---
 
-{%- graphql g = 'modules/ecommerce/account/get_user_with_password_token', email: form.email -%}
+{%- graphql g = 'modules/ecommerce/account/get_user_with_password_token', email: form.email | dig: 'users' | dig: 'results' | first -%}
 
 {%- include 'modules/insites_core/email_layout/email_icon' -%}
 
@@ -47,7 +47,7 @@ layout: modules/insites_core/insites_admin/insites_external_email_layout
         height="100%" valign="top" bgcolor="" role="module-content">
         <div>
           <div style="font-family: inherit; text-align: center">
-            <span style="white-space: pre-wrap">Hi <strong>{{ g.users.results[0].first_name | strip }}</strong>, to authenticate your email, click the button below.</span>
+            <span style="white-space: pre-wrap">Hi <strong>{{ g.first_name | strip }}</strong>, to authenticate your email, click the button below.</span>
           </div>
           <div></div>
         </div>
@@ -81,7 +81,7 @@ layout: modules/insites_core/insites_admin/insites_external_email_layout
             <tr>
               <td align="center" bgcolor="#333333" class="inner-td"
                 style="border-radius:6px; font-size:16px; text-align:center; background-color:inherit;">
-                <a href="{{ platform_context.host }}/email-verification?token={{ g.users.results[0].default[0].password_token | url_encode }}&amp;email={{ g.users.results[0].email | url_encode }}"
+                <a href="{{ platform_context.host }}/email-verification?token={{ g.default[0].password_token | url_encode }}&amp;email={{ g.email | url_encode }}"
                   style="background-color:#333333; border:0px solid #333333; border-color:#333333; border-radius:4px; border-width:0px; color:#ffffff; display:inline-block; font-size:16px; font-weight:700; letter-spacing:0px; line-height:normal; padding:16px 40px 16px 40px; text-align:center; text-decoration:none; border-style:solid; font-family:arial,helvetica,sans-serif;"
                   target="_blank">Authenticate Email</a>
               </td>

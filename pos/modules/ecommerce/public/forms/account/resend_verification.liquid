@@ -15,11 +15,11 @@ flash_notice: Success-EmailVerification
 flash_alert: Error-EmailVerification
 
 callback_actions: |-
-    {% graphql g = 'modules/ecommerce/account/generate_user_temporary_token', email: form.email %}
-    {% if g.items.results[0] %}
+    {% graphql g = 'modules/ecommerce/account/generate_user_temporary_token', email: form.email | dig: 'items' | dig: 'results' | first %}
+    {% if g %}
       {% graphql res = 'modules/ecommerce/account/set_email_verification_token', 
-        id: g.items.results[0].id, 
-        token: g.items.results[0].temporary_token %}
+        id: g.id, 
+        token: g.temporary_token %}
         {% log res %}
 
     {% endif %}

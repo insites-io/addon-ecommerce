@@ -9,8 +9,8 @@
 {%- if context.params.slug2 -%}
 
 {%- comment -%} Sub-Step: Get the Category Info of slug2 {%- endcomment -%}
-{%- graphql category_info = 'modules/ecommerce/shop/get_category', slug: context.params.slug2 -%}
-{%- assign cat_info = category_info.items.results[0] -%}
+{%- graphql cat_info = 'modules/ecommerce/shop/get_category', slug: context.params.slug2 | dig: 'items' | dig: 'results' | first -%}
+
 {%- comment -%} Sub-Step: Create a filter to get the subcategory of the parent category {%- endcomment -%}
 {%- parse_json params -%}
 {
@@ -84,8 +84,8 @@
 {%- comment -%}
 
 {%- assign cat_slug = context.params.slug2 -%}
-{%- graphql category_info = 'modules/ecommerce/shop/get_category', slug: cat_slug -%}
-{%- assign cat_info = category_info.items.results[0] -%}
+{%- graphql cat_info = 'modules/ecommerce/shop/get_category', slug: cat_slug | dig: 'items' | dig: 'results' | first -%}
+
 {%- parse_json params -%}
 {
     "parent_ids": ["{{ cat_info.id }}"]
