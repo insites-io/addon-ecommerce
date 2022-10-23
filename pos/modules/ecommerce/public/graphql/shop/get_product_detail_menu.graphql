@@ -5,6 +5,7 @@ query get_product_detail_menu (
   $size: Int = 10,
   $is_enabled: Boolean,
   $is_archived: Boolean,
+  $is_show_more: Boolean,
   $sort_by: [RecordsSortInput!] = { 
     updated_at: { order: DESC }
   }
@@ -30,6 +31,8 @@ query get_product_detail_menu (
     results {
       id
       name: property(name: "name")
+      variant_enabled: property(name: "variant_enabled") @include(if: $is_show_more)
+      variant_schema: property(name: "variant_schema") @include(if: $is_show_more)
     }
   }
 }

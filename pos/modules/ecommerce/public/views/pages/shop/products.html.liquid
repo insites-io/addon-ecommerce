@@ -6,10 +6,10 @@ searchable: "true"
 max_deep_level: 2
 redirect_to: |-
   {%- if context.params.slug2 -%}
-    {%- graphql slug2_cat = 'modules/ecommerce/shop/get_category', slug: context.params.slug2 -%}
-    {%- graphql slug2_prod = 'modules/ecommerce/shop/get_product_detail', slug: context.params.slug2 -%}
-    {%- if slug2_cat and slug2_cat.items.total_entries > 0 -%}
-    {%- elsif slug2_prod and slug2_prod.items.total_entries > 0 -%}
+    {%- graphql slug2_cat = 'modules/ecommerce/shop/get_category_menu', slug: context.params.slug2 | dig: 'items' | dig: 'total_entries' -%}
+    {%- graphql slug2_prod = 'modules/ecommerce/shop/get_product_detail_menu', slug: context.params.slug2 | dig: 'items' | dig: 'total_entries' -%}
+    {%- if slug2_cat > 0 -%}
+    {%- elsif slug2_prod > 0 -%}
     {%- else -%}
         /404
     {%- endif -%}
@@ -49,11 +49,11 @@ metadata: {
 ##
 ##    {%- comment -%}Check if product details page, add variant to cache rule{%- endcomment -%}
 ##    {%- if context.params.slug2  -%}
-##        {%- graphql product = 'modules/ecommerce/shop/get_product_detail', 
+##        {%- graphql product = 'modules/ecommerce/shop/get_product_detail_menu', 
 ##            slug: context.params.slug2 | dig: "items" | dig: "results" | first -%}
 ## 
-##        {%- if product.properties.variant_enabled and product.properties.variant_schema != '' -%}
-##            {%- assign models = models | add_to_array: product.properties.variant_schema -%}
+##        {%- if product.variant_enabled and product.variant_schema != '' -%}
+##            {%- assign models = models | add_to_array: product.variant_schema -%}
 ##        {%- endif -%}
 ##    {%- endif -%}
 ## 
@@ -67,18 +67,18 @@ URL Structures:
 {% endcomment -%}
 
 {%- assign slug_type = 'error' -%}
-{%- comment -%}Check if has slug2{%- endcomment -%}
+{%- comment -%}Check if has slug2{%- endcomment -%} 
 {%- if context.params.slug2 -%}
     {%- comment -%}Check via graphql if there is a category with slug2{%- endcomment -%}
-    {%- graphql slug2_cat = 'modules/ecommerce/shop/get_category', slug: context.params.slug2 -%}
-    {%- if slug2_cat.items and slug2_cat.items.total_entries > 0 -%}
-    {%- assign slug_type = 'category' -%}
+    {%- graphql slug2_cat = 'modules/ecommerce/shop/get_category_menu', slug: context.params.slug2 | dig: 'items' | dig: 'total_entries' -%}
+    {%- if slug2_cat > 0 -%}
+        {%- assign slug_type = 'category' -%}
     {%- endif -%}
 
     {%- comment -%}Check via graphql if there is a product with slug2{%- endcomment -%}
-    {%- graphql slug2_prod = 'modules/ecommerce/shop/get_product_detail', slug: context.params.slug2 -%}
-    {%- if slug2_prod.items and slug2_prod.items.total_entries > 0 -%}
-    {%- assign slug_type = 'product' -%}
+    {%- graphql slug2_prod = 'modules/ecommerce/shop/get_product_detail_menu', slug: context.params.slug2 | dig: 'items' | dig: 'total_entries' -%}
+    {%- if slug2_prod > 0 -%}
+        {%- assign slug_type = 'product' -%}
     {%- endif -%}
     
 {%- endif -%}
@@ -90,9 +90,9 @@ URL Structures:
 
     {%- if context.params.slug2 -%}
         {%- if slug_type == 'product' -%}
-        {%- include 'modules/ecommerce/products/detail' -%} 
+            {%- include 'modules/ecommerce/products/detail' -%}
         {%- else -%}
-        {%- include 'modules/ecommerce/products/list' -%}
+            {%- include 'modules/ecommerce/products/list' -%}
         {%- endif -%}
     {%- else -%}
         {%- include 'modules/ecommerce/products/list' -%}
