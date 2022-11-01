@@ -114,7 +114,7 @@ Step: Call the search GraphQL with the parameters
 <!-- This GraphQL is optimized for the list, thus not including gallery and variant items -->
 {%- endcomment -%}
 {%- graphql product_list_data = 'modules/ecommerce/shop/search_products_list_view', args: filters -%}
-{%- log product_list_data, type: 'Test product_list_data:' -%}
+
 {%- assign total_cat_child = 1 -%} {% comment %} 1 = show sidebar {% endcomment %}
 {%- if context.params.slug2 -%}    
     {%- comment -%} Sub-Step: Create a filter to get the subcategory of the parent category {%- endcomment -%}
