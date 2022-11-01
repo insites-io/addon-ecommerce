@@ -1,0 +1,42 @@
+query get_product_variants_cart_view (
+  $id: ID,
+  $name: String
+  $page: Int = 1
+  $size: Int = 1
+  $is_enabled: Boolean = true,
+  $properties: [RecordsFilterInput!]
+  $sort_by: [RecordsSortInput!] = { 
+    properties: { name: "stock", order: DESC }
+  }
+) {
+  items: records(
+    page: $page
+    per_page: $size
+    filter: {
+      id: { value: $id }
+      deleted_at: { exists: false }
+      table: { value: $name }
+      properties: [
+        { name: "is_enabled", value_boolean: $is_enabled }
+      ]
+      or: $properties
+    }
+    sort: $sort_by
+  ) {
+    total_entries
+    total_pages
+    current_page
+    results {
+      stock: property_int(name: "stock")      
+      gallery: related_records(
+        table: "modules/insites_ecommerce/insites_product_uploads"
+        foreign_property: "id"
+        join_on_property: "gallery_1"
+      ) {
+        file: property_upload (name: "file") {
+          versions(names: "88x66")
+        }
+      }
+    }
+  }
+}
