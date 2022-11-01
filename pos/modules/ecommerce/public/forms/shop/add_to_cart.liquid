@@ -71,16 +71,16 @@ callback_actions: >
 {{ product_info | json }}
 {%- endcomment -%}
 
-{%- if product_info.properties.variant_enabled == false -%}
+{%- if product_info.variant_enabled == false -%}
 
-{%- if product_info.properties.on_sale -%}
-{%- assign prod_price = product_info.properties.sale_price | times: 100  | default: 0 -%}
+{%- if product_info.on_sale -%}
+{%- assign prod_price = product_info.sale_price | times: 100  | default: 0 -%}
 {%- else -%}
-{%- assign prod_price = product_info.properties.regular_price | times: 100  | default: 0 -%}
+{%- assign prod_price = product_info.regular_price | times: 100  | default: 0 -%}
 {%- endif -%}
 
 
-{%- assign tmptax = product_info.properties.tax | divided_by: 100.0 -%}
+{%- assign tmptax = product_info.tax | divided_by: 100.0 -%}
 {%- assign tmptax_amount = prod_price | times: tmptax -%}
 {%- assign tax_amount = prod_price | times: tax | times: 100 | advanced_format: '%.0f' -%}
 
@@ -112,10 +112,10 @@ callback_actions: >
                 name="{{ form.fields.properties.product_id.name }}" 
                 value="{{ product_info.id }}" >
             </ins-input>
-            <input type="hidden" id="prod-det-name" name="{{ form.fields.properties.product_name.name }}" value="{{ product_info.properties.name }}">
-            <input type="hidden" id="prod-det-sku" name="{{ form.fields.properties.product_sku.name }}" value="{{ product_info.properties.sku }}">
+            <input type="hidden" id="prod-det-name" name="{{ form.fields.properties.product_name.name }}" value="{{ product_info.name }}">
+            <input type="hidden" id="prod-det-sku" name="{{ form.fields.properties.product_sku.name }}" value="{{ product_info.sku }}">
 
-            {%- if product_info.properties.variant_enabled -%}
+            {%- if product_info.variant_enabled -%}
             <ins-input validate
                 id="prod-det-variant-id"
                 field="hidden"

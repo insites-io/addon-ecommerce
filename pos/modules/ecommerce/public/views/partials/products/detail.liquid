@@ -2,44 +2,43 @@
 <!-- Load product information by getting the third slug -->
 {%- endcomment -%}
 {%- assign prod_slug = context.params.slug2 -%}
-{%- graphql raw_product_info = 'modules/ecommerce/shop/get_product_detail', slug: prod_slug -%}
-{%- assign product_info = raw_product_info.items.results[0] -%}
+{%- graphql product_info = 'modules/ecommerce/shop/get_product_detail_view', slug: prod_slug | dig: 'items' | dig: 'results' | first -%}
 
 {%- comment -%}SEO Settings{%- endcomment -%}
-{%- content_for 'title' -%}{{ product_info.properties.meta_title }}{%- endcontent_for -%}
-{%- content_for 'meta_description' -%}{{ product_info.properties.meta_description }}{%- endcontent_for -%}
-{%- content_for 'search_engine_visibility' -%}{{ product_info.properties.search_engine_visibility }}{%- endcontent_for -%}
-{%- content_for 'canonical_url' -%}{{ product_info.properties.canonical_url }}{%- endcontent_for -%}
+{%- content_for 'title' -%}{{ product_info.meta_title }}{%- endcontent_for -%}
+{%- content_for 'meta_description' -%}{{ product_info.meta_description }}{%- endcontent_for -%}
+{%- content_for 'search_engine_visibility' -%}{{ product_info.search_engine_visibility }}{%- endcontent_for -%}
+{%- content_for 'canonical_url' -%}{{ product_info.canonical_url }}{%- endcontent_for -%}
 
-{%- content_for 'og_title' -%}{{ product_info.properties.og_title }}{%- endcontent_for -%}
-{%- content_for 'og_description' -%}{{ product_info.properties.og_description }}{%- endcontent_for -%}
-{%- content_for 'og_site_name' -%}{{ product_info.properties.og_site_name }}{%- endcontent_for -%}
-{%- content_for 'og_url' -%}{{ product_info.properties.og_url }}{%- endcontent_for -%}
-{%- content_for 'og_type' -%}{{ product_info.properties.og_type }}{%- endcontent_for -%}
+{%- content_for 'og_title' -%}{{ product_info.og_title }}{%- endcontent_for -%}
+{%- content_for 'og_description' -%}{{ product_info.og_description }}{%- endcontent_for -%}
+{%- content_for 'og_site_name' -%}{{ product_info.og_site_name }}{%- endcontent_for -%}
+{%- content_for 'og_url' -%}{{ product_info.og_url }}{%- endcontent_for -%}
+{%- content_for 'og_type' -%}{{ product_info.og_type }}{%- endcontent_for -%}
 {%- content_for 'og_image' -%}{{ product_info.og_image.versions['1200x630'] }}{%- endcontent_for -%}
 
 {%- comment -%}
 <!-- Check if variants are enabled and load variants that have stock -->
 {%- endcomment -%}
-{%- if product_info.properties.variant_enabled and product_info.properties.variant_schema != blank -%}
-{%- parse_json params -%}
-{
-    "name": "{{ product_info.properties.variant_schema }}"
-}
-{%- endparse_json -%}
-{%- graphql raw_product_variants = 'modules/ecommerce/shop/get_product_variants', args: params -%}
-{%- comment -%}
-<!-- Load the schema of the variants and create array for checking which variant will be included -->
-{%- endcomment -%}
-{%- graphql raw_variant_schema = 'modules/ecommerce/shop/get_product_schema', name: product_info.properties.variant_schema -%}
-{%- assign variant_array = "," | split: "," -%} 
-{%- for variants in raw_variant_schema.items.results[0].properties -%}
-{%- if variants.metadata.is_system_field == false -%}
-{%- assign variant_array = variant_array | add_to_array: variants.name -%}
+{%- if product_info.variant_enabled and product_info.variant_schema != blank -%}
+    {%- parse_json params -%}
+    {
+        "name": "{{ product_info.variant_schema }}"
+    }
+    {%- endparse_json -%}
+    {%- graphql raw_product_variants = 'modules/ecommerce/shop/get_product_variants', args: params -%}
+    {%- comment -%}
+    <!-- Load the schema of the variants and create array for checking which variant will be included -->
+    {%- endcomment -%}
+    {%- graphql raw_variant_schema = 'modules/ecommerce/shop/get_product_schema', name: product_info.variant_schema -%}
+    {%- assign variant_array = "," | split: "," -%} 
+    {%- for variants in raw_variant_schema.items.results[0].properties -%}
+        {%- if variants.metadata.is_system_field == false -%}
+            {%- assign variant_array = variant_array | add_to_array: variants.name -%}
+        {%- endif -%}
+    {%- endfor -%}
 {%- endif -%}
-{%- endfor -%}
-
-{%- endif -%}
+{%- log product_info, type: 'Test detail:product_infoss' -%}
 
 {%- comment -%}
 <!-- Place the galleery of the product in a variable -->
@@ -49,19 +48,19 @@
 {%- endif -%}
 
 {%- comment -%}
-<!-- place the galleery of the product in a variable -->
+<!-- place the gallery of the product in a variable -->
 {%- endcomment -%}
-{%- if product_info.properties.variant_enabled -%}
+{%- if product_info.variant_enabled -%}
     {%- if raw_product_variants.items.total_entries > 0 -%}
-    {% assign out_of_stock_flag = false -%}
+        {% assign out_of_stock_flag = false -%}
     {%- else -%}
-    {% assign out_of_stock_flag = true -%}
+        {% assign out_of_stock_flag = true -%}
     {%- endif -%}
 {%- else -%}
-    {%- if product_info.properties.stock > 0 -%}
-    {% assign out_of_stock_flag = false -%}
+    {%- if product_info.stock > 0 -%}
+        {% assign out_of_stock_flag = false -%}
     {%- else -%}
-    {% assign out_of_stock_flag = true -%}
+        {% assign out_of_stock_flag = true -%}
     {%- endif -%}
 {%- endif -%}
 
@@ -69,31 +68,31 @@
 
 <div class="product-detail grid-x grid-padding-x">
     <div class="large-7 medium-12 small-12 cell">
-        {%- assign sale_price = product_info.properties.sale_price  -%}
-        {%- assign regular_price = product_info.properties.regular_price -%}
+        {%- assign sale_price = product_info.sale_price  -%}
+        {%- assign regular_price = product_info.regular_price -%}
 
         <div class="gallery">
             
-            {%- if product_info.properties.stock == 0 and product_info.properties.variant_enabled == false -%}
+            {%- if product_info.stock == 0 and product_info.variant_enabled == false -%}
                 <div class="out-of-stock"></div>
             {%- else -%}
-                {%- if product_info.properties.variant_enabled and raw_product_variants.items.total_entries == 0 -%}
+                {%- if product_info.variant_enabled and raw_product_variants.items.total_entries == 0 -%}
                     <div class="out-of-stock"></div>
                 {%- endif -%}
             {%- endif -%}
             
             {%- if gallery1 and gallery1.size != 0 -%}
                 <div class="main-gallery variant-gallery">
-                    {%- if product_info.properties.on_sale -%}
+                    {%- if product_info.on_sale -%}
                         {% if regular_price > sale_price %}
                             <span class="sale-tag">{{ regular_price | minus: sale_price | times: 100.0 | divided_by: regular_price | round }}% OFF</span>
                         {% endif %}
                     {% endif %}
                     <ins-gallery with-indicator slidable>
                         {%- for picture in gallery1 -%}
-                        <ins-gallery-image
-                            thumbnail="{{ picture.file.versions['56x42'] }}"
-                            image="{{ picture.file.versions['712x534'] }}">
+                         <ins-gallery-image
+                            thumbnail="{{ picture.file.small['56x42'] }}"
+                            image="{{ picture.file.medium['712x534'] }}">
                         </ins-gallery-image>
                         {%- endfor -%}
                     </ins-gallery>
@@ -104,8 +103,8 @@
                         <ins-gallery with-indicator>
                             {%- for picture in variant.gallery_1 -%}
                             <ins-gallery-image
-                                thumbnail="{{ picture.file.versions['56x42'] }}"
-                                image="{{ picture.file.versions['712x534'] }}">
+                                thumbnail="{{ picture.file.small['56x42'] }}"
+                                image="{{ picture.file.medium['712x534'] }}">
                             </ins-gallery-image>
                             {%- endfor -%}
                         </ins-gallery>
@@ -116,11 +115,11 @@
                     <div class="main-gallery variant-gallery">
                         <ins-gallery with-indicator>
                             <ins-gallery-image
-                                thumbnail="{{ product_info.main_image[0].file.versions['712x534'] | replace: ' ', '%20' }}"
-                                image="{{ product_info.main_image[0].file.versions['712x534'] | replace: ' ', '%20' }}">
+                                thumbnail="{{ product_info.main_image[0].file.medium['712x534'] | replace: ' ', '%20' }}"
+                                image="{{ product_info.main_image[0].file.medium['712x534'] | replace: ' ', '%20' }}">
                             </ins-gallery-image>
                         </ins-gallery>
-                        <!-- <img src="{{ product_info.main_image[0].file.versions['712x534'] | replace: ' ', '%20' }}" alt="{{ product_info.properties.name }}" /> -->
+                        <!-- <img src="{{ product_info.main_image[0].file.medium['712x534'] | replace: ' ', '%20' }}" alt="{{ product_info.name }}" /> -->
                     </div>
                     {%- assign product_variants = raw_product_variants.items.results -%}
                     {%- for variant in product_variants -%}
@@ -128,8 +127,8 @@
                             <ins-gallery with-indicator>
                                 {%- for picture in variant.gallery_1 -%}
                                 <ins-gallery-image
-                                    thumbnail="{{ picture.file.versions['56x42'] }}"
-                                    image="{{ picture.file.versions['712x534'] }}">
+                                    thumbnail="{{ picture.file.small['56x42'] }}"
+                                    image="{{ picture.file.medium['712x534'] }}">
                                 </ins-gallery-image>
                                 {%- endfor -%}
                             </ins-gallery>
@@ -139,11 +138,11 @@
                     <div class="main-gallery variant-gallery">
                         <ins-gallery with-indicator>
                             <ins-gallery-image
-                                thumbnail="{{ product_info.main_image[0].file.versions['712x534'] | replace: ' ', '%20' }}"
-                                image="{{ product_info.main_image[0].file.versions['712x534'] | replace: ' ', '%20' }}">
+                                thumbnail="{{ product_info.main_image[0].file.medium['712x534'] | replace: ' ', '%20' }}"
+                                image="{{ product_info.main_image[0].file.medium['712x534'] | replace: ' ', '%20' }}">
                             </ins-gallery-image>
                         </ins-gallery>
-                        <!-- <img src="{{ product_info.main_image[0].file.versions['712x534'] | replace: ' ', '%20' }}" alt="{{ product_info.properties.name }}" /> -->
+                        <!-- <img src="{{ product_info.main_image[0].file.medium['712x534'] | replace: ' ', '%20' }}" alt="{{ product_info.name }}" /> -->
                     </div>
                     {%- assign product_variants = raw_product_variants.items.results -%}
                     {%- for variant in product_variants -%}
@@ -151,8 +150,8 @@
                             <ins-gallery with-indicator>
                                 {%- for picture in variant.gallery_1 -%}
                                 <ins-gallery-image
-                                    thumbnail="{{ picture.file.versions['56x42'] }}"
-                                    image="{{ picture.file.versions['712x534'] }}">
+                                    thumbnail="{{ picture.file.small['56x42'] }}"
+                                    image="{{ picture.file.medium['712x534'] }}">
                                 </ins-gallery-image>
                                 {%- endfor -%}
                             </ins-gallery>
@@ -169,36 +168,36 @@
         <div class="hide-for-large spacer xxx-large"></div>
         <div class="grid-x grid-padding-x">
             <div class="small-12 cell">
-                <h1 class="heading-1">{{ product_info.properties.name }}</h1>
-                {% if product_info.properties.sku %}
+                <h1 class="heading-1">{{ product_info.name }}</h1>
+                {% if product_info.sku %}
                     <p id="product-sku" class="body-paragraph">
-                        SKU: {{ product_info.properties.sku }}
+                        SKU: {{ product_info.sku }}
                     </p>
                 {% endif %}
             </div>
             <div class="small-12 cell">
                 <div class="spacer"></div>
                 <p id="product-price" class="heading-2">
-                    {%- if product_info.properties.on_sale -%}
-                        {{ product_info.properties.sale_price | pricify }}
+                    {%- if product_info.on_sale -%}
+                        {{ product_info.sale_price | pricify }}
                     {%- else -%}
-                        {{ product_info.properties.regular_price | pricify }}
+                        {{ product_info.regular_price | pricify }}
                     {%- endif -%}
                 </p>
                 <p id="not-product-price" class="price-old">
-                    {%- if product_info.properties.variant_enabled -%}
+                    {%- if product_info.variant_enabled -%}
                         
                     {%- else -%}
-                        {%- if product_info.properties.on_sale -%}
-                            {{ product_info.properties.regular_price | pricify }}
+                        {%- if product_info.on_sale -%}
+                            {{ product_info.regular_price | pricify }}
                         {%- endif -%}
                     {%- endif -%}
                 </p>
             </div>
-            {% if product_info.properties.short_description %}
+            {% if product_info.short_description %}
             <div class="small-12 cell spacer"></div>
             <div class="small-12 cell body-paragraph">
-                {{ product_info.properties.short_description }}
+                {{ product_info.short_description }}
             </div>
             {% endif %}
             <div class="small-12 cell spacer x-large"></div>
@@ -221,7 +220,7 @@
 
         {%- else -%}
 
-            {%- if product_info.properties.variant_enabled and raw_product_variants.items.total_entries > 0 -%}
+            {%- if product_info.variant_enabled and raw_product_variants.items.total_entries > 0 -%}
                 <div class="grid-x">
                     <div class="small-12 cell">
                         <ins-select 
@@ -284,33 +283,33 @@
     <div class="small-12 cell spacer section"></div>
     <div class="cell grid-x">
         <div class="large-7 medium-12 small-12 cell dynamic-content">
-            {%- if product_info.properties.long_description != blank -%}
+            {%- if product_info.long_description != blank -%}
             <div>
-                {{ product_info.properties.long_description  | html_safe }}
+                {{ product_info.long_description  | html_safe }}
             </div>
             {%- endif -%}
-            {%- if product_info.properties.custom_field_1 != blank -%}
+            {%- if product_info.custom_field_1 != blank -%}
             <div class="spacer"></div>
             <div>
-                {{ product_info.properties.custom_field_1  | html_safe }}
+                {{ product_info.custom_field_1  | html_safe }}
             </div>
             {%- endif -%}
-            {%- if product_info.properties.custom_field_2 != blank -%}
+            {%- if product_info.custom_field_2 != blank -%}
             <div class="spacer"></div>
             <div>
-                {{ product_info.properties.custom_field_2  | html_safe }}
+                {{ product_info.custom_field_2  | html_safe }}
             </div>
             {%- endif -%}
-            {%- if product_info.properties.custom_field_3 != blank -%}
+            {%- if product_info.custom_field_3 != blank -%}
             <div class="spacer"></div>
             <div>
-                {{ product_info.properties.custom_field_3  | html_safe }}
+                {{ product_info.custom_field_3  | html_safe }}
             </div>
             {%- endif -%}
-            {%- if product_info.properties.custom_field_4 != blank -%}
+            {%- if product_info.custom_field_4 != blank -%}
             <div class="spacer"></div>
             <div>
-                {{ product_info.properties.custom_field_4  | html_safe }}
+                {{ product_info.custom_field_4  | html_safe }}
             </div>
             {%- endif -%}
         </div>
@@ -325,7 +324,7 @@
     
 </div>
 
-{%- if product_info.properties.variant_enabled -%}
+{%- if product_info.variant_enabled -%}
 <script>
 let prodVarList = {{ raw_product_variants.items.results | json }}; 
 </script>
