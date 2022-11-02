@@ -8,50 +8,50 @@
     <div class="order-summary">
         {%- assign cart_status = status | capitalize | default: blank -%}
         {%- unless order_id -%}
-        {%- if context.current_user.id -%}
+            {%- if context.current_user.id -%}
                 {%- assign user_id = context.current_user.id -%}
             {%- else -%}
                 {%- assign user_id = context.session.session_id -%}
             {%- endif -%}
         {%- endunless -%}
     
-        {% graphql cart = 'modules/ecommerce/cart/get_cart', 
+        {% graphql cart = 'modules/ecommerce/cart/get_cart_order_summary', 
             user_id: user_id, 
             status: cart_status, 
             order_id: order_id
             | dig: 'items' | dig: 'results' %}
 
         {%- for item in cart -%}
-        {%- assign item_amount = item.properties.product_price | times: item.properties.quantity -%}
+            {%- assign item_amount = item.product_price | times: item.quantity -%}
 
-        {%- if show_product -%}
-        <div class="grid-x grid-padding-x body-large">
-            <div class="product-name large-6 medium-8 small-6 cell">
-                <div>{{ item.properties.product_name }}</div>
-                <div>
-                    <span class="attributes">{{ item.properties.product_variant }}</span>
+            {%- if show_product -%}
+            <div class="grid-x grid-padding-x body-large">
+                <div class="product-name large-6 medium-8 small-6 cell">
+                    <div>{{ item.product_name }}</div>
+                    <div>
+                        <span class="attributes">{{ item.product_variant }}</span>
+                    </div>
+                </div>
+                <div class="text-right large-3 medium-4 small-6 cell">
+                    {%- assign label = "pc" -%}
+                    {%- if item.quantity > 1 -%}
+                        {%- assign label = "pcs" -%}
+                    {%- endif -%}
+                    {{ item.quantity }} {{ item.product.unit_label | default: label }}
+                </div>
+                <div class="text-right large-3 medium-12 small-12 cell">
+                    {%- assign item_amount = item_amount | divided_by: 100.0 | advanced_format: '%.2f' | default: "0.00" -%}
+                    {%- assign item_amount = item_amount | pricify -%}
+                    {%- unless item_amount contains '.' -%}
+                        {%- assign item_amount = item_amount | append: '.00' -%}
+                    {%- endunless -%}
+                    {{ item_amount }}
                 </div>
             </div>
-            <div class="text-right large-3 medium-4 small-6 cell">
-                {%- assign label = "pc" -%}
-                {%- if item.properties.quantity > 1 -%}
-                    {%- assign label = "pcs" -%}
-                {%- endif -%}
-                {{ item.properties.quantity }} {{ item.product.unit_label | default: label }}
-            </div>
-            <div class="text-right large-3 medium-12 small-12 cell">
-                {%- assign item_amount = item_amount | divided_by: 100.0 | advanced_format: '%.2f' | default: "0.00" -%}
-                {%- assign item_amount = item_amount | pricify -%}
-                {%- unless item_amount contains '.' -%}
-                    {%- assign item_amount = item_amount | append: '.00' -%}
-                {%- endunless -%}
-                {{ item_amount }}
-            </div>
-        </div>
             {%- unless forloop.last -%}
             <div class="spacer small"></div>
             {%- endunless -%}
-        {%- endif -%}
+            {%- endif -%}
         {%- endfor -%}
     </div>
 
@@ -108,19 +108,11 @@
         {%- assign discount_debited = false -%}
     {%- endif -%}
     
-    {% graphql discount_codes = "modules/ecommerce/discount_code/get_cart_discount_codes" 
+    {% graphql discount_codes = "modules/ecommerce/discount_code/get_cart_discount_codes_order_summary" 
         user_id: user_id,
         order_id: order_id,
         discount_debited: discount_debited,
         | dig: 'items' | dig: 'results' %}
-
-{%- parse_json test -%}
-{
-    "user_id": "{{user_id}}",
-    "order_id": "{{order_id}}",
-    "discount_debited": "{{discount_debited}}"
-}
-{%- endparse_json -%}
 
     {% if discount_codes.size > 0 %}
         <div class="list-discount-codes">
@@ -142,9 +134,9 @@
             <div class="spacer medium"></div>
             {%- for item in discount_codes -%}
                 {%- if order_id -%}
-                    {%- assign code = item.properties -%}
+                    {%- assign code = item -%}
                 {%- else -%}
-                    {%- assign code = item.discount_code.properties -%}
+                    {%- assign code = item.discount_codes -%}
                 {%- endif -%}
                 
                 {%- assign type = code.discount_type | downcase -%}
