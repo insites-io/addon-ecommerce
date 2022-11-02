@@ -4,7 +4,7 @@
     {%- assign user_id = context.session.session_id -%}
 {%- endif -%}
 
-{%- graphql cartList = 'modules/ecommerce/cart/get_shopping_cart', user_id: user_id, status: "Cart" -%}
+{%- graphql cartList = 'modules/ecommerce/shop/get_shopping_cart', user_id: user_id, status: "Cart" -%}
 
 {%- if cartList.items.total_entries > 0 -%}
     <div id="shopping-cart-list" class="shopping-cart grid-x grid-padding-x grid-padding-y">

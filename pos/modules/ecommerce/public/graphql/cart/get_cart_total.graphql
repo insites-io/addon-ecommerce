@@ -27,8 +27,6 @@ query get_cart_total (
     }
     sort: { created_at: { order: ASC } }
   ) {
-    total_entries
-    total_pages
-    current_page   
+    total_entries           
   }
 }
