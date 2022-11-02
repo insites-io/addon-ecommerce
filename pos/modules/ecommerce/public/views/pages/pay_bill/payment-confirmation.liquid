@@ -43,11 +43,11 @@ authorization_policies:
 <div class="grid-x grid-padding-x confirmation__wrapper">
     <div class="large-2 medium-0 small-0 cell"></div>
     <div class="large-3 medium-5 small-12 cell">
-        {% graphql order = "modules/ecommerce/orders/get_order_details",
+        {% graphql order = "modules/ecommerce/orders/get_order_details_minified",
             id: context.params.order_id 
             | dig: 'items' | dig: 'results' | first %}
         
-        {% graphql cart = "modules/ecommerce/cart/get_cart",
+        {% graphql cart = "modules/ecommerce/cart/get_cart_product_name",
             order_id: context.params.order_id 
             | dig: 'items' | dig: 'results' | first %}
 
@@ -55,15 +55,15 @@ authorization_policies:
         <div>
             <h3 class="heading-3">Invoice Details</h3>
             <div class="spacer small"></div>
-            <p class="font-cabin">{{ cart.properties.product_name }} </p> {% comment %} invoice number {% endcomment %}
-            {% if order.properties.billing_company_name %}
-                <p class="font-cabin">{{ order.properties.billing_company_name }}</p> 
+            <p class="font-cabin">{{ cart.product_name }} </p> {% comment %} invoice number {% endcomment %}
+            {% if order.billing_company_name %}
+                <p class="font-cabin">{{ order.billing_company_name }}</p> 
             {% endif %}
 
-            <p class="font-cabin">{{ order.properties.billing_first_name | append: ' ' | append: order.properties.billing_last_name }}</p>
-            <p class="font-cabin">{{ order.properties.billing_email }}</p>
-            {% if order.properties.billing_phone %}
-                <p class="font-cabin">{{ order.properties.billing_phone }}</p>
+            <p class="font-cabin">{{ order.billing_first_name | append: ' ' | append: order.billing_last_name }}</p>
+            <p class="font-cabin">{{ order.billing_email }}</p>
+            {% if order.billing_phone %}
+                <p class="font-cabin">{{ order.billing_phone }}</p>
             {% endif %}
             <div class="spacer x-large"></div>
         </div>
@@ -86,26 +86,26 @@ authorization_policies:
             <h3 class="heading-3">Billing Address</h3>
             <div class="spacer small"></div>
             {%- assign billing_address = "" -%}
-            {%- if order.properties.billing_address_1 and order.properties.billing_address_1 != '' -%}
-                {%- assign billing_address = billing_address | append: order.properties.billing_address_1 | append : ", " -%}
+            {%- if order.billing_address_1 and order.billing_address_1 != '' -%}
+                {%- assign billing_address = billing_address | append: order.billing_address_1 | append : ", " -%}
             {%- endif -%}
-            {%- if order.properties.billing_address_2 and order.properties.billing_address_2 != '' -%}
-                {%- assign billing_address = billing_address | append: order.properties.billing_address_2 | append : ", " -%}
+            {%- if order.billing_address_2 and order.billing_address_2 != '' -%}
+                {%- assign billing_address = billing_address | append: order.billing_address_2 | append : ", " -%}
             {%- endif -%}
-            {%- if order.properties.billing_address_3 and order.properties.billing_address_3 != '' -%}
-                {%- assign billing_address = billing_address | append: order.properties.billing_address_3 | append : ", " -%}
+            {%- if order.billing_address_3 and order.billing_address_3 != '' -%}
+                {%- assign billing_address = billing_address | append: order.billing_address_3 | append : ", " -%}
             {%- endif -%}
-            {%- if order.properties.billing_city and order.properties.billing_city != '' -%}
-                {%- assign billing_address = billing_address | append: order.properties.billing_city | append : ", " -%}
+            {%- if order.billing_city and order.billing_city != '' -%}
+                {%- assign billing_address = billing_address | append: order.billing_city | append : ", " -%}
             {%- endif -%}
-            {%- if order.properties.billing_state and order.properties.billing_state != '' -%}
-                {%- assign billing_address = billing_address | append: order.properties.billing_state | append : " " -%}
+            {%- if order.billing_state and order.billing_state != '' -%}
+                {%- assign billing_address = billing_address | append: order.billing_state | append : " " -%}
             {%- endif -%}
-            {%- if order.properties.billing_postcode and order.properties.billing_postcode != '' -%}
-                {%- assign billing_address = billing_address | append: order.properties.billing_postcode | append : ", " -%}
+            {%- if order.billing_postcode and order.billing_postcode != '' -%}
+                {%- assign billing_address = billing_address | append: order.billing_postcode | append : ", " -%}
             {%- endif -%}
-            {%- if order.properties.billing_country and order.properties.billing_country != '' -%}
-                {%- assign billing_address = billing_address | append: order.properties.billing_country | append : " " -%}
+            {%- if order.billing_country and order.billing_country != '' -%}
+                {%- assign billing_address = billing_address | append: order.billing_country | append : " " -%}
             {%- endif -%}
             <p class="font-cabin">{{ billing_address }}</p>
         </div>
@@ -123,7 +123,7 @@ authorization_policies:
         {%- unless context.current_user.id and account_verified -%}
             <div class="spacer xxxx-large"></div>
             {% include_form "modules/ecommerce/checkout_set_password", 
-                id: order.properties.user_id
+                id: order.user_id
                 data: order %}
         {%- endunless -%}
     </div>
