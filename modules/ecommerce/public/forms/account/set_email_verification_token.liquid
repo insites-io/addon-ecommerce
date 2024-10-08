@@ -1,0 +1,14 @@
+---
+name: set_email_verification_token
+resource: User
+resource_owner: anyone
+fields:
+  email:
+  profiles:
+    modules/insites_core/insites_default:
+      properties:
+        password_token:
+          validation: { presence: true }
+email_notifications:
+  - modules/ecommerce/send_verification_email
+---

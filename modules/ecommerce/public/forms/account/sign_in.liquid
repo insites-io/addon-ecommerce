@@ -1,0 +1,116 @@
+---
+name: sign_in
+resource: Session
+resource_owner: anyone
+flash_notice: 'Successful'
+flash_alert: 'Sorry-SignIn'
+redirect_to: >
+  {%- if form.redirect == "checkout" -%}
+    {{ form.redirect }}
+  {%- else -%}
+    account-information
+  {%- endif -%}
+fields:
+  email:
+    validation: 
+      presence:
+        message: Please use a valid email address
+      email: 
+        message: Please use a valid email address
+  password:
+    validation: 
+      presence:
+        message: Password is required
+  redirect:
+    property_options:
+        virtual: true
+callback_actions: >
+  {%- comment -%}GET Cart data{%- endcomment -%}
+  {% log context.session.session_id, type: "==== Sign-in callback: Session ID ====" %}
+  {% include 'modules/ecommerce/checkout/compute_order_summary',
+     user_id: context.session.session_id %}
+  
+  {% log form.id, type: "==== Sign-in callback: User ID ====" %}
+  {% log context.exports.order.cart_ids, type: "==== Sign-in callback: Cart IDs ====" %}
+
+  {%- comment -%}Update cart user_id{%- endcomment -%}
+  {%- assign user_id = form.id | downcase -%}
+  {% graphql cart = "modules/ecommerce/cart/update_status_cart_ids", 
+      ids: context.exports.order.cart_ids,
+      user_id: user_id %}
+  {% log cart, type: "==== Sign-in callback: Cart Updated ====" %}
+
+
+  {%- comment -%}Update cart discount code user_id{%- endcomment -%}
+  {% graphql cart_discount_codes = "modules/ecommerce/discount_code/callback_update_cart_discount_codes",
+    ids: context.exports.order.cart_discount_code_ids,
+    user_id: user_id %}
+  {% log cart_discount_codes, type: "==== Sign-in callback: Cart Discount Codes Updated ====" %}
+---
+
+{%- form 
+	html-id: "sign-in-form"
+	html-novalidate: true
+  html-enctype="multipart/form-data"
+  html-onsubmit:"return LoginScript.methods.validateForm(event);" -%}
+	
+	<div class="grid-x grid-padding-x">
+		<div class="small-12 cell">
+			<ins-input validate
+				id="email"
+        label="Email"
+        field="email"
+        name="{{ form.fields.email.name }}" 
+        value="{{ form.fields.email.value }}" 
+        {% if form.errors['email'] %} has-error {% endif %}
+        error-message="{{ form.fields.email.validation.rules.presence.message }}"
+        placeholder="Email Address">
+			</ins-input>
+
+      <ins-input validate
+          id="password"
+          label="Password"
+          field="password"
+          name="{{ form.fields.password.name }}" 
+          value="{{ form.fields.password.value }}" 
+          placeholder="Password">
+      </ins-input>
+    </div>
+
+    {%- if form.errors -%}
+    <div class="small-12 cell">
+			<p class="color-warning">{{ form.errors['password'] }}</p>
+		</div>
+  	{%- endif -%}
+
+		<div class="small-12 cell grid-x">
+			<div class="large-6 medium-6 small-12 cell">
+			</div>
+			<div class="large-6 medium-6 small-12 cell text-right">
+        <div class="spacer small"></div>
+				<a class="color-font-body" href="/password-recover">Forgot your password?</a>
+			</div>
+		</div>
+		<div class="small-12 cell spacer x-large">
+    {%- if context.flash.alert and context.flash.alert != 'Sorry-SignIn' -%}
+      <div class="spacer small"></div>
+      <p class="error-message">{{ context.flash.alert }}</p>
+    {%- endif -%}
+    </div>
+
+    <input type="hidden" 
+        name="{{ form.fields.redirect.name }}" 
+        value="{{ context.page.slug }}" />
+
+    <div class="small-12 cell text-center">
+			<ins-button id="submit-btn" label="SIGN IN" class="full" solid color="blue" type="submit" size="large"></ins-button>
+		</div>
+
+		<div class="small-12 cell spacer x-large"></div>
+		<div class="small-12 cell text-center">
+			<p>Not a member? <a class="color-main" href="/sign-up">Join us.</a></p>
+    </div>
+	</div>
+
+
+{%- endform -%}

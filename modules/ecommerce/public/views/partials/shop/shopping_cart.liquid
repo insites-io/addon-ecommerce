@@ -1,0 +1,98 @@
+{%- if context.current_user.id -%}
+    {%- assign user_id = context.current_user.id -%}
+{%- else -%}
+    {%- assign user_id = context.session.session_id -%}
+{%- endif -%}
+
+{%- graphql cartList = 'modules/ecommerce/shop/get_shopping_cart', user_id: user_id, status: "Cart" -%}
+
+{%- if cartList.items.total_entries > 0 -%}
+    <div id="shopping-cart-list" class="shopping-cart grid-x grid-padding-x grid-padding-y">
+        {%- for cart_item in cartList.items.results -%}                                                    
+
+            {% comment %} Get cart product details {% endcomment %} 
+            {% assign main_product = cart_item.main_product[0] -%}       
+            {%- assign cart_img =  main_product.main_image[0].file.versions['88x66'] -%}
+            {% assign max_qty = main_product.stock -%}
+
+            {% comment %} Get cart product variant details {% endcomment %}
+            {%- if cart_item.product_variant_id -%}
+                {%- graphql product_variant = 'modules/ecommerce/shop/get_product_variants_cart_view', 
+                    id: cart_item.product_variant_id  | fetch: "items" | fetch: "results" | first -%}
+                {%- assign max_qty = product_variant.stock -%}
+                {%- if product_variant.gallery[0].file.versions['88x66'] -%}
+                    {%- assign cart_img = product_variant.gallery[0].file.versions['88x66'] -%}
+                {%- endif -%}                     
+            {%- endif -%}
+                
+            <div class="cell cart-item-cont">
+                <ins-card steady no-padding>
+                    <div class="product-info flex-container">
+                        <div class="img-cont">
+                            {%- if main_product.main_image[0].file.url -%}
+                                <img src="{{ cart_img }}" alt="{{ cart_item.product_name }}" />
+                            {%- else -%}
+                                {%- include 'modules/website/content/placeholder-image', size: 'small' -%}
+                            {%- endif -%}
+                        </div>
+                        <div class="spacer"></div>
+                        <div class="info flex-child-grow">
+                            <div>
+                                <p class="heading-6 color-font-head">{{ cart_item.product_name }}</p>
+                            </div>
+                            <div class="body-paragraph color-font-body">
+                                <p>
+                                {%- if cart_item.product_variant_id -%}
+                                {{ cart_item.product_variant_sku }}
+                                {%- else -%}
+                                {{ cart_item.product_sku }}
+                                {%- endif -%}
+                                </p>
+                            </div>
+                            <div class="spacer small"></div>
+                            <div class="body-small color-font-body">
+                                Price: {{ cart_item.product_price | divided_by: 100.0 | pricify }}
+                            </div>
+                            <div class="body-small color-font-body">
+                                {{ cart_item.product_variant }}
+                            </div>
+                        </div>
+                        <div class="spacer"></div>
+                        <div class="others text-right large-flex-child-shrink flex-child-auto">
+                            <div class="spacer hide-for-large"></div>
+                            <div>
+                                {%- include_form 'modules/ecommerce/remove_from_cart', id: cart_item.id  -%}
+                            </div>
+                            <div class="spacer small"></div>
+                            <div id="total-amount" class="cart-price color-font-head">
+                                {%- assign amount_total = cart_item.product_price | times: cart_item.quantity -%}
+                                {{ amount_total | divided_by: 100.0 | pricify }}
+                            </div>
+                            <div class="spacer x-small"></div>
+                            <div>
+                                <ins-input-stepper
+                                    id="qty-cart-{{ cart_item.id }}" 
+                                    class="quantity-cart" 
+                                    value="{{ cart_item.quantity }}" 
+                                    step="1" min="1" 
+                                    max="{{ max_qty }}" 
+                                    small>
+                                </ins-input-stepper>
+                            </div>
+
+                        </div>
+
+                    </div>
+            </div>
+        {%- endfor -%}
+        
+    </div>
+{%- else -%}
+    <div id="shopping-cart-list" class="shopping-cart grid-x grid-padding-x grid-padding-y">
+        <div class="small-12 cell">
+            <ins-card steady class="empty-state">
+                <span>No Cart Items</span>
+            </ins-card>
+        </div>
+    </div>
+{%- endif -%}

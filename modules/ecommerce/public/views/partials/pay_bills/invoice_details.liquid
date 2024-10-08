@@ -1,0 +1,94 @@
+<div id="invoice-details">
+    <h2 class="heading-2">Invoice Details</h2>
+    <div class="spacer x-large"></div>
+
+    <div class="grid-x grid-padding-x invoice-details">
+        {%- graphql data = 'modules/ecommerce/account/get_current_user' -%}
+        <div class="large-6 medium-6 small-12 cell">
+            <ins-input required validate account-details-field
+                class="label-input"
+                label="Invoice Number*" 
+                placeholder="Invoice Number"
+                field="text"
+                id="invoice-number"
+                name="{{ form.fields.properties.product_name.name }}" 
+                value="{{ form.fields.properties.product_name.value }}"
+                {% if form.errors['properties.product_name'] %} has-error {% endif %}
+                error-message="{{ form.fields.properties.product_name.validation.rules.presence.message }}">
+            </ins-input>
+        </div>
+        <div class="large-6 medium-6 small-12 cell">
+            <ins-input account-details-field
+                class="label-input"
+                label="Company Name" 
+                placeholder="Company Name"
+                field="text"
+                id="company-name"
+                name="{{ form.fields.properties.company_name.name }}" 
+                value="{{ form.fields.properties.company_name.value }}"
+                {% if form.errors['properties.company_name'] %} has-error {% endif %}
+                error-message="{{ form.fields.properties.company_name.validation.rules.presence.message }}">
+            </ins-input>
+        </div>
+        <div class="large-6 medium-6 small-12 cell">
+            <ins-input required validate account-details-field
+                class="label-input"
+                {% if context.current_user and context.current_user.first_name %} readonly {% endif %}
+                label="First Name*" 
+                placeholder="First Name"
+                value="{{ context.current_user.first_name }}"
+                name="{{ form.fields.properties.billing_first_name.name }}" 
+                {% if form.errors['properties.billing_first_name'] %} has-error {% endif %}
+                error-message="{{ form.fields.properties.billing_first_name.validation.rules.presence.message }}">
+            </ins-input>
+        </div>
+        <div class="large-6 medium-6 small-12 cell">
+            <ins-input required validate account-details-field
+                class="label-input"
+                {% if context.current_user and context.current_user.last_name %} readonly {% endif %}
+                label="Last Name*" 
+                placeholder="Last Name"
+                value="{{ context.current_user.last_name }}"
+                name="{{ form.fields.properties.billing_last_name.name }}" 
+                {% if form.errors['properties.billing_last_name'] %} has-error {% endif %}
+                error-message="{{ form.fields.properties.billing_last_name.validation.rules.presence.message }}">
+            </ins-input>
+        </div>
+        <div class="large-6 medium-6 small-12 cell">
+            <ins-input required validate account-details-field
+                class="label-input"
+                {% if context.current_user and context.current_user.email %} readonly {% endif %}
+                label="Email*" 
+                placeholder="Email"
+                field="email"
+                id="billing-email"
+                value="{{ context.current_user.email }}"
+                name="{{ form.fields.properties.billing_email.name }}" 
+                {% if form.errors['properties.billing_email'] %} has-error {% endif %}
+                error-message="{{ form.fields.properties.billing_email.validation.rules.presence.message }}">
+            </ins-input>
+        </div>
+        <div class="large-6 medium-6 small-12 cell">
+            <ins-input-tel
+                class="label-input"
+                id="billing_phone"
+                label="Mobile Number" 
+                phonenum-value="{{ data.current_user.insites_contact_number[0].mobile_phone_number }}" 
+                phonenum-placeholder="Mobile Number" no-areacode>
+            </ins-input-tel>
+        </div>
+        <div class="large-6 medium-6 small-12 cell">
+            <ins-input required validate account-details-field
+                class="label-input"
+                label="Amount Excluding Tax*" 
+                placeholder="Amount Excluding Tax"
+                field="number"
+                id="bill-amount"
+                name="{{ form.fields.properties.product_price.name }}" 
+                value="{{ form.fields.properties.product_price.value }}"
+                {% if form.errors['properties.product_price'] %} has-error {% endif %}
+                error-message="{{ form.fields.properties.product_price.validation.rules.numericality.message }}">
+            </ins-input>
+        </div>
+    </div>
+</div>

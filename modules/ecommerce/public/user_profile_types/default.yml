@@ -1,0 +1,4 @@
+name: default
+properties:
+- name: password_token
+  type: string

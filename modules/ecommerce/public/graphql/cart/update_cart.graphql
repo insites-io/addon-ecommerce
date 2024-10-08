@@ -1,0 +1,44 @@
+mutation update_cart (
+  $id: ID!
+  $user_id: String
+  $quantity: Int
+  $order_id: String
+  $status: String
+
+  ## Product Details
+  $product_id: String
+  $product_name: String
+  $product_sku: String
+  $product_variant: String
+
+  $product_price: Float
+  $tax_amount: Float
+  $shipping_amount: Float
+) {
+  items: record_update(
+    id: $id
+    record: {
+      table: "modules/insites_ecommerce/insites_cart"
+      properties: [
+        { name: "user_id", value: $user_id }
+        { name: "quantity", value_int: $quantity }
+        { name: "order_id", value: $order_id }
+        { name: "status", value: $status }
+
+        { name: "product_id", value: $product_id }
+        { name: "product_name", value: $product_name }
+        { name: "product_sku", value: $product_sku }
+        { name: "product_variant", value: $product_variant }
+
+        { name: "product_price", value_float: $product_price }
+        { name: "tax_amount", value_float: $tax_amount }
+        { name: "shipping_amount", value_float: $shipping_amount }
+      ]
+    }
+  ) {
+    id
+    created_at
+    updated_at
+    properties
+  }
+}

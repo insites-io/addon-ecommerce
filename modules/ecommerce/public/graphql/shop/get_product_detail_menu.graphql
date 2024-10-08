@@ -1,0 +1,38 @@
+query get_product_detail_menu (
+  $id: ID,
+  $slug: String,
+  $page: Int = 1,
+  $size: Int = 10,
+  $is_enabled: Boolean,
+  $is_archived: Boolean,
+  $is_show_more: Boolean,
+  $sort_by: [RecordsSortInput!] = { 
+    updated_at: { order: DESC }
+  }
+) {
+  items: records(
+    page: $page
+    per_page: $size
+    filter: {
+      id: { value: $id }
+      deleted_at: { exists: false }
+      table: { value: "modules/insites_ecommerce/insites_product" }
+      properties: [
+        { name: "is_enabled", value_boolean: $is_enabled }
+        { name: "is_archived", value_boolean: $is_archived }
+        { name: "slug", value: $slug }
+      ] 
+    }
+    sort: $sort_by
+  ) {
+    total_entries
+    total_pages
+    current_page
+    results {
+      id
+      name: property(name: "name")
+      variant_enabled: property(name: "variant_enabled") @include(if: $is_show_more)
+      variant_schema: property(name: "variant_schema") @include(if: $is_show_more)
+    }
+  }
+}

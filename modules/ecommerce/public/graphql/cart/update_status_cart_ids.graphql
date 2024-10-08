@@ -1,0 +1,26 @@
+# Updated for pOS release for `sync` <data>_update_all 
+# Ticket: NMS-4453
+
+mutation update_status_cart_ids (
+  $ids: [ID!]
+  $user_id: String!
+  $order_id: String
+  $status: String
+) {
+  items: records_update_all(
+    sync:true
+    filter: {
+      id: { value_in: $ids }
+    }
+    table: "modules/insites_ecommerce/insites_cart"
+    record: {
+      properties: [
+        { name: "user_id", value: $user_id }
+        { name: "order_id", value: $order_id }
+        { name: "status", value: $status }
+      ]
+    }
+  ) {
+    count
+  }
+}

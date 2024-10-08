@@ -1,0 +1,32 @@
+---
+slug: checkout
+layout: modules/ecommerce/checkout-layout
+# enable_profiler: true
+searchable: "true"
+max_deep_level: 3
+metadata: {
+    "status": "published",
+    "page_type": "system", ## content, system or endpoint
+    "og:url": "",
+    "og:type": "",
+    "og:image": "",
+    "og:title": "Checkout",
+    "og:description": "Checkout",
+    "og:site_name": "",
+    "meta_title": "Checkout",
+    "page_title": "Checkout",
+    "meta_description": "Checkout",
+    "canonical_url": "",
+    "search_engine_visibility": false,
+    "sitemap_enabled": false,
+    "sitemap_priority": "1.0",## primary order (DESC)
+    "sitemap_order": "0", ## secondary order (ASC)
+    "sitemap_changefreq": "never"
+}
+---
+
+{%- if context.current_user or context.params.guest -%}
+    {%- include 'modules/ecommerce/checkout/checkout_page' -%}
+{%- else -%}
+    {%- include 'modules/ecommerce/checkout/landing_page' -%}
+{%- endif -%}

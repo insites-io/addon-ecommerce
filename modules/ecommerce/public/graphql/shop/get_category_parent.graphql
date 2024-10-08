@@ -1,0 +1,40 @@
+query get_category_parent (
+  $id: ID,
+  $page: Int = 1,
+  $size: Int = 50,
+  $is_enabled: Boolean = true,
+  $parent_ids: [String!] = [],
+  $sort_by: [RecordsSortInput!] = {
+      properties: [
+          { name: "sort_order", order: ASC }
+          { name: "name", order: ASC }
+      ]
+  }
+) {
+  items: records(
+    page: $page
+    per_page: $size
+    filter: {
+      id: { value: $id }
+      deleted_at: { exists: false }
+      table: { value: "modules/insites_ecommerce/insites_category" }
+      properties: [
+        { name: "parent_ids", value_in: $parent_ids }
+        { name: "is_enabled", value_boolean: $is_enabled }
+        { name: "is_archived", value_boolean: false }
+        { name: "slug", not_value_in: "null" }
+      ] 
+    }
+    sort: $sort_by
+  ) {
+    total_entries
+    total_pages
+    current_page
+    results {
+      id 
+      name:property(name: "name") 
+      slug:property(name: "slug")
+    }
+  }
+}
+

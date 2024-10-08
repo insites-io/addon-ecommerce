@@ -1,0 +1,19 @@
+
+<ins-steps
+    {% if clickable %} clickable  with-validation {% endif %}
+    {% if context.location.pathname == '/confirmation' %} complete {% endif %}
+    id="checkout-nav">
+
+    <ins-step data-step="1" content="account-details" description="Account Details" active>
+    </ins-step>
+
+    <ins-step data-step="2" content="shipping-details" description="Shipping">
+    </ins-step>
+
+    <ins-step data-step="3" content="payment-details" description="Payment">
+    </ins-step>
+
+    <ins-step disabled description="Confirmation">
+    </ins-step>
+
+</ins-steps>

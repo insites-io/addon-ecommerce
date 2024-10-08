@@ -1,0 +1,132 @@
+{%- if order_id -%}
+    {% graphql order = "modules/ecommerce/orders/get_order_details",
+        id: context.params.order_id 
+        | dig: 'items' | dig: 'results' | first %}
+    {% graphql cart = "modules/ecommerce/cart/get_cart",
+        order_id: context.params.order_id 
+        | dig: 'items' | dig: 'results' %}
+    {% assign amountPayable = cart[0].properties.product_price | divided_by: 100 %}
+    {% assign ccSurcharge = cart[1].properties.product_price | divided_by: 100 %}
+    {% assign subTotal = amountPayable | plus: ccSurcharge | default: "0.00" %}
+    {% assign taxTotal = order.properties.tax_amount | divided_by: 100 %}
+    {% assign totalAmount = order.properties.total_amount | divided_by: 100 %}
+{%- endif -%}
+
+<div id="payment-summary" class="grid-x grid-padding-x body-large color-font-sub">
+    <div class="large-12 medium-12 small-12 cell">
+        <h2 class="heading-2 color-sub">Payment Summary</h2>
+        <div class="spacer x-large"></div>
+    </div>
+    <div class="large-8 medium-8 small-8 cell">
+        <p class="body-large">Bill Amount</p>
+        <div class="spacer small"></div>
+        <p class="body-large">Credit Card Processing Fee (1.7%)</p>
+    </div>
+    <div class="large-4 medium-4 small-4 cell text-right">
+        <p class="body-large">$<span id="charge-amount-summary">{{ amountPayable | default: "0.00" }}</span></p>
+        <div class="spacer small"></div>
+        <p class="body-large">$<span id="cc-charge-summary">{{ ccSurcharge | default: "0.00" }}</span></p>
+    </div>
+    <div class="large-12 medium-12 small-12 cell">
+        <hr class="spacer">
+        <div class="spacer"></div>
+    </div>
+    <div class="body-large color-sub large-8 medium-8 small-8 cell">
+        <p class="body-large">Subtotal</p>
+        <div class="spacer x-small"></div>
+        <p class="body-large">Tax</p>
+    </div>
+    <div class="large-4 medium-4 small-4 cell text-right">
+        <p class="body-large">$<span id="sub-total-summary">{{ subTotal | default: "0.00" }}</span></p>
+        <div class="spacer x-small"></div>
+        <p class="body-large">$<span id="tax-total-summary">{{ taxTotal | default: "0.00" }}</span></p>
+    </div>
+    <div class="large-12 medium-12 small-12 cell">
+        <hr class="spacer">
+        <div class="spacer"></div>
+    </div>
+    <div class="large-6 medium-6 small-6 cell">
+        <p class="order-total">Total</p>
+    </div>
+    <div class="large-6 medium-6 small-6 cell text-right">
+        <p class="order-total">$<span id="total-amount-summary">{{ totalAmount | default: "0.00" }}</span></p>
+    </div>
+</div>
+
+{%- if order_id -%}
+    {%- comment -%} Success page {%- endcomment -%}
+    <script>
+        let chargeAmountEl = document.getElementById('charge-amount-summary');
+        let ccAmountEl = document.getElementById('cc-charge-summary');
+        let subTotalEl = document.getElementById('sub-total-summary');
+        let taxTotalEl = document.getElementById('tax-total-summary');
+        let totalAmountEl = document.getElementById('total-amount-summary');
+
+        setTimeout(() => {
+            chargeAmountEl.innerHTML = pricify({{ amountPayable }});
+            ccAmountEl.innerHTML = pricify({{ ccSurcharge }});
+            subTotalEl.innerHTML = pricify({{ subTotal }});
+            taxTotalEl.innerHTML = pricify({{ taxTotal }});
+            totalAmountEl.innerHTML = pricify({{ totalAmount }});
+        }, 500)
+
+        function pricify(number) {
+            return number.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+    </script>
+
+{%- else -%}
+    {%- comment -%}Payment form {%- endcomment -%}
+    <script>
+    let valueChangeHandler = debounce((ev) => calculatePaymentSummary(ev));
+
+    let amountEl = document.getElementById('bill-amount');
+    let chargeAmountEl = document.getElementById('charge-amount-summary');
+    let ccAmountEl = document.getElementById('cc-charge-summary');
+    let subTotalEl = document.getElementById('sub-total-summary');
+    let taxTotalEl = document.getElementById('tax-total-summary');
+    let totalAmountEl = document.getElementById('total-amount-summary');
+
+    function debounce(func, timeout = 500){
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => { func.apply(this, args); }, timeout);
+        };
+    }
+
+    function calculatePaymentSummary(ev){
+    let amountPayable = ev.detail * 1.00;
+    let ccSurcharge = amountPayable * 0.017; // 1.7% credit card surcharge
+    let subTotal = amountPayable + ccSurcharge;
+    let taxAmount = subTotal * 0.10; // 10% Tax;
+    let totalAmount = subTotal + taxAmount;
+
+        if(chargeAmountEl) 
+            chargeAmountEl.innerHTML = pricify(amountPayable);
+        if(ccAmountEl) 
+            ccAmountEl.innerHTML = pricify(ccSurcharge);
+        if(subTotalEl) 
+            subTotalEl.innerHTML = pricify(subTotal);
+        if(taxTotalEl) 
+            taxTotalEl.innerHTML = pricify(taxAmount);
+        if(totalAmountEl) 
+            totalAmountEl.innerHTML = pricify(totalAmount);
+    }
+
+    function pricify(number) {
+        return number 
+            ? number.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})
+            : "0.00";
+    }
+
+    // init listenter
+    if(amountEl) {
+        amountEl.addEventListener('insValueChange', (event) => {
+            event.detail > 0
+                ? valueChangeHandler(event)
+                : valueChangeHandler(0);
+        });
+    }
+    </script>
+{%- endif -%}

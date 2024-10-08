@@ -1,0 +1,74 @@
+---
+slug: 403
+layout: modules/website/system_layout
+searchable: true
+metadata: {
+    "status": "published",
+    "page_type": "content", ## content, system or endpoint
+    "og:url": "",
+    "og:type": "",
+    "og:image": "",
+    "og:title": "403 Forbidden Access",
+    "og:description": "403 Forbidden Access",
+    "og:site_name": "",
+    "meta_title": "403 Forbidden Access",
+    "page_title": "403 Forbidden Access",
+    "meta_description": "403 Forbidden Access",
+    "canonical_url": "",
+    "search_engine_visibility": false,
+    "sitemap_enabled": false,
+    "sitemap_priority": "1.0",## primary order (DESC)
+    "sitemap_order": "99", ## secondary order (ASC)
+    "sitemap_changefreq": "never"
+}
+## dynamic_cache:
+##   layout: true
+##   key: |-
+##     {%- parse_json models -%}
+##       [
+##         "modules/website/main_menu",
+##         "modules/insites_layouts/insites_global_content"
+##       ]
+##     {%- endparse_json -%}
+##     {%- include "modules/website/dynamic_cache_key", models: models -%}
+---
+
+{%- assign name = '403 - Forbidden Access' -%}
+{%- content_for 'pagetitle' -%}{{ name }}{%- endcontent_for -%}
+
+<div>
+    <div class="grid-x grid-padding-x text-center">
+        <div class="small-12 cell spacer xxxx-large"></div>
+        <div class="large-12 medium-12 small-12 cell text-center">
+            {% comment %} <img class="spacer medium" src="{{ 'modules/insites_core/insites_admin/images/error-401.svg' | asset_url }}" alt="403 - Forbidden" /> {% endcomment %}
+            <h1 class="title">403</h1>
+            <h1 class="sub-title">Forbidden Access</h1>
+            
+            <div class="spacer small"></div>
+            <div class="context">
+                <p>You don't have permission to access this page. If you have an account please verify it.</p>
+            </div>
+            <div class="spacer x-large"></div>
+
+            <div class="grid-x grid-padding-x">
+                <div class="cell large-12 medium-12 small-12 text-center">
+                    <ins-button
+                        class="margin-top-small"
+                        label="GO BACK"
+                        color="solid blue"
+                        onclick=window.history.back();>
+                    </ins-button>
+                    <a href="/sign-in?return_to={{ context.params.return_to }}"
+                        class="ins-button">
+                        <ins-button id="loginLink"
+                            class="margin-top-small"
+                            label="login"
+                            color="solid blue">
+                        </ins-button>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="small-12 cell spacer xxxx-large"></div>
+    </div>
+</div>

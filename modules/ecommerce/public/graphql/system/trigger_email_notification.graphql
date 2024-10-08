@@ -1,0 +1,13 @@
+mutation trigger_email_notification ($name: String!, $data: HashObject) {
+  items: email_send(
+    data: $data,
+    template: {
+      name: $name
+    }
+  ) {
+    is_scheduled_to_send
+    errors {
+      message
+    }
+  }
+}

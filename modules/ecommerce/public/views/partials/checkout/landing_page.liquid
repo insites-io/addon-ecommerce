@@ -1,0 +1,39 @@
+
+{%- comment -%}
+    Checkout landing page: User not yet logged in
+{%- endcomment -%}
+{%- assign company_name = context.exports.global.company_name | strip | default: "us" -%}
+
+<div class="grid-x grid-padding-x">
+    <div class="large-offset-1 medium-offset-0 small-offset-0
+        large-4 medium-5 small-12 cell">
+        
+        {%- comment -%}Login form {%- endcomment -%}
+        <h2 class="heading-1">Existing Customer</h2>
+        <div class="spacer x-large"></div>
+        {%- include_form "modules/ecommerce/sign_in" -%}
+
+        <div class="spacer xxx-large show-for-small-only"></div>
+    </div>
+
+    <div class="vertical-divider large-2 medium-2 small-0 cell">
+        {%- comment -%}Vertical Divider{%- endcomment -%}
+    </div>
+
+    <div class="large-4 medium-5 small-12 cell end btn-container">
+        {%- comment -%}Redirect to checkout {%- endcomment -%}
+        <h2 class="heading-1">New Customer</h2>
+        <div class="spacer x-small"></div>
+        <p>If this is your first time purchasing from {{ company_name }}, press continue to start your order.</p>
+        <div class="spacer x-large"></div>
+
+        <a href="?guest=true">
+            <ins-button outlined 
+                type="button" 
+                label="Continue as new customer">
+            </ins-button>
+        </a>
+        
+        <div class="spacer x-large show-for-small-only"></div>
+    </div>
+</div>

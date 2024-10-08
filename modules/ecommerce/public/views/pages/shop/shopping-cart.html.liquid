@@ -1,0 +1,88 @@
+---
+slug: shopping-cart
+layout: modules/ecommerce/shop-layout
+# enable_profiler: true
+max_deep_level: 3
+metadata: {
+    "status": "published",
+    "page_type": "content", ## content, system or endpoint
+    "og:url": "",
+    "og:type": "",
+    "og:image": "",
+    "og:title": "Cart",
+    "og:description": "Cart",
+    "og:site_name": "",
+    "meta_title": "Cart",
+    "page_title": "Cart",
+    "meta_description": "Cart",
+    "canonical_url": "",
+    "search_engine_visibility": false,
+    "sitemap_enabled": false,
+    "sitemap_priority": "1.0",## primary order (DESC)
+    "sitemap_order": "99", ## secondary order (ASC)
+    "sitemap_changefreq": "never"
+}
+---
+
+{%- assign global = context.exports.global -%}
+
+
+{%- if context.current_user.id -%}
+    {%- assign user_id = context.current_user.id -%}
+{%- else -%}
+    {%- assign user_id = context.session.session_id -%}
+{%- endif -%}
+
+{%- graphql cartList = 'modules/ecommerce/cart/get_cart_total',
+    user_id: user_id,
+    status: "Cart" -%}
+
+{%- content_for 'title' -%}Review your cart{%- endcontent_for -%}
+{%- content_for 'canonical_url' -%}/shopping-cart{%- endcontent_for -%}
+
+<div class="ecommerce-wrapper grid-container">
+    <div class="grid-x grid-padding-x">
+        <div class="small-12 cell spacer x-large"></div>
+        <div class="small-12 cell">
+            <h1 class="heading-1">Review your cart</h1>
+        </div>
+        <div class="small-12 cell spacer x-large"></div>
+        
+        <div class="large-7 small-12 cell">
+            {% include 'modules/ecommerce/shop/shopping_cart' %}
+            <div class="spacer x-large hide-for-large-only"></div>
+        </div>
+        <div class="large-4 large-offset-1 small-12 cell">
+            {% include 'modules/ecommerce/layout/order_summary', 
+                show_product: false, 
+                show_discount_list: true,
+                status: "Cart",
+                form_update: true,
+                form_delete: true %}
+            <div class="spacer x-large"></div>
+            {%- if cartList.items.total_entries > 0 -%}
+                <div class="text-right">
+                    <a href="/checkout">
+                        <ins-button label="PROCEED TO CHECKOUT" solid color="blue" class="checkoutBtn"></ins-button>
+                    </a>
+                </div>
+            {%- endif -%}
+
+            <div class="spacer x-large"></div>
+
+            {% include_form 'modules/ecommerce/apply_discount_code' %}
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+{%- if context.environment == "staging" -%}
+    <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
+    <script src="{{ 'modules/ecommerce/scripts/shopping-cart.js' | asset_url }}"></script>
+{%- else -%}
+    <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
+    <script src="{{ 'modules/ecommerce/scripts/shopping-cart.min.js' | asset_url }}"></script>
+{%- endif -%}

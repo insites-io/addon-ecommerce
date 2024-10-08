@@ -1,0 +1,1433 @@
+
+{%- capture seed_data -%}<%= seed_data =%>{%- endcapture -%}
+{%- assign seed_data = seed_data | strip | downcase -%}
+
+{%- if seed_data == true or seed_data == "true" -%}
+    {% log " === INITIALIZING: START seed data ===" %}
+    {%- comment -%}STEP 1: IMPORT AND CREATE CATEGORIES AND PRODUCTS{%- endcomment -%}
+    {% parse_json 'import_models' %}
+    [
+        {
+            "id": "e6331d6c-b929-11eb-8529-0242ac130003",
+            "type_name": "modules/website/main_menu",
+            "properties": {
+            "link": "/products",
+            "label": "Products",
+            "order": 30,
+            "enabled": true
+            }
+        },
+        {
+            "id": "e28a6d2e-bced-11eb-8529-0242ac130003",
+            "type_name": "modules/website/main_menu",
+            "properties": {
+            "link": "/pay-bill",
+            "label": "Pay Your Bill",
+            "order": 35,
+            "enabled": true
+            }
+        },
+        {
+            "id": "4e7162e2-b841-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_category",
+            "properties": {
+            "name": "Shoes",
+            "page_heading": "Shoes",
+            "slug": "shoes",
+            "parent_ids": [],
+            "is_enabled": true,
+            "is_archived": false,
+            "search_engine_visibility": true,
+            "sort_order": 0,
+            "meta_title": "Shoes",
+            "meta_description": "Shoes",
+            "og_title": "Shoes",
+            "og_description": "Shoes"
+            }
+        },
+        {
+            "id": "216c4491-2e5a-4037-a873-ea45b030370e",
+            "type_name": "modules/insites_ecommerce/insites_category",
+            "properties": {
+            "name": "Men's Shoes",
+            "page_heading": "Men's Shoes",
+            "slug": "mens-shoes",
+            "parent_ids": [
+                "4e7162e2-b841-11eb-8529-0242ac130003"
+            ],
+            "is_enabled": true,
+            "is_archived": false,
+            "search_engine_visibility": true,
+            "sort_order": 0,
+            "meta_title": "Men's Shoes",
+            "meta_description": "Men's Shoes",
+            "og_title": "Men's Shoes",
+            "og_description": "Men's Shoes"
+            }
+        },
+        {
+            "id": "216c4491-2e5a-4037-a873-ea45b030370f",
+            "type_name": "modules/insites_ecommerce/insites_category",
+            "properties": {
+            "name": "Women's Shoes",
+            "page_heading": "Women's Shoes",
+            "slug": "womens-shoes",
+            "parent_ids": [
+                "4e7162e2-b841-11eb-8529-0242ac130003"
+            ],
+            "is_enabled": true,
+            "is_archived": false,
+            "search_engine_visibility": true,
+            "sort_order": 0,
+            "meta_title": "Women's Shoes",
+            "meta_description": "Women's Shoes",
+            "og_title": "Women's Shoes",
+            "og_description": "Women's Shoes"
+            }
+        },
+        {
+            "id": "216c4491-2e5a-4037-a873-ea45b030370g",
+            "type_name": "modules/insites_ecommerce/insites_category",
+            "properties": {
+            "name": "Basketball Shoes",
+            "page_heading": "Basketball Shoes",
+            "slug": "basketball-shoes",
+            "parent_ids": [
+                "216c4491-2e5a-4037-a873-ea45b030370e"
+            ],
+            "is_enabled": true,
+            "is_archived": false,
+            "search_engine_visibility": true,
+            "sort_order": 0,
+            "meta_title": "Basketball Shoes",
+            "meta_description": "Basketball Shoes",
+            "og_title": "Basketball Shoes",
+            "og_description": "Basketball Shoes"
+            }
+        },
+        {
+            "id": "4d3e16d2-b845-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_category",
+            "properties": {
+            "name": "Clothing",
+            "page_heading": "Clothing",
+            "slug": "clothing",
+            "parent_ids": [],
+            "is_enabled": true,
+            "is_archived": false,
+            "search_engine_visibility": true,
+            "sort_order": 0,
+            "meta_title": "Clothing",
+            "meta_description": "Clothing",
+            "og_title": "Clothing",
+            "og_description": "Clothing"
+            }
+        },
+        {
+            "id": "2fd17d9a-b846-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_category",
+            "properties": {
+            "name": "Bags",
+            "page_heading": "Bags",
+            "slug": "bags",
+            "parent_ids": [],
+            "is_enabled": true,
+            "is_archived": false,
+            "search_engine_visibility": true,
+            "sort_order": 0,
+            "meta_title": "Bags",
+            "meta_description": "Bags",
+            "og_title": "Bags",
+            "og_description": "Bags"
+            }
+        },
+        {
+            "id": "7e0dd594-b92c-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_category",
+            "properties": {
+            "name": "Accessories & Others",
+            "page_heading": "Accessories & Others",
+            "slug": "accessories-and-others",
+            "parent_ids": [],
+            "is_enabled": true,
+            "is_archived": false,
+            "search_engine_visibility": true,
+            "sort_order": 0,
+            "meta_title": "Accessories & Others",
+            "meta_description": "Accessories & Others",
+            "og_title": "Accessories & Others",
+            "og_description": "Accessories & Others"
+            }
+        },
+        {
+            "id": "f7d04e4f-2845-40c7-8d65-43822736ead9",
+            "type_name": "modules/insites_ecommerce/insites_product",
+            "properties": {
+            "name": "Zoom Freak 1",
+            "slug": "zoom-freak-1",
+            "sku": "9SIAJB7APH0171",
+            "categories": [
+                "4e7162e2-b841-11eb-8529-0242ac130003",
+                "216c4491-2e5a-4037-a873-ea45b030370e",
+                "216c4491-2e5a-4037-a873-ea45b030370g"
+            ],
+            "warranty": "",
+            "is_featured": false,
+            "unit_label": "Pair",
+            "short_description": "Get your freak on in Giannis Antetokounmpo's debut signature shoe, then first-ever for the international basketball sensation. The Zoom Freak 1 has the extra-responsive cushioning, forefoot stability and multi-directional traction needed to complement his freakishly athletic game.",
+            "long_description": "",
+            "variant_enabled": true,
+            "variant_schema": "modules/ins_ecommerce/zoom_freak_1",
+            "stock": 10000,
+            "tax_included": true,
+            "tax": 10,
+            "regular_price": 353,
+            "compare_at_price": 0,
+            "sale_price": 345,
+            "on_sale": false,
+            "length": 169,
+            "width": 79,
+            "height": 38,
+            "weight": 6.1,
+            "free_shipping": true,
+            "shipping_cost": 15,
+            "shipping_length": 0,
+            "shipping_width": 0,
+            "shipping_height": 0,
+            "shipping_weight": 0,
+            "custom_field_1": "<h2>FREAKISH SPEED, POWER AND CONTROL</h2><p>Get your freak on in Giannis Antetokounmpo's debut signature shoe, then first-ever for the international basketball sensation. The Zoom Freak 1 has the extra-responsive cushioning, forefoot stability and multi-directional traction needed to complement his freakishly athletic game.</p>",
+            "custom_field_2": "<p><b>Double-Stacked Cushioning</b></p><p>Two Zoom Air units under the heel stack on top of each other to provide extra cushioning for hard impacts and extra responsiveness for getting back down court.</p>",
+            "custom_field_3": "<p><b>Forefoot Stability</b></p><p>Internal bands come down over the forefoot when you lace up, helping to keep you stable and fully contained.</p>",
+            "custom_field_4": "",
+            "custom_field_5": "",
+            "meta_title": "Zoom Freak 1",
+            "meta_description": "Zoom Freak 1 - Shoes",
+            "canonical_url": "",
+            "search_engine_visibility": true,
+            "og_image": "",
+            "og_title": "Zoom Freak 1",
+            "og_description": "Zoom Freak 1 - Shoes",
+            "og_url": "",
+            "og_site_name": "",
+            "og_type": "",
+            "is_enabled": true,
+            "is_archived": false,
+            "sort_order": 0
+            }
+        },
+        {
+            "id": "a64a058c-b92c-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_product",
+            "properties": {
+            "name": "Transit",
+            "slug": "transit",
+            "sku": "98FDGA798A",
+            "categories": [
+                "4e7162e2-b841-11eb-8529-0242ac130003",
+                "216c4491-2e5a-4037-a873-ea45b030370e"
+            ],
+            "warranty": "",
+            "is_featured": false,
+            "unit_label": "Pair",
+            "short_description": "Plain Toe Oxford shoe has one principal defining characteristic: the lacing system. ",
+            "long_description": "",
+            "variant_enabled": false,
+            "variant_schema": "",
+            "stock": 10000,
+            "tax_included": true,
+            "tax": 10,
+            "regular_price": 110,
+            "compare_at_price": 0,
+            "sale_price": 0,
+            "on_sale": false,
+            "length": 169,
+            "width": 79,
+            "height": 38,
+            "weight": 6.1,
+            "free_shipping": true,
+            "shipping_cost": 0,
+            "shipping_length": 0,
+            "shipping_width": 0,
+            "shipping_height": 0,
+            "shipping_weight": 0,
+            "custom_field_1": "<p>Unlike most other shoes and items of menswear, the Oxford shoe has one principal defining characteristic:  the lacing system. Sometimes people use the term Oxford to denote any smart lace up shoe, even those with open lacing, but that’s not how we will use the term in this guide. <br> First of all, it may seem obvious but an Oxford is a shoe with laces, and not a slip-on, monk strap shoe or Chelsea boot. Second, an Oxford shoe has a closed lace system vs. the open lace system of a Derby shoe. But what exactly does that mean? Let’s start with the basics. The uppers of an Oxford usually consist of the quarters and the vamp.</p>",
+            "custom_field_2": "<p><b>Vamp</b></p><p>The vamp is that part of the shoe uppers the covers the toes and instep, i.e. the front of the shoe.</p>",
+            "custom_field_3": "<p><b>Quarters</b></p><p>The quarters are that part of the shoe uppers that wrap around the heel and meet the vamp in the middle of the foot i.e. the back of the shoe.</p>",
+            "custom_field_4": "",
+            "custom_field_5": "",
+            "meta_title": "Transit - Plain Toe Oxford",
+            "meta_description": "Transit - Plain Toe Oxford | Shoes",
+            "canonical_url": "",
+            "search_engine_visibility": true,
+            "og_image": "",
+            "og_title": "Transit - Plain Toe Oxford",
+            "og_description": "Transit - Plain Toe Oxford | Shoes",
+            "og_url": "",
+            "og_site_name": "",
+            "og_type": "",
+            "is_enabled": true,
+            "is_archived": false,
+            "sort_order": 0
+            }
+        },
+        {
+            "id": "9ea3cebc-b92c-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_product",
+            "properties": {
+            "name": "Highland",
+            "slug": "highland-chukka-boots",
+            "sku": "98FDGA798A",
+            "categories": [
+                "4e7162e2-b841-11eb-8529-0242ac130003",
+                "216c4491-2e5a-4037-a873-ea45b030370e"
+            ],
+            "warranty": "",
+            "is_featured": false,
+            "unit_label": "Pair",
+            "short_description": "Plain Toe Chukka Boot - A chukka boot is one of the most versatile pieces in any wardrobe. The Florsheim Highland Plain Toe Chukka Boot takes this style and adds hand burnishing on the leather upper, a sleek silhouette, and a modern stacked heel. For workweek or weekend, this will be your go-to boot no matter what the day brings.",
+            "long_description": "",
+            "variant_enabled": false,
+            "variant_schema": "",
+            "stock": 10000,
+            "tax_included": true,
+            "tax": 15,
+            "regular_price": 125,
+            "compare_at_price": 125 ,
+            "sale_price": 99.90,
+            "on_sale": true,
+            "length": 169,
+            "width": 79,
+            "height": 38,
+            "weight": 6.1,
+            "free_shipping": true,
+            "shipping_cost": 0,
+            "shipping_length": 0,
+            "shipping_width": 0,
+            "shipping_height": 0,
+            "shipping_weight": 0,
+            "custom_field_1": "<p>A chukka boot is one of the most versatile pieces in any wardrobe. The Florsheim Highland Plain Toe Chukka Boot takes this style and adds hand burnishing on the leather upper, a sleek silhouette, and a modern stacked heel. For workweek or weekend, this will be your go-to boot no matter what the day brings.</p>",
+            "custom_field_2": "<p>Leather sourced from a tannery with a Gold or Silver rating for environmental responsibility by the independent auditing group, the Leather Working Group. </p>",
+            "custom_field_3": "",
+            "custom_field_4": "",
+            "custom_field_5": "",
+            "meta_title": "Plain Toe Chukka Boots",
+            "meta_description": "Plain Toe Chukka Boots | Shoes",
+            "canonical_url": "",
+            "search_engine_visibility": true,
+            "og_image": "",
+            "og_title": "Plain Toe Chukka Boots",
+            "og_description": "Plain Toe Chukka Boots | Shoes",
+            "og_url": "",
+            "og_site_name": "",
+            "og_type": "",
+            "is_enabled": true,
+            "is_archived": false,
+            "sort_order": 0
+            }
+        },
+        {
+            "id": "f7d04e4f-2845-40c7-8d65-43822736ead0",
+            "type_name": "modules/insites_ecommerce/insites_product",
+            "properties": {
+            "name": "Zoom TRunner Advance",
+            "slug": "zoom-trunner-advance",
+            "sku": "658QW49E873A",
+            "categories": [
+                "4e7162e2-b841-11eb-8529-0242ac130003",
+                "216c4491-2e5a-4037-a873-ea45b030370e",
+                "216c4491-2e5a-4037-a873-ea45b030370g"
+            ],
+            "warranty": "",
+            "is_featured": false,
+            "unit_label": "Pair",
+            "short_description": "Designed for athletes who want a shoe they can run or train in, the Jordan Zoom Trunner Advance offers support in all directions. It features a radically new diamond-like cage that helps stabilise your side-to-side motions. Responsive cushioning helps drive you forwards.",
+            "long_description": "",
+            "variant_enabled": false,
+            "variant_schema": "",
+            "stock": 10000,
+            "tax_included": false,
+            "tax": 20,
+            "regular_price": 350,
+            "compare_at_price": 0,
+            "sale_price": 120,
+            "on_sale": false,
+            "length": 155,
+            "width": 85,
+            "height": 40,
+            "weight": 6.7,
+            "free_shipping": true,
+            "shipping_cost": 12,
+            "shipping_length": 0,
+            "shipping_width": 0,
+            "shipping_height": 0,
+            "shipping_weight": 0,
+            "custom_field_1": "<h2>FAST IN ALL DIRECTIONS</h2><p>Get your freak on in Giannis Antetokounmpo's debut signature shoe, then first-ever for the international basketball sensation. The Zoom Freak 1 has the extra-responsive cushioning, forefoot stability and multi-directional traction needed to complement his freakishly athletic game.</p>",
+            "custom_field_2": "<p><b>Spring Under Your Step</b></p><p>Two Zoom Air units under the heel stack on top of each other to provide extra cushioning for hard impacts and extra responsiveness for getting back down court.</p>",
+            "custom_field_3": "<p><b>Linear Speed, Lateral Stability</b></p><p>Internal bands come down over the forefoot when you lace up, helping to keep you stable and fully contained.</p>",
+            "custom_field_4": "",
+            "custom_field_5": "",
+            "meta_title": "Zoom TRunner Advance",
+            "meta_description": "Zoom TRunner Advance - Shoes",
+            "canonical_url": "",
+            "search_engine_visibility": true,
+            "og_image": "",
+            "og_title": "Zoom TRunner Advance",
+            "og_description": "Zoom TRunner Advance - Shoes",
+            "og_url": "",
+            "og_site_name": "",
+            "og_type": "",
+            "is_enabled": true,
+            "is_archived": false,
+            "sort_order": 0
+            }
+        },
+        {
+            "id": "ba9e6fc2-b860-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_product",
+            "properties": {
+            "name": "Metcon 6",
+            "slug": "metcon-6",
+            "sku": "GDUAS72183",
+            "categories": [
+                "4e7162e2-b841-11eb-8529-0242ac130003",
+                "216c4491-2e5a-4037-a873-ea45b030370e",
+                "216c4491-2e5a-4037-a873-ea45b030370g"
+            ],
+            "warranty": "",
+            "is_featured": false,
+            "unit_label": "Pair",
+            "short_description": "The most breathable version yet, Metcon 6 helps keep your foot cool when you're going full steam. It stands up to the push and pull of heavily weighted and high-intensity workouts, delivering stability and durability.",
+            "long_description": "",
+            "variant_enabled": false,
+            "variant_schema": "",
+            "stock": 10000,
+            "tax_included": false,
+            "tax": 00,
+            "regular_price": 450,
+            "compare_at_price": 400,
+            "sale_price": 390,
+            "on_sale": true,
+            "length": 155,
+            "width": 85,
+            "height": 40,
+            "weight": 6.4,
+            "free_shipping": true,
+            "shipping_cost": 15,
+            "shipping_length": 0,
+            "shipping_width": 0,
+            "shipping_height": 0,
+            "shipping_weight": 0,
+            "custom_field_1": "<h2>STURDY, STABLE AND COOLER THAN EVER</h2><p>The most breathable version yet, Metcon 6 helps keep your foot cool when you're going full steam. It stands up to the push and pull of heavily weighted and high-intensity workouts, delivering stability and durability.</p>",
+            "custom_field_2": "<p><b>The Coolest Metcon<b></p><p>Nearly 18% more breathable than the Metcon 5, this version features lightweight mesh that keeps air flowing and your foot cool. A durable screen print reinforces the mesh without sacrificing breathability.</p>",
+            "custom_field_3": "<p><b>Stability Under Weight</b></p><p>A low, flat and wide heel creates a stable base for weighted exercises. A removable Hyperlift insert lets you adjust the height under your heel from one set to the next.</p>",
+            "custom_field_4": "<p><b>Durable Traction</b></p><p>Rubber tread on the outsole and up the side of the shoe provides traction on the ground and grip when you're climbing a rope.</p>",
+            "custom_field_5": "<p><b>Focused Cusioning</b></p><p>Foam is firmer under the heel for a secure feel and softer in the forefoot to cushion high-impact moves.</p>",
+            "meta_title": "Metcon 6",
+            "meta_description": "Metcon 6 - Shoes",
+            "canonical_url": "",
+            "search_engine_visibility": true,
+            "og_image": "",
+            "og_title": "Metcon 6",
+            "og_description": "Metcon 6 - Shoes",
+            "og_url": "",
+            "og_site_name": "",
+            "og_type": "",
+            "is_enabled": true,
+            "is_archived": false,
+            "sort_order": 0
+            }
+        },
+        {
+            "id": "e12dbf08-b860-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_product",
+            "properties": {
+            "name": "Flex Control 4",
+            "slug": "flex-control-4",
+            "sku": "JKYD38SA08",
+            "categories": [
+                "4e7162e2-b841-11eb-8529-0242ac130003",
+                "216c4491-2e5a-4037-a873-ea45b030370e",
+                "216c4491-2e5a-4037-a873-ea45b030370g"
+            ],
+            "warranty": "",
+            "is_featured": false,
+            "unit_label": "Pair",
+            "short_description": "Simple yet versatile, Flex Control 4 is built for movement and flexibility. Its redesigned upper features a clean look. Lightweight cushioning in the heel plus midfoot support details offer a secure feel. Keep it on after runs and enjoy comfort all day long.",
+            "long_description": "",
+            "variant_enabled": false,
+            "variant_schema": "",
+            "stock": 10000,
+            "tax_included": false,
+            "tax": 10,
+            "regular_price": 1050,
+            "compare_at_price": 1150,
+            "sale_price": 0,
+            "on_sale": false,
+            "length": 155,
+            "width": 85,
+            "height": 40,
+            "weight": 6.4,
+            "free_shipping": true,
+            "shipping_cost": 15,
+            "shipping_length": 0,
+            "shipping_width": 0,
+            "shipping_height": 0,
+            "shipping_weight": 0,
+            "custom_field_1": "<h2>FLEXIBILITY MEETS DURABLE STABILITY</h2><p>Emphasising lightweight comfort and stability, Flex Control 4 is tailored to explosive workouts. Its lightweight, flexible upper has a midfoot strap for stability, while the sole has deep flex grooves to let your foot move naturally.</p>",
+            "custom_field_2": "<p><b>Lightweight Support</b></p><p>Abrasion-resistant mesh is lightweight and breathable to help keep your feet comfortable.</p>",
+            "custom_field_3": "<p><b>Sturdy Stability</b></p><p>Rubber on the side of the forefoot gives you support during side-to-side movements. The laces tug down on the strap to hold your foot while you move.</p>",
+            "custom_field_4": "<p><b>Natural Movement</b></p><p>Flex sole lets your foot move naturally. Textured rubber tread outlines the sole for durable traction and stability.</p>",
+            "custom_field_5": "",
+            "meta_title": "Flex Control 4",
+            "meta_description": "Flex Control 4 - Shoes",
+            "canonical_url": "",
+            "search_engine_visibility": true,
+            "og_image": "",
+            "og_title": "Flex Control 4",
+            "og_description": "Flex Control 4 - Shoes",
+            "og_url": "",
+            "og_site_name": "",
+            "og_type": "",
+            "is_enabled": true,
+            "is_archived": false,
+            "sort_order": 0
+            }
+        },
+        {
+            "id": "bb216864-b932-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_product",
+            "properties": {
+            "name": "Reebok Nano X",
+            "slug": "reebok-nano-x",
+            "sku": "879AXA96969",
+            "categories": [
+                "4e7162e2-b841-11eb-8529-0242ac130003",
+                "216c4491-2e5a-4037-a873-ea45b030370f",
+                "216c4491-2e5a-4037-a873-ea45b030370g"
+            ],
+            "warranty": "",
+            "is_featured": false,
+            "unit_label": "Pair",
+            "short_description": "Nano X Women's Training Shoes. A brand new collar construction with high density foam enhances the overall performance comfort.",
+            "long_description": "",
+            "variant_enabled": false,
+            "variant_schema": "",
+            "stock": 10000,
+            "tax_included": true,
+            "tax": 15,
+            "regular_price": 130,
+            "compare_at_price": 0 ,
+            "sale_price": 0,
+            "on_sale": false,
+            "length": 169,
+            "width": 79,
+            "height": 38,
+            "weight": 6.1,
+            "free_shipping": true,
+            "shipping_cost": 0,
+            "shipping_length": 0,
+            "shipping_width": 0,
+            "shipping_height": 0,
+            "shipping_weight": 0,
+            "custom_field_1": "<p>This women's version has a soft woven textile upper with targeted areas of support and stretch. Lightweight cushioning keeps you fast on your feet.</p>",
+            "custom_field_2": "",
+            "custom_field_3": "",
+            "custom_field_4": "",
+            "custom_field_5": "",
+            "meta_title": "Reebok Nano X",
+            "meta_description": "Reebok Nano X Women Shoes",
+            "canonical_url": "",
+            "search_engine_visibility": true,
+            "og_image": "",
+            "og_title": "Reebok Nano X",
+            "og_description": "Reebok Nano X Women Shoes",
+            "og_url": "",
+            "og_site_name": "",
+            "og_type": "",
+            "is_enabled": true,
+            "is_archived": false,
+            "sort_order": 0
+            }
+        },
+        {
+            "id": "ec3b37c2-b860-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_product",
+            "properties": {
+            "name": "SuperRep Go",
+            "slug": "super-rep-go",
+            "sku": "SGP17399",
+            "categories": [
+                "4e7162e2-b841-11eb-8529-0242ac130003",
+                "216c4491-2e5a-4037-a873-ea45b030370f",
+                "216c4491-2e5a-4037-a873-ea45b030370g"
+            ],
+            "warranty": "",
+            "is_featured": false,
+            "unit_label": "Pair",
+            "short_description": "When running is an everyday habit, you need support to match your speed. SuperRep Go brings back the cushioning you love and pairs it with details like a translucent upper and Flywire technology for a snug, stable fit for long runs.",
+            "long_description": "",
+            "variant_enabled": false,
+            "variant_schema": "",
+            "stock": 10000,
+            "tax_included": false,
+            "tax": 15,
+            "regular_price": 945,
+            "compare_at_price": 0,
+            "sale_price": 0,
+            "on_sale": false,
+            "length": 155,
+            "width": 85,
+            "height": 40,
+            "weight": 6.4,
+            "free_shipping": true,
+            "shipping_cost": 15,
+            "shipping_length": 0,
+            "shipping_width": 0,
+            "shipping_height": 0,
+            "shipping_weight": 0,
+            "custom_field_1": "<h2>SECURE SUPPORT FOR FAST, EVERYDAY TRAINING</h2><p>When running is an everyday habit, you need support to match your speed. SuperRep Go brings back the cushioning you love and pairs it with details like a translucent upper and Flywire technology for a snug, stable fit for long runs.</p>",
+            "custom_field_2": "<p><b>Light, Breathable Support</b></p><p>The upper uses translucent mesh and perforations at the forefoot for breathable comfort. The Flywire cables work with the laces to provide more support as you tighten them.</p>",
+            "custom_field_3": "<p><b>Cushioning For Your Miles</b></p><p>A Zoom Air unit in the forefoot puts cushioning where you need it. Cushlon foam makes it soft and responsive and puts more springiness in your step.</p>",
+            "custom_field_4": "",
+            "custom_field_5": "",
+            "meta_title": "SuperRep Go",
+            "meta_description": "SuperRep Go - Shoes",
+            "canonical_url": "",
+            "search_engine_visibility": true,
+            "og_image": "",
+            "og_title": "SuperRep Go",
+            "og_description": "SuperRep Go - Shoes",
+            "og_url": "",
+            "og_site_name": "",
+            "og_type": "",
+            "is_enabled": true,
+            "is_archived": false,
+            "sort_order": 0
+            }
+        },
+        {
+            "id": "f227891a-b860-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_product",
+            "properties": {
+            "name": "SuperRep Cycle",
+            "slug": "super-rep-cycle",
+            "sku": "71LKSDOASO",
+            "categories": [
+                "4e7162e2-b841-11eb-8529-0242ac130003",
+                "216c4491-2e5a-4037-a873-ea45b030370f"
+            ],
+            "warranty": "",
+            "is_featured": false,
+            "unit_label": "Pair",
+            "short_description": "SuperRep Cycle continues to deliver a smooth ride for your miles. It's designed with better shaping around the collar and tongue to help support your foot. When running becomes an everyday goal, this shoe delivers a comfortable feel and durable traction.",
+            "long_description": "",
+            "variant_enabled": false,
+            "variant_schema": "",
+            "stock": 10000,
+            "tax_included": false,
+            "tax": 20,
+            "regular_price": 1250,
+            "compare_at_price": 0,
+            "sale_price": 0,
+            "on_sale": false,
+            "length": 155,
+            "width": 85,
+            "height": 40,
+            "weight": 6.4,
+            "free_shipping": false,
+            "shipping_cost": 15,
+            "shipping_length": 0,
+            "shipping_width": 0,
+            "shipping_height": 0,
+            "shipping_weight": 0,
+            "custom_field_1": "<h2>SOFT CUSHIONING FOR YOUR STRIDE</h2><p>SuperRep Cycle continues to deliver a smooth ride for your miles. It's designed with better shaping around the collar and tongue to help support your foot. When running becomes an everyday goal, this shoe delivers a comfortable feel and durable traction.</p>",
+            "custom_field_2": "<p><b>Soft For Miles</b></p><p>A foam midsole gives you a soft, cushioned ride underfoot.</p>",
+            "custom_field_3": "<p><b>Ventilated and Roomy</b></p><p>A breathable mesh and synthetic upper helps keep your foot secure. Stretchy material provides a better fit with more room at the toes.</p>",
+            "custom_field_4": "",
+            "custom_field_5": "",
+            "meta_title": "SuperRep Cycle",
+            "meta_description": "SuperRep Cycle - Shoes",
+            "canonical_url": "",
+            "search_engine_visibility": true,
+            "og_image": "",
+            "og_title": "SuperRep Cycle",
+            "og_description": "SuperRep Cycle - Shoes",
+            "og_url": "",
+            "og_site_name": "",
+            "og_type": "",
+            "is_enabled": true,
+            "is_archived": false,
+            "sort_order": 0
+            }
+        },
+        {
+            "id": "d7f98b0a-b861-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_product",
+            "properties": {
+            "name": "Yoga Lux",
+            "slug": "yoga-lux",
+            "sku": "KA786ADF98A",
+            "categories": [
+                "4d3e16d2-b845-11eb-8529-0242ac130003"
+            ],
+            "warranty": "",
+            "is_featured": false,
+            "unit_label": "pc",
+            "short_description": "Yoga Lux has a higher neckline for more coverage as you flow through poses and challenge yourself with inversions.Soft fabric that's made from at least 50% recycled polyester fibres has petal-shaped cut-outs on the front and back to let your skin breathe.",
+            "long_description": "",
+            "variant_enabled": false,
+            "variant_schema": "",
+            "stock": 10000,
+            "tax_included": false,
+            "tax": 20,
+            "regular_price": 330,
+            "compare_at_price": 350,
+            "sale_price": 320,
+            "on_sale": true,
+            "length": 155,
+            "width": 85,
+            "height": 40,
+            "weight": 6.4,
+            "free_shipping": false,
+            "shipping_cost": 10,
+            "shipping_length": 0,
+            "shipping_width": 0,
+            "shipping_height": 0,
+            "shipping_weight": 0,
+            "custom_field_1": "<h2>BREATHABLE SUPPORT AND COVERAGE FOR ANY POSE</h2><p>Yoga Lux has a higher neckline for more coverage as you flow through poses and challenge yourself with inversions.Soft fabric that's made from at least 50% recycled polyester fibres has petal-shaped cut-outs on the front and back to let your skin breathe.</p>",
+            "custom_field_2": "<p>Higher Coverage</p><p>The high neckline helps hold you in as you bend, stretch and twist.</p>",
+            "custom_field_3": "<p>Sweat-Wicking Flexibility</p><p>Stretchy fabric with Dri-FIT Technology helps keep you feeling dry, comfortable and supported.</p>",
+            "custom_field_4": "",
+            "custom_field_5": "",
+            "meta_title": "Yoga Lux",
+            "meta_description": "Yoga Lux - Clothing",
+            "canonical_url": "",
+            "search_engine_visibility": true,
+            "og_image": "",
+            "og_title": "Yoga Lux",
+            "og_description": "Yoga Lux - Clothing",
+            "og_url": "",
+            "og_site_name": "",
+            "og_type": "",
+            "is_enabled": true,
+            "is_archived": false,
+            "sort_order": 0
+            }
+        },
+        {
+            "id": "f84a8418-b861-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_product",
+            "properties": {
+            "name": "Mes Pullover Hoodie",
+            "slug": "mes-pullover-hoodie",
+            "sku": "FASDF8769A",
+            "categories": [
+                "4d3e16d2-b845-11eb-8529-0242ac130003"
+            ],
+            "warranty": "",
+            "is_featured": false,
+            "unit_label": "pc",
+            "short_description": "Respond to cold temps with the Mes Pullover Hoodie. Its warm, brushed French terry construction has a soft, sturdy feel you can layer with a jacket or over your favourite tee.",
+            "long_description": "",
+            "variant_enabled": false,
+            "variant_schema": "",
+            "stock": 10000,
+            "tax_included": false,
+            "tax": 10,
+            "regular_price": 450,
+            "compare_at_price": 0,
+            "sale_price": 0,
+            "on_sale": false,
+            "length": 155,
+            "width": 85,
+            "height": 40,
+            "weight": 6.4,
+            "free_shipping": false,
+            "shipping_cost": 15,
+            "shipping_length": 0,
+            "shipping_width": 0,
+            "shipping_height": 0,
+            "shipping_weight": 0,
+            "custom_field_1": "<h2>FLEECE MADE FOR FUN</h2><p>Respond to cold temps with the Mes Pullover Hoodie. Its warm, brushed French terry construction has a soft, sturdy feel you can layer with a jacket or over your favourite tee.</p>",
+            "custom_field_2": "<p><b>Soft Comfort</b></p><p>Brushed-back fleece is soft and smooth against the skin.</p>",
+            "custom_field_3": "<p><b>Adjustable Coverage</b></p><p>Hood with a drawstring offers adjustable coverage.</p>",
+            "custom_field_4": "",
+            "custom_field_5": "",
+            "meta_title": "Mes Pullover Hoodie",
+            "meta_description": "Mes Pullover Hoodie - Clothing",
+            "canonical_url": "",
+            "search_engine_visibility": true,
+            "og_image": "",
+            "og_title": "Mes Pullover Hoodie",
+            "og_description": "Mes Pullover Hoodie - Clothing",
+            "og_url": "",
+            "og_site_name": "",
+            "og_type": "",
+            "is_enabled": true,
+            "is_archived": false,
+            "sort_order": 0
+            }
+        },
+        {
+            "id": "781e891a-b861-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_product",
+            "properties": {
+            "name": "Elit Pro",
+            "slug": "elit-pro",
+            "sku": "6FSG6FD9A",
+            "categories": [
+                "2fd17d9a-b846-11eb-8529-0242ac130003"
+            ],
+            "warranty": "",
+            "is_featured": false,
+            "unit_label": "pc",
+            "short_description": "From workouts to getting to work, the Elit Pro backpack has you covered. A large zipped compartment offers room for your PE kit or school supplies.",
+            "long_description": "",
+            "variant_enabled": false,
+            "variant_schema": "",
+            "stock": 10000,
+            "tax_included": false,
+            "tax": 20,
+            "regular_price": 150,
+            "compare_at_price": 200,
+            "sale_price": 120,
+            "on_sale": true,
+            "length": 155,
+            "width": 85,
+            "height": 40,
+            "weight": 6.4,
+            "free_shipping": true,
+            "shipping_cost": 15,
+            "shipping_length": 0,
+            "shipping_width": 0,
+            "shipping_height": 0,
+            "shipping_weight": 0,
+            "custom_field_1": "<h2>VERSATILE STORAGE</h2><p>From workouts to getting to work, the Elit Pro backpack has you covered. A large zipped compartment offers room for your PE kit or school supplies. Exterior pockets help keep electronics and small essentials organised and stored securely.</p>",
+            "custom_field_2": "<p><b>Benefits</b></p><ul><li>A dual-zipped main compartment gives spacious, secure storage.</li><li>Multiple easy-access zip pockets offer organised storage.</li><li>Padded shoulder straps and a back panel offer support.</li><li>A haul loop offers a convenient carrying option.</li><li>Open mesh on padded back panel promotes ventilation.</li></ul>",
+            "custom_field_3": "<p><b>Product Details</b></p><ul><li>49cm H X 31cm W X 15cm D (approx.)</li><li>100% polyester</li><li>Spot clean</li><li>Imported</li><li>Colour Shown: Black/Black/White</li><li>Style: DJ1621-010</li></ul>",
+            "custom_field_4": "",
+            "custom_field_5": "",
+            "meta_title": "Elit Pro",
+            "meta_description": "Elit Pro - Bag",
+            "canonical_url": "",
+            "search_engine_visibility": true,
+            "og_image": "",
+            "og_title": "Elit Pro",
+            "og_description": "Elit Pro - Bag",
+            "og_url": "",
+            "og_site_name": "",
+            "og_type": "",
+            "is_enabled": true,
+            "is_archived": false,
+            "sort_order": 0
+            }
+        },
+        {
+            "id": "9b3d0e3a-b933-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_product",
+            "properties": {
+            "name": "Candemir",
+            "slug": "candemir",
+            "sku": "0CX0V9XCV7",
+            "categories": [
+                "2fd17d9a-b846-11eb-8529-0242ac130003"
+            ],
+            "warranty": "",
+            "is_featured": false,
+            "unit_label": "pc",
+            "short_description": "Genuine Leather Travel Bag with antique brass hardware, two external side pockets, inner zip compartment and adjustable padded shoulder strap.",
+            "long_description": "",
+            "variant_enabled": false,
+            "variant_schema": "",
+            "stock": 10000,
+            "tax_included": false,
+            "tax": 20,
+            "regular_price": 390,
+            "compare_at_price": 0,
+            "sale_price": 0,
+            "on_sale": false,
+            "length": 155,
+            "width": 85,
+            "height": 40,
+            "weight": 6.4,
+            "free_shipping": true,
+            "shipping_cost": 15,
+            "shipping_length": 0,
+            "shipping_width": 0,
+            "shipping_height": 0,
+            "shipping_weight": 0,
+            "custom_field_1": "<p>Genuine Leather Travel Bag with antique brass hardware, two external side pockets, inner zip compartment and adjustable padded shoulder strap.</p>",
+            "custom_field_2": "",
+            "custom_field_3": "",
+            "custom_field_4": "",
+            "custom_field_5": "",
+            "meta_title": "Candemir",
+            "meta_description": "Candemir - Bag",
+            "canonical_url": "",
+            "search_engine_visibility": true,
+            "og_image": "",
+            "og_title": "Candemir",
+            "og_description": "Candemir - Bag",
+            "og_url": "",
+            "og_site_name": "",
+            "og_type": "",
+            "is_enabled": true,
+            "is_archived": false,
+            "sort_order": 0
+            }
+        },
+        {
+            "id": "49919672-b934-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_product",
+            "properties": {
+            "name": "Trial Bottle",
+            "slug": "trial-bottle",
+            "sku": "A9S7F9A8F7",
+            "categories": [
+                "7e0dd594-b92c-11eb-8529-0242ac130003"
+            ],
+            "warranty": "",
+            "is_featured": false,
+            "unit_label": "pc",
+            "short_description": "Stay fully fuelled on your run with this trail bottle. Because of its easy-to-hold design and detachable straw, you can use it without breaking your stride. It's easy to fill, thanks to a wide opening, and has volume-measurement markers that help you keep track of your intake while you train.",
+            "long_description": "",
+            "variant_enabled": false,
+            "variant_schema": "",
+            "stock": 10000,
+            "tax_included": false,
+            "tax": 3,
+            "regular_price": 18,
+            "compare_at_price": 18,
+            "sale_price": 9,
+            "on_sale": true,
+            "length": 155,
+            "width": 85,
+            "height": 40,
+            "weight": 6.4,
+            "free_shipping": true,
+            "shipping_cost": 3,
+            "shipping_length": 0,
+            "shipping_width": 0,
+            "shipping_height": 0,
+            "shipping_weight": 0,
+            "custom_field_1": "<p>Stay fully fuelled on your run with this trail bottle. Because of its easy-to-hold design and detachable straw, you can use it without breaking your stride. It's easy to fill, thanks to a wide opening, and has volume-measurement markers that help you keep track of your intake while you train.</p>",
+            "custom_field_2": "",
+            "custom_field_3": "",
+            "custom_field_4": "",
+            "custom_field_5": "",
+            "meta_title": "Trial Bottle",
+            "meta_description": "Trial Bottle",
+            "canonical_url": "",
+            "search_engine_visibility": true,
+            "og_image": "",
+            "og_title": "Trial Bottle",
+            "og_description": "Trial Bottle",
+            "og_url": "",
+            "og_site_name": "",
+            "og_type": "",
+            "is_enabled": true,
+            "is_archived": false,
+            "sort_order": 0
+            }
+        },
+        {
+            "id": "5153bf02-b934-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_product",
+            "properties": {
+            "name": "Panther",
+            "slug": "panther",
+            "sku": "I9ASD89A0",
+            "categories": [
+                "7e0dd594-b92c-11eb-8529-0242ac130003"
+            ],
+            "warranty": "",
+            "is_featured": false,
+            "unit_label": "pc",
+            "short_description": "Be the man of the hour. The Panther Black balances the sophistication of a dress watch with the soul of tomorrow's entrepreneur. Featuring a striking all-black colorway.",
+            "long_description": "",
+            "variant_enabled": false,
+            "variant_schema": "",
+            "stock": 10000,
+            "tax_included": false,
+            "tax": 15,
+            "regular_price": 144,
+            "compare_at_price": 0,
+            "sale_price": 0,
+            "on_sale": false,
+            "length": 155,
+            "width": 85,
+            "height": 40,
+            "weight": 6.4,
+            "free_shipping": true,
+            "shipping_cost": 3,
+            "shipping_length": 0,
+            "shipping_width": 0,
+            "shipping_height": 0,
+            "shipping_weight": 0,
+            "custom_field_1": "<p>Be the man of the hour. The Panther Black balances the sophistication of a dress watch with the soul of tomorrow's entrepreneur. Featuring a striking all-black colorway.</p>",
+            "custom_field_2": "",
+            "custom_field_3": "",
+            "custom_field_4": "",
+            "custom_field_5": "",
+            "meta_title": "Panther",
+            "meta_description": "Panther",
+            "canonical_url": "",
+            "search_engine_visibility": true,
+            "og_image": "",
+            "og_title": "Panther",
+            "og_description": "Panther",
+            "og_url": "",
+            "og_site_name": "",
+            "og_type": "",
+            "is_enabled": true,
+            "is_archived": false,
+            "sort_order": 0
+            }
+        },
+        {
+            "id": "63d3e4fe-b934-11eb-8529-0242ac130003",
+            "type_name": "modules/insites_ecommerce/insites_product",
+            "properties": {
+            "name": "Chrono Gunmetal Sandstone",
+            "slug": "chrono-gunmetal-sandstone",
+            "sku": "I9ASD89A0",
+            "categories": [
+                "7e0dd594-b92c-11eb-8529-0242ac130003"
+            ],
+            "warranty": "",
+            "is_featured": false,
+            "unit_label": "pc",
+            "short_description": "The Chrono 45MM brings a sleek minimalism to a traditional aviation timepiece, with a bold 6-hand chronograph movement on a clean dial built to make a statement. Featuring a signature MVMT color combo gunmetal steel, sandstone leather and pops of MVMT blue on the dial.",
+            "long_description": "",
+            "variant_enabled": false,
+            "variant_schema": "",
+            "stock": 10000,
+            "tax_included": false,
+            "tax": 15,
+            "regular_price": 168,
+            "compare_at_price": 0,
+            "sale_price": 0,
+            "on_sale": false,
+            "length": 155,
+            "width": 85,
+            "height": 40,
+            "weight": 6.4,
+            "free_shipping": true,
+            "shipping_cost": 3,
+            "shipping_length": 0,
+            "shipping_width": 0,
+            "shipping_height": 0,
+            "shipping_weight": 0,
+            "custom_field_1": "<p>The Chrono 45MM brings a sleek minimalism to a traditional aviation timepiece, with a bold 6-hand chronograph movement on a clean dial built to make a statement. Featuring a signature MVMT color combo gunmetal steel, sandstone leather and pops of MVMT blue on the dial.</p>",
+            "custom_field_2": "",
+            "custom_field_3": "",
+            "custom_field_4": "",
+            "custom_field_5": "",
+            "meta_title": "Chrono Gunmetal Sandstone",
+            "meta_description": "Chrono Gunmetal Sandstone",
+            "canonical_url": "",
+            "search_engine_visibility": true,
+            "og_image": "",
+            "og_title": "Chrono Gunmetal Sandstone",
+            "og_description": "Chrono Gunmetal Sandstone",
+            "og_url": "",
+            "og_site_name": "",
+            "og_type": "",
+            "is_enabled": true,
+            "is_archived": false,
+            "sort_order": 0
+            }
+        }
+    ]
+    {% endparse_json %}
+
+    {%- graphql results, models: import_models -%}
+    mutation ($models: [CustomizationImport!]!) {
+        import_models(
+            models: $models
+        ) {
+            ids
+        }
+    }
+    {%- endgraphql -%}
+    {% log results, type: "SEED DATA: Menu, Cateogries & Products" %}
+    
+    {%- graphql results, ids: results.import_models.ids -%}
+    mutation ($ids: [ID!]) {
+        models_update_all (
+             filter: {
+               id: { value_in: $ids }
+             }
+             model_schema_name: "modules/insites_ecommerce/insites_product"
+             model: {
+                 properties: [
+                     { name: "parent_ids", array_remove: "" }
+                 ]
+             }
+        ) {
+            count
+        }
+    }
+    {%- endgraphql -%}
+    {% log results, type: "SEED DATA: Stringify Category IDs" %}
+
+    {%- comment -%}STEP 2: Create Product Model Schema (product attributes & variants){%- endcomment -%}
+    {% parse_json 'product_model_schema' %}
+    {
+        "name": "zoom_freak_1",
+        "physical_file_path": "modules/ins_ecommerce/public/model_schemas/zoom_freak_1.yml",
+        "metadata": {
+            "name": "Zoom Freak 1",
+            "is_enabled": true,
+            "insites_database_hidden": true
+        },
+        "properties": [
+            {
+                "name": "sku",
+                "attribute_type": "string",
+                "metadata": {
+                    "label": "SKU",
+                    "is_header": true,
+                    "is_sortable": true,
+                    "is_searchable": true,
+                    "is_system_field": true,
+                    "weight": 0,
+                    "options": []
+                }
+            },
+            {
+                "name": "is_enabled",
+                "attribute_type": "boolean",
+                "metadata": {
+                    "label": "Is enabled",
+                    "is_header": true,
+                    "is_sortable": true,
+                    "is_searchable": false,
+                    "is_system_field": true,
+                    "weight": 0,
+                    "options": []
+                }
+            },
+            {
+                "name": "stock",
+                "attribute_type": "string",
+                "metadata": {
+                    "label": "Stock",
+                    "is_header": true,
+                    "is_sortable": true,
+                    "is_searchable": false,
+                    "is_system_field": true,
+                    "weight": 0,
+                    "options": []
+                }
+            },
+            {
+                "name": "regular_price",
+                "attribute_type": "float",
+                "metadata": {
+                    "label": "Price",
+                    "is_header": true,
+                    "is_sortable": true,
+                    "is_searchable": false,
+                    "is_system_field": true,
+                    "weight": 0,
+                    "options": []
+                }
+            },
+            {
+                "name": "compare_at_price",
+                "attribute_type": "float",
+                "metadata": {
+                    "label": "Compare at price",
+                    "is_header": false,
+                    "is_sortable": false,
+                    "is_searchable": false,
+                    "is_system_field": true,
+                    "weight": 0,
+                    "options": []
+                }
+            },
+            {
+                "name": "sale_price",
+                "attribute_type": "float",
+                "metadata": {
+                    "label": "Sale price",
+                    "is_header": false,
+                    "is_sortable": false,
+                    "is_searchable": false,
+                    "is_system_field": true,
+                    "weight": 0,
+                    "options": []
+                }
+            },
+            {
+                "name": "on_sale",
+                "attribute_type": "boolean",
+                "metadata": {
+                    "label": "On sale",
+                    "is_header": false,
+                    "is_sortable": false,
+                    "is_searchable": false,
+                    "is_system_field": true,
+                    "weight": 0,
+                    "options": []
+                }
+            },
+            {
+                "name": "tax",
+                "attribute_type": "float",
+                "metadata": {
+                    "label": "Tax",
+                    "is_header": false,
+                    "is_sortable": false,
+                    "is_searchable": false,
+                    "is_system_field": true,
+                    "weight": 0,
+                    "options": []
+                }
+            },
+            {
+                "name": "tax_included",
+                "attribute_type": "boolean",
+                "metadata": {
+                    "label": "Tax included",
+                    "is_header": false,
+                    "is_sortable": false,
+                    "is_searchable": false,
+                    "is_system_field": true,
+                    "weight": 0,
+                    "options": []
+                }
+            },
+            {
+                "name": "free_shipping",
+                "attribute_type": "boolean",
+                "metadata": {
+                    "label": "Free shipping",
+                    "is_header": false,
+                    "is_sortable": false,
+                    "is_searchable": false,
+                    "is_system_field": true,
+                    "weight": 0,
+                    "options": []
+                }
+            },
+            {
+                "name": "shipping_cost",
+                "attribute_type": "float",
+                "metadata": {
+                    "label": "Shipping cost",
+                    "is_header": false,
+                    "is_sortable": false,
+                    "is_searchable": false,
+                    "is_system_field": true,
+                    "weight": 0,
+                    "options": []
+                }
+            },
+            {
+                "name": "shipping_length",
+                "attribute_type": "float",
+                "metadata": {
+                    "label": "Shipping length",
+                    "is_header": false,
+                    "is_sortable": false,
+                    "is_searchable": false,
+                    "is_system_field": true,
+                    "weight": 0,
+                    "options": []
+                }
+            },
+            {
+                "name": "shipping_width",
+                "attribute_type": "float",
+                "metadata": {
+                    "label": "Shipping width",
+                    "is_header": false,
+                    "is_sortable": false,
+                    "is_searchable": false,
+                    "is_system_field": true,
+                    "weight": 0,
+                    "options": []
+                }
+            },
+            {
+                "name": "shipping_height",
+                "attribute_type": "float",
+                "metadata": {
+                    "label": "Shipping height",
+                    "is_header": false,
+                    "is_sortable": false,
+                    "is_searchable": false,
+                    "is_system_field": true,
+                    "weight": 0,
+                    "options": []
+                }
+            },
+            {
+                "name": "shipping_weight",
+                "attribute_type": "float",
+                "metadata": {
+                    "label": "Shipping weight",
+                    "is_header": false,
+                    "is_sortable": false,
+                    "is_searchable": false,
+                    "is_system_field": true,
+                    "weight": 0,
+                    "options": []
+                }
+            },
+            {
+                "name": "gallery_1",
+                "attribute_type": "array",
+                "metadata": {
+                    "label": "Gallery 1",
+                    "is_header": false,
+                    "is_sortable": false,
+                    "is_searchable": false,
+                    "is_system_field": true,
+                    "weight": 0,
+                    "options": []
+                }
+            },
+            {
+                "name": "color",
+                "attribute_type": "string",
+                "metadata": {
+                    "label": "Color",
+                    "is_header": true,
+                    "is_sortable": true,
+                    "is_searchable": true,
+                    "is_system_field": false,
+                    "weight": 1,
+                    "options": [
+                    "White",
+                    "Black"
+                    ]
+                }
+            },
+            {
+                "name": "size",
+                "attribute_type": "string",
+                "metadata": {
+                    "label": "Size",
+                    "is_header": true,
+                    "is_sortable": true,
+                    "is_searchable": true,
+                    "is_system_field": false,
+                    "weight": 2,
+                    "options": [
+                    "Small",
+                    "Medium",
+                    "Large"
+                    ]
+                }
+            }
+        ]
+    }
+    {% endparse_json %}
+
+    {%- graphql results, schema: product_model_schema -%}
+    mutation  ($schema: ModelSchemaInputType! ) {
+        admin_model_schema_create(
+            model_schema: $schema
+        ) {
+            id
+            name: parameterized_name
+        }
+        
+    }
+    {%- endgraphql -%}
+    {% log results, type: "SEED DATA: CREATE PRODUCT SCHEMA" %}
+
+    {%- comment -%}STEP 3: Create variaty data{%- endcomment -%}
+    {% parse_json 'variaty_data' %}
+    [
+        {
+            "type_name": "modules/ins_ecommerce/zoom_freak_1",
+            "properties": {
+                "sku": "white-small",
+                "stock": 500,
+                "tax_included": true,
+                "tax": 0,
+                "regular_price": 150,
+                "compare_at_price": 200,
+                "sale_price": 130,
+                "on_sale": false,
+                "free_shipping": false,
+                "shipping_cost": 0,
+                "shipping_length": 0,
+                "shipping_width": 0,
+                "shipping_height": 0,
+                "shipping_weight": 0,
+                "gallery_1": "",
+                "is_enabled": true,
+                "color": "White",
+                "size": "Small"
+            }
+        },
+        {
+            "type_name": "modules/ecommerce/zoom_freak_1",
+            "properties": {
+                "sku": "black-small",
+                "stock": 500,
+                "tax_included": true,
+                "tax": 0,
+                "regular_price": 150,
+                "compare_at_price": 200,
+                "sale_price": 130,
+                "on_sale": false,
+                "free_shipping": false,
+                "shipping_cost": 0,
+                "shipping_length": 0,
+                "shipping_width": 0,
+                "shipping_height": 0,
+                "shipping_weight": 0,
+                "gallery_1": "",
+                "is_enabled": true,
+                "color": "White",
+                "size": "Small"
+            }
+        },
+        {
+            "type_name": "modules/ecommerce/zoom_freak_1",
+            "properties": {
+                "sku": "black-medium",
+                "stock": 500,
+                "tax_included": true,
+                "tax": 0,
+                "regular_price": 160,
+                "compare_at_price": 210,
+                "sale_price": 135,
+                "on_sale": false,
+                "free_shipping": false,
+                "shipping_cost": 0,
+                "shipping_length": 0,
+                "shipping_width": 0,
+                "shipping_height": 0,
+                "shipping_weight": 0,
+                "gallery_1": "",
+                "is_enabled": true,
+                "color": "Black",
+                "size": "Medium"
+            }
+        }
+
+    ]
+    {% endparse_json %}
+
+    {%- graphql results, models: variaty_data -%}
+    mutation ($models: [CustomizationImport!]!) {
+        import_models(
+            models: $models
+        ) {
+            ids
+        }
+    }
+    {%- endgraphql -%}
+    {% log results, type: "SEED DATA: PRODUCT VARIATY" %}
+
+    {% log " === FINISH: Migration Seed Data ===" %}
+{%- else -%}
+    {% log "Template values: 'seed_data' was false, DO NOT RUN SEED DATA" %}
+{%- endif -%}

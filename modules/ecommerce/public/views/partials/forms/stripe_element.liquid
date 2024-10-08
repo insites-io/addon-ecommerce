@@ -1,0 +1,59 @@
+<ins-modal id="stripe-modal" 
+    no-button 
+    with-backdrop
+    height="255px" 
+    width="520px"
+    heading="Add New Card">
+    <form id="card-form">
+      <script src="https://js.stripe.com/v3/"></script>
+        <div class="form-row">
+            <div class="spacer small"></div>
+            <div id="card-element">
+              <!-- A Stripe Element will be inserted here. -->
+            </div>
+            <div id="card-errors" class="error-message">
+            </div>
+        </div>
+        <div class="spacer"></div>
+
+    <div class="grid-x hide-for-small-only">
+          <div class="large-12 medium-12 small-12 cell text-right btn-container">
+              <ins-button type="button" outlined 
+                  class="card-form-cancel"
+                  label="Cancel">
+              </ins-button>
+              <ins-button type="button" solid 
+                  class="card-form-submit"
+                  label="Add">
+              </ins-button>
+          </div>
+        </div>
+        <div class="grid-x grid-padding-x show-for-small-only">
+          <div class="small-12 cell btn-container">
+              <ins-button type="button" solid 
+                  class="card-form-submit"
+                  label="Add">
+              </ins-button>
+              <ins-button type="button" outlined 
+                  class="card-form-cancel"
+                  label="Cancel">
+              </ins-button>
+          </div>
+        </div>
+    </form>
+</ins-modal>
+
+<script>
+    let payByCardField = document.getElementById('{{ cc_field_id }}');
+    let emailField = document.getElementById('{{ email_field_id }}');
+    // Create a Stripe client.
+    let stripe = Stripe('{{ context.exports.payments.gateway.public_key }}');
+</script>
+
+{%- if context.environment == "staging" -%}
+    <script src="{{ 'modules/ecommerce/scripts/stripe/stripe-element.js' | asset_url }}"></script> 
+    <script src="{{ 'modules/ecommerce/scripts/stripe/stripe-model.js' | asset_url }}"></script> 
+{%- else -%}
+    <script src="{{ 'modules/ecommerce/scripts/stripe/stripe-element.min.js' | asset_url }}"></script> 
+    <script src="{{ 'modules/ecommerce/scripts/stripe/stripe-model.min.js' | asset_url }}"></script> 
+{%- endif -%}

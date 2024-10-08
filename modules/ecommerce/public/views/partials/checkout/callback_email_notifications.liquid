@@ -1,0 +1,54 @@
+
+{%- assign status = status | downcase -%}
+{%- case status -%}
+    {%- when 'success' -%}
+        {%- comment -%}Successful payment{%- endcomment -%}
+        {%- assign email_name = "modules/insites_ecommerce/insites_order_success" -%}
+        {%- assign workflow_name = "modules/insites_ecommerce/insites_order_success_workflow" -%}
+    {%- when 'refund' -%}
+        {%- comment -%}Refund payment{%- endcomment -%}
+        {%- assign email_name = "modules/insites_ecommerce/insites_order_refunded" -%}
+        {%- assign workflow_name = "modules/insites_ecommerce/insites_order_refunded_workflow" -%}
+    {%- else -%}
+        {%- comment -%}Failed payment{%- endcomment -%}
+        {%- assign email_name = "modules/insites_ecommerce/insites_order_failed" -%}
+        {%- assign workflow_name = "modules/insites_ecommerce/insites_order_failed_workflow" -%}
+{%- endcase -%}
+
+
+{% comment %} Autoresponder /  Email notification {% endcomment %}
+{%- assign autoresponder_enabled = false -%}
+{% log email_name, type: "==== Trigger autoresponder notification: email_name ====" %}
+    {% graphql autoresponder_enabled = "modules/ecommerce/system/get_email_notif", 
+        name: email_name 
+        | dig: "items" | dig: "results" | first | dig: "metadata" | dig: "is_enabled" %}
+    
+    {%- assign autoresponder_enabled = autoresponder_enabled | downcase -%}
+    {% log autoresponder_enabled, type: "==== Email autoresponder enabled ? ====" %}
+    
+    {%- if autoresponder_enabled == "true" or autoresponder_enabled == true -%}
+        {%- graphql trigger = "modules/ecommerce/system/trigger_email_notification",
+            name: email_name,
+            data: data -%}
+        {% log trigger, type: "Checkout: Send autoresponder" %}
+    {%- endif -%}
+
+
+{% comment %} Workflow notification {% endcomment %}
+{%- assign workflow_enabled = false -%}
+{% log workflow_name, type: "==== Trigger workflow notification: workflow_name ====" %}
+    {% graphql workflow_enabled = "modules/ecommerce/system/get_email_notif", 
+        name: workflow_name 
+        | dig: "items" | dig: "results" | first | dig: "metadata" | dig: "is_enabled" %}
+        
+    {%- assign workflow_enabled = workflow_enabled | downcase -%}
+    {% log workflow_enabled, type: "==== Email workflow enabled ? ====" %}
+    
+{% log data, type: "data_workflow_enabled" %}
+
+    {%- if workflow_enabled == "true" or workflow_enabled == true -%}
+        {%- graphql trigger = "modules/ecommerce/system/trigger_email_notification",
+            name: workflow_name,
+            data: data -%}
+        {% log trigger, type: "Checkout: Send Workflow" %}
+    {%- endif -%}

@@ -1,0 +1,380 @@
+{%- comment -%} Step: Get Instance ID of the page (for images) {%- endcomment -%}
+{%- assign instance_id = context.instance.id -%}
+
+{%- comment -%} Step: Check if category or main product page {%- endcomment -%}
+{%- if context.params.slug2 -%}
+
+    {%- comment -%} Sub-Step: Check if category is existing {%- endcomment -%}
+    {%- graphql main_cat_info = 'modules/ecommerce/shop/get_category_meta', slug: context.params.slug2 | dig: 'items' | dig: 'results' | first -%}
+
+    {%- comment -%} Sub-Step: SEO Settings For Category{%- endcomment -%}
+    {%- content_for 'title' -%}{{ main_cat_info.meta_title }}...{%- endcontent_for -%}
+    {%- content_for 'meta_description' -%}{{ main_cat_info.meta_description }}...{%- endcontent_for -%}
+    {%- content_for 'search_engine_visibility' -%}{{ main_cat_info.search_engine_visibility }}...{%- endcontent_for -%}
+    {%- content_for 'canonical_url' -%}{{ main_cat_info.canonical_url }}...{%- endcontent_for -%}
+
+    {%- content_for 'og_title' -%}{{ main_cat_info.og_title }}...{%- endcontent_for -%}
+    {%- content_for 'og_description' -%}{{ main_cat_info.og_description }}{%- endcontent_for -%}
+    {%- content_for 'og_site_name' -%}{{ main_cat_info.og_site_name }}{%- endcontent_for -%}
+    {%- content_for 'og_url' -%}{{ main_cat_info.og_url }}{%- endcontent_for -%}
+    {%- content_for 'og_type' -%}{{ main_cat_info.og_type }}{%- endcontent_for -%}
+
+    {%- content_for 'og_image' -%}{{ main_cat_info.og_image.versions['1200x630'] }}{%- endcontent_for -%}
+
+{%- else -%}
+    {%- comment -%} Sub-Step: If main product page {%- endcomment -%}
+
+    {%- comment -%} Sub-Step: SEO settings for main product page{%- endcomment -%}
+    {%- content_for 'title' -%}All Products{%- endcontent_for -%}
+    {%- content_for 'meta_description' -%}{%- endcontent_for -%}
+    {%- content_for 'search_engine_visibility' -%}true{%- endcontent_for -%}
+    {%- content_for 'canonical_url' -%}/products{%- endcontent_for -%}
+
+    {%- content_for 'og_title' -%}All Products{%- endcontent_for -%}
+    {%- content_for 'og_description' -%}{%- endcontent_for -%}
+    {%- content_for 'og_site_name' -%}Insites Ecommerce Template{%- endcontent_for -%}
+    {%- content_for 'og_url' -%}/products{%- endcontent_for -%}
+    {%- content_for 'og_type' -%}{%- endcontent_for -%}
+
+    {%- content_for 'og_image' -%}{%- endcontent_for -%}
+
+    {%- comment -%} Get enabled categories {%- endcomment -%}
+    {%- graphql main_category = 'modules/ecommerce/shop/get_category_ids' 
+        | dig: "items" | dig: "results" -%}
+
+{%- endif -%}
+
+
+
+{%- comment -%} Step: Check parameters for possible value of 'filters' {%- endcomment -%}
+{%- assign page_num = context.params.page | default: 1 | plus: 0 -%}
+{%- assign page_size = context.params.per_page | default: 9 | plus: 0 -%}
+{%- assign keyword = context.params.keyword | default: "" -%}
+{%- assign min_price = context.params.min_price | default: "" -%}
+{%- assign max_price = context.params.max_price | default: "" -%}
+
+{%- comment -%} Step: Check parameters for possible value of 'sorting' {%- endcomment -%}
+{%- assign sort = context.params.sort | default: "newest" -%}
+{%- if sort == "newest" -%}
+    {%- parse_json sort_by -%}
+    { "created_at": { "order": "ASC" } }
+    {%- endparse_json -%}
+{%- elsif sort == "price-ascending" -%}
+    {%- parse_json sort_by -%}
+    [{ "properties": [
+        { "name" : "regular_price", "order": "ASC" },
+        { "name" : "name", "order": "ASC" }
+    ]
+    }]
+    {%- endparse_json -%}
+{%- elsif sort == "price-descending" -%}
+    {%- parse_json sort_by -%}
+    [{ "properties": [ 
+        { "name" : "regular_price", "order": "DESC" },
+        { "name" : "name", "order": "ASC" } 
+    ] 
+    }]
+    {%- endparse_json -%}
+{%- endif -%}
+
+{%- comment -%} Step: Check parameters and Category {%- endcomment -%}
+{%- assign tmp_cat = main_cat_info.id | append: "," -%}
+{%- if context.params.sub_category != blank -%}
+    {%- assign subcat_filter = context.params.sub_category | default: "" -%}
+    {%- assign categories = subcat_filter | split: "," -%}
+{%- else -%}
+    {%- if context.params.slug2 -%}
+        {% comment %} Category list product {% endcomment %}
+        {%- assign tmp_cat = main_cat_info.id | append: "," -%}
+        {%- assign categories = tmp_cat | split: "," -%}
+    {%- else -%}
+        {% comment %} List all products on enabled categories {% endcomment %}
+        {%- assign categories = "" | split: "," -%}
+        {%- for cat in main_category -%}
+            {%- assign categories = categories | add_to_array: cat.id -%}
+        {%- endfor -%}
+    {%- endif -%}
+{%- endif -%}
+
+{%- comment -%} Step build parameters to pass to GraphQL {%- endcomment -%}
+{%- parse_json filters -%}
+{
+    "page": {{page_num}},
+    "size": {{page_size}},
+    "keyword": "{{keyword}}",
+    "min_price": "{{min_price}}",
+    "max_price": "{{max_price}}",
+    "category": {{ categories | json }},
+    "sort":{{ sort_by | json }}
+}
+{%- endparse_json -%}
+
+{%- comment -%}
+Step: Call the search GraphQL with the parameters
+<!-- This GraphQL is optimized for the list, thus not including gallery and variant items -->
+{%- endcomment -%}
+{%- graphql product_list_data = 'modules/ecommerce/shop/search_products_list_view', args: filters -%}
+
+{%- assign total_cat_child = 1 -%} {% comment %} 1 = show sidebar {% endcomment %}
+{%- if context.params.slug2 -%}    
+    {%- comment -%} Sub-Step: Create a filter to get the subcategory of the parent category {%- endcomment -%}
+    {%- parse_json params -%}
+    {
+        "parent_ids": ["{{ main_cat_info.id }}"]
+    }
+    {%- endparse_json -%}
+    {%- graphql total_cat_child = 'modules/ecommerce/shop/get_category_ids', args: params 
+        | dig: "items" | dig: "total_entries" -%}
+{%- endif -%}
+
+<div class="grid-x grid-padding-x">
+    <div class="small-10 small-offset-1 cell text-center">
+        {%- if keyword and keyword != blank -%}
+            <h1 class="heading-1"><span style="font-weight:400;">Search result for</span> '{{ keyword }}'</h1>
+        {%- else -%}
+            {%- if context.params.slug2 -%}
+                <h1 class="heading-1">{{ main_cat_info.name }}</h1>
+                {% if main_cat_info.long_description %}
+                <div class="spacer small"></div>
+                <div class="body-paragraph">{{ main_cat_info.long_description }}</div>
+                {% endif %}
+            {%- else -%}
+                <h1 class="heading-1">All Products</h1>
+            {%- endif -%}
+        {%- endif -%}
+        <div class="spacer xxx-large"></div>
+    </div>
+</div>
+
+<div class="product-list grid-x grid-padding-x  {% if total_cat_child == 0 %} align-center {% endif %}">
+    {%- if total_cat_child > 0 -%}
+    {% comment %} Show sidebar {% endcomment %}
+    <div class="large-3 medium-12 small-12 cell">
+        {%- if context.device.device_type == "smartphone" -%}
+        <div class="spacer"></div>
+        <ins-button label="Filters" icon="icon-sliders" id="mobile-filter-button"></ins-button>
+        <div class="spacer small"></div>
+        {%- else -%}
+        <div class="filter-wrap">
+            {%- include 'modules/ecommerce/products/filters', parent_id: main_cat_info.id -%}
+        </div>
+        {%- endif -%}
+    </div>
+    {%- endif -%}
+
+    <div class="large-9 medium-12 small-12 cell">
+        <div class="product-view search-cont grid-x flex-container">
+            <div class="large-flex-child-shrink medium-flex-child-shrink flex-child-auto">
+                {%- graphql parent_category = 'modules/ecommerce/shop/get_category_parent', page: 1, size: 100 -%}
+                <ins-select 
+                    id="categorySelect" 
+                    small>
+                    <ins-select-option label="All" value="" {% if context.params.slug2 == blank %}default{% endif %}></ins-select-option>
+                    {%- if parent_category.items and parent_category.items.total_entries > 0 -%}
+                    {%- for catMenu in parent_category.items.results -%}
+                        <ins-select-option label="{{ catMenu.name }}" value="{{catMenu.slug}}" {% if context.params.slug2 == catMenu.slug %}default{% endif %}></ins-select-option>
+                    {%- endfor -%}
+                    {%- endif -%}
+                </ins-select>
+            </div>
+            <div class="large-flex-child-grow medium-flex-child-grow flex-child-auto">
+                <div class="filter-search">
+                    <ins-input
+                        id="filter-keyword"
+                        class="filter-keyword" 
+                        icon-event
+                        placeholder="Search"
+                        value=""
+                        field="search"
+                        icon="icon-search1"
+                        size="large">
+                    </ins-input>
+                </div>
+            </div>
+        </div>
+        <div class="spacer"></div>
+
+        <div class="product-view grid-x">
+            <div class="small-12 cell hide-for-large spacer"></div>
+            <div class="large-auto small-12 cell grid-x flex-container align-justify">
+                <div class="sort-wrap medium-flex-child-shrink flex-child-auto">
+                    <span class="sort__label color-font-head form-label"><strong>Sort By:</strong></span>
+                    <ins-select 
+                        id="sortSelect"
+                        placeholder="Select Size" 
+                        small>
+                        <ins-select-option label="Newest" value="newest" {% if sort == "newest" %}default{% endif %}></ins-select-option>
+                        <ins-select-option label="Price Ascending" value="price-ascending" {% if sort == "price-ascending" %}default{% endif %}></ins-select-option>
+                        <ins-select-option label="Price Descending" value="price-descending" {% if sort == "price-descending" %}default{% endif %}></ins-select-option>
+                    </ins-select>
+                </div>
+                <div class="view-wrap medium-flex-child-shrink flex-child-auto text-right">
+                    <span class="view__label color-font-head form-label"><strong>View:</strong></span>
+                    <ins-button id="view-grid-btn" icon="icon-grid" color="white" size="normal" label="" class="icon-button active"></ins-button>
+                    <ins-button id="view-list-btn" icon="icon-list" color="white" size="normal" label="" class="icon-button"></ins-button>
+                </div>
+            </div>
+        </div>
+        <div class="spacer"></div>
+        {%- if product_list_data.items and product_list_data.items.total_entries > 0 -%}
+        
+        <div id="product-grid" class="products-grid grid-x grid-padding-x grid-padding-y gutter-medium medium-up-3 small-up-1">
+            
+            {%- for product in product_list_data.items.results -%}
+            
+            {%- assign sale_flag = false -%}
+            {%- if product.variant_schema and product.variant_enabled -%}
+            {%- parse_json params -%}
+            {
+                "name": "{{ product.variant_schema }}",
+                "properties": {"properties": [
+                    {"name": "stock","range": {"gte": "1"}}
+                ]}
+            }
+            {%- endparse_json -%}
+            
+            {%- graphql product_variants = 'modules/ecommerce/shop/get_product_variants_is_exist', args: params -%}            
+            {%- if product_variants.items.total_entries > 0 -%}
+                {%- for prod_var in product_variants.items.results -%}
+                    {%- if prod_var.properties.on_sale -%}
+                    {%- assign sale_flag = true -%}
+                    {%- break -%}    
+                    {%- endif -%}
+                {%- endfor -%}
+            {%- endif -%}
+            {%- else -%}
+                {%- if product.on_sale -%}
+                {%- assign sale_flag = true -%}
+                {%- endif -%}
+            {%- endif -%}
+
+            <div class="cell">
+                <a href="/products/{{ product.slug }}">
+                    <ins-card steady no-padding>
+                        <div class="product-info flex-container">
+                            <div class="img-cont">
+                                {%- if product.stock == 0 and product.variant_enabled == false -%}
+                                <div class="out-of-stock"></div>
+                                {%- else -%}
+                                    {%- if product.variant_enabled and product_variants.items.total_entries == 0 -%}
+                                    <div class="out-of-stock"></div>
+                                    {%- endif -%}
+                                {%- endif -%}
+
+                                {%- if sale_flag -%}
+                                <div class="on-sale-tag">ON SALE</div>
+                                {%- endif -%}
+
+                                {%- if product.main_image[0].file.url -%}
+                                    {%- if context.device.device_type == "smartphone" -%}
+                                        <img src="{{ product.main_image[0].file.versions['712x534'] }}" alt="{{ product.name }}" />
+                                    {%- else -%}
+                                        <img src="{{ product.main_image[0].file.versions['296x222'] }}" alt="{{ product.name }}" />
+                                    {% endif %}
+                                {%- else -%}
+                                    {%- include 'modules/website/content/placeholder-image', size: 'medium' -%}
+                                {%- endif -%}
+                            </div>
+                            <div class="spacer x-large"></div>
+                            <div class="info">
+                                <div class="name">
+                                    <h6 class="heading-6">{{product.name}}</h6>
+                                </div>
+                                <div class="spacer xx-small"></div>
+                                <div class="description body-paragraph">
+                                    <p>{{ product.short_description | truncate: 256, " ..." }}</p>
+                                </div>
+                            </div>
+                            <div class="spacer"></div>
+                            {%- if product.on_sale -%}
+                            <div class="price text-right">
+                                <div class="price-amount">{{ product.sale_price | pricify }}</div>
+                                {% if product.regular_price %}
+                                <div class="spacer xx-small"></div>
+                                <div class="price-old">{{ product.regular_price | pricify }}</div>
+                                {% endif %}
+                            </div>
+                            {%- else -%}
+                            <div class="price">
+                                <div class="price-amount">{{ product.regular_price | pricify }}</div>
+                            </div>
+                            {%- endif -%}
+                        </div>
+                        <div class="spacer show-for-small-only"></div>
+                    </ins-card>
+                    
+                </a>
+            </div>
+            {%- endfor -%}
+
+        </div>
+
+        <div class="spacer xxxx-large"></div>
+        <div class="pageinations grid-x grid-padding-x align-right align-middle">
+            <div class="shrink cell">
+                {%- assign per_page = context.params.per_page | plus: 0 | default: 9 -%}
+                <span class="per__page color-font-head form-label"><strong>Product per page:</strong></span>
+                <ins-select id="page-size-select" placeholder="Select Size" small>
+                    <ins-select-option label="9" value="9" {% if per_page <= 9 %}default{% endif %}></ins-select-option>
+                    <ins-select-option label="15" value="15"  {% if per_page > 9 and per_page <= 15 %}default{% endif %}></ins-select-option>
+                    <ins-select-option label="30" value="30"  {% if per_page > 15 and per_page <= 30 %}default{% endif %}></ins-select-option>
+                </ins-select>
+            </div>
+            {%- assign tmp_start_count = product_list_data.items.current_page | times: page_size -%}
+            {%- assign tmp_start_minus = page_size | minus: 1 -%}
+            {%- assign tmp_start = tmp_start_count | minus: tmp_start_minus -%}
+            {%- assign tmp_end_count = product_list_data.items.current_page | times: page_size -%}
+            {%- if tmp_end_count > product_list_data.items.total_entries -%}
+            {%- assign end_count = product_list_data.items.total_entries -%}
+            {%- else -%}
+            {%- assign end_count = tmp_end_count -%}
+            {%- endif -%}
+
+            <div class="shrink cell">
+                <div class="paginate">
+                    <span>{{ tmp_start }}</span>
+                    <span>-</span>
+                    <span>{{ end_count }}</span>
+                    <span>of</span>
+                    <span>{{ product_list_data.items.total_entries }}</span>
+                    <div>
+                        {%- if product_list_data.items.current_page > 1 -%}
+                        <ins-button 
+                            id="previousPage"
+                            label=""
+                            icon="icon-angle-left">
+                        </ins-button>
+                        {%- endif -%}
+                    </div>
+                    <div>
+                        {%- if product_list_data.items.current_page < product_list_data.items.total_pages -%}
+                        <ins-button 
+                            id="nextPage"
+                            label=""
+                            class="btn-icon-right"
+                            icon="icon-angle-right">
+                        </ins-button>
+                        {%- endif -%}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {%- else -%}
+
+        <div class="grid-x">
+            <div class="small-12 cell text-center">
+                <div class="spacer xxxx-large"></div>
+                <p>No product found.</p>
+            </div>
+        </div>
+
+        {%- endif -%}
+    
+    </div>
+</div>
+
+{%- if context.device.device_type == "smartphone" -%}
+    {%- include 'modules/ecommerce/products/mobile_filter', parent_id: main_cat_info.id -%}
+    {% comment %} main_cat_info.id {{main_cat_info.id}} {% endcomment %}
+{%- endif -%}

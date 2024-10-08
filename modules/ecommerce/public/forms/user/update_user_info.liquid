@@ -1,0 +1,119 @@
+---
+name: update_user_info
+resource: User
+resource_owner: anyone
+redirect_to: /account-information
+flash_alert: Error-UserProfile
+flash_notice: Success-UserProfile
+fields:
+  email:
+    validation: 
+      presence:
+        message: Please use a valid email address
+      email: 
+        message: Please use a valid email address
+  first_name:
+    validation: 
+      presence: 
+        message: First name is required
+  last_name:
+    validation: 
+      presence: 
+        message: Last name is required
+  profiles:
+    modules/insites_core/insites_contact_number:
+      properties:
+        mobile_phone_number:
+        mobile_phone_country_code:
+---
+
+
+{%- form 
+    html-id: "user-profile-form"
+    html-novalidate: true
+    html-enctype="multipart/form-data"
+    html-onsubmit:"return UserProfileScript.methods.validateForm(event);" -%}
+
+    {%- assign props = form.fields.profiles['modules/insites_core/insites_contact_number'].properties -%}
+    
+    <input type="hidden" id="mobile_phone_number" 
+        name="{{ props.mobile_phone_number.name }}"
+        value="{{ props.mobile_phone_number.value }}" />
+
+    {%- assign country_code = props.mobile_phone_country_code.value | default: "61" -%}
+    <input type="hidden" id="mobile_phone_country_code" 
+        name="{{ props.mobile_phone_country_code.name }}"
+        value="{{ country_code }}" />
+    
+    <div class="grid-x grid-padding-x">
+        <div class="small-12 cell">
+            <ins-input validate
+                id="email"
+                label="Email*"
+                field="email"
+                name="{{ form.fields.email.name }}" 
+                value="{{ form.fields.email.value }}" 
+                {% if form.errors['email'] %} has-error {% endif %}
+                error-message="{{ form.fields.email.validation.rules.presence.message }}"
+                placeholder="Email Address">
+            </ins-input>
+
+            <ins-input validate
+                id="first-name"
+                label="First Name*"
+                name="{{ form.fields.first_name.name }}" 
+                value="{{ form.fields.first_name.value }}" 
+                {% if form.errors['first_name'] %} has-error {% endif %}
+                error-message="{{ form.fields.first_name.validation.rules.presence.message }}"
+                placeholder="First Name">
+            </ins-input>
+
+            <ins-input validate
+                id="last-name"
+                label="Last Name*"
+                name="{{ form.fields.last_name.name }}" 
+                value="{{ form.fields.last_name.value }}" 
+                {% if form.errors['last_name'] %} has-error {% endif %}
+                error-message="{{ form.fields.last_name.validation.rules.presence.message }}"
+                placeholder="Last Name">
+            </ins-input>
+            {% comment -%}
+            <ins-input 
+                id="mobile-phone"
+                label="Phone Number"
+                field="tel"
+                name="{{ form.fields.profiles['modules/insites_core/insites_contact_number'].properties.mobile_phone_number.name }}" 
+                value="{{ form.fields.profiles['modules/insites_core/insites_contact_number'].properties.mobile_phone_number.value }}" 
+                error-message="Please use a valid phone number"
+                placeholder="Phone Number">
+            </ins-input>
+            {% endcomment -%}
+            <ins-input-tel
+                id="mobile-phone"
+                label="Mobile Phone" 
+                phonenum-value="{{ form.fields.profiles['modules/insites_core/insites_contact_number'].properties.mobile_phone_number.value }}" 
+                country-code="{{ country_code }}"
+                phonenum-placeholder="Mobile Phone" no-areacode
+                error-message="Please use a valid mobile number">
+            </ins-input-tel>
+
+            {%- if context.flash.notice != blank and context.flash.notice == 'Success-UserProfile' -%}    
+                <div class="small cell text-right">
+                    <p class="color-success">Account details updated.</p>
+                    <div class="spacer"></div>
+                </div>
+            {%- endif -%}
+            
+            <div class="spacer small"></div>
+            
+            <div class="text-right">
+              <ins-button solid 
+                id="sign-up-btn" label="UPDATE ACCOUNT DETAILS" 
+                color="blue" type="submit" size="normal">
+              </ins-button>
+            </div>
+
+        </div>
+    </div>
+
+{%- endform -%}

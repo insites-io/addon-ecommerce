@@ -1,0 +1,61 @@
+
+---
+slug: api/remove-discount-code
+format: json
+method: post
+searchable: false
+# enable_profiler: true
+metadata: {
+    "status": "published",
+    "page_type": "endpoint", ## content, system or endpoint
+    "og:url": "",
+    "og:type": "",
+    "og:image": "",
+    "og:title": "Remove Discount Code API",
+    "og:description": "Remove Discount Code API",
+    "og:site_name": "",
+    "meta_title": "Remove Discount Code API",
+    "page_title": "Remove Discount Code API",
+    "meta_description": "Remove Discount Code API",
+    "canonical_url": "",
+    "search_engine_visibility": false,
+    "sitemap_enabled": false,
+    "sitemap_priority": "1.0",## primary order (DESC)
+    "sitemap_order": "9999", ## secondary order (ASC)
+    "sitemap_changefreq": "never"
+}
+---
+{%- assign id = context.params.id | parse_json -%}
+{%- assign status = 200 -%}
+
+
+{% comment %} Step 1: Check if code is being removed belongs to the customer {% endcomment %}
+{%- if context.current_user.id -%}
+    {%- assign user_id = context.current_user.id -%}
+{%- else -%}
+    {%- assign user_id = context.session.session_id -%}
+{%- endif -%}
+
+{% graphql discount = "modules/ecommerce/discount_code/get_cart_discount_codes"
+    page: 1, size: 1
+    id: id,
+    user_id: user_id,
+    discount_debited: false
+    | dig: 'items' | dig: 'results' | first %}
+
+{% comment %} Step 2: If it is valid, cart discount code can be deleted {% endcomment %}
+{%- if discount -%}
+    {% graphql remove = "modules/ecommerce/discount_code/delete_cart_discount_code",
+        id: id %}
+{%- endif -%}
+
+{% parse_json data %}
+    {{ remove | fetch: "items" }}
+{% endparse_json %}
+
+{%- comment -%}Status code 400: API or GraphQL error{%- endcomment -%}
+{%- if data == blank %}
+  {%- assign status = 400 -%}
+{%- endif -%}
+
+{%- response_status status -%}

@@ -1,0 +1,60 @@
+{%- if context.environment == "staging" -%}
+<!-- start partial:layout/footer -->
+{%- endif -%}
+
+<footer class="footer">
+    <div class="bg-color-main">
+        <div class="wrapper">
+            <div class="grid-container">
+                <div class="spacer"></div>
+                <div class="bottom-footer grid-x align-middle">
+                    <div class="large-6 medium-7 small-12 cell">
+                        <!-- <ul class="no-bullet inline-list show-for-medium">
+                            <li>ABN {{ context.exports.global.company_id }}</li>
+                            <li><a href="/privacy-policy">Privacy Policy</a></li>
+                            <li><a href="/terms-and-conditions">Terms and Conditions</a></li>
+                        </ul>
+                        <ul class="no-bullet grid-x show-for-small-only">
+                            <li class="legal large-4 medium-4 small-6 cell">
+                                <a href="/privacy-policy">Privacy Policy</a>
+                            </li>
+                            <li class="large-4 medium-4 small-6 cell">
+                                <a href="/terms-and-conditions">Terms and Conditions</a>
+                            </li>
+                        </ul> -->
+                        <div class="text-center no-bullet inline-list show-for-small-only">
+                            <div>ABN {{ context.exports.global.company_id }}</div> 
+                            <div class="spacer"></div>
+                            <div><a href="/privacy-policy">Privacy Policy</a></div>
+                            <div class="spacer"></div>
+                            <div><a href="/terms-and-conditions">Terms and Conditions</a></div>
+                        </div>
+                        <ul class="no-bullet inline-list show-for-medium">
+                            <li>ABN {{ context.exports.global.company_id }}</li>
+                            <li><a href="/privacy-policy">Privacy Policy</a></li>
+                            <li><a href="/terms-and-conditions">Terms and Conditions</a></li>
+                        </ul>
+                    </div>
+                    <div class="large-6 medium-5 small-12 cell text-right">
+                        <div class="spacer large show-for-small-only"></div>
+                        <!-- <p class="show-for-small-only">ABN {{ context.exports.global.company_id }}</p> -->
+                        <p class="copyright">
+                            Copyright &copy; {{ 'now' | date: "%Y" }} <a href="https://insites.io/" target="_blank">Insites</a>. All rights reserved. 
+                        </p>
+                    </div>
+                </div>
+                <div class="spacer"></div>
+            </div>
+        </div>
+    </div>
+    
+    {%- comment -%}
+        Sidebar / Mobile menu
+        - we put this in the 'footer' part of the page to not have 'stutter' on initial page load before CSS kicks in
+    {%- endcomment -%}
+    {% include 'modules/website/layout/menu_mobile' %}
+</footer>
+
+{%- if context.environment == "staging" -%}
+<!-- end partial:layout/footer -->
+{%- endif -%}
