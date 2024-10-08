@@ -7,7 +7,7 @@ query get_user_address_list(
     page: $page
     per_page: $size
     filter:{
-      table: { value: "modules/insites_core/insites_address" } 
+      table: { value: "modules/insites_core/crm_address" } 
       deleted_at: { exists: false }
       properties:[
         { name:"source_id", value: $user_id }

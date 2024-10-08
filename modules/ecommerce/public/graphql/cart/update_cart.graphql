@@ -18,7 +18,7 @@ mutation update_cart (
   items: record_update(
     id: $id
     record: {
-      table: "modules/insites_ecommerce/insites_cart"
+      table: "modules/insites_ecommerce/cart"
       properties: [
         { name: "user_id", value: $user_id }
         { name: "quantity", value_int: $quantity }

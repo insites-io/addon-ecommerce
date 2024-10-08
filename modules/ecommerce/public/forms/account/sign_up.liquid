@@ -25,7 +25,7 @@ fields:
       presence: 
         message: Last name is required
   profiles:
-    modules/insites_core/insites_contact_number:
+    modules/insites_core/crm_contact:
       properties:
         mobile_phone_number:
     modules/insites_core/insites_customer:
@@ -44,8 +44,8 @@ fields:
           property_options:
             default: false
             readonly: true
-api_call_notifications:
-  - modules/insites_core/insites_create_crm_activity
+#api_call_notifications:
+#  - modules/insites_core/insites_create_crm_activity
 default_payload: |-
   {
     "fields": {
@@ -121,8 +121,8 @@ callback_actions: |-
                 id="mobile-phone"
                 label="Phone Number"
                 field="tel"
-                name="{{ form.fields.profiles['modules/insites_core/insites_contact_number'].properties.mobile_phone_number.name }}" 
-                value="{{ form.fields.profiles['modules/insites_core/insites_contact_number'].properties.mobile_phone_number.value }}" 
+                name="{{ form.fields.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_number.name }}" 
+                value="{{ form.fields.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_number.value }}" 
                 error-message="Please use a valid phone number"
                 placeholder="Phone Number">
             </ins-input>

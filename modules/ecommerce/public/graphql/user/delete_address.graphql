@@ -4,7 +4,7 @@ mutation delete_address (
   items: record_update(
     id: $id
     record: {
-      table: "modules/insites_core/insites_address",
+      table: "modules/insites_core/crm_address",
     	properties: [
         { name: "is_enabled", value_boolean: false }
       ]

@@ -14,7 +14,7 @@ mutation update_cart_discount_code (
   items: record_update (
     id: $id
     record: {
-      table: "modules/insites_ecommerce/insites_cart_discount_codes"
+      table: "modules/insites_ecommerce/cart_discount_codes"
       properties: [
         { name: "order_id", value: $order_id }
         { name: "discount_code_id", value: $discount_code_id }

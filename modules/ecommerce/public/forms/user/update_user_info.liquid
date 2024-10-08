@@ -21,7 +21,7 @@ fields:
       presence: 
         message: Last name is required
   profiles:
-    modules/insites_core/insites_contact_number:
+    modules/insites_core/crm_contact:
       properties:
         mobile_phone_number:
         mobile_phone_country_code:
@@ -34,7 +34,7 @@ fields:
     html-enctype="multipart/form-data"
     html-onsubmit:"return UserProfileScript.methods.validateForm(event);" -%}
 
-    {%- assign props = form.fields.profiles['modules/insites_core/insites_contact_number'].properties -%}
+    {%- assign props = form.fields.profiles['modules/insites_core/crm_contact'].properties -%}
     
     <input type="hidden" id="mobile_phone_number" 
         name="{{ props.mobile_phone_number.name }}"
@@ -82,8 +82,8 @@ fields:
                 id="mobile-phone"
                 label="Phone Number"
                 field="tel"
-                name="{{ form.fields.profiles['modules/insites_core/insites_contact_number'].properties.mobile_phone_number.name }}" 
-                value="{{ form.fields.profiles['modules/insites_core/insites_contact_number'].properties.mobile_phone_number.value }}" 
+                name="{{ form.fields.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_number.name }}" 
+                value="{{ form.fields.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_number.value }}" 
                 error-message="Please use a valid phone number"
                 placeholder="Phone Number">
             </ins-input>
@@ -91,7 +91,7 @@ fields:
             <ins-input-tel
                 id="mobile-phone"
                 label="Mobile Phone" 
-                phonenum-value="{{ form.fields.profiles['modules/insites_core/insites_contact_number'].properties.mobile_phone_number.value }}" 
+                phonenum-value="{{ form.fields.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_number.value }}" 
                 country-code="{{ country_code }}"
                 phonenum-placeholder="Mobile Phone" no-areacode
                 error-message="Please use a valid mobile number">

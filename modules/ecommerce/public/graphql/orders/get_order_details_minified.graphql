@@ -7,7 +7,7 @@ query get_order_details_minified (
     filter: {
       id: { value: $id }
       deleted_at:{ exists:false }
-      table: { value: "modules/insites_ecommerce/insites_order" }
+      table: { value: "modules/insites_ecommerce/order" }
       properties:[
         { name: "user_id", value: $user_id }
       ]

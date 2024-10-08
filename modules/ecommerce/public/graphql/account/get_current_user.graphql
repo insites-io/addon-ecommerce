@@ -7,7 +7,7 @@ query get_current_user {
     email
     ## INS Contact Number
     insites_contact_number: profiles(
-      profile_type: "modules/insites_core/insites_contact_number"
+      profile_type: "modules/insites_core/crm_contact"
     ) {
       mobile_phone_country_code: property(name: "mobile_phone_country_code")
       mobile_phone_area_code: property(name: "mobile_phone_area_code")

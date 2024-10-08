@@ -58,7 +58,7 @@ mutation create_order(
 ) {
     items: record_create(
         record: {
-            table: "modules/insites_ecommerce/insites_order",
+            table: "modules/insites_ecommerce/order",
             properties: [
                 { name: "shipping_company_name", value: $shipping_company_name }
                 { name: "shipping_first_name", value: $shipping_first_name }

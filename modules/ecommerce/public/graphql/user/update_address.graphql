@@ -24,7 +24,7 @@ mutation update_address (
   items: record_update(
     id: $id,
     record: {
-      table: "modules/insites_core/insites_address",
+      table: "modules/insites_core/crm_address",
     	properties: [
         { name: "source_id", value: $source_id }
         { name: "source_name", value: $source_name }

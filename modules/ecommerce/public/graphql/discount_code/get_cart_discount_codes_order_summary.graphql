@@ -15,7 +15,7 @@ query get_cart_discount_codes_order_summary (
     filter: {
       id: { value: $id, not_value_in: $not_id, value_in: $ids }
       deleted_at: { exists: false }
-      table: { value: "modules/insites_ecommerce/insites_cart_discount_codes" }
+      table: { value: "modules/insites_ecommerce/cart_discount_codes" }
       properties: [
         { name: "user_id", value: $user_id }
         { name: "order_id", value: $order_id }

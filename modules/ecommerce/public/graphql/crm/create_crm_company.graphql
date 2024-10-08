@@ -75,7 +75,7 @@ mutation create_crm_company(
 
     # properties
     # addresses: related_records(
-    #   table: "modules/insites_core/insites_address"
+    #   table: "modules/insites_core/crm_address"
     #   join_on_property: "id"
     #   foreign_property: "source_id"
     # ) {

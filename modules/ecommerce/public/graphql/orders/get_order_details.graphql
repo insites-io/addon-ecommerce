@@ -7,7 +7,7 @@ query get_order_details (
     filter: {
       id: { value: $id }
       deleted_at:{ exists:false }
-      table: { value: "modules/insites_ecommerce/insites_order" }
+      table: { value: "modules/insites_ecommerce/order" }
       properties:[
         { name: "user_id", value: $user_id }
       ]
@@ -35,7 +35,7 @@ query get_order_details (
         email
       }
       cart: related_records(
-        table: "modules/insites_ecommerce/insites_cart"
+        table: "modules/insites_ecommerce/cart"
         foreign_property:"order_id", 
         join_on_property: "id") {
           properties

@@ -16,7 +16,7 @@ query get_cart_quantity (
     filter: {
       id: { value: $id, not_value_in: $not_id, value_in: $ids }
       deleted_at: { exists: false }
-      table: { value: "modules/insites_ecommerce/insites_cart" }
+      table: { value: "modules/insites_ecommerce/cart" }
       properties: [
         { name: "user_id", value: $user_id }
         { name: "order_id", value: $order_id }

@@ -12,7 +12,7 @@ query get_orders (
     page: $page,
     filter: {
       table: {
-        value: "modules/insites_ecommerce/insites_order"
+        value: "modules/insites_ecommerce/order"
       },
       properties: [
         { name: "order_number", contains: $keyword }
@@ -39,7 +39,7 @@ query get_orders (
         email
       }
       cart: related_records(
-        table: "modules/insites_ecommerce/insites_cart"
+        table: "modules/insites_ecommerce/cart"
         foreign_property: "order_id", 
         join_on_property: "id") {
           quantity: property(name: "quantity")

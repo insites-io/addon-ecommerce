@@ -26,7 +26,7 @@ bcc: >
       type: 'workflow',
       field: 'bcc' -%}
 subject: Bill payment successful
-layout: modules/insites_core/insites_admin/insites_internal_email_layout
+#layout: modules/insites_core/insites_admin/insites_internal_email_layout
 ---
 
 {%- assign amountPayable = data.cart[0].properties.product_price | divided_by: 100.0 | advanced_format: '%.2f' -%}
