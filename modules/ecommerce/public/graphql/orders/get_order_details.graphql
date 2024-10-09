@@ -41,7 +41,7 @@ query get_order_details (
           properties
         
           product: related_record(
-            table: "modules/insites_ecommerce/insites_product"
+            table: "modules/insites_ecommerce/product"
             foreign_property:"id", 
             join_on_property: "product_id") {
 

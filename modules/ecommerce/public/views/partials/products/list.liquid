@@ -1,6 +1,3 @@
-{%- comment -%} Step: Get Instance ID of the page (for images) {%- endcomment -%}
-{%- assign instance_id = context.instance.id -%}
-
 {%- comment -%} Step: Check if category or main product page {%- endcomment -%}
 {%- if context.params.slug2 -%}
 
@@ -114,6 +111,8 @@ Step: Call the search GraphQL with the parameters
 <!-- This GraphQL is optimized for the list, thus not including gallery and variant items -->
 {%- endcomment -%}
 {%- graphql product_list_data = 'modules/ecommerce/shop/search_products_list_view', args: filters -%}
+
+product_list_data={{product_list_data}}
 
 {%- assign total_cat_child = 1 -%} {% comment %} 1 = show sidebar {% endcomment %}
 {%- if context.params.slug2 -%}    

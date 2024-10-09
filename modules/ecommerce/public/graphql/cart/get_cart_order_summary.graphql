@@ -36,7 +36,7 @@ query get_cart_order_summary (
       quantity: property(name: "quantity")
       product_variant: property(name: "product_variant")
       product: related_record(
-        table: "modules/insites_ecommerce/insites_product"
+        table: "modules/insites_ecommerce/product"
         foreign_property:"id", 
         join_on_property: "product_id") {
           unit_label: property(name: "unit_label")

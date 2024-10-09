@@ -15,7 +15,7 @@ query get_product_detail_view (
     filter: {
       id: { value: $id }
       deleted_at: { exists: false }
-      table: { value: "modules/insites_ecommerce/insites_product" }
+      table: { value: "modules/insites_ecommerce/product" }
       properties: [
         { name: "is_enabled", value_boolean: $is_enabled }
         { name: "is_archived", value_boolean: $is_archived }
