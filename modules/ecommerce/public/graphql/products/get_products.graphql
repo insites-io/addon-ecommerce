@@ -1,9 +1,7 @@
-query search_products(
+query get_products(
   $page: Int = 1,
   $size: Int = 10,
   $keyword : String,
-  $is_enabled: Boolean = true,
-  $is_archived: Boolean = false,
   $category: [String!],
   $sort:[RecordsSortInput!] = [
     { updated_at: { order: DESC } }
@@ -17,8 +15,7 @@ query search_products(
         value_in:["modules/insites_ecommerce/product"]
       }
       properties:[
-      	{ name: "is_enabled", value_boolean: $is_enabled }
-      	{ name: "is_archived", value_boolean: $is_archived }
+      	{ name: "status", value: "enabled" }
         { name: "categories", value_in: $category }
       ]
       fulltext:{
@@ -37,28 +34,24 @@ query search_products(
       id 
       created_at
       updated_at
-      
-      name: property(name: "name")
+      #properties
+      product_name: property(name: "product_name")
       slug: property(name: "slug")
       sku: property(name: "sku")
-      stock: property_int(name: "stock")
-      is_enabled: property_boolean(name: "is_enabled")
+      stock_level: property_int(name: "stock_level")
+      #is_enabled: property_boolean(name: "is_enabled")
       is_featured: property_boolean(name: "is_featured")
-      variant_enabled: property_boolean(name: "variant_enabled")
-      variant_schema: property(name: "variant_schema")
-      on_sale: property_boolean(name: "on_sale")
+      #variant_enabled: property_boolean(name: "variant_enabled")
+      #variant_schema: property(name: "variant_schema")
+      is_on_sale: property_boolean(name: "is_on_sale")
       regular_price: property_float(name: "regular_price")
       sale_price: property_float(name: "sale_price")
       short_description: property(name: "short_description")
-      main_image:related_records(
-        table: "modules/insites_ecommerce/insites_product_uploads"
-        foreign_property: "id"
-        join_on_property: "main_image"
-      ) {
-        file: property_upload( name: "file"){
-          url
-          versions(names:["296x222", "712x534"])
-        }
+      product_image: property_upload(name: "product_image") {
+        #extension
+        #file_name
+        url
+        #versions
       }
     }
   }

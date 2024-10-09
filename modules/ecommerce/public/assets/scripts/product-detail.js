@@ -76,7 +76,7 @@ let productDetail = (function () {
                         let hasStockPanel = document.getElementById('has-stock-cont');
                         let noStockPanel = document.getElementById('no-stock-cont');
 
-                        if (prodVarList[ind].properties.stock > 0) {
+                        if (prodVarList[ind].properties.stock_level > 0) {
                             hasStockPanel.classList.remove('hide');
                             noStockPanel.classList.add('hide');
                         } else {
@@ -97,7 +97,7 @@ let productDetail = (function () {
                 let quantitySteper = document.getElementById('product-quantity');
                 if (quantitySteper) {
                     quantitySteper.value = 1;
-                    quantitySteper.max = prodDetail.properties.stock;
+                    quantitySteper.max = prodDetail.properties.stock_level;
                 }
                 let varProdQtyInput = document.getElementById('prod-det-quantity');
                 if (varProdQtyInput) {
@@ -110,7 +110,7 @@ let productDetail = (function () {
                 let priceDisplay = document.getElementById('product-price');
                 let notPriceDisplay = document.getElementById('not-product-price');
                 if (priceDisplay && notPriceDisplay) {
-                    if (prodDetail.properties.on_sale) {
+                    if (prodDetail.properties.is_on_sale) {
                         priceDisplay.innerText = "$" + prodDetail.properties.sale_price;
                         notPriceDisplay.innerText = "$" + prodDetail.properties.regular_price;
                     } else {

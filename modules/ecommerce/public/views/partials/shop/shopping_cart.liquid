@@ -12,14 +12,14 @@
 
             {% comment %} Get cart product details {% endcomment %} 
             {% assign main_product = cart_item.main_product[0] -%}       
-            {%- assign cart_img =  main_product.main_image[0].file.versions['88x66'] -%}
-            {% assign max_qty = main_product.stock -%}
+            {%- assign cart_img =  main_product.product_image.url -%}
+            {% assign max_qty = main_product.stock_level -%}
 
             {% comment %} Get cart product variant details {% endcomment %}
             {%- if cart_item.product_variant_id -%}
                 {%- graphql product_variant = 'modules/ecommerce/shop/get_product_variants_cart_view', 
                     id: cart_item.product_variant_id  | fetch: "items" | fetch: "results" | first -%}
-                {%- assign max_qty = product_variant.stock -%}
+                {%- assign max_qty = product_variant.stock_level -%}
                 {%- if product_variant.gallery[0].file.versions['88x66'] -%}
                     {%- assign cart_img = product_variant.gallery[0].file.versions['88x66'] -%}
                 {%- endif -%}                     
@@ -29,7 +29,7 @@
                 <ins-card steady no-padding>
                     <div class="product-info flex-container">
                         <div class="img-cont">
-                            {%- if main_product.main_image[0].file.url -%}
+                            {%- if main_product.product_image.url -%}
                                 <img src="{{ cart_img }}" alt="{{ cart_item.product_name }}" />
                             {%- else -%}
                                 {%- include 'modules/website/content/placeholder-image', size: 'small' -%}

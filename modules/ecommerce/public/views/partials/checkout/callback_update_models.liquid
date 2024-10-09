@@ -86,7 +86,7 @@
 
 {%- comment -%}Step 2.4: Update inventory{%- endcomment -%}
 {%- if status == 'success' -%}
-{%- assign model_name = "modules/insites_ecommerce/insites_product" -%}
+{%- assign model_name = "modules/insites_ecommerce/product" -%}
     
     {% comment %} Discount Code inventory {% endcomment %}
     {% log context.exports.order.discount_code_ids, type: "---- Update Discount IDs inventory ----" %}

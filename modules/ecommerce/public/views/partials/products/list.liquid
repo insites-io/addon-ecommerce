@@ -110,9 +110,7 @@
 Step: Call the search GraphQL with the parameters
 <!-- This GraphQL is optimized for the list, thus not including gallery and variant items -->
 {%- endcomment -%}
-{%- graphql product_list_data = 'modules/ecommerce/shop/search_products_list_view', args: filters -%}
-
-product_list_data={{product_list_data}}
+{%- graphql product_list_data = 'modules/ecommerce/products/get_products', args: filters -%}
 
 {%- assign total_cat_child = 1 -%} {% comment %} 1 = show sidebar {% endcomment %}
 {%- if context.params.slug2 -%}    
@@ -235,14 +233,14 @@ product_list_data={{product_list_data}}
             {%- graphql product_variants = 'modules/ecommerce/shop/get_product_variants_is_exist', args: params -%}            
             {%- if product_variants.items.total_entries > 0 -%}
                 {%- for prod_var in product_variants.items.results -%}
-                    {%- if prod_var.properties.on_sale -%}
+                    {%- if prod_var.properties.is_on_sale -%}
                     {%- assign sale_flag = true -%}
                     {%- break -%}    
                     {%- endif -%}
                 {%- endfor -%}
             {%- endif -%}
             {%- else -%}
-                {%- if product.on_sale -%}
+                {%- if product.is_on_sale -%}
                 {%- assign sale_flag = true -%}
                 {%- endif -%}
             {%- endif -%}
@@ -252,7 +250,7 @@ product_list_data={{product_list_data}}
                     <ins-card steady no-padding>
                         <div class="product-info flex-container">
                             <div class="img-cont">
-                                {%- if product.stock == 0 and product.variant_enabled == false -%}
+                                {%- if product.stock_level == 0 and product.variant_enabled == false -%}
                                 <div class="out-of-stock"></div>
                                 {%- else -%}
                                     {%- if product.variant_enabled and product_variants.items.total_entries == 0 -%}
@@ -264,20 +262,20 @@ product_list_data={{product_list_data}}
                                 <div class="on-sale-tag">ON SALE</div>
                                 {%- endif -%}
 
-                                {%- if product.main_image[0].file.url -%}
+                                {%- if product.product_image.url -%}
                                     {%- if context.device.device_type == "smartphone" -%}
-                                        <img src="{{ product.main_image[0].file.versions['712x534'] }}" alt="{{ product.name }}" />
+                                        <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" >
                                     {%- else -%}
-                                        <img src="{{ product.main_image[0].file.versions['296x222'] }}" alt="{{ product.name }}" />
+                                        <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" >
                                     {% endif %}
                                 {%- else -%}
-                                    {%- include 'modules/website/content/placeholder-image', size: 'medium' -%}
+                                    {%- include 'modules/website/layout/placeholder_image', size: 'medium' -%}
                                 {%- endif -%}
                             </div>
                             <div class="spacer x-large"></div>
                             <div class="info">
                                 <div class="name">
-                                    <h6 class="heading-6">{{product.name}}</h6>
+                                    <h6 class="heading-6">{{product.product_name}}</h6>
                                 </div>
                                 <div class="spacer xx-small"></div>
                                 <div class="description body-paragraph">
@@ -285,7 +283,7 @@ product_list_data={{product_list_data}}
                                 </div>
                             </div>
                             <div class="spacer"></div>
-                            {%- if product.on_sale -%}
+                            {%- if product.is_on_sale -%}
                             <div class="price text-right">
                                 <div class="price-amount">{{ product.sale_price | pricify }}</div>
                                 {% if product.regular_price %}

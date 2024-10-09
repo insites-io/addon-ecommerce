@@ -14,7 +14,7 @@ query search_products(
     per_page: $size
     filter:{
       table:{
-        value_in:["modules/insites_ecommerce/insites_product"]
+        value_in:["modules/insites_ecommerce/product"]
       }
       properties:[
       	{ name: "is_enabled", value_boolean: $is_enabled }

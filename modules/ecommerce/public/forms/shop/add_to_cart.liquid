@@ -73,7 +73,7 @@ callback_actions: >
 
 {%- if product_info.variant_enabled == false -%}
 
-{%- if product_info.on_sale -%}
+{%- if product_info.is_on_sale -%}
 {%- assign prod_price = product_info.sale_price | times: 100  | default: 0 -%}
 {%- else -%}
 {%- assign prod_price = product_info.regular_price | times: 100  | default: 0 -%}

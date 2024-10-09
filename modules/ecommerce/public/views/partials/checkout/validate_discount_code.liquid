@@ -102,7 +102,7 @@ payload: {
                         assign discount_cart_ids = discount_cart_ids | add_to_array: item.id
                     endfor
                 else
-                    if discount.properties.apply_to == "modules/insites_ecommerce/insites_product"
+                    if discount.properties.apply_to == "modules/insites_ecommerce/product"
                         assign discount_accepted_ids = discount.properties.apply_to_products 
                         log discount_accepted_ids, type: "Product product ids ====== " 
 

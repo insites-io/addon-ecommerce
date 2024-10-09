@@ -56,7 +56,7 @@
         {% assign out_of_stock_flag = true -%}
     {%- endif -%}
 {%- else -%}
-    {%- if product_info.stock > 0 -%}
+    {%- if product_info.stock_level > 0 -%}
         {% assign out_of_stock_flag = false -%}
     {%- else -%}
         {% assign out_of_stock_flag = true -%}
@@ -72,7 +72,7 @@
 
         <div class="gallery">
             
-            {%- if product_info.stock == 0 and product_info.variant_enabled == false -%}
+            {%- if product_info.stock_level == 0 and product_info.variant_enabled == false -%}
                 <div class="out-of-stock"></div>
             {%- else -%}
                 {%- if product_info.variant_enabled and raw_product_variants.items.total_entries == 0 -%}
@@ -82,7 +82,7 @@
             
             {%- if gallery1 and gallery1.size != 0 -%}
                 <div class="main-gallery variant-gallery">
-                    {%- if product_info.on_sale -%}
+                    {%- if product_info.is_on_sale -%}
                         {% if regular_price > sale_price %}
                             <span class="sale-tag">{{ regular_price | minus: sale_price | times: 100.0 | divided_by: regular_price | round }}% OFF</span>
                         {% endif %}
@@ -177,7 +177,7 @@
             <div class="small-12 cell">
                 <div class="spacer"></div>
                 <p id="product-price" class="heading-2">
-                    {%- if product_info.on_sale -%}
+                    {%- if product_info.is_on_sale -%}
                         {{ product_info.sale_price | pricify }}
                     {%- else -%}
                         {{ product_info.regular_price | pricify }}
@@ -187,7 +187,7 @@
                     {%- if product_info.variant_enabled -%}
                         
                     {%- else -%}
-                        {%- if product_info.on_sale -%}
+                        {%- if product_info.is_on_sale -%}
                             {{ product_info.regular_price | pricify }}
                         {%- endif -%}
                     {%- endif -%}

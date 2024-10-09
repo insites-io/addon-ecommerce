@@ -43,7 +43,7 @@ query get_shopping_cart (
       main_product: related_records(
             foreign_property: "id"
             join_on_property: "product_id"
-            table: "modules/insites_ecommerce/insites_product"
+            table: "modules/insites_ecommerce/product"
         ) {
             stock: property_int(name: "stock")
             main_image: related_records(

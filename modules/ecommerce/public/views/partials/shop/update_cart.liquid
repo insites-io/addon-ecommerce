@@ -38,7 +38,7 @@
 
 {%- comment -%}Step 3: compute for price & taxes and update quantity {%- endcomment -%}
 {%- assign product_price = product.regular_price | times: 100 -%}
-{%- if product.on_sale -%}
+{%- if product.is_on_sale -%}
     {%- assign product_price = product.sale_price | times: 100 -%}
 {%- endif -%}
 
@@ -51,8 +51,8 @@
 {%- endif -%}
 
 {%- assign cart_qty = cart_qty | plus: form.properties.quantity -%}
-{%- if cart_qty > product.stock -%}
-    {%- assign cart_qty = product.stock -%}
+{%- if cart_qty > product.stock_level -%}
+    {%- assign cart_qty = product.stock_level -%}
 {%- endif -%}
 
 
