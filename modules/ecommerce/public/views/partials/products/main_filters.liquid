@@ -1,0 +1,70 @@
+        {% assign params = context.params %}
+
+        <div class="filter">                                        
+            <ins-input
+                id="filter-keyword"
+                class="filter-keyword" 
+                icon-event
+                placeholder="Search"
+                value=""
+                field="search"
+                icon="icon-search1"
+                size="large">
+            </ins-input>            
+            <div class="spacer"></div>
+
+            <div class="grid-x">
+                <div class="large-auto small-12 cell grid-x flex-container align-justify">
+                    <div class="align-middle grid-x large-10 medium-9 small-12">
+                        <span class="body-small-bold font-color-head">Filter By:</span>
+
+                        {% graphql product_brands = 'modules/ecommerce/products/get_product_brands' 
+                            | dig: 'items','results' | map: 'brand' | array_uniq %}
+                        
+                        <ins-button-select 
+                            id="brandSelect"
+                            label="Brand"
+                            placeholder="{{ params.brand | default: 'Select brand' }}" 
+                            small>
+                            {% for product_brand in product_brands %}
+                                <ins-button-select-option label="{{product_brand}}" value="{{product_brand}}" {% if params.brand == "product_brand" %}activated{% endif %}></ins-button-select-option>
+                            {% endfor %}
+                        </ins-button-select >
+
+                        <ins-button-select 
+                            id="showSelect"
+                            label="Show" 
+                            placeholder="{{ params.show | capitalize | default: 'All' }}" 
+                            small>
+                            <ins-button-select-option label="All" value="all" {% if params.show == "all" %}activated{% endif %}></ins-button-select-option>
+                            <ins-button-select-option label="Sale" value="sale" {% if params.show == "sale" %}activated{% endif %}></ins-button-select-option>
+                            <ins-button-select-option label="In Stock" value="in-stock" {% if params.show == "in-stock" %}activated{% endif %}></ins-button-select-option>
+                        </ins-button-select>
+                        
+                        {%  liquid
+                            if params.sort == 'price-ascending'
+                                assign sortText = 'Price: High-Low'
+                            elsif params.sort == 'price-descending'
+                                assign sortText = 'Price: Low-High'
+                            else 
+                                assign sortText = 'Newest'
+                            endif
+                        %}
+                        <ins-button-select 
+                            id="sortSelect"
+                            label="Sort by" 
+                            placeholder="{{ sortText }}" 
+                            small>
+                            <ins-button-select-option label="Newest" value="newest" {% if params.sort == "newest" %}activated{% endif %}></ins-button-select-option>
+                            <ins-button-select-option label="Price: High-Low" value="price-ascending" {% if params.sort == "price-ascending" %}activated{% endif %}></ins-button-select-option>
+                            <ins-button-select-option label="Price: Low-High" value="price-descending" {% if params.sort == "price-descending" %}activated{% endif %}></ins-button-select-option>
+                        </ins-button-select>
+                    </div>
+                    <div class="align-middle align-right grid-x hide-for-small-only">
+                        <div><p class="button-default font-color-head">View:</p></div>
+                        <ins-button id="view-grid-btn" icon="icon-grid" color="white" size="normal" label="" class="icon-button active"></ins-button>
+                        <ins-button id="view-list-btn" icon="icon-list" color="white" size="normal" label="" class="icon-button"></ins-button>
+                    </div>
+                </div>
+            </div>
+        </div>

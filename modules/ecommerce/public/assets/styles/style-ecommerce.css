@@ -256,6 +256,10 @@ ins-drawer#mobile-filter-drawer .ins-drawer-wrap.opened .ins-content.left {
     margin-left: 10px;
 }
 
+.product-view .view-wrap ins-button button.round {
+    height: 32px;
+}
+
 .product-view .view-wrap .icon-button {
     display: inline-block;
     vertical-align: middle;

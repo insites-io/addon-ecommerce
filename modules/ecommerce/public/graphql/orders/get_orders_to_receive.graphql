@@ -1,0 +1,26 @@
+query get_orders_to_receive (
+  $page: Int = 1,
+  $size: Int = 1,
+  $order_contact_uuid: String
+) {
+  items: records (
+    per_page: $size,
+    page: $page,
+    filter: {
+      table: {
+        value: "modules/insites_ecommerce/order"
+      },
+      properties: [
+        { name: "order_contact_uuid", value: $order_contact_uuid }
+      ]
+    }
+  ) {          
+    total_entries
+    # results {
+    #   id      
+    #   #properties
+    #   order_contact_uuid: property(name: "order_contact_uuid")
+    #   order_contact_email: property(name: "order_contact_email")
+    # }
+  }
+}

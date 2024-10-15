@@ -1,0 +1,106 @@
+ {% parse_json sort_by %}
+        {
+            "properties": [
+                { "name": "category_weighting", "order": "ASC" }
+            ]
+        }
+        {% endparse_json %}
+
+ {% graphql all_categories = 'modules/ecommerce/categories/get_categories', 
+            sort_by: sort_by | dig: 'items','results'  %}
+
+
+<ins-modal 
+  id="mega-menu"
+  class="no-hover-border"
+  with-backdrop=false light
+    value="DATA"
+  height="400px"  
+  width="100%"
+  no-button>
+    
+  <div class="grid-x">
+    <div class="main-categories cell large-3 medium-3">
+        <p class="body-small-bold">Shop By</p>
+
+        
+
+        {% comment %} {% assign parent_category_uuids = '' | split: ','%} {% endcomment %}
+       
+
+        {% comment %} | dig: 'items','results' {% endcomment %}
+
+        {% assign parent_categories = all_categories | array_select: parent_category_uuids: '[]' %}
+
+       
+
+
+            {% comment %} parent_category_uuids: parent_category_uuids,  {% endcomment %}
+
+        <ul>
+            {% for category in parent_categories %}
+            <li><a href="/{{category.slug}}">{{category.category_name}}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="featured-categories cell large-9 medium-9 grid-x align-justify">
+
+        {% graphql featured_categories = 'modules/ecommerce/categories/get_featured_categories' | dig: 'items','results' %}
+
+        {% comment %} {% assign featured_categories = all_categories | array_select: is_featured: 'true' %} {% endcomment %}
+
+        {% comment %} all_categories={{all_categories}} {% endcomment %}
+        {% comment %} featured_categories={{featured_categories}} {% endcomment %}
+
+
+        {% assign parent_category_uuids = featured_categories | map: 'uuid' %}
+        {% graphql sub_categories = 'modules/ecommerce/categories/get_subcategories',
+            parent_category_uuids: parent_category_uuids | dig: 'items','results' %}        
+
+        {% for parent_category in featured_categories %}
+            <div class="wrap">
+                <p class="body-small-bold">{{ parent_category.category_name }}</p>
+                <ul>
+                    {% for sub_category in sub_categories %}
+                        {% if sub_category.parent_category_uuids contains parent_category.uuid %}
+                            <li>{{ sub_category.category_name }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    </div>
+  </div>
+
+</ins-modal>
+
+<script>
+  var megaMenu = document.getElementById('mega-menu');
+  var megaMenuBtn = document.getElementById('mega-menu-btn');
+  
+  console.log('megaMenuBtn',megaMenuBtn);
+  
+  megaMenuBtn.addEventListener('insClick', () => {
+    //var megaMenuBtnSpn = document.querySelector('#mega-menu-btn button span');
+    //var megaMenuBtnIcon = document.querySelector('#mega-menu-btn button i');
+    //console.log('megaMenuBtnSpn',megaMenuBtnSpn);
+    // console.log('megaMenuBtnIcon',megaMenuBtnIcon);
+    //megaMenuBtnSpn.style.color = 'blue'; //var(--color-main-hover);
+    //megaMenuBtnIcon.style.color = 'blue';
+    megaMenu.open();
+    megaMenuBtn.classList.add('show-modal');
+
+    
+  });
+
+
+
+  megaMenu.addEventListener('insClose', () => {
+    console.log('megaMenu insClose');
+    //var isModalShown = document.querySelector('#mega-menu .ins-modal-wrap');
+    //console.log('isModalShown', isModalShown);
+    megaMenuBtn.classList.remove('show-modal');
+  });
+
+
+</script>

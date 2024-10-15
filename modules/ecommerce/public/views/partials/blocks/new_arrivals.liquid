@@ -1,0 +1,87 @@
+<section class="bg-color-ui-02">
+    <div class="spacer xxxx-large"></div>
+    <div class="product-carousel large-offset-1">
+
+        {% graphql products = "modules/ecommerce/products/get_products" | dig: 'items','results' %}        
+        
+
+        <!-- desktop carousel -->
+        <ins-carousel 
+            id="newArrivalsCarouselDesktop"
+            class="newArrivalsCarousel show-for-large"
+            layout="1"
+            per-page="4"
+            no-pagination=true
+            bind-to="newArrivalCardsDesktop">
+
+            <h2>New Arrivals</h2>     
+            <div class="spacer xx-large"></div>
+            <div id="newArrivalCardsDesktop" class="product-cards">
+                {% for product in products %}
+                    {% include "modules/ecommerce/products/product_card", product: product %}
+                {% endfor %}
+            </div>
+        </ins-carousel>
+        <!-- desktop carousel -->
+
+        <!-- tablet carousel -->
+        <ins-carousel 
+            id="newArrivalsCarouselTablet"
+            class="newArrivalsCarousel show-for-medium-only"
+            layout="1"
+            per-page="3"
+            no-pagination=true
+            bind-to="newArrivalCardsTablet">
+
+            <h2>New Arrivals</h2>     
+            <div class="spacer xx-large"></div>
+            <div id="newArrivalCardsTablet" class="product-cards">
+                {% for product in products %}
+                    {% include "modules/ecommerce/products/product_card", product: product %}
+                {% endfor %}
+            </div>
+        </ins-carousel>
+        <!-- tablet carousel -->
+
+        <!-- mobile carousel -->
+        <ins-carousel 
+            id="newArrivalsCarouselMobile"
+            class="newArrivalsCarousel show-for-small-only"
+            layout="1"
+            per-page="1"
+            no-pagination=true
+            bind-to="newArrivalCardsMobile">
+
+            <h2>New Arrivals</h2>     
+            <div class="spacer xx-large"></div>
+            <div id="newArrivalCardsMobile" class="product-cards">
+                {% for product in products %}
+                    {% include "modules/ecommerce/products/product_card", product: product %}
+                {% endfor %}
+            </div>
+        </ins-carousel>
+        <!-- mobile carousel -->
+
+    </div>
+    <div class="spacer xxxx-large"></div>
+</section>
+
+<script>
+var newArrivalsCarousel = document.querySelectorAll('.newArrivalsCarousel');
+var showAllLink = {};
+
+newArrivalsCarousel.forEach(carousel => {
+    var carouselID = carousel.id;
+    carousel.addEventListener('didLoad', event => {     
+        var carouselCtrlBtns = document.querySelector(`#${carouselID} .ins-carousel_ctrl-btns`);  
+        if(carouselCtrlBtns && showAllLink[carouselID] !== true){            
+            var newLink = document.createElement('a');
+                newLink.href = "/";
+                newLink.textContent = "Shop All";
+                newLink.className = "shop-all-link"; 
+            carouselCtrlBtns.appendChild(newLink);  
+            showAllLink[carouselID] = true;           
+        }               
+    });          
+});
+</script>

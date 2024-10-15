@@ -88,14 +88,24 @@ URL Structures:
         <div class="spacer x-large"></div>
     </div>
 
+    {% parse_json sort_by %}
+    {
+        "properties": [
+            { "name": "category_weighting", "order": "ASC" }
+        ]
+    }
+    {% endparse_json %}
+
+    {% graphql all_categories = 'modules/ecommerce/categories/get_categories' sort_by: sort_by | dig: 'items','results'  %}
+
     {%- if context.params.slug2 -%}
         {%- if slug_type == 'product' -%}
             {%- include 'modules/ecommerce/products/detail' -%}
         {%- else -%}
-            {%- include 'modules/ecommerce/products/list' -%}
+            {%- include 'modules/ecommerce/products/list', all_categories -%}
         {%- endif -%}
     {%- else -%}
-        {%- include 'modules/ecommerce/products/list' -%}
+        {%- include 'modules/ecommerce/products/list', all_categories -%}
     {%- endif -%}
 
 </div>

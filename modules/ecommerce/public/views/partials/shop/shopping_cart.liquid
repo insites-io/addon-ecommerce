@@ -32,7 +32,7 @@
                             {%- if main_product.product_image.url -%}
                                 <img src="{{ cart_img }}" alt="{{ cart_item.product_name }}" />
                             {%- else -%}
-                                {%- include 'modules/website/content/placeholder-image', size: 'small' -%}
+                                {%- include 'modules/website/layout/placeholder_image', size: 'small' -%}
                             {%- endif -%}
                         </div>
                         <div class="spacer"></div>

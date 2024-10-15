@@ -1,0 +1,39 @@
+query get_featured_categories (
+  $page: Int = 1,
+  $size: Int = 20,
+  $sort_by: [RecordsSortInput!] = {
+      properties: [
+          { name: "category_weighting", order: ASC }
+      ]
+  }
+) {
+  items: records(
+    page: $page
+    per_page: $size
+    filter: {
+      deleted_at: { exists: false }
+      table: { value: "modules/insites_ecommerce/category" }
+      properties: [
+        { name: "status", value: "enabled" }
+      ] 
+      related_records: {
+        join: {foreign_property: "category_uuid", join_on_property: "uuid"}, 
+        filter: {
+          properties: {name: "is_featured", value_boolean: true}, 
+          table: {value: "modules/ins_ecommerce/category_custom_field"}
+          }
+      }
+    }
+    sort: $sort_by
+  ) {
+    total_entries
+    total_pages
+    current_page
+    results {     
+        #properties
+		uuid: property(name: "uuid")
+        slug: property(name: "slug")
+        category_name: property(name: "category_name")  
+    }
+  }
+}

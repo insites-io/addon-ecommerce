@@ -1,0 +1,33 @@
+    <div class="cell">
+        <div class="wrap">
+            {% if product.product_image.url %}
+                <img  src="{{ product.product_image.url }}" alt="{{ product.product_name }}" >
+            {% else %}
+                {% include 'modules/website/layout/placeholder_image', size: 'medium' %}
+            {% endif %}
+            <div class="spacer medium"></div>
+            <div class="container grid-y">
+                <div class="details">
+                    <h6>{{ product.product_name }}</h6>
+                    <div class="spacer x-small"></div>
+                    {% assign category = all_categories | array_detect: uuid: product.category_uuids[0] %}
+                    <p>{{ category.category_name | default: 'Category' }}</p>
+                    <div class="spacer"></div>
+                    <p class="product-current-price">${{ product.regular_price | default: '0.00' }}</p>
+                    <div class="spacer"></div>
+                    {% if purchase_date  %}
+                    <div class="spacer"></div>
+                    <p class="body-x-small">Purchase Date: {{purchase_date | date: '%d/%m/%Y'}}</p>
+                    <div class="spacer"></div>
+                    {% endif %}
+                </div>
+                <div class="buttons">
+                    <ins-button class="full" label="Add to Cart" solid color="blue" icon="icon-shopping-cart"></ins-button>
+                    <div class="spacer x-small"></div>
+                    <a href="/products/{{ product.slug }}">
+                        <ins-button class="full" label="View Details" outlined icon="icon-eye"></ins-button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>

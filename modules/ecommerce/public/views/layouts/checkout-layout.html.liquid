@@ -62,9 +62,11 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
     {%- if context.environment == "staging" -%}
         <link rel="stylesheet" href="{{ 'modules/website/styles/app.css' | asset_url }}" />
         <link rel="stylesheet" href="{{ 'modules/ecommerce/styles/style-ecommerce.css' | asset_url }}" />
+        <link rel="stylesheet" href="{{ 'modules/ecommerce/styles/ecommerce.css' | asset_url }}" >
     {%- else -%}
         <link rel="stylesheet" href="{{ 'modules/website/styles/app.min.css' | asset_url }}" />
         <link rel="stylesheet" href="{{ 'modules/ecommerce/styles/style-ecommerce.min.css' | asset_url }}" />
+        <link rel="stylesheet" href="{{ 'modules/ecommerce/styles/ecommerce.min.css' | asset_url }}" >
     {%- endif -%}
     
     <!--[Pixel Tracking]-->

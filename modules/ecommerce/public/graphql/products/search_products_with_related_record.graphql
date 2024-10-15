@@ -1,8 +1,11 @@
-query get_products(
+query search_products_with_related_record(
   $page: Int = 1,
   $size: Int = 10,
   $keyword : String,
+  $brand: String!,
   $category: [String!],
+  $is_on_sale: Boolean,
+  $not_number: Int,
   $sort:[RecordsSortInput!] = [
     { updated_at: { order: DESC } }
   ]
@@ -17,11 +20,20 @@ query get_products(
       properties:[
       	{ name: "status", value: "enabled" }
         { name: "categories", value_in: $category }
+        { name: "is_on_sale", value_boolean: $is_on_sale }
+        { name: "stock_level", not_value_int: $not_number }
       ]
       fulltext:{
         keyword:$keyword
         match_type:CONTAINS
         operator:OR
+      }
+      related_records: {
+        join: {foreign_property: "product_uuid", join_on_property: "uuid"}, 
+        filter: {
+          properties: {name: "brand", value: $brand}, 
+          table: {value: "modules/ins_ecommerce/product_custom_field"}
+          }
       }
     }
     sort: $sort
@@ -30,29 +42,29 @@ query get_products(
     total_pages
     current_page
     results {
-      model_name: table
       id 
-      created_at
-      updated_at
       #properties
       product_name: property(name: "product_name")
       slug: property(name: "slug")
       sku: property(name: "sku")
       stock_level: property_int(name: "stock_level")
-      #is_enabled: property_boolean(name: "is_enabled")
       is_featured: property_boolean(name: "is_featured")
-      #variant_enabled: property_boolean(name: "variant_enabled")
-      #variant_schema: property(name: "variant_schema")
       is_on_sale: property_boolean(name: "is_on_sale")
       regular_price: property_float(name: "regular_price")
       sale_price: property_float(name: "sale_price")
       short_description: property(name: "short_description")
+      category_uuids: property_array(name: "category_uuids")
       product_image: property_upload(name: "product_image") {
-        #extension
-        #file_name
         url
-        #versions
       }
+      # custom_field: related_record(
+      #   table: "modules/ins_ecommerce/product_custom_field",
+      #   join_on_property: "uuid",
+      #   foreign_property: "product_uuid"
+      # ){
+      #   id
+      #   brand: property(name: "brand")
+      # }      
     }
   }
 }

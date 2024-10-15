@@ -110,7 +110,7 @@
                     </div>
                 {%- endfor -%}
             {%- else -%}
-                {%- if product_info.main_image and product_info.main_image.size > 0 -%}
+                {%- if product_info.product_image.url -%}
                     <div class="main-gallery variant-gallery">
                         <ins-gallery with-indicator>
                             <ins-gallery-image
@@ -157,7 +157,7 @@
                         </div>
                     {%- endfor -%}   
                 {%- else -%}
-                    {%- include 'modules/website/content/placeholder-image', size: 'large' -%}
+                    {%- include 'modules/website/layout/placeholder_image', size: 'large' -%}
                 {%- endif -%}
             {%- endif -%}
         </div>

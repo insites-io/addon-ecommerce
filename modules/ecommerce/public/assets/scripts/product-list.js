@@ -87,13 +87,27 @@ let productList = (function () {
                     }
                 }
             },
+            brandValueSelected(event){
+                //Filter by brand
+                let tmpVal = event.detail;
+                productFilter.brand = tmpVal;
+
+                window.location.href = productList.methods.buildURLLink();
+            },
+            showValueSelected(event){
+                //Show: All, Sale, or In-stock
+                let tmpVal = event.detail;
+                productFilter.show = tmpVal;
+
+                window.location.href = productList.methods.buildURLLink();
+            },
             sortValueSelected(event){
                 //Function to update sort of products
                 let tmpVal = event.detail;
                 productFilter.sort = tmpVal;
 
                 window.location.href = productList.methods.buildURLLink();
-            },
+            },            
             changeSubCategory(event){
                 //When a sub category is clicked
                 let subElem = subCatContElem.getElementsByClassName("sub-cat");
@@ -162,6 +176,7 @@ let productList = (function () {
                 //Function for pagination page size selected event
                 let tmpVal = event.detail;
                 productFilter.per_page = tmpVal;
+                productFilter.page = 1;
 
                 window.location.href = productList.methods.buildURLLink();
             },
@@ -210,9 +225,19 @@ let productList = (function () {
                     viewListBtn.addEventListener('insClick', productList.methods.toggleProductView);
                 }
 
+                let brandSelect = document.getElementById('brandSelect');
+                if(brandSelect){
+                    brandSelect.addEventListener('insChange', productList.methods.brandValueSelected);
+                }
+
+                let showSelect = document.getElementById('showSelect');
+                if(showSelect){
+                    showSelect.addEventListener('insChange', productList.methods.showValueSelected);
+                }
+
                 let sortSelect = document.getElementById('sortSelect');
                 if(sortSelect){
-                    sortSelect.addEventListener('insValueChange', productList.methods.sortValueSelected);
+                    sortSelect.addEventListener('insChange', productList.methods.sortValueSelected);
                 }
 
                 let previousBtn = document.getElementById('previousPage');

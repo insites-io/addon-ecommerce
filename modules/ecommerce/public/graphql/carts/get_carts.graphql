@@ -1,0 +1,60 @@
+query get_carts (
+  $id: ID,
+  $ids: [ID!],
+  $not_id: [ID!], 
+  $page: Int = 1,
+  $size: Int = 500,
+  $user_id: String,
+  $order_id: String,
+  $product_uuid: String,
+  $product_variant_id: String,
+  $status: String
+) {
+  items: records(
+    page: $page
+    per_page: $size
+    filter: {
+      id: { value: $id, not_value_in: $not_id, value_in: $ids }
+      deleted_at: { exists: false }
+      table: { value: "modules/insites_ecommerce/cart" }
+      properties: [
+        { name: "user_id", value: $user_id }
+        { name: "order_id", value: $order_id }
+        { name: "status", value: $status }
+        { name: "product_uuid", value: $product_uuid }
+        { name: "product_variant_id", value: $product_variant_id }
+      ] 
+    }
+    sort: { created_at: { order: ASC } }
+  ) {
+    total_entries
+    total_pages
+    current_page
+    results {
+      id 
+      
+      
+      product_uuid: property(name: "product_uuid")
+      product: related_record(
+        table: "modules/insites_ecommerce/product"
+        foreign_property:"uuid", 
+        join_on_property: "product_uuid") {
+          unit_label: property(name: "unit_label")
+          variant_schema: property(name: "variant_schema")
+          main_image: related_records(
+            table: "modules/insites_ecommerce/insites_product_uploads"
+            foreign_property: "id"
+            join_on_property: "main_image"
+          ) {
+            id
+            file: property_upload (name: "file") {
+              url
+              file_name
+              versions (names: ["248x186"]) 
+            }
+          }
+      }
+      properties
+    }
+  }
+}
