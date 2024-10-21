@@ -17,7 +17,7 @@ query get_category (
     filter: {
       id: { value: $id }
       deleted_at: { exists: false }
-      table: { value: "modules/insites_ecommerce/insites_category" }
+      table: { value: "modules/insites_ecommerce/category" }
       properties: [
         { name: "slug", value: $slug }
         { name: "parent_ids", array_overlaps: $parent_ids }

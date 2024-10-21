@@ -106,7 +106,7 @@ payload: {
                         assign discount_accepted_ids = discount.properties.apply_to_products 
                         log discount_accepted_ids, type: "Product product ids ====== " 
 
-                    elsif discount.properties.apply_to == "modules/insites_ecommerce/insites_category"
+                    elsif discount.properties.apply_to == "modules/insites_ecommerce/category"
                         graphql category_products = "modules/ecommerce/shop/get_product_multiple_categories", category: discount.properties.apply_to_categories | dig: 'items' | dig: 'results' | map: 'id'
                         assign discount_accepted_ids = category_products 
 

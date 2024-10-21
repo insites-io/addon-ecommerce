@@ -15,7 +15,7 @@ query get_category_ids (
     per_page: $size
     filter: {
       deleted_at: { exists: false }
-      table: { value: "modules/insites_ecommerce/insites_category" }
+      table: { value: "modules/insites_ecommerce/category" }
       properties: [
         { name: "slug", value: $slug }    
         { name: "parent_ids", array_overlaps: $parent_ids } 

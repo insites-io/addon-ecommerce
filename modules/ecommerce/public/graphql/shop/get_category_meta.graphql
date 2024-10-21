@@ -8,7 +8,7 @@ query get_category_meta (
     per_page: $size
     filter: {
       deleted_at: { exists: false }
-      table: { value: "modules/insites_ecommerce/insites_category" }
+      table: { value: "modules/insites_ecommerce/category" }
       properties: [
         { name: "slug", value: $slug }
         { name: "is_enabled", value_boolean: true }

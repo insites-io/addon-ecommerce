@@ -17,7 +17,7 @@ query get_category_parent (
     filter: {
       id: { value: $id }
       deleted_at: { exists: false }
-      table: { value: "modules/insites_ecommerce/insites_category" }
+      table: { value: "modules/insites_ecommerce/category" }
       properties: [
         { name: "parent_ids", value_in: $parent_ids }
         { name: "is_enabled", value_boolean: $is_enabled }
