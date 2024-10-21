@@ -1,7 +1,6 @@
 ---
 slug: products
 layout: modules/ecommerce/shop-layout
-# enable_profiler: true
 searchable: "true"
 max_deep_level: 2
 redirect_to: |-
@@ -33,31 +32,32 @@ metadata: {
     "sitemap_order": "2", ## secondary order (ASC)
     "sitemap_changefreq": "daily"
 }
-##dynamic_cache:
-##  layout: false
-##  key: |-
-##    {%- parse_json models -%}
-##    [
-##      "modules/insites_layouts/insites_global_content",
-##      "modules/insites_ecommerce/insites_category",
-##      "modules/insites_ecommerce/product",
-##      "modules/insites_ecommerce/insites_settings",
-##      "modules/insites_ecommerce/insites_freight_suppliers"
-##    ]
-##    {%- endparse_json -%}
-##
-##
-##    {%- comment -%}Check if product details page, add variant to cache rule{%- endcomment -%}
-##    {%- if context.params.slug2  -%}
-##        {%- graphql product = 'modules/ecommerce/shop/get_product_detail_menu', 
-##            slug: context.params.slug2 | dig: "items" | dig: "results" | first -%}
-## 
-##        {%- if product.variant_enabled and product.variant_schema != '' -%}
-##            {%- assign models = models | add_to_array: product.variant_schema -%}
-##        {%- endif -%}
-##    {%- endif -%}
-## 
-##    {%- include "modules/website/generate_cache_key", models: models -%}
+dynamic_cache:
+  layout: false
+  key: |-
+    {%- parse_json models -%}
+    [
+      "modules/insites_cms/global",
+      "modules/website/menu",
+      "modules/insites_ecommerce/category",
+      "modules/insites_ecommerce/product",
+      "modules/insites_ecommerce/cart"
+    ]
+    {%- endparse_json -%}
+
+
+    {%- comment -%}Check if product details page, add variant to cache rule{%- endcomment -%}
+    {%- if context.params.slug2  -%}
+        {%- graphql product = 'modules/ecommerce/shop/get_product_detail_menu', 
+            slug: context.params.slug2 | dig: "items" | dig: "results" | first -%}
+ 
+        {%- if product.variant_enabled and product.variant_schema != '' -%}
+            {%- assign models = models | add_to_array: product.variant_schema -%}
+        {%- endif -%}
+    {%- endif -%}
+ 
+    {%- include "modules/website/generate_cache_key", models: models -%}
+    {{ context.current_user.id }}
 ---
 
 {% comment -%} 
