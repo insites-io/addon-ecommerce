@@ -3,34 +3,12 @@ slug: products
 layout: modules/ecommerce/shop-layout
 searchable: "true"
 max_deep_level: 2
-redirect_to: |-
-  {%- if context.params.slug2 -%}
-    {%- graphql slug2_cat = 'modules/ecommerce/shop/get_category_menu', slug: context.params.slug2 | dig: 'items' | dig: 'total_entries' -%}
-    {%- graphql slug2_prod = 'modules/ecommerce/shop/get_product_detail_menu', slug: context.params.slug2 | dig: 'items' | dig: 'total_entries' -%}
-    {%- if slug2_cat > 0 -%}
-    {%- elsif slug2_prod > 0 -%}
-    {%- else -%}
-        /404
-    {%- endif -%}
-  {%- endif -%}
 metadata: {
     "status": "published",
-    "page_type": "content", ## content, system or endpoint
-    "og:url": "{{ context.exports.global.company_url | strip }}",
-    "og:type": "",
-    "og:image": "",
-    "og:title": "Products | {{ context.exports.global.company_name | strip }}",
-    "og:description": "Products | {{ context.exports.global.company_name | strip }}",
-    "og:site_name": "{{ context.exports.global.company_name | strip }}",
-    "meta_title": "Products | {{ context.exports.global.company_name | strip }}",
-    "page_title": "Products | {{ context.exports.global.company_name | strip }}",
-    "meta_description": "Products | {{ context.exports.global.company_name | strip }}",
-    "canonical_url": "",
-    "search_engine_visibility": true,
-    "sitemap_enabled": true,
-    "sitemap_priority": "1.0",## primary order (DESC)
-    "sitemap_order": "2", ## secondary order (ASC)
-    "sitemap_changefreq": "daily"
+    "page_type": "content", 
+    "page_name": "Products",
+    "page_title": "Products",
+    "meta_title": "Products"       
 }
 dynamic_cache:
   layout: false
@@ -44,9 +22,7 @@ dynamic_cache:
       "modules/insites_ecommerce/cart"
     ]
     {%- endparse_json -%}
-
-
-    {%- comment -%}Check if product details page, add variant to cache rule{%- endcomment -%}
+   
     {%- if context.params.slug2  -%}
         {%- graphql product = 'modules/ecommerce/shop/get_product_detail_menu', 
             slug: context.params.slug2 | dig: "items" | dig: "results" | first -%}
@@ -57,36 +33,38 @@ dynamic_cache:
     {%- endif -%}
  
     {%- include "modules/website/generate_cache_key", models: models -%}
-    {{ context.current_user.id }}
+    {{ context.current_user.id }} 
 ---
+{% comment %} 
+
+{% endcomment %}
+
 
 {% comment -%} 
 URL Structures: 
-/products/mens-shoes
-/products/mens-shoes/product_id
+    /products/living-room
+    /products/living-room/cabinet
 {% endcomment -%}
 
-{%- assign slug_type = 'error' -%}
-{%- comment -%}Check if has slug2{%- endcomment -%} 
+{% comment %} Check if slug2 is a category or a product {% endcomment %}
 {%- if context.params.slug2 -%}
-    {%- comment -%}Check via graphql if there is a category with slug2{%- endcomment -%}
-    {%- graphql slug2_cat = 'modules/ecommerce/shop/get_category_menu', slug: context.params.slug2 | dig: 'items' | dig: 'total_entries' -%}
-    {%- if slug2_cat > 0 -%}
-        {%- assign slug_type = 'category' -%}
-    {%- endif -%}
-
-    {%- comment -%}Check via graphql if there is a product with slug2{%- endcomment -%}
-    {%- graphql slug2_prod = 'modules/ecommerce/shop/get_product_detail_menu', slug: context.params.slug2 | dig: 'items' | dig: 'total_entries' -%}
-    {%- if slug2_prod > 0 -%}
+    {%- assign slug_type = 'category' -%}
+    {% comment %} Check if slug2 is a category {% endcomment %}
+    {%- graphql category_exist = 'modules/ecommerce/categories/is_category_exist', slug: context.params.slug2 | dig: 'items','total_entries' -%}    
+    {%- unless category_exist == 1 -%}
         {%- assign slug_type = 'product' -%}
-    {%- endif -%}
-    
-{%- endif -%}
+        {% comment %} Check if slug2 is a product {% endcomment %}
+        {%- graphql product_exist = 'modules/ecommerce/products/is_product_exist', slug: context.params.slug2 | dig: 'items','total_entries' -%}
+        {%- unless product_exist == 1 -%}
+            {% redirect_to '/404' %}
+        {%- endunless -%}    
+    {%- endunless -%}
+{%- endif -%}    
+
+
 
 <div class="ecommerce-wrapper grid-container">
-    <div>
-        <div class="spacer x-large"></div>
-    </div>
+    <div class="spacer xxxx-large"></div>
 
     {% parse_json sort_by %}
     {
@@ -101,7 +79,7 @@ URL Structures:
     {%- if context.params.slug2 -%}
         {%- if slug_type == 'product' -%}
             {%- include 'modules/ecommerce/products/detail' -%}
-        {%- else -%}
+        {%- else -%}        
             {%- include 'modules/ecommerce/products/list', all_categories -%}
         {%- endif -%}
     {%- else -%}

@@ -24,9 +24,15 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
 
     <!-- [Schema] -->
     {%- if context.params.slug2 and context.params.slug == "products" -%}
+        {%- if context.params.cat -%}
+            {% assign slug = context.params.cat %}
+        {% else %}
+            {% assign slug = context.params.slug2 %}
+        {% endif %}
+
         {%- include 'modules/insites_ecommerce/seo', 
             type: "category",
-            slug: context.params.slug2 -%}
+            slug: slug -%}
     {%- else -%}
         {%- include 'modules/insites_cms/seo' -%}
     {%- endif -%}
