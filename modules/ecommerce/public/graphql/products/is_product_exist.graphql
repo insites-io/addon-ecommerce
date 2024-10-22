@@ -1,0 +1,26 @@
+query is_product_exist (  
+  $page: Int = 1,
+  $size: Int = 1,
+  $slug: String!,
+) {
+  items: records(
+    page: $page
+    per_page: $size
+    filter: {
+      deleted_at: { exists: false }
+      table: { value: "modules/insites_ecommerce/product" }
+      properties: [
+        { name: "status", value: "enabled" }
+        { name: "slug", value: $slug }
+      ] 
+    }
+  ) {
+    total_entries
+    results {
+      id
+      slug: property(name: "slug")  
+      product_name: property(name: "product_name")  
+      #properties
+    }
+  }
+}

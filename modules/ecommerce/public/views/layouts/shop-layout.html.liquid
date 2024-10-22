@@ -25,10 +25,10 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
     <!-- [Schema] -->
     {%- if context.params.slug2 and context.params.slug == "products" -%}
         {%- include 'modules/insites_ecommerce/seo', 
-            type: "product",
+            type: "category",
             slug: context.params.slug2 -%}
     {%- else -%}
-        {% comment %} {%- include 'modules/insites_layouts/seo' -%} {% endcomment %}
+        {%- include 'modules/insites_cms/seo' -%}
     {%- endif -%}
     
     {% include 'modules/website/layout/pixel_tracking' %}
@@ -61,22 +61,21 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
 </head>
 <body>
     <div class="main-wrap">
-        {%- assign slug_type = 'error' -%}
-        {%- comment -%}Check if has slug2{%- endcomment -%}
-        {%- if context.params.slug2 -%}
-
-            {%- comment -%}Check via graphql if there is a category with slug2{%- endcomment -%}
-            {%- graphql slug2_cat = 'modules/ecommerce/shop/get_category_menu', slug: context.params.slug2 | dig: 'items' | dig: 'results' | first -%}
-            {%- if slug2_cat -%}
+    
+        {%- assign slug_type = '' -%}
+        {% comment %} Check if slug2 is a category or a product {% endcomment %}
+        {%- if context.params.slug2 -%}                        
+            {% comment %} Check if slug2 is a category {% endcomment %}
+            {%- graphql category = 'modules/ecommerce/categories/is_category_exist', slug: context.params.slug2 | dig: 'items','results' | first -%}    
+            {%- if category.id -%}
                 {%- assign slug_type = 'category' -%}
-            {%- endif -%}
-                
-            {%- comment -%}Check via graphql if there is a product with slug2{%- endcomment -%}
-            {%- graphql slug2_prod = 'modules/ecommerce/shop/get_product_detail_menu', slug: context.params.slug2 | dig: 'items' | dig: 'results' | first -%}            
-            {%- if  slug2_prod -%}
-                {%- assign slug_type = 'product' -%}
-            {%- endif -%}
-            
+            {%- else -%}
+                {% comment %} Check if slug2 is a product {% endcomment %}
+                {%- graphql product_exist = 'modules/ecommerce/products/is_product_exist', slug: context.params.slug2 | dig: 'items','results' | first -%}
+                {%- if product.id -%}
+                    {%- assign slug_type = 'product' -%}
+                {%- endif -%}
+            {%- endif -%}                                                                
         {%- endif -%}
         
         {% include 'modules/website/layout/header' %}
@@ -91,9 +90,9 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
                         <i class="icon-chevron-right"></i>
                         <!-- <span>&gt;</span> -->
                         {%- if slug_type == 'product' -%}
-                            <span class="active">{{ slug2_prod.name }}</span>
+                            <span class="active">{{ product.product_name }}</span>
                         {%- else -%}
-                            <span class="active">{{ slug2_cat.name }}</span>
+                            <span class="active">{{ category.category_name }}</span>
                         {%- endif -%}
                     </div>
                 </div>

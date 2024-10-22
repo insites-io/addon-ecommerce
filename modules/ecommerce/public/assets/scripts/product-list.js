@@ -9,7 +9,7 @@ let productFilter = {
     "sort": ""
 };
 
-let subCatContElem = document.getElementById("sub-categories");
+let subCatContElem = document.getElementById("sidebar-categories");
 let keywordInput = document.getElementById("filter-keyword");
 
 let productList = (function () {
@@ -254,9 +254,10 @@ let productList = (function () {
                     pageSizeSelect.addEventListener('insValueChange', productList.methods.pageSizeValueSelected);
                 }
 
-                let mobileFilterToggle = document.getElementById('mobile-filter-button');
-                if(mobileFilterToggle){
-                    mobileFilterToggle.addEventListener('insClick', productList.methods.openMobileFilterDrawer);
+                let mobileCategoryToggle = document.getElementById('mobile-category-button');
+                if(mobileCategoryToggle){
+                    console.log('mobile-category-button');
+                    mobileCategoryToggle.addEventListener('insClick', productList.methods.openMobileFilterDrawer);
                 }
                 let mobileFilterClose = document.getElementById('mobile-filter-cls');
                 if(mobileFilterClose){

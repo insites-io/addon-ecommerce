@@ -1,0 +1,26 @@
+query is_category_exist (
+  $page: Int = 1,
+  $size: Int = 1,
+  $slug: String!
+) {
+  items: records(
+    page: $page
+    per_page: $size
+    filter: {
+      deleted_at: { exists: false }
+      table: { value: "modules/insites_ecommerce/category" }
+      properties: [
+        { name: "slug", value: $slug }
+        { name: "status", value: "enabled" }
+      ] 
+    }
+  ) {
+    total_entries
+    results {
+      id 
+      slug: property(name: "slug")
+      category_name: property(name: "category_name")
+      #properties
+    }
+  }
+}

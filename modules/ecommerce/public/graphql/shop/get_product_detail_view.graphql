@@ -43,7 +43,7 @@ query get_product_detail_view (
       og_type: property(name: "og_type")  
       variant_enabled: property_boolean(name: "variant_enabled")  
       variant_schema: property(name: "variant_schema")  
-      stock: property_int(name: "stock")  
+      stock_level: property_int(name: "stock_level")  
       sale_price: property_int(name: "sale_price")  
       regular_price: property_int(name: "regular_price")  
       on_sale: property_boolean(name: "on_sale")

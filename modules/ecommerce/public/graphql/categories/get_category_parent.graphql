@@ -1,13 +1,10 @@
 query get_category_parent (
-  $id: ID,
   $page: Int = 1,
   $size: Int = 50,
-  $is_enabled: Boolean = true,
-  $parent_ids: [String!] = [],
+  $parent_category_uuids: [String!] = [],
   $sort_by: [RecordsSortInput!] = {
       properties: [
-          { name: "sort_order", order: ASC }
-          { name: "name", order: ASC }
+          { name: "category_weighting", order: ASC }
       ]
   }
 ) {
@@ -15,13 +12,11 @@ query get_category_parent (
     page: $page
     per_page: $size
     filter: {
-      id: { value: $id }
       deleted_at: { exists: false }
       table: { value: "modules/insites_ecommerce/category" }
       properties: [
-        { name: "parent_ids", value_in: $parent_ids }
-        { name: "is_enabled", value_boolean: $is_enabled }
-        { name: "is_archived", value_boolean: false }
+        { name: "parent_category_uuids", value_array: $parent_category_uuids } 
+        { name: "status", value: "enabled" }
         { name: "slug", not_value_in: "null" }
       ] 
     }
@@ -32,9 +27,9 @@ query get_category_parent (
     current_page
     results {
       id 
-      name:property(name: "name") 
-      slug:property(name: "slug")
+      uuid: property(name: "uuid")
+      category_name: property(name: "category_name") 
+      slug: property(name: "slug")      
     }
   }
 }
-

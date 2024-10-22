@@ -2,7 +2,7 @@ query search_products(
   $page: Int = 1,
   $size: Int = 10,
   $keyword : String,
-  $category: [String!],
+  $category_uuids: [String!],
   $is_on_sale: Boolean,
   $not_number: Int,
   $sort:[RecordsSortInput!] = [
@@ -18,7 +18,7 @@ query search_products(
       }
       properties:[
       	{ name: "status", value: "enabled" }
-        { name: "categories", value_in: $category }
+        { name: "category_uuids", value_in: $category_uuids }
         { name: "is_on_sale", value_boolean: $is_on_sale }
         { name: "stock_level", not_value_int: $not_number }
       ]
@@ -34,9 +34,7 @@ query search_products(
     total_pages
     current_page
     results {
-      id 
-      created_at
-      updated_at
+      id
       #properties
       product_name: property(name: "product_name")
       slug: property(name: "slug")

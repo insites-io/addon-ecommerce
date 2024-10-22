@@ -1,0 +1,102 @@
+{% assign params = context.params %}
+
+
+{% comment %} Get all top categories (no parent) {% endcomment %}
+{%  liquid
+
+    if context.session.parent_categories.size > 0 
+        assign top_categories = context.session.parent_categories 
+    else
+        graphql top_categories = 'modules/ecommerce/categories/get_category_parent', parent_category_uuids: '[]' | dig: 'items','results' 
+    endif
+    
+    assign topCat_uuids = top_categories | map: 'uuid' 
+%}
+
+
+{% comment %} Get all categories whose parent belongs to top categories {% endcomment %}
+{% graphql sub_categories = 'modules/ecommerce/categories/get_category_uuids', 
+    parent_category_uuids: topCat_uuids | dig: "items" | dig: "results" %}
+
+
+{% comment %} Get top categories having child/sub-category {% endcomment %}
+{% assign parent_with_child = sub_categories | map: 'parent_category_uuids' | array_flatten | uniq %}
+
+
+{% comment %}  URL param: per_page {% endcomment %}
+{%- liquid   
+    if params.page
+        assign paramPerPage = '&per_page=' | append: params.per_page        
+    endif
+-%}
+
+{%- if device == 'mobile' -%}    
+<ins-drawer 
+    show-header="false" 
+    position="right"
+    id="mobile-filter-drawer">
+{%- endif -%}
+
+
+<div class="grid-x">
+    {%- if device == 'mobile' -%} 
+    <div class="small-12 cell">
+        <div class="text-right align-right">
+            <ins-button label="" icon="icon-close-1" id="mobile-filter-cls"></ins-button>
+        </div>
+    </div>
+    {%- endif -%}
+
+    {%- comment -%} 
+        Step 1: Loop on Top Categories
+        Step 2: If current category in the loop has child, use 'ins-accordion'
+        Setp 3: Else use only <a/> tag
+    {%- endcomment -%}
+    <div class="small-12 cell">
+        <div id="sidebar-categories" class="sub-category no-icons">
+            <a href="/products" {% unless params.slug2 %}class="active"{% endunless %}>
+                <span class="ui-sidebar" >All Products</span>
+            </a>
+            {%- for topCat in top_categories -%}                                        
+                {%- assign withChild = parent_with_child | array_any: topCat.uuid -%}                    
+                {%- if withChild -%}        
+                    <ins-accordion menu>
+                        <ins-accordion-item id="sub-{{topCat.id}}"
+                            class="ui-sidebar {% if topCat.slug == params.slug2 %}active{%- endif -%}"
+                            heading="{{topCat.category_name}}" 
+                            link="/products/{{topCat.slug}}?{{paramPerPage}}"
+                            link-target="_self" 
+                            open-icon="icon-plus"
+                            close-icon="icon-minus"
+                            arrow-activated>
+                            {%- for subCat in sub_categories -%}
+                                {%- liquid
+                                    assign urlparams = 'cat=' | append: subCat.slug | strip                                     
+                                    if params.page
+                                        assign urlparams =  urlparams | append: paramPerPage
+                                    endif                                                                                                                                                                                                                            
+                                -%}
+                                {%- assign isChild = subCat.parent_category_uuids | array_any: topCat.uuid -%} 
+                                {%- if isChild -%}
+                                <a href="/products/{{topCat.slug}}?{{urlparams}}" {%- if subCat.slug == params.cat -%}class="active"{%- endif -%}>
+                                    <span class="ui-sidebar" id="sub-{{subCat.id}}">{{subCat.category_name}}</span>
+                                </a>
+                                {%- endif -%}
+                            {%- endfor -%}
+                        </ins-accordion-item>
+                    </ins-accordion>
+                {%- else -%}                
+                <a href="/products/{{topCat.slug}}?{{paramPerPage}}" {%- if topCat.slug == params.slug2 -%}class="active"{%- endif -%}>
+                    <span class="ui-sidebar" id="sub-{{topCat.id}}">{{topCat.category_name}}</span>
+                </a>
+                {%- endif -%}
+            {%- endfor -%}
+        </div>
+        <div class="spacer x-large"></div>
+
+    </div>
+</div>
+{%- if device == 'mobile' -%}
+</ins-drawer>
+{%- endif -%}
+

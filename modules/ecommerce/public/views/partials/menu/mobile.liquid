@@ -7,7 +7,7 @@
             close-icon="icon-minus"
             {% if item.link contains context.params.slug %} active {% endif %} 
             >
-            {%- graphql parent_category = 'modules/ecommerce/shop/get_category_parent', page: 1, size: 100 | dig: 'items' -%}
+            {%- graphql parent_category = 'modules/ecommerce/categories/get_category_parent', page: 1, size: 100 | dig: 'items' -%}
             {%- if parent_category.total_entries > 0 -%}
             {%- for catMenu in parent_category.results -%}
                 <ins-accordion-link label="{{ catMenu.name }}" {% if context.params.slug2 == catMenu.slug %} class="active" {% endif %} 

@@ -1,0 +1,42 @@
+query get_products (
+  $id: ID,
+  $page: Int = 1,
+  $size: Int = 10,
+  #$category: [String!],
+  $is_featured: Boolean = false,
+  $sort_by: [RecordsSortInput!] = { 
+    updated_at: { order: DESC }
+  }
+) {
+  items: records(
+    page: $page
+    per_page: $size
+    filter: {
+      id: { value: $id }
+      deleted_at: { exists: false }
+      table: { value: "modules/insites_ecommerce/product" }
+      properties: [
+        { name: "status", value: "enabled" }
+        { name: "is_featured", value_boolean: $is_featured }
+        #{ name: "categories", array_contains: $category }
+      ] 
+    }
+    sort: $sort_by
+  ) {
+    total_entries
+    total_pages
+    current_page
+    results {
+      id         
+      #properties
+      slug: property(name: "slug")
+      product_name: property(name: "product_name")
+      category_uuids: property_array(name: "category_uuids")
+      regular_price: property(name: "regular_price")
+      is_featured: property_boolean(name: "is_featured")
+      product_image: property_upload(name: "product_image") {
+        url
+      }
+    }
+  }
+}

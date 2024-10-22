@@ -1,62 +1,23 @@
-{%- comment -%} Step: Check if category or main product page {%- endcomment -%}
-{%- if context.params.slug2 -%}
+{% comment %} 
+    Variable passed from parent page
+    - all_categories
+{% endcomment %}
 
-    {%- comment -%} Sub-Step: Check if category is existing {%- endcomment -%}
-    {%- graphql main_cat_info = 'modules/ecommerce/shop/get_category_meta', slug: context.params.slug2 | dig: 'items' | dig: 'results' | first -%}
-
-    {%- comment -%} Sub-Step: SEO Settings For Category{%- endcomment -%}
-    {%- content_for 'title' -%}{{ main_cat_info.meta_title }}...{%- endcontent_for -%}
-    {%- content_for 'meta_description' -%}{{ main_cat_info.meta_description }}...{%- endcontent_for -%}
-    {%- content_for 'search_engine_visibility' -%}{{ main_cat_info.search_engine_visibility }}...{%- endcontent_for -%}
-    {%- content_for 'canonical_url' -%}{{ main_cat_info.canonical_url }}...{%- endcontent_for -%}
-
-    {%- content_for 'og_title' -%}{{ main_cat_info.og_title }}...{%- endcontent_for -%}
-    {%- content_for 'og_description' -%}{{ main_cat_info.og_description }}{%- endcontent_for -%}
-    {%- content_for 'og_site_name' -%}{{ main_cat_info.og_site_name }}{%- endcontent_for -%}
-    {%- content_for 'og_url' -%}{{ main_cat_info.og_url }}{%- endcontent_for -%}
-    {%- content_for 'og_type' -%}{{ main_cat_info.og_type }}{%- endcontent_for -%}
-
-    {%- content_for 'og_image' -%}{{ main_cat_info.og_image.versions['1200x630'] }}{%- endcontent_for -%}
-
-{%- else -%}
-    {%- comment -%} Sub-Step: If main product page {%- endcomment -%}
-
-    {%- comment -%} Sub-Step: SEO settings for main product page{%- endcomment -%}
-    {%- content_for 'title' -%}All Products{%- endcontent_for -%}
-    {%- content_for 'meta_description' -%}{%- endcontent_for -%}
-    {%- content_for 'search_engine_visibility' -%}true{%- endcontent_for -%}
-    {%- content_for 'canonical_url' -%}/products{%- endcontent_for -%}
-
-    {%- content_for 'og_title' -%}All Products{%- endcontent_for -%}
-    {%- content_for 'og_description' -%}{%- endcontent_for -%}
-    {%- content_for 'og_site_name' -%}Insites Ecommerce Template{%- endcontent_for -%}
-    {%- content_for 'og_url' -%}/products{%- endcontent_for -%}
-    {%- content_for 'og_type' -%}{%- endcontent_for -%}
-
-    {%- content_for 'og_image' -%}{%- endcontent_for -%}
-
-    {%- comment -%} Get enabled categories {%- endcomment -%}
-    {%- graphql main_category = 'modules/ecommerce/shop/get_category_ids' 
-        | dig: "items" | dig: "results" -%}
-
-{%- endif -%}
+{% assign params = context.params %}
 
 
-
-{%- comment -%} Step: Check parameters for possible value of 'filters' {%- endcomment -%}
-{%- assign page_num = context.params.page | default: 1 | plus: 0 -%}
-{%- assign page_size = context.params.per_page | default: 9 | plus: 0 -%}
-{%- assign brand = context.params.brand | default: "" -%}
-{%- assign show = context.params.show | default: "all" -%}
-{%- assign keyword = context.params.keyword | default: "" -%}
-{%- assign min_price = context.params.min_price | default: "" -%}
-{%- assign max_price = context.params.max_price | default: "" -%}
-
+{%- comment -%} Filter params {%- endcomment -%}
+{%- assign page_num = params.page | default: 1 | plus: 0 -%}
+{%- assign page_size = params.per_page | default: 9 | plus: 0 -%}
+{%- assign brand = params.brand | default: "" -%}
+{%- assign show = params.show | default: "all" -%}
+{%- assign keyword = params.keyword | default: "" -%}
+{%- assign min_price = params.min_price | default: "" -%}
+{%- assign max_price = params.max_price | default: "" -%}
 
 
-
-{%- comment -%} Step: Check parameters for possible value of 'sorting' {%- endcomment -%}
-{%- assign sort = context.params.sort | default: "newest" -%}
+{%- comment -%} Sorting {%- endcomment -%}
+{%- assign sort = params.sort | default: "newest" -%}
 {%- if sort == "newest" -%}
     {%- parse_json sort_by -%}
     { "created_at": { "order": "DESC" } }
@@ -79,24 +40,21 @@
     {%- endparse_json -%}
 {%- endif -%}
 
-{%- comment -%} Step: Check parameters and Category {%- endcomment -%}
-{%- assign tmp_cat = main_cat_info.id | append: "," -%}
-{%- if context.params.sub_category != blank -%}
-    {%- assign subcat_filter = context.params.sub_category | default: "" -%}
-    {%- assign categories = subcat_filter | split: "," -%}
-{%- else -%}
-    {%- if context.params.slug2 -%}
-        {% comment %} Category list product {% endcomment %}
-        {%- assign tmp_cat = main_cat_info.id | append: "," -%}
-        {%- assign categories = tmp_cat | split: "," -%}
-    {%- else -%}
-        {% comment %} List all products on enabled categories {% endcomment %}
-        {%- assign categories = "" | split: "," -%}
-        {%- for cat in main_category -%}
-            {%- assign categories = categories | add_to_array: cat.id -%}
-        {%- endfor -%}
-    {%- endif -%}
-{%- endif -%}
+
+{% comment %} Filter by Categories {% endcomment %}
+{%  liquid
+    assign param_cat = params.cat | strip
+    assign param_slug2 = params.slug2 | strip
+
+    if param_cat != ''
+        assign category_uuid = all_categories | array_detect: slug: param_cat | dig: 'uuid' | split: ','
+        assign category_name = all_categories | array_detect: slug: param_cat | dig: 'category_name'
+    elsif param_slug2 != '' 
+        assign category_uuid = all_categories | array_detect: slug: param_slug2 | dig: 'uuid' | split: ','
+        assign category_name = all_categories | array_detect: slug: param_slug2 | dig: 'category_name'
+    endif
+%}
+
 
 {%- comment -%} Step build parameters to pass to GraphQL {%- endcomment -%}
 {%- parse_json filters -%}
@@ -106,16 +64,16 @@
     "keyword": "{{keyword}}",
     "min_price": "{{min_price}}",
     "max_price": "{{max_price}}",
-    "category": {{ categories | json }},
+    "category_uuids": {{category_uuid | default: '[]'}},
 
-    {%- comment %} Filter: show {% endcomment %}
+    {%- comment %} Filter by: show {% endcomment %}
     {%- if show == "sale" -%}
         "is_on_sale": true,
     {%- elsif show == "in-stock" -%}
         "not_number": 0,
     {%- endif -%}
 
-    {%- comment %} Filter: brand {% endcomment %}
+    {%- comment %} Filter by: brand {% endcomment %}
     {% if brand and brand != '' %}
         "brand": "{{brand}}",
     {%- endif -%}
@@ -134,29 +92,15 @@ Step: Call the search GraphQL with the parameters
     {%- graphql products = 'modules/ecommerce/products/search_products', args: filters -%}
 {% endif %}
 
-{%- assign total_cat_child = 1 -%} {% comment %} 1 = show sidebar {% endcomment %}
-{%- if context.params.slug2 -%}    
-    {%- comment -%} Sub-Step: Create a filter to get the subcategory of the parent category {%- endcomment -%}
-    {%- parse_json params -%}
-    {
-        "parent_ids": ["{{ main_cat_info.id }}"]
-    }
-    {%- endparse_json -%}
-    {%- graphql total_cat_child = 'modules/ecommerce/shop/get_category_ids', args: params 
-        | dig: "items" | dig: "total_entries" -%}
-{%- endif -%}
 
+{% comment %} Title Heading {% endcomment %}
 <div class="grid-x grid-padding-x">
     <div class="small-10 small-offset-1 cell text-center">
         {%- if keyword and keyword != blank -%}
-            <h1 class="heading-1"><span style="font-weight:400;">Search result for</span> '{{ keyword }}'</h1>
+            <h1 class="heading-1"><span style="font-weight:400;">Search result for</span> <br>"{{ keyword }}"</h1>
         {%- else -%}
-            {%- if context.params.slug2 -%}
-                <h1 class="heading-1">{{ main_cat_info.name }}</h1>
-                {% if main_cat_info.long_description %}
-                <div class="spacer small"></div>
-                <div class="body-paragraph">{{ main_cat_info.long_description }}</div>
-                {% endif %}
+            {%- if params.slug2 -%}
+                <h1 class="heading-1">{{ category_name }}</h1>
             {%- else -%}
                 <h1 class="heading-1">All Products</h1>
             {%- endif -%}
@@ -165,21 +109,23 @@ Step: Call the search GraphQL with the parameters
     </div>
 </div>
 
+
+
 <div class="product-list grid-x grid-padding-x  {% if total_cat_child == 0 %} align-center {% endif %}">
-    {%- if total_cat_child > 0 -%}
-    {% comment %} Show sidebar {% endcomment %}
+    
+    {% comment %} Sidebar Categories {% endcomment %}
     <div class="large-3 medium-12 small-12 cell">
         {%- if context.device.device_type == "smartphone" -%}
         <div class="spacer"></div>
-        <ins-button label="Filters" icon="icon-sliders" id="mobile-filter-button"></ins-button>
+        <ins-button label="Categories" icon="icon-sliders" id="mobile-category-button" outlined></ins-button>
         <div class="spacer small"></div>
         {%- else -%}
-        <div class="filter-wrap">
-            {%- include 'modules/ecommerce/products/filters', parent_id: main_cat_info.id -%}
+        <div class="sidebar-categories">        
+            {%- include 'modules/ecommerce/products/sidebar_categories' -%}
         </div>
         {%- endif -%}
     </div>
-    {%- endif -%}
+    
 
     <div class="large-9 medium-12 small-12 cell">
         
@@ -216,6 +162,5 @@ Step: Call the search GraphQL with the parameters
 </div>
 
 {%- if context.device.device_type == "smartphone" -%}
-    {%- include 'modules/ecommerce/products/mobile_filter', parent_id: main_cat_info.id -%}
-    {% comment %} main_cat_info.id {{main_cat_info.id}} {% endcomment %}
+    {%- include 'modules/ecommerce/products/sidebar_categories', device: 'mobile' -%}
 {%- endif -%}

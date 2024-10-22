@@ -20,7 +20,7 @@
   no-button>
     
   <div class="grid-x">
-    <div class="main-categories cell large-3 medium-3">
+    <div class="top-categories cell large-3 medium-3">
         <p class="body-small-bold">Shop By</p>
 
         
@@ -32,7 +32,7 @@
 
         {% assign parent_categories = all_categories | array_select: parent_category_uuids: '[]' %}
 
-       
+        {% session parent_categories = parent_categories %}
 
 
             {% comment %} parent_category_uuids: parent_category_uuids,  {% endcomment %}
