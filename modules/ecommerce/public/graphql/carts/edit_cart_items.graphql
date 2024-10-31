@@ -1,0 +1,18 @@
+mutation edit_cart_items (
+  $id: ID!
+  $items: [String!]
+) {
+  items: record_update(
+    id: $id
+    record: {
+      table: "modules/insites_ecommerce/cart"
+      properties: [
+        { name: "items", value_array: $items }
+      ]
+    }
+  ) {
+    id
+    created_at
+    properties
+  }
+}
