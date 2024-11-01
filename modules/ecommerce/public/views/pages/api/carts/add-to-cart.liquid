@@ -5,13 +5,11 @@ method: post
 searchable: false
 ---
 {%- assign params = context.params -%}
-{%- log params, type: "==TEST api/add-to-cart" -%}
+
 
 {%- comment -%} Check if the user already has a cart {%- endcomment -%}
 {%- graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
     contact_uuid: params.contact_uuid | dig: 'items','results' | first -%}
-
-    {%- log user_cart, type: "==TEST user_cart" -%}
 
 
 {%- if user_cart.id -%}
@@ -33,16 +31,11 @@ searchable: false
             endif
         endfor
     -%}
-    {%- log item_array, type: "==TEST converted to object" -%}
+    
 
-    {%- comment -%} Check if the product to be added already exists. {%- endcomment -%}
-    {% comment %} {%- assign product_uuid_index = item_array | array_find_index: product_uuid: params.product_uuid -%}
-    {%- assign product = item_array | array_detect: product_uuid: params.product_uuid -%} {% endcomment %}
-
+    {%- comment -%} Check if the product to be added already exists. {%- endcomment -%}    
     {%- if is_item_exist == true -%}
         
-        {%- log product.quantity, type: "==TEST product.quantity" -%}
-
         {%- liquid
             if params.type == 'stepper'
                 assign quantity = params.quantity
@@ -67,7 +60,6 @@ searchable: false
 
         {%- comment -%} Then add the updated quantity {%- endcomment -%}        
         {%- assign item_array = item_array | array_add: updated_item  -%}
-        {%- log item_array, type: "==TEST updated_item" -%}
         
     {%- else -%}
     
@@ -93,8 +85,6 @@ searchable: false
         endfor
         assign item_array = tmp_array
     -%}
-    {%- log item_array, type: "==TEST item_array converted back" -%}
-    {%- log tmp_array, type: "==TEST tmp_array converted back" -%}
 
     {%- parse_json args -%}
     {
@@ -103,9 +93,9 @@ searchable: false
     }
     {%- endparse_json -%}
     {%- graphql cart = 'modules/ecommerce/carts/edit_cart_items', args: args -%}
-    {%- log cart, type: "==TEST edit cart" -%}
-    {%- log args, type: "==TEST edit cart args" -%}
+
 {%- else -%}
+
     {%- comment -%} The user doesn't exist: Add Cart {%- endcomment -%}
     {%- parse_json item -%}    
     {
@@ -114,10 +104,11 @@ searchable: false
         "product_sku": "{{ params.product_sku }}"
     }
     {%- endparse_json -%}
+
     {%- assign item = item | json -%}
     {%- assign item_array = '' | split: ',' -%}
     {%- assign item_array = item_array | array_add: item -%}
-    {%- log item, type: "==TEST add one item" -%}
+    
     {%- parse_json args -%}
     {
         "uuid": "{{ '' | uuid }}",
@@ -126,8 +117,7 @@ searchable: false
     }
     {%- endparse_json -%}
     {%- graphql cart = 'modules/ecommerce/carts/add_cart', args: args -%}
-    {%- log cart, type: "==TEST add cart" -%}
-    {%- log args, type: "==TEST add cart args" -%}
+
 {%- endif -%}
 
 {{cart}}

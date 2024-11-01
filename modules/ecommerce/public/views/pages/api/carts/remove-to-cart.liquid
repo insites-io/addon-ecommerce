@@ -5,13 +5,11 @@ method: post
 searchable: false
 ---
 {%- assign params = context.params -%}
-{%- log params, type: "==TEST api/remove-to-cart" -%}
+
 
 {%- comment -%} Check if the user already has a cart {%- endcomment -%}
 {%- graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
     contact_uuid: params.contact_uuid | dig: 'items','results' | first -%}
-
-    {%- log user_cart, type: "==TEST user_cart" -%}
 
 
 {%- if user_cart.id -%}
@@ -32,14 +30,8 @@ searchable: false
             endif
         endfor
     -%}
-    {%- log item_array, type: "==TEST converted to object" -%}
 
-    {%- comment -%} Check if the product to be added already exists. {%- endcomment -%}
-    {% comment %} {%- assign product_uuid_index = item_array | array_find_index: product_uuid: params.product_uuid -%}
-    {%- assign product = item_array | array_detect: product_uuid: params.product_uuid -%} {% endcomment %}
-
-    {% comment %} {%- log product, type: "==TEST product" -%} {% endcomment %}
-
+    {%- comment -%} Check if the product to be added already exists. {%- endcomment -%}    
     {%- if is_item_exist == true -%}        
 
         {%- comment -%} Delete existing {%- endcomment -%}        
@@ -60,8 +52,6 @@ searchable: false
         endfor
         assign item_array = tmp_array
     -%}
-    {%- log item_array, type: "==TEST item_array converted back" -%}
-    {%- log tmp_array, type: "==TEST tmp_array converted back" -%}
 
     {%- parse_json args -%}
     {
@@ -70,8 +60,6 @@ searchable: false
     }
     {%- endparse_json -%}
     {%- graphql cart = 'modules/ecommerce/carts/edit_cart_items', args: args -%}
-    {%- log cart, type: "==TEST edit cart" -%}
-    {%- log args, type: "==TEST edit cart args" -%}
 
 {%- endif -%}
 

@@ -9,9 +9,12 @@
     endif
 %}
 
+
 {% comment %} Get the user's cart(s) {% endcomment %}
-{% graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
-    contact_uuid: user_uuid | dig: 'items','results' | first %}
+{% if user_uuid != '' %}
+    {% graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
+        contact_uuid: user_uuid | dig: 'items','results' | first %}
+{% endif %}
 
 
 {% if user_cart.items.size > 0 %}
@@ -43,7 +46,6 @@
     <div id="cart-items-wrap">
 
     {% if user_cart.items.size > 0 %}
-
     
         {% assign subtotal = 0 %}
 
@@ -163,12 +165,11 @@
 <script>
     let user_uuid = "{{ user_uuid }}";
     let cartDrawer = document.getElementById('cartDrawer');
-    let drawerBody = document.querySelector(".ins-drawer-body");
     let cartItemsWrap = document.getElementById('cart-items-wrap');
     let emptyCartWrap = document.getElementById('empty-cart-wrap');
     let bottomWrap = document.getElementById('bottom-wrap');
     let cartSubtotal = document.getElementById('cart-subtotal');    
-
+    
 
     /* Add to Cart */
     let addToCartBtn = document.querySelectorAll(".add-to-cart-btn");
@@ -188,41 +189,11 @@
                         emptyCartWrap.classList.add('hide');
                         bottomWrap.classList.remove('hide');
                     }          
-                
-                    let cartItemHtml = ` <div id="cart-item-${data.id}" class="cart-item-wrap">
-                            <div class="grid-x" >
-                                <div class="cell grid-y large-7 medium-7 small-7">
-                                    <h6>${ data.product_name }</h6>
-                                    <p class="body-x-small">SKU ${ data.product_sku }</p>
-                                    <div class="spacer x-small"></div>
-                                    <p>
-                                        <span class="body-x-small-bold">Price:</span>
-                                        <span class="body-x-small item-price">$${ data.price }</span>
-                                    </p>
-                                </div>
-                                <div class="cell grid-y large-5 medium-5 small-5 text-right">
-                                    <p class="cart-price compute-price">$${ data.price }</p>
-                                    <div class="spacer x-small"></div>
-                                    <ins-input-stepper
-                                        class="cart-stepper" 
-                                        data-product_uuid="${ data.product_uuid }"
-                                        data-product_sku="${ data.product_sku }"
-                                        value="1" 
-                                        step="1" min="1" 
-                                        small>
-                                    </ins-input-stepper>
-                                </div>        
-                            </div>
-                            <div class="text-right" >
-                                <ins-button label="Remove" icon="icon-trash-2" size="small" class="cart-remove-btn" data='{"product_uuid":"${data.product_uuid}","product_sku":"${data.product_sku}"}' ></ins-button>
-                            </div>    
-                            <div class="spacer x-large"></div>
-                        </div>`;                                                            
+                                    
+                    cartItemsWrap.insertAdjacentHTML('afterbegin', cartItemHtml(data));
 
-                    cartItemsWrap.insertAdjacentHTML('afterbegin', cartItemHtml);
-
-                    let newItem = document.getElementById(`cart-item-${data.id}`);
-                    if (newItem) {                   
+                    let newItemAdded = document.getElementById(`cart-item-${data.id}`);
+                    if (newItemAdded) {                   
                         let cartStepper = document.querySelector(`#cart-item-${data.id} .cart-stepper`);                        
                         cartStepperEventListener(cartStepper);
 
@@ -231,12 +202,10 @@
                     } 
 
                     computeSubTotal();
-
                 }
             }
         });
     });
-
     
     /* Increment - Decrement Cart */
     let cartStepper = document.querySelectorAll(".cart-stepper");
@@ -260,6 +229,7 @@
         });
     }    
 
+
     /* Remove from Cart */
     let removeCartBtn = document.querySelectorAll(".cart-remove-btn");
     removeCartBtn.forEach(btn => {
@@ -276,30 +246,137 @@
                 }
             }
         });
-    }
-    
+    }    
 
-    
-    async function addToCart(data, type){                      
-        data["contact_uuid"] = user_uuid;
+    /* Add cart to Database or to localStorage */
+    async function addToCart(data, type){                  
         data["type"] = type;
-        let response = await apiServices.processRequest("post", "/add-to-cart.json", data);
-        console.log('response', response);        
-        if(response.state && response.data.items) {
-            return true;          
-        } 
+        if(user_uuid != ""){
+            data["contact_uuid"] = user_uuid;
+            let response = await apiServices.processRequest("post", "/add-to-cart.json", data);
+            console.log('add response', response);        
+            if(response.state && response.data.items) {
+                return true;          
+            }
+        } else {
+            addCartToLocalStorage(data);            
+        }
     }         
 
-    async function removeToCart(data){               
-        data["contact_uuid"] = user_uuid;
-        data["type"] = "remove";
-        let response = await apiServices.processRequest("post", "/remove-to-cart.json", data);
-        console.log('remove response', response);        
-        if(response.state && response.data.items) {
-            return true;           
-        } 
-    }   
+    /* Remove cart from Database or from localStorage */
+    async function removeToCart(data){                                      
+        if(user_uuid != ""){
+            data["contact_uuid"] = user_uuid;
+            let response = await apiServices.processRequest("post", "/remove-to-cart.json", data);
+            console.log('remove response', response);        
+            if(response.state && response.data.items) {
+                return true;          
+            }
+        } else {
+            removeCartFromLocalStorage(data);            
+        }
+    }       
 
+    function cartItemHtml(data){
+        return ` <div id="cart-item-${data.id}" class="cart-item-wrap">
+                <div class="grid-x" >
+                    <div class="cell grid-y large-7 medium-7 small-7">
+                        <h6>${ data.product_name }</h6>
+                        <p class="body-x-small">SKU ${ data.product_sku }</p>
+                        <div class="spacer x-small"></div>
+                        <p>
+                            <span class="body-x-small-bold">Price:</span>
+                            <span class="body-x-small item-price">$${ data.price }</span>
+                        </p>
+                    </div>
+                    <div class="cell grid-y large-5 medium-5 small-5 text-right">
+                        <p class="cart-price compute-price">$${ data.price }</p>
+                        <div class="spacer x-small"></div>
+                        <ins-input-stepper
+                            class="cart-stepper" 
+                            data-product_uuid="${ data.product_uuid }"
+                            data-product_sku="${ data.product_sku }"
+                            value="1" 
+                            step="1" min="1" 
+                            small>
+                        </ins-input-stepper>
+                    </div>        
+                </div>
+                <div class="text-right" >
+                    <ins-button label="Remove" icon="icon-trash-2" size="small" class="cart-remove-btn" data='{"product_uuid":"${data.product_uuid}","product_sku":"${data.product_sku}"}' ></ins-button>
+                </div>    
+                <div class="spacer x-large"></div>
+            </div>`;    
+    }
+
+    /* Guest user - Get cart from local storage */
+    if(user_uuid == ""){
+        let carts = getCartFromLocalStorage();
+
+        if(carts.length > 0){
+            carts.forEach(cart => {
+                data = JSON.parse(cart);
+                cartItemsWrap.insertAdjacentHTML('afterbegin', cartItemHtml(data));
+                newItemAdded = document.getElementById(`cart-item-${data.id}`);
+                if (newItemAdded) {                   
+                    let cartStepper = document.querySelector(`#cart-item-${data.id} .cart-stepper`);                        
+                    cartStepperEventListener(cartStepper);
+
+                    let removeCartBtn = document.querySelector(`#cart-item-${data.id} .cart-remove-btn`);
+                    removeCartEventListener(removeCartBtn);
+                } 
+            });
+
+            computeSubTotal();                                        
+        }
+    }
+
+    function getCartFromLocalStorage(){
+        return JSON.parse(localStorage.getItem('carts'));     
+    }
+
+    function addCartToLocalStorage(data){ 
+        let carts = getCartFromLocalStorage();
+        if(carts){
+            /* Update Cart */
+            let is_item_exist = false
+            let item_exist_index = -1
+
+            for (let i = 0; i < carts.length; i++) {    
+                item = JSON.parse(carts[i]); //convert string to object
+                if(item.product_uuid == data.product_uuid && item.product_sku == data.product_sku){
+                    is_item_exist = true;
+                    item_exist_index = i;                                        
+                }
+            }
+
+            if(is_item_exist == true){                
+                carts[item_exist_index] = JSON.stringify(data);
+            } else {
+                carts.push(JSON.stringify(data));
+            }
+
+        } else {
+            /* Add Cart */
+            carts = [(JSON.stringify(data))];
+        }
+
+        localStorage.setItem('carts', JSON.stringify(carts));        
+    }
+
+    function removeCartFromLocalStorage(data){
+        let carts = getCartFromLocalStorage();
+        if(carts){
+            /* Find the item to be removed */
+            for (let i = 0; i < carts.length; i++) {    
+                item = JSON.parse(carts[i]); //convert string to object
+                if(item.product_uuid == data.product_uuid && item.product_sku == data.product_sku){       
+                    carts.splice(i, 1); //remove this item from array                       
+                }
+            }
+        }
+        localStorage.setItem('carts', JSON.stringify(carts));        
+    }
 
     function computeItemTotal(itemWrap, qty){      
         let itemPrice = itemWrap.querySelector(".item-price");
@@ -307,7 +384,6 @@
         let price = parseFloat(itemPrice.textContent.replace('$', '')) * qty;
         computePrice.textContent = `$${price}`;
     }
-
 
     function computeSubTotal(){    
         let subTotal = 0;
@@ -324,9 +400,7 @@
             bottomWrap.classList.add('hide');
             emptyCartWrap.classList.remove('hide');            
         }
-    }  
-
-      
+    }        
 
     /* Close the cart drawer */
     let contShoppingBtn = document.getElementById("continue-shopping-btn");
