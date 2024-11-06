@@ -1,8 +1,8 @@
 <section class="bg-color-ui-01">
     <div class="spacer xxxx-large"></div>
-    <div class="product-carousel large-offset-1">
+    <div class="product-carousel">
 
-        {% graphql products = "modules/ecommerce/products/get_products", is_featured: true | dig: 'items','results' %}        
+        {% graphql products = "modules/ecommerce/products/get_products", not_uuid: not_uuid | dig: 'items','results' %}        
 
         <!-- desktop carousel -->
         <ins-carousel 
@@ -11,9 +11,10 @@
             layout="1"
             per-page="4"
             no-pagination=true
+            no-carousel-button=true
             bind-to="newArrivalCardsDesktop">
 
-            <h2>What's Hot</h2>     
+            <h3>You may also like</h3>     
             <div class="spacer xx-large"></div>
             <div id="newArrivalCardsDesktop" class="product-cards">
                 {% for product in products %}
@@ -30,9 +31,10 @@
             layout="1"
             per-page="3"
             no-pagination=true
+            no-carousel-button=true
             bind-to="newArrivalCardsTablet">
 
-            <h2>What's Hot</h2>     
+            <h3>You may also like</h3>
             <div class="spacer xx-large"></div>
             <div id="newArrivalCardsTablet" class="product-cards">
                 {% for product in products %}
@@ -49,9 +51,10 @@
             layout="1"
             per-page="1"
             no-pagination=true
+            no-carousel-button=true
             bind-to="newArrivalCardsMobile">
 
-            <h2>What's Hot</h2>
+            <h3>You may also like</h3>  
             <div class="spacer xx-large"></div>
             <div id="newArrivalCardsMobile" class="product-cards">
                 {% for product in products %}
@@ -62,25 +65,4 @@
         <!-- mobile carousel -->
 
     </div>
-    <div class="spacer xxxx-large"></div>
 </section>
-
-<script>
-var newArrivalsCarousel = document.querySelectorAll('.newArrivalsCarousel');
-var showAllLink = {};
-
-newArrivalsCarousel.forEach(carousel => {
-    var carouselID = carousel.id;
-    carousel.addEventListener('didLoad', event => {     
-        var carouselCtrlBtns = document.querySelector(`#${carouselID} .ins-carousel_ctrl-btns`);  
-        if(carouselCtrlBtns && showAllLink[carouselID] !== true){            
-            var newLink = document.createElement('a');
-                newLink.href = "/";
-                newLink.textContent = "Shop All";
-                newLink.className = "shop-all-link"; 
-            carouselCtrlBtns.appendChild(newLink);  
-            showAllLink[carouselID] = true;           
-        }               
-    });          
-});
-</script>

@@ -1,28 +1,34 @@
 {%  liquid
-    assign sku = product.product_sku
-    if product.product_variant
-        assign variant = product.product_variant
-        assign sku = variant.product_sku
-        if variant.is_on_sale == true 
-            assign price = variant.sale_price
-            assign price_strikethrough = variant.regular_price
-        else 
-            assign price = variant.regular_price
-        endif
-    elsif product.is_on_sale == true 
-        assign price = product.sale_price
-        assign price_strikethrough = product.regular_price
-    else
-        assign price = product.regular_price
+
+    if product.is_product_variant_enabled
+        assign selected_prop = product.variant
+    else 
+        assign selected_prop = product
+    endif
+
+    if selected_prop.is_on_sale == true 
+        assign price = selected_prop.sale_price
+        assign price_strikethrough = selected_prop.regular_price
+    else 
+        assign price = selected_prop.regular_price
+        assign price_strikethrough = ''
     endif
 %}    
     <div class="cell">
         <div class="wrap">
+            <div class="img-wrap">
+            {% if selected_prop.stock_level < 1 %}
+                <div class="out-of-stock"></div>
+            {% endif %}
+            {% if selected_prop.is_on_sale == true %}
+                <div class="on-sale-tag">SALE</div>
+            {% endif %}
             {% if product.product_image.url %}
                 <img  src="{{ product.product_image.url }}" alt="{{ product.product_name }}" >
             {% else %}
                 {% include 'modules/website/layout/placeholder_image', size: 'medium' %}
             {% endif %}
+            </div>
             <div class="spacer medium"></div>
             <div class="container grid-y">
                 <div class="details">
@@ -46,9 +52,9 @@
                 <div class="buttons">
                     {% parse_json data %}
                     {
-                        "id": "{{ product.id }}",
+                        "id": "{{ selected_prop.id }}",
                         "product_uuid": "{{ product.uuid }}",
-                        "product_sku": "{{ sku }}",
+                        "product_sku": "{{ selected_prop.sku }}",
                         "product_name": "{{ product.product_name }}",
                         "price": "{{ price | default: 0 }}"
                     }

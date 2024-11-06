@@ -35,6 +35,8 @@
 
 {% endif %}
 
+products={{ products }}<hr>
+item_obj={{item_obj}}
 
 <ins-drawer 
   label="Cart ({{ user_cart.items.size }})" 
@@ -54,54 +56,65 @@
         {% liquid 
             assign product = products | array_detect: uuid: item.product_uuid
             assign product_name = product.product_name
-            assign sku = product.product_sku
-            assign price_strikethrough = ''
-            if product.product_variant
-                assign variant = product.product_variant
-                assign sku = variant.product_sku
-                if variant.is_on_sale == true 
-                    assign price = variant.sale_price
-                    assign price_strikethrough = variant.regular_price
-                else 
-                    assign price = variant.regular_price
-                endif
-            elsif product.is_on_sale == true 
-                assign price = product.sale_price
-                assign price_strikethrough = product.regular_price
-            else
-                assign price = product.regular_price
-            endif
 
+            ## to fix issues in comparing '' versus null
+            if product.product_sku == null 
+                assign product = product | add_hash_key: 'product_sku', ''
+            endif
+            
+            ## Check if the item is a product or a variant of the product
+            if item.product_sku == product.product_sku
+                ## item is NOT a variant
+                assign selected_prop = product
+            else 
+                ## item is a variant                
+                for variant in product.variants
+                    if item.product_sku == variant.product_sku
+                        assign selected_prop = variant
+                    endif
+                endfor
+            endif             
+
+            if selected_prop.is_on_sale == true 
+                assign price = selected_prop.sale_price
+                assign price_strikethrough = selected_prop.regular_price
+            else 
+                assign price = selected_prop.regular_price
+                assign price_strikethrough = ''
+            endif          
+
+            assign product_id = selected_prop.id
             assign item_total = price | times: item.quantity
             assign subtotal = subtotal | plus: item_total
         %}
 
-        <div id="cart-item-{{product.id}}" class="cart-item-wrap">
+        <div id="cart-item-{{product_id}}" class="cart-item-wrap">
             <div class="grid-x" >
                 <div class="cell grid-y large-7 medium-7 small-7">
                     <h6>{{ product_name }}</h6>
-                    <p class="body-x-small">SKU {{ sku }}</p>
+                    <p class="body-x-small">SKU {{ item.product_sku }}</p>
                     <div class="spacer x-small"></div>
-                    {% if product.product_variant.product_options %}
-                    {%  liquid 
-                        ## Convert an array of strings into an array of objects
-                        assign product_options = '' | split: ',' 
-                        for product_option in product.product_variant.product_options
-                            assign product_option_json = product_option | parse_json
-                            assign product_options = product_options | array_add: product_option_json
-                        endfor
-                    %}
-                    {% for product_option in product_options%}
-                    <p>
-                        <span class="body-x-small-bold">{{ product_option.product_option_label }}:</span>
-                        <span class="body-x-small">{{ product_option.product_option_value }}</span>
-                    </p>
-                    {% endfor %}
+                    {% comment %} Get variant info {% endcomment %}
+                    {% if item.product_sku != product.product_sku %}
+                        {%  liquid 
+                            ## Convert an array of strings into an array of objects
+                            assign options = '' | split: ',' 
+                            for option in selected_prop.product_options
+                                assign option_json = option | parse_json
+                                assign options = options | array_add: option_json
+                            endfor
+                        %}
+                        {% for option in options %}
+                            <p>
+                                <span class="body-x-small-bold">{{ option.product_option_label }}:</span>
+                                <span class="body-x-small">{{ option.product_option_value }}</span>
+                            </p>
+                        {% endfor %}
                     {% endif %}
                     <p>
                         <span class="body-x-small-bold">Price:</span>
                         <span class="body-x-small item-price">{{ price | pricify }}</span>
-                        {% if product.is_on_sale == true or variant.is_on_sale == true %}
+                        {% if selected_prop.is_on_sale == true %}
                         <span class="body-x-small strikethrough">{{ price_strikethrough | pricify }}</span>
                         {% endif %}
                     </p>
@@ -112,10 +125,10 @@
                     <ins-input-stepper
                         class="cart-stepper" 
                         data-product_uuid="{{ item.product_uuid }}"
-                        data-product_sku="{{ sku }}"
+                        data-product_sku="{{ item.product_sku }}"
                         value="{{ item.quantity }}" 
                         step="1" min="1" 
-                        max="{{ max_qty }}" 
+                        max="100" 
                         small>
                     </ins-input-stepper>
                 </div>        
@@ -123,8 +136,8 @@
             <div class="text-right" >
                 {% parse_json remove_item %}
                 {
-                    "product_uuid": "{{ product.uuid }}",
-                    "product_sku": "{{ sku }}"
+                    "product_uuid": "{{ item.product_uuid }}",
+                    "product_sku": "{{ item.product_sku }}"
                 }
                 {% endparse_json %}
                 <ins-button label="Remove" icon="icon-trash-2" size="small" class="cart-remove-btn" data='{{ remove_item }}' ></ins-button>
@@ -168,17 +181,40 @@
     let cartItemsWrap = document.getElementById('cart-items-wrap');
     let emptyCartWrap = document.getElementById('empty-cart-wrap');
     let bottomWrap = document.getElementById('bottom-wrap');
-    let cartSubtotal = document.getElementById('cart-subtotal');    
-    
+    let cartSubtotal = document.getElementById('cart-subtotal');
+    let cartQuantity = 1;
+
+    //product detailed page          
+    let variantID = 0;
+    let variantPrice = 0;
+    let productSKU = document.getElementById("product-sku");
+    let cartQuantityInput = document.getElementById('cart-quantity');  
+    if(cartQuantityInput){  
+        cartQuantityInput.addEventListener('insValueChange', event => {
+            cartQuantity = event.detail; 
+        });
+    }
+        
 
     /* Add to Cart */
     let addToCartBtn = document.querySelectorAll(".add-to-cart-btn");
     addToCartBtn.forEach(btn => {
         btn.addEventListener('insClick', event => {  
-            cartDrawer.setDrawerState(true);  
+            //show cart drawer
+            if(event.detail.label == "Add to Cart"){
+                cartDrawer.setDrawerState(true); 
+            } 
 
             let data = JSON.parse(event.detail.data);      
-                data.quantity = "1";          
+                data.quantity = cartQuantity; 
+            
+            //used for product with variants in product details page
+            if(productSKU){
+                data.id = variantID;
+                data.price = variantPrice;
+                data.product_sku = productSKU.textContent;
+            }     
+
             let cartItem = document.getElementById(`cart-item-${data.id}`);
 
             if(cartItem == null){
@@ -204,10 +240,14 @@
                     computeSubTotal();
                 }
             }
+
+            if(event.detail.label != "Add to Cart"){
+                window.location = "/shopping-cart";
+            } 
         });
     });
     
-    /* Increment - Decrement Cart */
+    /* Increment / Decrement Cart in Drawer */
     let cartStepper = document.querySelectorAll(".cart-stepper");
     cartStepper.forEach(step => {
         cartStepperEventListener(step);
@@ -296,7 +336,7 @@
                             class="cart-stepper" 
                             data-product_uuid="${ data.product_uuid }"
                             data-product_sku="${ data.product_sku }"
-                            value="1" 
+                            value="${ data.quantity }"
                             step="1" min="1" 
                             small>
                         </ins-input-stepper>

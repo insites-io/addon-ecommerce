@@ -1,0 +1,68 @@
+query get_product (
+  $id: ID,
+  $slug: String,
+  $page: Int = 1,
+  $size: Int = 1
+) {
+  items: records(
+    page: $page
+    per_page: $size
+    filter: {
+      id: { value: $id }
+      deleted_at: { exists: false }
+      table: { value: "modules/insites_ecommerce/product" }
+      properties: [
+        { name: "status", value: "enabled" }
+        { name: "slug", value: $slug }
+      ] 
+    }
+  ) {
+    total_entries
+    results {
+      id 
+      #properties           
+      uuid: property(name: "uuid")          
+      stock_level: property_int(name: "stock_level")  
+      is_on_sale: property_boolean(name: "is_on_sale")
+      sale_price: property_float(name: "sale_price")  
+      regular_price: property_float(name: "regular_price")        
+      product_name: property(name: "product_name")  
+      sku: property(name: "sku")  
+      short_description: property(name: "short_description")  
+      long_description: property(name: "long_description")  
+      is_product_variant_enabled: property_boolean(name: "is_product_variant_enabled") 
+      
+      variant: related_records(
+        table: "modules/insites_ecommerce/product_variant"
+        join_on_property: "uuid"
+        foreign_property: "product_uuid"
+      ){
+        #properties
+        id
+        is_on_sale: property_boolean(name: "is_product_on_sale")
+        sale_price: property_float(name: "sale_price")  
+        regular_price: property_float(name: "regular_price") 
+        stock_level: property_int(name: "stock_level") 
+        sku: property(name: "product_sku")
+        product_image: property_upload(name: "product_image") {
+          url
+        }
+        product_options: property_array(name: "product_options")  
+      }
+      
+      product_image: property_upload(name: "product_image") {
+        url
+      }     
+      
+      gallery_1: related_records(
+        table: "modules/insites_core/attachment"
+        join_on_property: "gallery_1"
+        foreign_property: "uuid"
+      ){
+        file: property_upload(name: "file") {
+          url
+        }
+      } 
+    }
+  }
+}

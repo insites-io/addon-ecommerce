@@ -1,9 +1,9 @@
 query get_products (
   $id: ID,
   $page: Int = 1,
-  $size: Int = 10,
-  #$category: [String!],
-  $is_featured: Boolean = false,
+  $size: Int = 50,
+  $not_uuid: String,
+  $is_featured: Boolean,
   $sort_by: [RecordsSortInput!] = { 
     updated_at: { order: DESC }
   }
@@ -18,7 +18,7 @@ query get_products (
       properties: [
         { name: "status", value: "enabled" }
         { name: "is_featured", value_boolean: $is_featured }
-        #{ name: "categories", array_contains: $category }
+        { name: "uuid", not_value: $not_uuid }
       ] 
     }
     sort: $sort_by
@@ -29,10 +29,13 @@ query get_products (
     results {
       id         
       #properties
+      uuid: property(name: "uuid")
       slug: property(name: "slug")
       product_name: property(name: "product_name")
       category_uuids: property_array(name: "category_uuids")
-      regular_price: property(name: "regular_price")
+      is_on_sale: property_boolean(name: "is_on_sale")
+      sale_price: property_float(name: "sale_price")
+      regular_price: property_float(name: "regular_price")
       is_featured: property_boolean(name: "is_featured")
       product_image: property_upload(name: "product_image") {
         url
