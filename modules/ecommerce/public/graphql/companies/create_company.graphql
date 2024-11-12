@@ -1,0 +1,71 @@
+mutation create_company(
+  $company_name: String!,
+  $uuid: String!,
+  $company_email: String,
+  $company_email_2: String,
+  $assigned_to: String, ## IIA Administrator ID
+  $website: String,
+  $company_type: String,
+  $industry_type: String,
+  $rbn: String,
+  $notes: String,
+  $tax_registered: Boolean,
+  $tax_reference: String,
+  #$company_status: String,
+  $home_phone_country_code: String,
+  $home_phone_number: String,
+  $mobile_phone_country_code: String,
+  $mobile_phone_number: String,
+  $work_phone_country_code: String,
+  $work_phone_number: String,
+  $facebook_link: String,
+  $youtube_link: String,
+  #$google_plus_link: String,
+  $twitter_link: String,
+  $linkedin_link: String,
+  $instagram_link: String,
+  $profile_image: String
+) {
+  items: record_create(
+    record: {
+      table: "modules/insites_core/crm_company",
+    	properties: [
+        { name: "uuid", value: $uuid }
+        { name: "company_name", value: $company_name }
+        { name: "email_1", value: $company_email }
+        { name: "email_2", value: $company_email_2 }
+        { name: "assigned_to_administrator_uuid", value: $assigned_to }
+        { name: "website", value: $website }
+        { name: "type_uuid", value: $company_type }
+        { name: "industry_uuid", value: $industry_type }
+        { name: "registered_business_number", value: $rbn }
+        { name: "notes", value: $notes }
+        { name: "phone_1_country_code", value: $home_phone_country_code }
+        { name: "phone_1_number", value: $home_phone_number }
+        { name: "mobile_phone_country_code", value: $mobile_phone_country_code }
+        { name: "mobile_phone_number", value: $mobile_phone_number } 
+        { name: "phone_2_country_code", value: $work_phone_country_code }
+        { name: "phone_2_number", value: $work_phone_number }
+        { name: "facebook_link", value: $facebook_link }
+        { name: "youtube_link", value: $youtube_link }
+        #{ name: "google_plus_link", value: $google_plus_link }
+        { name: "twitter_link", value: $twitter_link }
+        { name: "linkedin_link", value: $linkedin_link }
+        { name: "instagram_link", value: $instagram_link }
+        { name: "is_tax_registered", value_boolean: $tax_registered }
+        { name: "tax_reference", value: $tax_reference }
+        #{ name: "company_status", value: $company_status }
+      ],
+      images: [{ 
+        name: "company_avatar"
+        remote_image_url: $profile_image
+      }]
+    }
+  ) {
+    id
+    created_at
+    updated_at
+    uuid: property(name: "uuid")
+    company_name: property(name: "company_name")
+  }
+}

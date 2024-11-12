@@ -6,21 +6,25 @@
 {%- liquid 
 
     if company_name and user_id
-        graphql company = "modules/ecommerce/crm/get_crm_company", page: 1, size: 1, company_name: company_name | dig: "items" | dig: "results" | first
+
+        ## Get Company
+        graphql company = 'modules/ecommerce/companies/get_company', company_name: company_name | dig: 'items','results' | first
         
-        log company, type: "=== CRM company found"
+        ## If not exist: Create new Company
         unless company.id 
-            graphql company = "modules/ecommerce/crm/create_crm_company", company_name: company_name | dig: "items" 
-            log company, type: "-- CRM company created"
-        endunless
-        
-        graphql assign_contact = "modules/ecommerce/crm/assign_company_contact", id: user_id, company_id: company.id | dig: "items" 
-        log assign_contact, type: "-- CRM contact assigned to company"
+            assign uuid = '' | uuid
+            graphql company = 'modules/ecommerce/companies/create_company', company_name: company_name, uuid: uuid | dig: 'items' 
+        endunless        
+
+        ## Assign Company to Contact
+        graphql assign_contact = 'modules/ecommerce/contacts/assign_company_contact', id: user_id, company_uuid: company.uuid | dig: 'items' 
 
         assign company_id = company.id
+        assign company_uuid = company.uuid
         assign company_name = company.company_name
         
     endif
 
     export company_id
+    export company_uuid
     export company_name -%}

@@ -13,7 +13,7 @@ metadata: {
 ---
 
 {%- if context.current_user or context.params.guest -%}
-    {%- include 'modules/ecommerce/checkout/checkout_page' -%}
+    {%- include 'modules/ecommerce/checkout/checkout_account_info_page' -%}
 {%- else -%}
     {%- include 'modules/ecommerce/checkout/landing_page' -%}
 {%- endif -%}

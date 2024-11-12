@@ -20,30 +20,35 @@ fields:
     validation: 
       presence: 
         message: Last name is required
-  account_company_name:
+  
+  company_name:
     property_options:
       virtual: true
+
   profiles:
-    modules/insites_core/insites_contact_number:
+    modules/insites_core/crm_contact:
       properties:
         mobile_phone_number:
         mobile_phone_country_code:
+
 callback_actions: |-
 
-  {%- if form.account_company_name -%}
+  {%- if form.company_name -%}
   {%- include 'modules/ecommerce/checkout/create_crm_company_on_submit',
     user_id: form.id,
-    company_name: form.account_company_name -%}
+    company_name: form.company_name -%}
   {%- endif -%}
 
-  {%- log "==== Trigger Checkout Account Update: ====" -%}
-
-  {%- session account_company_name = form.account_company_name | default: "" -%}
-  {%- session account_mobile_number = form.profiles['modules/insites_core/insites_contact_number'].properties.mobile_phone_number | default: "" -%}
-  {%- session account_mobile_country_code = form.profiles['modules/insites_core/insites_contact_number'].properties.mobile_phone_country_code | default: "" -%}
+  {%- session account_company_name = form.company_name | default: "" -%}
+  {%- session account_mobile_number = form.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_number | default: "" -%}
+  {%- session account_mobile_country_code = form.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_country_code | default: "" -%}
 
   {%- session latest_step = 2 -%}
 ---
+
+{% assign fields = form.fields %}
+{% assign prop = fields.properties %}
+{% assign profiles_prop = fields.profiles['modules/insites_core/crm_contact'].properties %}
 
 {%- form 
   html-id: "checkout-account-detail" 
@@ -60,14 +65,15 @@ callback_actions: |-
 
     <div class="grid-x grid-padding-x account-details">
 
-      <input type="hidden" 
+      <input type="hidden2" 
         id="hidden-account-phone"
-        name="{{ form.fields.profiles['modules/insites_core/insites_contact_number'].properties.mobile_phone_number.name }}"
-        value="{{ form.fields.profiles['modules/insites_core/insites_contact_number'].properties.mobile_phone_number.value }}" />
-      <input type="hidden" 
+        name="{{ profiles_prop.mobile_phone_number.name }}"
+        value="{{ profiles_prop.mobile_phone_number.value }}" >
+
+      <input type="hidden2" 
         id="hidden-account-phone-country-code"
-        name="{{ form.fields.profiles['modules/insites_core/insites_contact_number'].properties.mobile_phone_country_code.name }}"
-        value="{{ form.fields.profiles['modules/insites_core/insites_contact_number'].properties.mobile_phone_country_code.value }}" />
+        name="{{ profiles_prop.mobile_phone_country_code.name }}"
+        value="{{ profiles_prop.mobile_phone_country_code.value }}" >
 
 
       <div class="large-12 medium-12 small-12 cell">
@@ -76,75 +82,73 @@ callback_actions: |-
           label="Company Name"
           placeholder="Company Name" 
           field="text" 
-          id="account-company-name" 
           value="{{ input_company_name | default: '' }}"
-          name="{{ form.fields.account_company_name.name }}">
+          name="{{ fields.company_name.name }}">
         </ins-input>
       </div>
+
       <div class="large-6 medium-6 small-12 cell">
         <ins-input required validate  class="label-input"
-          {% if context.current_user and context.current_user.first_name %} readonly {% endif %} 
           label="First Name*"
           placeholder="First Name" 
-          id="account-first-name" 
-          value="{{ form.fields.first_name.value }}"
-          name="{{ form.fields.first_name.name }}" 
+          value="{{ fields.first_name.value }}"
+          name="{{ fields.first_name.name }}" 
           {% if form.errors['first_name'] %} has-error {% endif %}
-          error-message="{{ form.fields.first_name.validation.rules.presence.message }}">
+          error-message="{{ fields.first_name.validation.rules.presence.message }}">
         </ins-input>
       </div>
+
       <div class="large-6 medium-6 small-12 cell">
         <ins-input required validate  
           class="label-input"
-          {% if context.current_user and context.current_user.last_name %} readonly {% endif %} 
           label="Last Name*"
           placeholder="Last Name" 
-          id="account-last-name" 
-          value="{{ form.fields.last_name.value }}"
-          name="{{ form.fields.last_name.name }}" 
+          value="{{ fields.last_name.value }}"
+          name="{{ fields.last_name.name }}" 
           {% if form.errors['last_name'] %} has-error {% endif %}
-          error-message="{{ form.fields.last_name.validation.rules.presence.message }}">
+          error-message="{{ fields.last_name.validation.rules.presence.message }}">
         </ins-input>
       </div>
+
       <div class="large-6 medium-6 small-12 cell">
         <ins-input required validate  
           class="label-input"
           {% if context.current_user and context.current_user.email %} readonly {% endif %} 
-          label="Email*"
-          placeholder="Email" 
+          label="Email Address*"
+          placeholder="Email Address" 
           field="email" 
-          id="account-email" 
-          value="{{ form.fields.email.value }}"
-          name="{{ form.fields.email.name }}" 
+          value="{{ fields.email.value }}"
+          name="{{ fields.email.name }}" 
           {% if form.errors['email'] %} has-error {% endif %}
-          error-message="{{ form.fields.email.validation.rules.presence.message }}">
+          error-message="{{ fields.email.validation.rules.presence.message }}">
         </ins-input>
       </div>
+
       <div class="large-6 medium-6 small-12 cell">
         <ins-input-tel  
           class="label-input" 
-          id="account-phone" 
-          label="Mobile Phone"
-          areacode-value="{{ data.current_user.insites_contact_number[0].mobile_phone_country_code | default: '61' }}"  
-          phonenum-value="{{ data.current_user.insites_contact_number[0].mobile_phone_number }}"
-          phonenum-placeholder="Mobile Phone" 
+          id="account-phone"
+          label="Phone Number"
+          areacode-value="{{ data.crm_contact[0].mobile_phone_country_code | default: '61' }}"  
+          phonenum-value="{{ data.crm_contact[0].mobile_phone_number }}"
+          phonenum-placeholder="Phone Number" 
           no-areacode>
         </ins-input-tel>
       </div>
+
     </div>
 
-    <input type="hidden" name="page_id" value="{{ context.page.id }}"  />
-
+   <div class="spacer small"></div>
     <div class="grid-x grid-padding-x">
-      <div class="large-12 medium-12 small-12 cell text-right">
-        <div class="spacer small"></div>
-        <ins-button solid type="submit" id="account-submit" class="w-100" label="Continue To Shipping">
-        </ins-button>
+      <div class="large-6 medium-6 small-12 cell">
+          <a href="javascript:window.history.back();">
+              <ins-button solid type="button" label="Cancel" outlined></ins-button>
+          </a>
+      </div>
+      <div class="large-6 medium-6 small-12 cell text-right">
+        <ins-button solid type="submit" id="account-submit" class="w-100" label="Continue To Shipping"></ins-button>
       </div>
     </div>
   </div>
         
 {%- endform -%}
-
-
-

@@ -1,17 +1,17 @@
 mutation assign_company_contact (
   $id: ID!,
-  $company_id: String
+  $company_uuid: String
 ) {
   items: user_update (
     id: $id
   	user: {
       profiles: [
         {
-          name: "modules/insites_core/insites_customer",
+          name: "modules/insites_core/crm_contact",
           values: {
             deleted_at: null,
             properties: [
-              { name: "company_id", value: $company_id }
+              { name: "company_uuid", value: $company_uuid }
             ]
           }
         }
@@ -24,8 +24,8 @@ mutation assign_company_contact (
     first_name
     last_name
     email
-    customer_details: profiles(profile_type: "modules/insites_core/insites_customer") {
-      company_id: property(name: "company_id")
+    customer_details: profiles(profile_type: "modules/insites_core/crm_contact") {
+      company_uuid: property(name: "company_uuid")
     }
   }
 } 

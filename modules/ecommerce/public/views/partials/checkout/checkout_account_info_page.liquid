@@ -13,14 +13,15 @@
 
 <div class="spacer xxxx-large"></div>
 
-{%- graphql data = 'modules/ecommerce/account/get_current_user' -%}
+{%- graphql data = 'modules/ecommerce/account/get_current_user' | dig: 'current_user' -%}
+{% assign company_uuid = data.crm_contact[0].company_uuid %}
+
 
 {%- assign company_name = "" -%}
-{%- if data.current_user.insites_customer[0].company_id -%}
-{%- graphql company = "modules/ecommerce/crm/get_crm_company", 
-    page: 1, size: 1, 
-    id: data.current_user.insites_customer[0].company_id | dig: "items" | dig: "results" | first -%}
-{%- assign company_name = company.company_name -%}
+{%- if company_uuid and company_uuid != '' -%}
+    {%- graphql company = "modules/ecommerce/companies/get_company", 
+        uuid: company_uuid | dig: 'items','results' | first -%}
+    {%- assign company_name = company.company_name -%}
 {%- endif -%}
 
 
@@ -30,10 +31,11 @@
         {%- if context.current_user -%}
             {% include_form 'modules/ecommerce/checkout_update_user', 
                 id: context.current_user.id, 
-                input_company_name: company_name %}
+                input_company_name: company_name,
+                data %}
         {%- else -%}
-            {% include_form 'modules/ecommerce/checkout_create_user',
-                input_company_name: company_name %}
+            {% comment %} {% include_form 'modules/ecommerce/checkout_create_user',
+                input_company_name: company_name %} {% endcomment %}
         {%- endif -%}
     </div>
     <div class="large-4 large-offset-1 medium-12 small-12 cell">
