@@ -1,0 +1,447 @@
+---
+name: checkout_shipping_address
+resource: modules/insites_core/crm_address
+resource_owner: anyone
+redirect_to: checkout/billing
+flash_alert: "Error-UserAddressShipping"
+flash_notice: "Success-UserAddressShipping"
+fields:
+  properties:
+    uuid:
+      validation: 
+        presence: true
+    related_uuid:
+      validation: 
+        presence: true
+    related_type: 
+      property_options:
+        default: "contact"
+    address_1:
+      validation: 
+        presence: 
+          message: Address is required
+    address_2:
+    city:
+      validation: 
+        presence: 
+          message: City is required
+    state:
+      validation: 
+        presence: 
+          message: State is required
+    postcode:
+      validation: 
+        presence: 
+          message: Postal code is required
+    country:
+      validation: 
+        presence: 
+          message: Country is required      
+    shipping_instructions:
+      property_options:
+        virtual: true
+    shipping_company_name:
+      property_options:
+        virtual: true
+    shipping_contact_first_name:
+      property_options:
+        virtual: true
+    shipping_contact_last_name:
+      property_options:
+        virtual: true
+    shipping_contact_email:
+      property_options:
+        virtual: true
+    shipping_contact_phone_number:
+      property_options:
+        virtual: true
+    shipping_contact_phone_country_code:
+      property_options:
+        virtual: true
+    shipping_address_id:
+      property_options:
+        virtual: true        
+    freight_method:
+      property_options:
+        virtual: true  
+    preferred_pick_up_date:
+      property_options:
+        virtual: true
+    preferred_delivery_date:
+      property_options:
+        virtual: true
+
+callback_actions: |-    
+  
+  {%- session freight_method = form.properties.freight_method -%}
+  {%- session preferred_pick_up_date = form.properties.preferred_pick_up_date -%}
+  {%- session preferred_delivery_date = form.properties.preferred_delivery_date -%}
+
+  {%- session shipping_address_1 = form.properties.address_1 -%}
+  {%- session shipping_address_2 = form.properties.address_2 -%}
+  {%- session shipping_city = form.properties.city -%}
+  {%- session shipping_state = form.properties.state -%}
+  {%- session shipping_postcode = form.properties.postcode -%}
+  {%- session shipping_country = form.properties.country -%}
+  {%- session shipping_is_enabled = form.properties.is_enabled -%}
+  {%- session shipping_instructions = form.properties.shipping_instructions -%}
+
+  {%- session shipping_company_name = form.properties.shipping_company_name -%}
+  {%- session shipping_contact_first_name = form.properties.shipping_contact_first_name -%}
+  {%- session shipping_contact_last_name = form.properties.shipping_contact_last_name -%}
+  {%- session shipping_contact_email = form.properties.shipping_contact_email -%}
+  {%- session shipping_contact_phone_number = form.properties.shipping_contact_phone_number -%}
+  {%- session shipping_contact_phone_country_code = form.properties.shipping_contact_phone_country_code -%}
+
+  {%- session shipping_address_id = form.id -%}
+  {%- session latest_step = 3 -%}
+
+---
+
+{%- form 
+  html-id: "shipping-address-form"
+  html-novalidate: true
+  html-enctype="multipart/form-data"
+  html-onsubmit:"return Checkout.events.shippingSubmit(event);" -%}  
+
+  <input type="hidden" id="temp-address-uuid" name="temp_uuid" value="{{ '' | uuid }}">
+  <input type="hidden" id="address-uuid" name="{{ form.fields.properties.uuid.name }}" value="{{ '' | uuid }}">
+  <input type="hidden" id="address-related-uuid" name="{{ form.fields.properties.related_uuid.name }}" value="{{ data.current_user.uuid }}">
+
+  <input type="hidden" 
+    id="hidden-shipping-phone" 
+    name="{{ form.fields.properties.shipping_contact_phone_number.name }}"
+    value="{{ form.fields.properties.shipping_contact_phone_number.value }}" /> 
+  <input type="hidden" 
+    id="hidden-shipping-phone-country-code"
+    name="{{ form.fields.properties.shipping_contact_phone_country_code.name }}"
+    value="{{ form.fields.properties.shipping_contact_phone_country_code.value }}" />
+
+  
+  <input 
+    type="hidden" 
+    id="hidden-company-name"
+    value="{{ context.session.account_company_name }}" />
+  <input 
+    type="hidden" 
+    id="hidden-first-name"
+    value="{{ context.current_user.first_name }}" />
+  <input 
+    type="hidden" 
+    id="hidden-last-name"
+    value="{{ context.current_user.last_name }}" />
+  <input 
+    type="hidden" 
+    id="hidden-email"
+    value="{{ context.current_user.email }}" />
+  <input 
+    type="hidden" 
+    id="hidden-country-code"
+    value="{{ context.session.account_mobile_country_code }}" />
+  <input 
+    type="hidden" 
+    id="hidden-mobile-number"
+    value="{{ context.session.account_mobile_number }}" />
+
+    
+  <div id="shipping-details" class="insites-form">
+    <h2 class="heading-1">Shipping</h2>
+    <div class="spacer xxx-large"></div>
+
+    <!-- Field: Do you want to receive quotes from freight providers to deliver your order?* -->
+    <div class="column-1">
+      <div class="list-field-wrap" 
+        validate
+        data-type="string"
+        data-ui="radio" 
+        data-name="{{ form.fields.properties.freight_method.name }}"
+        {%- if form.errors['properties.radio_sample'] != nil -%} has-error="true" {%- endif -%}>
+            <label class="list-field_label">Do you want to receive quotes from freight providers to deliver your order?*</label>
+        <div class="list-radio-options">
+          <ins-radio
+            label="Yes, please allow freight providers to quote for shipping" value="Delivery"
+            name="{{ form.fields.properties.freight_method.name }}"
+            {% if context.session.freight_method == "Delivery" %}checked{% endif %}>
+          </ins-radio>
+          <ins-radio
+            label="No, I will organise the pick up and delivery" value="Pick-up"
+            name="{{ form.fields.properties.freight_method.name }}"
+            {% if context.session.freight_method == "Pick-up" %}checked{% endif %}>
+          </ins-radio>
+        </div>
+        <p class="list-field_error">{{ form.errors['properties.radio_sample'] | default: 'Required' }}</p>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    {% comment %} <!-- Field: Preferred pickup date* -->
+    <div class="column-1">
+      <ins-date-time
+        validate
+        mode="datepicker" 
+        data-type="date"
+        data-ui="date"
+        icon="icon-calendar"
+        format="DD/MM/YYYY"
+        label="Preferred pickup date*"
+        name="{{ form.fields.properties.preferred_pick_up_date.name }}"
+        value="{{ context.session.preferred_pick_up_date }}"
+        error-message="{{ form.errors['properties.preferred_pick_up_date'] | default: 'Required' }}"
+        {%- include 'modules/insites_forms/form_code/placeholder', form: form, name: 'preferred_pick_up_date' -%}
+        {%- include 'modules/insites_forms/form_code/validation/required', form: form, name: 'preferred_pick_up_date' -%}
+        {%- if form.errors['properties.preferred_pick_up_date'] != nil -%} has-error {%- endif -%}>
+      </ins-date-time>
+    </div>  
+
+    <div class="spacer large"></div> {% endcomment %}
+
+    <!-- Field: Preferred delivery date* -->
+    <div class="column-1">
+      <ins-date-time
+        validate
+        mode="datepicker" 
+        data-type="date"
+        data-ui="date"
+        icon="icon-calendar"
+        format="DD/MM/YYYY"
+        label="Preferred delivery date*"
+        name="{{ form.fields.properties.preferred_delivery_date.name }}"
+        value="{{ context.session.preferred_delivery_date }}"
+        error-message="{{ form.errors['properties.preferred_delivery_date'] | default: 'Required' }}"
+        {%- include 'modules/insites_forms/form_code/placeholder', form: form, name: 'preferred_delivery_date' -%}
+        {%- include 'modules/insites_forms/form_code/validation/required', form: form, name: 'preferred_delivery_date' -%}
+        {%- if form.errors['properties.preferred_delivery_date'] != nil -%} has-error {%- endif -%}>
+      </ins-date-time>
+    </div>  
+
+    <div class="spacer large"></div>
+
+
+    <h2 class="heading-2">Shipping Contact</h2>
+    <div class="spacer x-large"></div>
+
+    <ins-checkbox class="inline" 
+      id="same-shipping" 
+      label="My shipping details are the same as my account details">
+    </ins-checkbox>
+
+    {% comment %} Contact Person Fields {% endcomment %}
+    <div class="grid-x grid-padding-x shipping-contact-person">
+      <div class="large-12 medium-12 small-12 cell">
+        <ins-input shipping-details-field 
+          class="label-input" 
+          label="Company Name" 
+          placeholder="Company Name"
+          field="text" 
+          id="shipping-company-name" 
+          value="{{ context.session.shipping_company_name}}"
+          name="{{ form.fields.properties.shipping_company_name.name }}">
+        </ins-input>
+      </div>
+      <div class="large-6 medium-6 small-12 cell">
+        <ins-input required validate shipping-details-field
+          label="First Name*" 
+          placeholder="First Name"
+          name="{{ form.fields.properties.shipping_contact_first_name.name }}" 
+          id="shipping-first-name" 
+          value="{{ context.session.shipping_contact_first_name}}"
+          {% if form.errors['properties.shipping_contact_first_name'] %} has-error {% endif %}
+          error-message="{{ form.fields.properties.shipping_contact_first_name.validation.rules.presence.message }}">
+        </ins-input>
+      </div>
+      <div class="large-6 medium-6 small-12 cell">
+        <ins-input required validate shipping-details-field
+          label="Last Name*" 
+          placeholder="Last Name"
+          name="{{ form.fields.properties.shipping_contact_last_name.name }}" 
+          id="shipping-last-name" 
+          value="{{ context.session.shipping_contact_last_name}}"
+          {% if form.errors['properties.shipping_contact_last_name'] %} has-error {% endif %}
+          error-message="{{ form.fields.properties.shipping_contact_last_name.validation.rules.presence.message }}">
+        </ins-input>
+      </div>
+      <div class="large-6 medium-6 small-12 cell">
+        <ins-input required validate shipping-details-field
+          label="Email*" 
+          placeholder="Email" 
+          field="email"
+          name="{{ form.fields.properties.shipping_contact_email.name }}" 
+          id="shipping-email" 
+          value="{{ context.session.shipping_contact_email}}"
+          {% if form.errors['properties.shipping_contact_email'] %} has-error {% endif %}
+          error-message="{{ form.fields.properties.shipping_contact_email.validation.rules.presence.message }}"
+          tooltip="You will receive notifications to this email address if you have selected Yes to receive freight quotes"
+          position="right">
+        </ins-input>
+      </div>
+      <div class="large-6 medium-6 small-12 cell">
+        <ins-input-tel shipping-details-field
+          class="label-input" 
+          id="shipping-phone" 
+          label="Mobile Phone"
+          country-code="{{ context.session.shipping_contact_phone_country_code}}"
+          phonenum-value="{{ context.session.shipping_contact_phone_number}}"
+          phonenum-placeholder="Mobile Phone" no-areacode>
+        </ins-input-tel>
+      </div>
+    </div>
+
+    <div class="spacer xxx-large"></div>
+    <div class="validate-address">
+      <div class="grid-x grid-padding-x">
+        <div class="large-6 medium-6 small-12 cell">
+          <h2 class="heading-2">Shipping Address</h2>
+        </div>
+        <div class="large-6 medium-6 small-12 cell text-right">
+          &nbsp;
+        </div>
+      </div>
+
+      <div class="spacer x-large"></div>
+
+      <p class="error-message hide">Shipping address is required.</p>
+      
+      {%- graphql addresses = "modules/ecommerce/user/get_user_address_list", 
+        user_uuid: data.current_user.uuid 
+        | dig: "items" | dig: "results" -%}
+
+      {%- comment -%}Address cards{%- endcomment -%}
+      {%- include 'modules/ecommerce/layout/address_cards', 
+        addresses: addresses,
+        selected_card: context.session.shipping_address_id | default: "",
+        type: 'shipping' -%}
+
+      {% comment %} Shipping Address Fields {% endcomment %}
+      <div class="text-right"
+        id="address-toggle">
+        <div class="spacer small"></div>
+        <ins-button 
+          type="button" 
+          class="add-address-btn {% if addresses.size <= 0 %}hide{% endif %}"
+          name="shipping-address-fields" 
+          id="open-address" 
+          icon="icon-add" 
+          label="New Address" 
+          color="blue" 
+          size="small">
+        </ins-button>
+      </div>
+
+      <div class="spacer x-small"></div>      
+
+      <div id="shipping-address-fields" 
+        class="address-fields {% if addresses.size > 0 %}hide{% endif %} " >
+        <div class="grid-x grid-padding-x">
+          <div class="large-12 medium-12 small-12 cell">
+            <ins-input address-lookup label="Search Addresss" 
+              id="shipping-address-search" name="shipping"
+              placeholder="Search Addresss" icon="icon-map-pin">
+            </ins-input>
+            <input type="hidden" id="shipping_address_id"
+              value="{{ context.session.shipping_address_id | default: '' }}"
+              name="{{ form.fields.properties.shipping_address_id.name }}" />
+          </div>
+          <div class="large-6 medium-6 small-12 cell">
+            <ins-input  required validate 
+              label="Address 1*" 
+              id="shipping_address_1"
+              placeholder="Address 1" 
+              name="{{ form.fields.properties.address_1.name }}"
+              value="{{ context.session.shipping_address_1 | default: '' }}"
+              {% if form.errors['properties.address_1'] %} has-error {% endif %}
+              error-message="{{ form.fields.properties.address_1.validation.rules.presence.message }}">
+            </ins-input>
+          </div>
+          <div class="large-6 medium-6 small-12 cell">
+            <ins-input  
+              label="Address 2" 
+              id="shipping_address_2" 
+              placeholder="Address 2"
+              name="{{ form.fields.properties.address_2.name }}"
+              value="{{ context.session.shipping_address_2 | default: '' }}"
+              {% if form.errors['properties.address_2'] %} has-error {% endif %}
+              error-message="{{ form.fields.properties.address_2.validation.rules.presence.message }}">
+            </ins-input>
+          </div>
+          <div class="large-6 medium-6 small-12 cell">
+            <ins-input  required validate 
+              label="City*" 
+              id="shipping_city" 
+              placeholder="City"
+              name="{{ form.fields.properties.city.name }}"
+              value="{{ context.session.shipping_city | default: '' }}" 
+              {% if form.errors['properties.city'] %} has-error {% endif %}
+              error-message="{{ form.fields.properties.city.validation.rules.presence.message }}">
+            </ins-input>
+          </div>
+          <div class="large-6 medium-6 small-12 cell">
+            <ins-input  required validate 
+              label="State*" 
+              id="shipping_state" 
+              placeholder="State"
+              name="{{ form.fields.properties.state.name }}"
+              value="{{ context.session.shipping_state | default: '' }}"
+              {% if form.errors['properties.state'] %} has-error {% endif %}
+              error-message="{{ form.fields.properties.state.validation.rules.presence.message }}">
+            </ins-input>
+          </div>
+          <div class="large-6 medium-6 small-12 cell">
+            <ins-input  required validate 
+              label="Zip / Postal Code*" 
+              id="shipping_postcode"
+              placeholder="Zip / Postal Code" 
+              name="{{ form.fields.properties.postcode.name }}"
+              value="{{ context.session.shipping_postcode | default: '' }}"
+              {% if form.errors['properties.postcode'] %} has-error {% endif %}
+              error-message="{{ form.fields.properties.postcode.validation.rules.presence.message }}">
+            </ins-input>
+          </div>
+          <div class="large-6 medium-6 small-12 cell">
+            <ins-input  required validate 
+              label="Country*" 
+              id="shipping_country"
+              placeholder="Country" 
+              name="{{ form.fields.properties.country.name }}"
+              value="{{ context.session.shipping_country | default: '' }}"
+              {% if form.errors['properties.country'] %} has-error {% endif %}
+              error-message="{{ form.fields.properties.country.validation.rules.presence.message }}">
+            </ins-input>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="grid-x grid-padding-x">
+          <div class="large-12 medium-12 small-12 cell">
+            <ins-textarea 
+              label="Shipping Instructions" 
+              placeholder="Shipping Instructions"
+              name="{{ form.fields.properties.shipping_instructions.name }}"
+              value="{{ context.session.shipping_instructions | default: '' }}">
+            </ins-textarea>
+          </div>
+        </div>
+      </div>
+      {% comment %}END:Shipping Address Fields {% endcomment %}
+    </div>            
+
+    {%- assign submitLabel = 'Proceed to Billing' -%}
+    {% if addresses.size <= 0 %}
+      {%- assign submitLabel = 'Save and Proceed' -%}
+    {% endif %}
+
+    <div class="grid-x grid-padding-x">
+      <div class="large-12 medium-12 small-12 cell text-right">
+        <div class="spacer small"></div>
+        <ins-button solid 
+          id="shipping-submit-button" 
+          type="submit" 
+          class="checkout-step-btn w-100" 
+          label="{{submitLabel}}">
+        </ins-button>
+      </div>
+    </div>
+  </div>
+
+{%- endform -%}
