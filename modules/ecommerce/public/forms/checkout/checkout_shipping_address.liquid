@@ -235,7 +235,6 @@ callback_actions: |-
           addresses: addresses,
           selected_card: context.session.shipping_address_id | default: "",
           type: 'shipping' -%}
-
               
         <div class="spacer x-small"></div>
         <div class="spacer xx-small"></div>        
@@ -263,8 +262,7 @@ callback_actions: |-
 
       {% endif %}
 
-      <div id="shipping-address-fields" 
-        class="address-fields {% if addresses.size > 0 %}hide{% endif %} " >
+      <div id="shipping-address-fields" class="address-fields {% if addresses.size > 0 %}hide{% endif %} " >
         <div class="grid-x grid-padding-x">
           <div class="large-12 medium-12 small-12 cell">
             <ins-input address-lookup label="Search Addresss" 
@@ -381,6 +379,7 @@ callback_actions: |-
         </ins-button>
       </div>
     </div>
+    
   </div>
 
 {%- endform -%}

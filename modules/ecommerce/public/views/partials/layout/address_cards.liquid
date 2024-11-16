@@ -1,5 +1,5 @@
 {%- if addresses.size > 0 -%}
-    <div class="grid-x grid-padding-x grid-padding-y address-options" data-equalizer>
+    <div id="address-cards" class="grid-x grid-padding-x grid-padding-y address-options {{ hide }}" data-equalizer>
     {%- for data in addresses -%}
         {%- assign full_address = "" -%}
         {%- if data.address_1 and data.address_1 != '' -%}

@@ -21,12 +21,15 @@ let shippingSubmitBtn = document.getElementById("shipping-submit-button");
 // Billing Address Elements------------------------------------------
 let sameAddressBtn = document.getElementById('same-billing');
 let billingSubmitBtn = document.getElementById("billing-submit-button");
+let billingSameWithShipping = document.getElementById("billing-same-with-shipping"); 
+let billingAddressFields = document.getElementById("billing-address-fields");
 
 // Payment Information Elements------------------------------------------
 let addCardBtn = document.getElementById('add-card-btn');
 let cardModal = document.getElementById('stripe-modal');
 let checkoutSubmitBtn = document.getElementById('checkout-submit-btn');
 
+let addAddressBtn = Array.from(document.getElementsByClassName('add-address-btn'));
 
 let Checkout = (function () {
     return {
@@ -175,6 +178,15 @@ let Checkout = (function () {
             },
             selectAddressCard(addressCard) {
                 let name = addressCard.getAttribute('name');
+                let value = addressCard.getAttribute('value');                
+
+                //Toggle 'My billing address is the same as my shipping address'
+                if(value == shipping_address_id) {
+                    if(billingSameWithShipping) billingSameWithShipping.setAttribute('checked', true);
+                    console.log('setAttribute true');
+                } else {
+                    if(billingSameWithShipping) billingSameWithShipping.setAttribute('checked', false);
+                }
 
                 // Remove State of address field cards
                 document.getElementsByName(name).forEach(el => {
@@ -186,7 +198,7 @@ let Checkout = (function () {
                 addressCard.setAttribute('selected', true);
                 addressCard.selected = true;
                 //Show the add new address button
-                document.getElementsByClassName('add-address-btn')[0].classList.remove('hide');
+                document.getElementsByClassName('add-address-btn')[0]?.classList.remove('hide');
                 //Modify fields and form
                 this.fillAddressField(addressCard);
                 this.setFormAsPatch(addressCard);
@@ -249,7 +261,7 @@ let Checkout = (function () {
 
                 let name = button.getAttribute('name');
                 //Hide New Address Button
-                document.getElementsByClassName('add-address-btn')[0].classList.add('hide');
+                document.getElementsByClassName('add-address-btn')[0]?.classList.add('hide');
                 //Clean the form and the fields
                 this.clearAddressField(button);
                 this.setFormAsNew(button);
@@ -336,17 +348,17 @@ let Checkout = (function () {
             },
             //Check the status of Billing = Shipping
             billingShippingStatusCheck(addressCard){
-                let sameShippingEl = document.getElementById("status-same-shipping");
-                if(addressCard){
-                    let shippingSelectedEl = document.getElementById("hidden-selected-shipping");
-                    if(addressCard.value == shippingSelectedEl.value){
-                        sameShippingEl.classList.remove("hide");
-                    } else {
-                        sameShippingEl.classList.add("hide");
-                    }   
-                } else {
-                    sameShippingEl.classList.add("hide");
-                }
+                // let sameShippingEl = document.getElementById("status-same-shipping");
+                // if(addressCard){
+                //     let shippingSelectedEl = document.getElementById("hidden-selected-shipping");
+                //     if(addressCard.value == shippingSelectedEl.value){
+                //         sameShippingEl.classList.remove("hide");
+                //     } else {
+                //         sameShippingEl.classList.add("hide");
+                //     }   
+                // } else {
+                //     sameShippingEl.classList.add("hide");
+                // }
             },
             async paymentFormSubmit(event){
                 event.preventDefault();
@@ -369,6 +381,7 @@ let Checkout = (function () {
         init: {
             initEventListener() {
                 this.initShippingDetailsListener();
+                this.initBillingDetailsListener();
                 this.initAddressCardListener();
                 this.initAddressBtnListener();
                 if(addCardBtn) {
@@ -392,6 +405,23 @@ let Checkout = (function () {
                     });
                 }
             },
+            initBillingDetailsListener(){                               
+                if (billingSameWithShipping) {
+                    billingSameWithShipping.addEventListener('insCheck', (event) => {
+                        let isChecked = event.detail.checked;                                                                        
+                        let addressCards = document.getElementById("address-cards");
+                        if (isChecked){
+                            if(addressCards) addressCards.classList.add('hide');
+                            if(addAddressBtn[0]) addAddressBtn[0].classList.add('hide');
+                            if(billingAddressFields) billingAddressFields.classList.add('hide');                                                  
+                        }else{
+                            if(addressCards) addressCards.classList.remove('hide');                            
+                            if (addAddressBtn[0]) addAddressBtn[0].classList.remove('hide');
+                            if(billingAddressFields) billingAddressFields.classList.add('hide');
+                        }
+                    });
+                }
+            },
             initAddressCardListener() {
                 let addressCards = Array.from(document.querySelectorAll('ins-checkbox-card'));
                 addressCards.forEach(address => {
@@ -401,8 +431,7 @@ let Checkout = (function () {
                 });
             },
             initAddressBtnListener() {
-                let buttons = Array.from(document.getElementsByClassName('add-address-btn'));
-                buttons.forEach(btn => {
+                addAddressBtn.forEach(btn => {
                     btn.addEventListener('insClick', () => {
                         Checkout.events.addNewAddress(btn);
                     });

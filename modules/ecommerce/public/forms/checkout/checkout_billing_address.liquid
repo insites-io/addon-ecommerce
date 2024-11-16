@@ -1,0 +1,308 @@
+---
+name: checkout_billing_address
+resource: modules/insites_core/crm_address
+resource_owner: anyone
+redirect_to: checkout/payment
+flash_alert: "Error-UserAddress-{{ form.properties.submit_type }}"
+flash_notice: "Success-UserAddress-{{ form.properties.submit_type }}"
+fields:
+  properties:
+    uuid:
+      #validation: 
+      #  presence: true
+    related_uuid:
+      #validation: 
+      #  presence: true
+    related_type: 
+      #property_options:
+      #  default: "contact"
+    address_1:
+      #validation: 
+      #  presence: 
+      #    message: Address is required
+    address_2:
+    city:
+      #validation: 
+      #  presence: 
+      #    message: City is required
+    state:
+      #validation: 
+      #  presence: 
+      #    message: State is required
+    postcode:
+      #validation: 
+      #  presence: 
+      #    message: Postal code is required
+    country:
+      #validation: 
+      #  presence: 
+      #    message: Country is required    
+    submit_type:
+      property_options:
+        virtual: true
+    billing_same_with_shipping:
+      property_options:
+        virtual: true
+    billing_company_name:
+      property_options:
+        virtual: true
+    billing_contact_first_name:
+      property_options:
+        virtual: true
+    billing_contact_last_name:
+      property_options:
+        virtual: true
+    billing_contact_email:
+      property_options:
+        virtual: true
+    billing_contact_phone_number:
+      property_options:
+        virtual: true
+    billing_contact_phone_country_code:
+      property_options:
+        virtual: true
+    billing_address_id:
+      property_options:
+        virtual: true
+default_payload: |-
+  {
+    "properties_attributes":{
+        "billing_company_name": "{{ context.session.account_company_name }}",
+        "billing_contact_first_name": "{{ context.current_user.first_name }}",
+        "billing_contact_last_name": "{{ context.current_user.last_name }}",
+        "billing_contact_email": "{{ context.current_user.email }}",
+        "billing_contact_phone_number": "{{ context.session.billing_contact_phone_number }}",
+        "billing_contact_phone_country_code": "{{ context.session.billing_contact_phone_country_code }}"
+    }
+  }
+callback_actions: |-    
+
+  {% assign prop = form.properties %}
+
+  {%- session billing_same_with_shipping = prop.billing_same_with_shipping -%}
+  {%- session billing_address_1 = prop.address_1 -%}
+  {%- session billing_address_2 = prop.address_2 -%}
+  {%- session billing_city = prop.city -%}
+  {%- session billing_state = prop.state -%}
+  {%- session billing_postcode = prop.postcode -%}
+  {%- session billing_country = prop.country -%}
+  {%- session billing_is_enabled = prop.is_enabled -%}
+
+  {%- session billing_company_name = prop.billing_company_name -%}
+  {%- session billing_contact_first_name = prop.billing_contact_first_name -%}
+  {%- session billing_contact_last_name = prop.billing_contact_last_name -%}
+  {%- session billing_contact_email = prop.billing_contact_email -%}
+  {%- session billing_contact_phone_number = prop.billing_contact_phone_number -%}
+  {%- session billing_contact_phone_country_code = prop.billing_contact_phone_country_code -%}
+
+  {%- session billing_address_id = form.id -%}
+  {%- session latest_step = 4 -%}
+
+---
+
+{%- assign statusClass = "hide" -%}
+{%- assign addressIdUsed = context.session.billing_address_id | default: "" -%}
+
+{% if context.session.billing_address_id == blank or context.session.shipping_address_id == context.session.billing_address_id  %}
+{%- assign statusClass = "un-hide" -%}
+{%- assign addressIdUsed = context.session.shipping_address_id -%}
+{% endif %}
+
+      
+   
+{%- form 
+  html-id: "billing-address-form"
+  html-novalidate: true
+  html-enctype="multipart/form-data"
+  html-onsubmit:"return Checkout.events.billingSubmit(event);" -%}
+
+  <input type="hidden" id="temp-address-uuid" name="temp_uuid" value="{{ '' | uuid }}">
+  <input type="hidden" id="address-uuid" name="{{ form.fields.properties.uuid.name }}" value="{{ '' | uuid }}">
+  <input type="hidden" id="address-related-uuid" name="{{ form.fields.properties.related_uuid.name }}" value="{{ data.current_user.uuid }}">
+
+  <input
+    type="hidden" 
+    id="hidden-selected-shipping" 
+    value="{{ context.session.shipping_address_id | default: '' }}" >
+    
+  <div id="billing-details">
+    <h2 class="heading-1">Billing</h2>
+    
+    <div class="spacer xxx-large"></div>
+    
+    <div class="validate-address">
+
+      <h2 class="heading-2">Billing Address</h2>
+      <div class="spacer x-large"></div>
+
+      <ins-checkbox class="inline"
+        id="billing-same-with-shipping"
+        name="{{ form.fields.properties.billing_same_with_shipping.name }}"
+        {% if context.session.billing_same_with_shipping == 'true' %} checked {% endif %}
+        value=true
+        label="My billing address is the same as my shipping address">
+      </ins-checkbox>
+      
+      <div class="spacer"></div>
+      <div class="spacer xx-small"></div>
+      
+      
+      <p class="error-message hide">Billing address is required.</p>
+      
+      {% if data.current_user.uuid.size > 1 %}      
+
+        {%- graphql addresses = 'modules/ecommerce/address/get_address', 
+          user_uuid: data.current_user.uuid | dig: 'items','results' -%}
+            
+        {% if context.session.billing_same_with_shipping == 'true' %} 
+          {% assign hide_cards = 'hide' %}
+        {% endif %}
+
+        {%- comment -%}Address cards{%- endcomment -%}
+        {%- include 'modules/ecommerce/layout/address_cards', 
+          addresses: addresses,
+          selected_card: context.session.billing_address_id | default: "",
+          type: 'billing',
+          hide: hide_cards -%} 
+
+        <div class="spacer x-small"></div>
+        <div class="spacer xx-small"></div>     
+
+      {% endif %}   
+
+        {% comment %} Billing Address Fields {% endcomment %}
+        <div class="text-right" id="address-toggle">
+          {%  liquid
+              if context.session.billing_same_with_shipping == 'true' or data.current_user.uuid == blank
+                assign hideAddAddressBtn = 'hide'
+              endif
+          %}
+          <ins-button 
+            type="button" 
+            class="add-address-btn {{hideAddAddressBtn}}"
+            name="billing-address-fields" 
+            id="open-address" 
+            icon="icon-add" 
+            label="New Address" 
+            color="blue" 
+            size="small">
+          </ins-button>
+        </div>  
+        <div class="spacer"></div>
+
+        <div class="spacer x-small"></div>
+        <div class="spacer xx-small"></div>
+
+
+      <div id="billing-address-fields" class="address-fields  {% if data.current_user.uuid.size > 1 %} hide {% endif %}">
+        <div class="grid-x grid-padding-x">
+          <div class="large-12 medium-12 small-12 cell">
+            <ins-input address-lookup label="Search Addresss" 
+              id="billing-address-search" name="billing"
+              placeholder="Search Addresss" icon="icon-map-pin">
+            </ins-input>
+            <input type="hidden" data-billing-address-field id="billing_address_id"
+              value="{{ addressIdUsed }}"
+              name="{{ form.fields.properties.billing_address_id.name }}" >
+          </div>
+          <div class="large-6 medium-6 small-12 cell">
+            <ins-input data-billing-address-field required validate 
+              label="Address 1*" 
+              id="billing_address_1"
+              placeholder="Address 1" 
+              name="{{ form.fields.properties.address_1.name }}"
+              value="{{ form.fields.properties.address_1.value }}"
+              {% if form.errors['properties.address_1'] %} has-error {% endif %}
+              error-message="{{ form.fields.properties.address_1.validation.rules.presence.message }}">
+            </ins-input>
+          </div>
+          <div class="large-6 medium-6 small-12 cell">
+            <ins-input data-billing-address-field 
+              label="Address 2" 
+              id="billing_address_2" 
+              placeholder="Address 2"
+              name="{{ form.fields.properties.address_2.name }}"
+              value="{{ form.fields.properties.address_2.value }}"
+              {% if form.errors['properties.address_2'] %} has-error {% endif %}
+              error-message="{{ form.fields.properties.address_2.validation.rules.presence.message }}">
+            </ins-input>
+          </div>
+          <div class="large-6 medium-6 small-12 cell">
+            <ins-input data-billing-address-field required validate 
+              label="City*" 
+              id="billing_city" 
+              placeholder="City"
+              name="{{ form.fields.properties.city.name }}"
+              value="{{ form.fields.properties.city.value }}" 
+              {% if form.errors['properties.city'] %} has-error {% endif %}
+              error-message="{{ form.fields.properties.city.validation.rules.presence.message }}">
+            </ins-input>
+          </div>
+          <div class="large-6 medium-6 small-12 cell">
+            <ins-input data-billing-address-field required validate 
+              label="State*" 
+              id="billing_state" 
+              placeholder="State"
+              name="{{ form.fields.properties.state.name }}"
+              value="{{ form.fields.properties.state.value }}"
+              {% if form.errors['properties.state'] %} has-error {% endif %}
+              error-message="{{ form.fields.properties.state.validation.rules.presence.message }}">
+            </ins-input>
+          </div>
+          <div class="large-6 medium-6 small-12 cell">
+            <ins-input data-billing-address-field required validate 
+              label="Zip / Postal Code*" 
+              id="billing_postcode"
+              placeholder="Zip / Postal Code" 
+              name="{{ form.fields.properties.postcode.name }}"
+              value="{{ form.fields.properties.postcode.value }}"
+              {% if form.errors['properties.postcode'] %} has-error {% endif %}
+              error-message="{{ form.fields.properties.postcode.validation.rules.presence.message }}">
+            </ins-input>
+          </div>
+          <div class="large-6 medium-6 small-12 cell">
+            <ins-input data-billing-address-field required validate 
+              label="Country*" 
+              id="billing_country"
+              placeholder="Country" 
+              name="{{ form.fields.properties.country.name }}"
+              value="{{ form.fields.properties.country.value }}"
+              {% if form.errors['properties.country'] %} has-error {% endif %}
+              error-message="{{ form.fields.properties.country.validation.rules.presence.message }}">
+            </ins-input>
+          </div>
+        </div>
+      </div>
+      {% comment %}END:billing Address Fields {% endcomment %}
+    </div>  
+
+    {%- assign submitLabel = 'Proceed to Payment' -%}
+    {% if addresses.size <= 0 %}
+      {%- assign submitLabel = 'Save and Proceed' -%}
+    {% endif %}
+
+    <div class="spacer x-small"></div>
+    <div class="spacer x-small"></div>
+    <div class="grid-x grid-padding-x">    
+      <div class="large-6 medium-6 small-12 cell">
+        <a href="/checkout/shipping">
+          <ins-button solid type="button" label="Back" outlined></ins-button>
+        </a>
+      </div>
+      <div class="large-6 medium-6 small-12 cell text-right">        
+        <ins-button solid 
+          id="billing-submit-button" 
+          type="submit" 
+          class="checkout-step-btn w-100" 
+          label="{{submitLabel}}">
+        </ins-button>
+      </div>
+    </div>
+
+  </div>
+
+{%- endform -%}
+
+<script>
+  let shipping_address_id = "{{ context.session.shipping_address_id }}";
+</script>

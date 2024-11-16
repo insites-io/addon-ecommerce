@@ -1,28 +1,14 @@
 ---
 slug: checkout/billing
 layout: modules/ecommerce/checkout-layout
-# enable_profiler: true
-searchable: "true"
-max_deep_level: 3
+searchable: "false"
+max_deep_level: 2
 metadata: {
     "status": "published",
     "page_type": "content", 
     "page_name": "Checkout - Billing Detail",
-    "og:url": "{{ context.exports.global.company_url | strip }}",
-    "og:type": "",
-    "og:image": "",
-    "og:title": "Checkout - Billing Detail",
-    "og:description": "Checkout - Billing Detail",
-    "og:site_name": "{{ context.exports.global.company_name | strip }}",
-    "meta_title": "Checkout - Billing Detail",
-    "page_title": "Checkout - Billing Detail | {{ context.exports.global.company_name | strip }}",
-    "description": "Checkout - Billing Detail",
-    "canonical_url": "",
-    "search_engine_visibility": false,
-    "sitemap_enabled": false,
-    "sitemap_priority": "1.0",## primary order (DESC)
-    "sitemap_order": "0", ## secondary order (ASC)
-    "sitemap_changefreq": "never"
+    "page_title": "Checkout - Billing Detail",
+    "meta_title": "Checkout - Billing Detail"       
 }
 ---
 
@@ -32,8 +18,7 @@ metadata: {
 
 <div class="grid-x grid-padding-x">
     <div class="large-offset-2 medium-offset-1 small-offset-0 large-8 medium-10 small-12 cell">
-        {% include 'modules/ecommerce/layout/checkout_steps', 
-            clickable: true %}
+        {% include 'modules/ecommerce/layout/checkout_steps', clickable: true, data %}
     </div>
 </div>
 
