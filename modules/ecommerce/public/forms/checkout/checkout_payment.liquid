@@ -1,0 +1,450 @@
+---
+name: checkout_payment
+resource: modules/insites_ecommerce/order
+resource_owner: anyone
+redirect_to: > 
+    {% log form.properties.uuid, type: "==== Redirect To: confirmation?order_uuid= " %}
+    {%- if context.exports.payment_response.status == "succeeded" or context.exports.payment_response.status == "active" -%}
+    confirmation?order_uuid={{ form.properties.uuid }}
+    {%- else -%}
+        {%- if context.exports.payment_response.error.code == "card_declined" -%}
+        checkout/payment?status=payment-error&type={{ context.exports.payment_response.error.decline_code | default: "" }}
+        {%- else -%}
+        checkout/payment?status=payment-error&type={{ context.exports.payment_response.error.code | default: "" }}
+        {%- endif -%}    
+    {%- endif -%}
+fields:
+    properties:
+        ## Shipping Details
+        shipping_company_name:
+        shipping_contact_first_name:
+            validation:
+                presence:  
+                    message: First name is required
+        shipping_contact_last_name:
+            validation:
+                presence:  
+                    message: Last name is required 
+        shipping_contact_email:
+            validation:
+                email: 
+                    message: Please use a valid email address
+                presence:  
+                    message: Please use a valid email address
+        shipping_contact_phone_number:
+        shipping_address_id:
+            property_options:
+                virtual: true
+        shipping_address_1:
+            validation:
+                presence:  
+                    message: Address is required 
+        shipping_address_2:
+        shipping_address_3:
+        shipping_city:
+            validation:
+                presence:  
+                    message: City is required 
+        shipping_state:
+            validation:
+                presence:  
+                    message: State is required 
+        shipping_postcode:
+            validation:
+                presence:  
+                    message: Postcode is required 
+        shipping_country:
+            validation:
+                presence:  
+                    message: Country is required 
+        additional_shipping_cost:
+            property_options:
+                virtual: true
+        shipping_instructions:
+        freight_method:
+            validation:
+                presence: true        
+        preferred_pick_up_date:
+            property_options:
+                virtual: true
+        preferred_delivery_date:
+            property_options:
+                virtual: true
+        
+        ## Payment Details
+        billing_company_name:
+        billing_contact_first_name:
+            validation:
+                presence:  
+                    message: First name is required 
+        billing_contact_last_name:
+            validation:
+                presence:  
+                    message: Last name is required 
+        billing_contact_email:
+            validation:
+                email: 
+                    message: Please use a valid email address
+                presence:  
+                    message: Please use a valid email address
+        billing_contact_phone_number:
+        billing_address_id:
+            property_options:
+                virtual: true
+        billing_address_1:
+            validation:
+                presence:  
+                    message: Address is required 
+        billing_address_2:
+        billing_address_3:
+        billing_city:
+            validation:
+                presence:  
+                    message: City name is required 
+        billing_state:  
+            validation:
+                presence:
+                    message: State is required 
+        billing_postcode:
+            validation:
+                presence:  
+                    message: Postcode is required 
+        billing_country:
+            validation:
+                presence:  
+                    message: Country is required 
+        
+        ## Payment Gateway
+        gateway_id: 
+            property_options:
+                virtual: true
+        stripe_credit_card:
+            property_options:
+                virtual: true
+        statement_descriptor:
+            property_options:
+                virtual: true
+
+        ## Transaction Details
+        order_reference:
+            validation:
+                presence: true
+        order_contact_uuid:
+            validation:
+                presence: true
+        order_contact_first_name:
+        order_contact_last_name:                
+        order_status: ## String = "Paid" ??
+        order_payment_status: ## String = "Paid" ??
+        order_shipping_status: ## String = "Processing" 
+        date_time: ## String! = date-time order success
+        notes: ## stripe descrition
+        currency: ## String! = AUD (System settings)
+        subtotal_amount: ## Float!
+        total_tax_amount: ## Float!
+        total_shipping_amount: ## Float!
+        total_amount: ## Float!
+        uuid:
+            validation:
+                presence:  
+                    message: UUID is required 
+
+        #Custom Fields
+        seller_id:
+            property_options:
+                virtual: true
+
+        seller_email:
+            property_options:
+                virtual: true
+        seller_name:
+            property_options:
+                virtual: true                
+        seller_shipping_country:
+            property_options:
+                virtual: true 
+        seller_shipping_locations:
+            property_options:
+                virtual: true                
+default_payload: >
+    {%- comment -%} Get currency from eCommerce settings {%- endcomment -%}
+    {%- graphql settings = "modules/ecommerce/system/get_settings" | dig: 'items' | dig: 'results' | first -%}
+
+    {% comment %} Get current_user uuid {% endcomment %}
+    {% graphql current_user_uuid = 'modules/ecommerce/account/get_current_user' | dig: 'current_user','uuid' %}
+    
+    {%- comment -%} Compute order values {%- endcomment -%}
+    {% include 'modules/ecommerce/checkout/compute_order_summary' %}
+
+    {
+        "properties_attributes": {
+            "shipping_company_name": "{{context.session.shipping_company_name | default: ''}}",
+            "shipping_contact_first_name": "{{context.session.shipping_contact_first_name | default: ''}}",
+            "shipping_contact_last_name": "{{context.session.shipping_contact_last_name | default: ''}}",
+            "shipping_contact_email": "{{context.session.shipping_contact_email | default: ''}}",
+            "shipping_contact_phone_number": "{{context.session.shipping_contact_phone_number}}",
+            "shipping_contact_phone_country_code": "{{context.session.shipping_contact_phone_country_code}}",
+            "shipping_address_id": "{{context.session.shipping_address_id | default: ''}}",
+            "shipping_address_1": "{{context.session.shipping_address_1 | default: ''}}",
+            "shipping_address_2": "{{context.session.shipping_address_2 | default: ''}}",
+            "shipping_address_3": "{{context.session.shipping_address_3 | default: ''}}",
+            "shipping_city": "{{context.session.shipping_city | default: ''}}",
+            "shipping_state": "{{context.session.shipping_state | default: ''}}",
+            "shipping_postcode": "{{context.session.shipping_postcode | default: ''}}",
+            "shipping_country": "{{context.session.shipping_country | default: ''}}",
+            "shipping_instructions": "{{context.session.shipping_instructions | default: ''}}",
+            "freight_method": "{{context.session.freight_method | default: ''}}",
+            "preferred_pick_up_date": "{{context.session.preferred_pick_up_date | default: ''}}",
+            "preferred_delivery_date": "{{context.session.preferred_delivery_date | default: ''}}",
+            "billing_company_name": "{{context.session.billing_company_name | default: ''}}",
+            "billing_contact_first_name": "{{context.session.billing_contact_first_name | default: ''}}",
+            "billing_contact_last_name": "{{context.session.billing_contact_last_name | default: ''}}",
+            "billing_contact_email": "{{context.session.billing_contact_email | default: ''}}",
+            "billing_contact_phone_number": "{{context.session.billing_contact_phone_number}}",
+            "billing_contact_phone_country_code": "{{context.session.billing_contact_phone_country_code}}",
+            "billing_address_id": "{{context.session.billing_address_id | default: ''}}",
+            "billing_address_1": "{{context.session.billing_address_1 | default: ''}}",
+            "billing_address_2": "{{context.session.billing_address_2 | default: ''}}",
+            "billing_address_3": "{{context.session.billing_address_3 | default: ''}}",
+            "billing_city": "{{context.session.billing_city | default: ''}}",
+            "billing_state": "{{context.session.billing_state | default: ''}}",
+            "billing_postcode": "{{context.session.billing_postcode | default: ''}}",
+            "billing_country": "{{context.session.billing_country | default: ''}}",
+            "order_reference": "{{ '' | uuid | split: '-' | first }}", 
+            "order_contact_uuid": "{{ current_user_uuid }}", 
+            "order_contact_first_name": "{{ context.current_user.first_name }}", 
+            "order_contact_last_name": "{{ context.current_user.last_name }}", 
+            "order_status": "Open", 
+            "order_payment_status": "Open",
+            "order_shipping_status": "", 
+            "date_time": "", 
+            "notes": "", 
+            "currency": "{{ settings.currency | default: 'AUD' }}", 
+            "subtotal_amount": "{{ context.exports.order.sub_total }}",
+            "total_tax_amount": "{{ context.exports.order.tax_amount }}",
+            "total_shipping_amount": "{{ context.exports.order.total_shipping_amount | plus: form.properties.additional_shipping_cost }}",
+            "total_amount": "{{ context.exports.order.total_amount }}",
+            "uuid": "{{ '' | uuid }}",
+            "seller_id": "{{ context.session.cart_seller_id }}",
+            "seller_email": "{{ context.session.seller_email }}",
+            "seller_name": "{{ context.session.seller_name }}"            
+        }
+    }
+callback_actions: >
+    {%- comment -%}
+    These actions are made intentionally on `callback_actions` and not on `async_callback_action` bec.
+    confirmation page needs to be able to see the 'payment details' & cart summary. 
+     
+    START: Checkout callback process
+        - API call to Stripe (Payment)
+        - Create / Update models
+        - Trigger Email & API callback via GraphQL    
+    {%- endcomment -%}
+    
+    {%- assign user_id = context.current_user.id | default: "" -%}
+    {% export user_id %}
+    {%- include 'modules/ecommerce/checkout/callback_init', 
+        form: form
+        context: context -%}
+    {%- comment -%}END: Checkout callback process{%- endcomment -%}
+
+    {%- session latest_step = 5 -%}
+
+async_callback_actions:
+  delay: 0
+  priority: low
+  max_attempts: 2
+  content: |-
+
+    {% assign props = form.properties %}
+
+    {% comment %} Get current_user uuid {% endcomment %}
+    {% graphql current_user_uuid = 'modules/ecommerce/account/get_current_user' | dig: 'current_user','uuid' %}
+
+    {% comment %} Pipeline stage: no_quote_requested or quote_requested {% endcomment %}
+    {%  liquid
+        assign stage_uuid = context.constants.pipeline_stage_no_quote_requested
+        if props.freight_method == 'Delivery'
+            assign stage_uuid = context.constants.pipeline_stage_quote_requested
+        endif
+    %}
+
+    {% comment %} Create Opportunity {% endcomment %}
+    {% parse_json data %}
+    {
+        "uuid": "{{ '' | uuid }}",
+        "name": "Order #{{ form.id }}",
+        "owner_uuid": "{{ current_user_uuid }}",
+        "target_conversion_date": "{{ props.preferred_delivery_date | date: '%Y-%m-%d' }}",
+        "pipeline_uuid": "{{ context.constants.pipeline_quote }}",
+        "stage_uuid": "{{ stage_uuid }}",
+        "value": "{{ props.total_amount }}",
+        "status": "open",
+        "database_item_id": "{{ form.id }}"
+    }
+    {% endparse_json %}
+    {% graphql create_opportunity = 'modules/ecommerce/pipeline/create_opportunity', args: data %} 
+
+
+    {% comment %} Send Quote Request to all Freight Provider within the area {% endcomment %}
+    {% if props.freight_method == 'Delivery' %}
+        
+        {% assign seller_shipping_locations = props.seller_shipping_locations | split: ',' %}
+        {% graphql freight_providers = 'modules/ecommerce/user/get_freight_providers' | dig: 'items','results' %}
+
+        {% comment %} Assign opportunity on freight providers within the area {% endcomment %}
+        {% assign data = '' | split: ','  %}
+        {%- for item in freight_providers -%} 
+            {%- liquid
+                #check seller & freight provider shipping locations 
+                assign seller_freight_area = item.freight_provider.shipping_locations | array_intersect: seller_shipping_locations
+
+                #check buyer & freight provider shipping locations 
+                assign buyer_freight_area = item.freight_provider.shipping_locations | array_any: props.shipping_state
+
+                if item.freight_provider.shipping_locations.size == 0
+                    continue
+
+                #seller & freight
+                elsif item.crm_contact[0].company.address.country != props.seller_shipping_country
+                    continue 
+                elsif seller_freight_area.size == 0
+                    continue
+
+                #buyer & freight
+                elsif item.crm_contact[0].company.address.country != props.shipping_country
+                    continue
+                elsif buyer_freight_area == false
+                    continue
+                endif
+            -%} 
+            {% parse_json temp_data %}
+            {
+                "table": "modules/insites_pipeline/opportunity_related_contact", 
+                "properties": { 
+                    "uuid": "{{ '' | uuid }}", 
+                    "contact_uuid": "{{ item.uuid }}",  
+                    "relationship": "Freight provider candidate", 
+                    "opportunity_uuid": "{{ create_opportunity.items.properties.uuid }}" 
+                    }
+            }
+            {% endparse_json %}
+            {% assign data = data | array_add: temp_data  %}
+        {% endfor %}
+        {% graphql opportunity_related_contact = 'modules/ecommerce/system/create_multiple_records_at_once', data: data %} 
+    {% endif %}
+---
+
+{% graphql shipping_locations = 'modules/ecommerce/store/get_shipping_locations_by_cart', 
+        administrator_uuid: context.session.user_uuid 
+        | dig: 'items','results' | first %}
+
+{% assign seller_shipping_country = shipping_locations.product.seller.related_user.crm_contact[0].address.country %}
+{% assign seller_shipping_locations = shipping_locations.product.seller.related_user.seller.shipping_locations | join: ',' %}
+
+{% form 
+    html-id: "checkout-form"
+    html-onsubmit:"return Checkout.events.paymentFormSubmit(event);"
+    html-novalidate: true %}
+
+    <input type="hidden" id="hidden-acount-email" value="{{context.session.billing_contact_email | default: ''}}" >
+    <input type="hidden" name="{{ form.fields.properties.seller_shipping_country.name }}" value="{{seller_shipping_country}}" >
+    <input type="hidden" name="{{ form.fields.properties.seller_shipping_locations.name }}" value="{{seller_shipping_locations}}" >
+   
+
+    <!-- Payment Details -->
+
+    <div id="payment-details" class="aa">
+        <h2 class="heading-1">Payment Method</h2>
+        <div class="spacer xxx-large"></div>
+
+        <div class="grid-x grid-padding-x">
+            <div class="large-6 medium-6 small-12 cell">
+                <h2 class="heading-2">Credit Card</h2>
+            </div>
+            <div class="large-6 medium-6 small-12 cell text-right">
+                <div class="spacer x-small"></div>
+                <ins-button type="button" id="add-card-btn" size="small" icon="icon-plus" label="Add Card">
+                </ins-button>
+            </div>
+        </div>
+
+        <div class="validate-credit-card">
+            {% comment %} Credit Cards {% endcomment %}
+            <div id="credit-card-fields" required class="card-fields">
+                <div class="spacer x-large"></div>
+                <p class="error-message hide">Credit Card is required.</p>
+                <div id="card-options-list" class="grid-x grid-padding-x">
+                    {%- if context.current_user.id -%}
+                    {%- graphql cards = "modules/ecommerce/credit_cards/get_credit_card", 
+                        user_id: context.current_user.id
+                        size: 50 | dig: 'items' -%}
+                    {%- for card in cards.results -%}
+                        {%  liquid
+                            assign is_card_active = ''
+                            if forloop.first
+                                assign selected_card = card.payment_method_token
+                                assign is_card_active = 'active'
+                            endif
+                        %}
+                        <div class="large-6 medium-6 small-12 cell card-options">
+                            <ins-credit-card {{ is_card_active }} data-id="{{ card.id }}" brand="{{ card.card_brand }}"
+                                last-four="{{ card.card_last_four_digits }}" expiry-month="{{ card.card_expiry_month }}"
+                                expiry-year="{{ card.card_expiry_year }}" full-year
+                                value="{{ card.payment_method_token }}">
+                            </ins-credit-card>                        
+                            <div class="spacer small"></div>
+                        </div>
+                    {%- endfor -%}
+                    {%- endif -%}
+                </div>
+                <ins-input required validate
+                    style="height:0px; display: block; overflow: hidden;"
+                    field="hidden"
+                    id="stripe-card"
+                    name="{{ form.fields.properties.stripe_credit_card.name }}"
+                    value="{{ selected_card }}"></ins-input>
+            </div>
+
+            <ins-card steady id="no-card" class="empty-state text-center {% if cards.total_entries > 0 %}hide{% endif %}">
+                No Cards Added
+            </ins-card>
+        </div>
+        {% comment %}END: Credit Cards {% endcomment %}
+
+        <div class="spacer xxx-large"></div>
+
+        {%- comment -%}Check if there's items to pay for{%- endcomment -%}
+        {%- include 'modules/ecommerce/checkout/compute_order_summary' -%}
+        <div class="grid-x grid-padding-x">
+            <div class="large-12 medium-12 small-12 cell text-right">
+                <div class="spacer small"></div>                
+
+                {%- include 'modules/marketplace_stripe/get_stripe_settings' -%}
+                {%- assign stripe_account_id = context.exports.stripe.data.account_id -%}
+                
+                {%- if stripe_account_id == '' or stripe_account_id == null -%}
+                    <ins-button disabled color="negative"
+                        label="Payment settings not configured, please contact website administrator.">
+                    </ins-button>
+                {%- else -%}
+                    {%- if context.exports.order.total_amount > 0 -%}
+                        <ins-button solid type="submit" id="checkout-submit-btn" class="w-100" label="Purchase Order">
+                        </ins-button>
+                    {%- else -%}
+                        <ins-button disabled color="negative" label="No items to pay">
+                        </ins-button>
+                    {%- endif -%}
+                {%- endif -%}
+            </div>
+        </div>
+    </div>
+    <!-- END Payment Details -->
+    
+{% endform %}
+
+<!-- Stripe Element -->
+{%- include 'modules/ecommerce/forms/stripe_element',
+    cc_field_id: "checkout-credit-card"
+    email_field_id: "hidden-acount-email" -%}
+<!-- END Stripe Element -->
