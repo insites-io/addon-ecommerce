@@ -1,0 +1,7 @@
+mutation delete_payment_method($id: ID!) {
+  record_delete(id: $id, table: "modules/insites_ecommerce/payment_method") {
+    id
+    deleted_at
+  }
+}
+
