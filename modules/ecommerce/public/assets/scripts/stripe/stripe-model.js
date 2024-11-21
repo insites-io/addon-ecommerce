@@ -19,23 +19,14 @@ let StripeModel = (() => {
                     id: id,
                     properties: { is_enabled: false }
                 }
-                let response = await StripeServices.updateCreditCard({ payload });
+                let response = await StripeServices.deleteCreditCard({ payload });
                 if (response.state) {
                     return response;
                 } else {
                     App.events.notyf('error', "Failed to delete creditcard");
                     return response;
                 }
-            },
-            async updateCreditCard(payload) {
-                let response = await StripeServices.updateCreditCard({ payload });
-                if (response.state) {
-                    return response;
-                } else {
-                    App.events.notyf('error', "Failed to update creditcard");
-                    return response;
-                }
-            },
+            }
         },
         customer: {
 

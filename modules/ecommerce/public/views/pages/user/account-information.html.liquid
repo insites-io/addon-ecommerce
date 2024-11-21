@@ -91,13 +91,11 @@ authorization_policies:
         {%- if verified -%}
         <div id="card-options-list" card-grid="large-4 medium-6 small-12" 
           class="grid-x grid-padding-x">
-          {%- if context.current_user.id -%}
-            {%- graphql cards = "modules/ecommerce/credit_card/get_credit_card", 
-              user_id: context.current_user.id
+          {%- if user.uuid -%}
+            {%- graphql cards = "modules/ecommerce/payment_method/get_payment_method", 
+              contact_uuid: user.uuid
               size: 50 | dig: 'items' -%}
-            {%- if cards.total_entries > 0 -%}
-              {%- assign hide = "hide" -%}
-            {%- endif -%}
+            
             {%- for card in cards.results -%}
                 <div class="large-4 medium-6 small-12 cell card-options">
                     <ins-credit-card 
@@ -114,7 +112,7 @@ authorization_policies:
           {%- endif -%}
         </div>
         <div class="grid-x grid-padding-x">
-          <div id="no-card" class="small-12 cell text-center {{hide}}">
+          <div id="no-card" class="small-12 cell text-center {% if cards.total_entries > 0 %} hide {% endif %}">
             <ins-card class="empty-state full" steady>
               <p>No Credit card</p>
             </ins-card>

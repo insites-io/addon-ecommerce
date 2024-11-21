@@ -60,16 +60,7 @@ fields:
         additional_shipping_cost:
             property_options:
                 virtual: true
-        shipping_instructions:
-        freight_method:
-            validation:
-                presence: true        
-        preferred_pick_up_date:
-            property_options:
-                virtual: true
-        preferred_delivery_date:
-            property_options:
-                virtual: true
+        shipping_instructions:      
         
         ## Payment Details
         billing_company_name:
@@ -147,25 +138,7 @@ fields:
         uuid:
             validation:
                 presence:  
-                    message: UUID is required 
-
-        #Custom Fields
-        seller_id:
-            property_options:
-                virtual: true
-
-        seller_email:
-            property_options:
-                virtual: true
-        seller_name:
-            property_options:
-                virtual: true                
-        seller_shipping_country:
-            property_options:
-                virtual: true 
-        seller_shipping_locations:
-            property_options:
-                virtual: true                
+                    message: UUID is required                           
 default_payload: >
     {%- comment -%} Get currency from eCommerce settings {%- endcomment -%}
     {%- graphql settings = "modules/ecommerce/system/get_settings" | dig: 'items' | dig: 'results' | first -%}
@@ -193,9 +166,6 @@ default_payload: >
             "shipping_postcode": "{{context.session.shipping_postcode | default: ''}}",
             "shipping_country": "{{context.session.shipping_country | default: ''}}",
             "shipping_instructions": "{{context.session.shipping_instructions | default: ''}}",
-            "freight_method": "{{context.session.freight_method | default: ''}}",
-            "preferred_pick_up_date": "{{context.session.preferred_pick_up_date | default: ''}}",
-            "preferred_delivery_date": "{{context.session.preferred_delivery_date | default: ''}}",
             "billing_company_name": "{{context.session.billing_company_name | default: ''}}",
             "billing_contact_first_name": "{{context.session.billing_contact_first_name | default: ''}}",
             "billing_contact_last_name": "{{context.session.billing_contact_last_name | default: ''}}",
@@ -220,14 +190,11 @@ default_payload: >
             "date_time": "", 
             "notes": "", 
             "currency": "{{ settings.currency | default: 'AUD' }}", 
-            "subtotal_amount": "{{ context.exports.order.sub_total }}",
-            "total_tax_amount": "{{ context.exports.order.tax_amount }}",
+            "subtotal_amount": "{{ 100 }}",
+            "total_tax_amount": "{{ 0 }}",
             "total_shipping_amount": "{{ context.exports.order.total_shipping_amount | plus: form.properties.additional_shipping_cost }}",
-            "total_amount": "{{ context.exports.order.total_amount }}",
-            "uuid": "{{ '' | uuid }}",
-            "seller_id": "{{ context.session.cart_seller_id }}",
-            "seller_email": "{{ context.session.seller_email }}",
-            "seller_name": "{{ context.session.seller_name }}"            
+            "total_amount": "{{ 100 }}",
+            "uuid": "{{ '' | uuid }}"                       
         }
     }
 callback_actions: >
@@ -249,107 +216,27 @@ callback_actions: >
     {%- comment -%}END: Checkout callback process{%- endcomment -%}
 
     {%- session latest_step = 5 -%}
-
-async_callback_actions:
-  delay: 0
-  priority: low
-  max_attempts: 2
-  content: |-
-
-    {% assign props = form.properties %}
-
-    {% comment %} Get current_user uuid {% endcomment %}
-    {% graphql current_user_uuid = 'modules/ecommerce/account/get_current_user' | dig: 'current_user','uuid' %}
-
-    {% comment %} Pipeline stage: no_quote_requested or quote_requested {% endcomment %}
-    {%  liquid
-        assign stage_uuid = context.constants.pipeline_stage_no_quote_requested
-        if props.freight_method == 'Delivery'
-            assign stage_uuid = context.constants.pipeline_stage_quote_requested
-        endif
-    %}
-
-    {% comment %} Create Opportunity {% endcomment %}
-    {% parse_json data %}
-    {
-        "uuid": "{{ '' | uuid }}",
-        "name": "Order #{{ form.id }}",
-        "owner_uuid": "{{ current_user_uuid }}",
-        "target_conversion_date": "{{ props.preferred_delivery_date | date: '%Y-%m-%d' }}",
-        "pipeline_uuid": "{{ context.constants.pipeline_quote }}",
-        "stage_uuid": "{{ stage_uuid }}",
-        "value": "{{ props.total_amount }}",
-        "status": "open",
-        "database_item_id": "{{ form.id }}"
-    }
-    {% endparse_json %}
-    {% graphql create_opportunity = 'modules/ecommerce/pipeline/create_opportunity', args: data %} 
-
-
-    {% comment %} Send Quote Request to all Freight Provider within the area {% endcomment %}
-    {% if props.freight_method == 'Delivery' %}
-        
-        {% assign seller_shipping_locations = props.seller_shipping_locations | split: ',' %}
-        {% graphql freight_providers = 'modules/ecommerce/user/get_freight_providers' | dig: 'items','results' %}
-
-        {% comment %} Assign opportunity on freight providers within the area {% endcomment %}
-        {% assign data = '' | split: ','  %}
-        {%- for item in freight_providers -%} 
-            {%- liquid
-                #check seller & freight provider shipping locations 
-                assign seller_freight_area = item.freight_provider.shipping_locations | array_intersect: seller_shipping_locations
-
-                #check buyer & freight provider shipping locations 
-                assign buyer_freight_area = item.freight_provider.shipping_locations | array_any: props.shipping_state
-
-                if item.freight_provider.shipping_locations.size == 0
-                    continue
-
-                #seller & freight
-                elsif item.crm_contact[0].company.address.country != props.seller_shipping_country
-                    continue 
-                elsif seller_freight_area.size == 0
-                    continue
-
-                #buyer & freight
-                elsif item.crm_contact[0].company.address.country != props.shipping_country
-                    continue
-                elsif buyer_freight_area == false
-                    continue
-                endif
-            -%} 
-            {% parse_json temp_data %}
-            {
-                "table": "modules/insites_pipeline/opportunity_related_contact", 
-                "properties": { 
-                    "uuid": "{{ '' | uuid }}", 
-                    "contact_uuid": "{{ item.uuid }}",  
-                    "relationship": "Freight provider candidate", 
-                    "opportunity_uuid": "{{ create_opportunity.items.properties.uuid }}" 
-                    }
-            }
-            {% endparse_json %}
-            {% assign data = data | array_add: temp_data  %}
-        {% endfor %}
-        {% graphql opportunity_related_contact = 'modules/ecommerce/system/create_multiple_records_at_once', data: data %} 
-    {% endif %}
 ---
 
-{% graphql shipping_locations = 'modules/ecommerce/store/get_shipping_locations_by_cart', 
-        administrator_uuid: context.session.user_uuid 
-        | dig: 'items','results' | first %}
+{% comment %} Get the user uuid {% endcomment %}
+{%  liquid
+    if context.session.user_uuid and context.session.user_uuid != ''
+        assign user_uuid = context.session.user_uuid
+    else
+        graphql user = 'modules/client/account/get_current_user'
+        session user_uuid = user.current_user.external_id
+        assign user_uuid = user.current_user.external_id
+    endif
+%}
 
-{% assign seller_shipping_country = shipping_locations.product.seller.related_user.crm_contact[0].address.country %}
-{% assign seller_shipping_locations = shipping_locations.product.seller.related_user.seller.shipping_locations | join: ',' %}
+
+{% function stripe_settings = "modules/client/stripe/get_stripe_settings" %}
+
 
 {% form 
     html-id: "checkout-form"
     html-onsubmit:"return Checkout.events.paymentFormSubmit(event);"
     html-novalidate: true %}
-
-    <input type="hidden" id="hidden-acount-email" value="{{context.session.billing_contact_email | default: ''}}" >
-    <input type="hidden" name="{{ form.fields.properties.seller_shipping_country.name }}" value="{{seller_shipping_country}}" >
-    <input type="hidden" name="{{ form.fields.properties.seller_shipping_locations.name }}" value="{{seller_shipping_locations}}" >
    
 
     <!-- Payment Details -->
@@ -363,9 +250,11 @@ async_callback_actions:
                 <h2 class="heading-2">Credit Card</h2>
             </div>
             <div class="large-6 medium-6 small-12 cell text-right">
+                {% if context.current_user %}
                 <div class="spacer x-small"></div>
                 <ins-button type="button" id="add-card-btn" size="small" icon="icon-plus" label="Add Card">
                 </ins-button>
+                {% endif %}
             </div>
         </div>
 
@@ -375,9 +264,9 @@ async_callback_actions:
                 <div class="spacer x-large"></div>
                 <p class="error-message hide">Credit Card is required.</p>
                 <div id="card-options-list" class="grid-x grid-padding-x">
-                    {%- if context.current_user.id -%}
-                    {%- graphql cards = "modules/ecommerce/credit_cards/get_credit_card", 
-                        user_id: context.current_user.id
+                    {%- if user_uuid -%}
+                    {%- graphql cards = "modules/ecommerce/payment_method/get_payment_method", 
+                        contact_uuid: user_uuid
                         size: 50 | dig: 'items' -%}
                     {%- for card in cards.results -%}
                         {%  liquid
@@ -391,7 +280,8 @@ async_callback_actions:
                             <ins-credit-card {{ is_card_active }} data-id="{{ card.id }}" brand="{{ card.card_brand }}"
                                 last-four="{{ card.card_last_four_digits }}" expiry-month="{{ card.card_expiry_month }}"
                                 expiry-year="{{ card.card_expiry_year }}" full-year
-                                value="{{ card.payment_method_token }}">
+                                value="{{ card.payment_method_token }}"
+                                compact>
                             </ins-credit-card>                        
                             <div class="spacer small"></div>
                         </div>
@@ -406,31 +296,47 @@ async_callback_actions:
                     value="{{ selected_card }}"></ins-input>
             </div>
 
-            <ins-card steady id="no-card" class="empty-state text-center {% if cards.total_entries > 0 %}hide{% endif %}">
-                No Cards Added
-            </ins-card>
+            {%- if context.current_user -%}
+                <ins-card steady id="no-card" class="empty-state text-center {% if cards.total_entries > 0 %}hide{% endif %}">
+                    No Cards Added
+                </ins-card>
+            {%- else -%}
+                <div id="guest-add-card-form">
+                    {% include 'modules/ecommerce/forms/add_card' %}
+                </div>
+            {%- endif -%}
+
         </div>
         {% comment %}END: Credit Cards {% endcomment %}
 
-        <div class="spacer xxx-large"></div>
+        <div class="spacer xxx-large test"></div>
 
         {%- comment -%}Check if there's items to pay for{%- endcomment -%}
         {%- include 'modules/ecommerce/checkout/compute_order_summary' -%}
         <div class="grid-x grid-padding-x">
-            <div class="large-12 medium-12 small-12 cell text-right">
+            <div class="large-12 medium-12 small-12 cell">
                 <div class="spacer small"></div>                
-
-                {%- include 'modules/marketplace_stripe/get_stripe_settings' -%}
-                {%- assign stripe_account_id = context.exports.stripe.data.account_id -%}
+                            
+                {%- assign stripe_account_id = stripe_settings.account_id -%}
                 
                 {%- if stripe_account_id == '' or stripe_account_id == null -%}
                     <ins-button disabled color="negative"
                         label="Payment settings not configured, please contact website administrator.">
                     </ins-button>
                 {%- else -%}
-                    {%- if context.exports.order.total_amount > 0 -%}
-                        <ins-button solid type="submit" id="checkout-submit-btn" class="w-100" label="Purchase Order">
-                        </ins-button>
+                    {% comment %} context.exports.order.total_amount > 0 {% endcomment %}
+                    {%- if true -%}
+                        <div id="submit-buttons" class="grid-x grid-padding-x {% unless context.current_user %} hide {% endunless %}">  
+                            <div class="large-6 medium-6 small-12 cell">
+                                <a href="/checkout/billing">
+                                    <ins-button solid type="button" label="Back" outlined></ins-button>
+                                </a>
+                            </div>
+                            <div class="large-6 medium-6 small-12 cell text-right">
+                                <ins-button solid type="submit" id="checkout-submit-btn" class="w-100" label="Purchase Order"></ins-button>
+                            </div>
+                        </div>
+                        
                     {%- else -%}
                         <ins-button disabled color="negative" label="No items to pay">
                         </ins-button>
@@ -444,7 +350,12 @@ async_callback_actions:
 {% endform %}
 
 <!-- Stripe Element -->
+<script>
+    let guestAddCardForm = document.getElementById("guest-add-card-form");
+    let submitButtons = document.getElementById("submit-buttons");    
+</script>
 {%- include 'modules/ecommerce/forms/stripe_element',
-    cc_field_id: "checkout-credit-card"
-    email_field_id: "hidden-acount-email" -%}
+    cc_field_id: "checkout-credit-card",
+    email: context.session.billing_contact_email, 
+    public_key: stripe_settings.pk_key -%}
 <!-- END Stripe Element -->

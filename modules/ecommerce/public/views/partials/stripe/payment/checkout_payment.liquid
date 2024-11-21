@@ -66,7 +66,7 @@
         {%- if context.current_user.id and account_verified -%}
         {% comment %} Optional: Update Credit Card, if user is logged in & verified, set user_id {% endcomment %}
         {% comment %} 
-            {%- graphql current_card = "modules/ecommerce/credit_card/get_credit_card", 
+            {%- graphql current_card = "modules/ecommerce/payment_method/get_payment_method", 
                 gateway_id: charge_to_this_card,
                 size: 1 | dig: 'items' | dig: 'results' | first -%}
             {%- graphql update_credit_card = 'modules/ecommerce/credit_card/update_credit_card',

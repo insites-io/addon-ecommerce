@@ -19,9 +19,15 @@ let sameShippingDetailsBtn = document.getElementById('same-shipping');
 let shippingSubmitBtn = document.getElementById("shipping-submit-button");
 
 // Billing Address Elements------------------------------------------
+const billingPhone = {
+    inputTelAccount: document.getElementById('billing-phone'),
+    billingPhoneNumber: document.getElementById('hidden-billing_contact_phone_number'),
+    billingCountryCode: document.getElementById('hidden-billing_contact_phone_country_code')
+}
 let sameAddressBtn = document.getElementById('same-billing');
 let billingSubmitBtn = document.getElementById("billing-submit-button");
 let billingSameWithShipping = document.getElementById("billing-same-with-shipping"); 
+let billingContactFields = document.getElementById("billing-contact-fields");
 let billingAddressFields = document.getElementById("billing-address-fields");
 
 // Payment Information Elements------------------------------------------
@@ -42,11 +48,11 @@ let Checkout = (function () {
                     if(idValue) {
                         if(checkState){
                             if(idValue == "shipping-phone"){
-                                let countryCodeEl = document.getElementById('hidden-country-code');
-                                let mobileEl = document.getElementById('hidden-mobile-number');
-                                if(mobileEl && countryCodeEl){
-                                    document.getElementById(idValue).setAttribute('phonenum-value', mobileEl.value);
-                                    document.getElementById(idValue).setCountryCode(countryCodeEl.value);
+                                let countryCode = document.getElementById('hidden-shipping-phone-country-code');
+                                let phoneNumber = document.getElementById('hidden-shipping-phone');
+                                if(phoneNumber && countryCode){
+                                    document.getElementById(idValue).setAttribute('phonenum-value', phoneNumber.value);
+                                    document.getElementById(idValue).setCountryCode(countryCode.value);
                                 }
                             } else {
                                 let hiddenFieldId = idValue.replace(/shipping-/g, "hidden-");
@@ -62,6 +68,27 @@ let Checkout = (function () {
                         }
                     }
                 });
+            },
+            async updateBillingContact(isSameWithShipping){
+                if(isSameWithShipping){
+                    document.getElementById("hidden-billing_company_name").value = shipping_company_name;
+                    document.getElementById("hidden-billing_contact_first_name").value = shipping_contact_first_name;
+                    document.getElementById("hidden-billing_contact_last_name").value = shipping_contact_last_name;
+                    document.getElementById("hidden-billing_contact_email").value = shipping_contact_email;
+                    document.getElementById("hidden-billing_contact_phone_number").value = shipping_contact_phone_number;
+                    document.getElementById("hidden-billing_contact_phone_country_code").value = shipping_contact_phone_country_code;
+                } else {
+                    document.getElementById("hidden-billing_company_name").value = document.getElementById("billing_company_name").value;
+                    document.getElementById("hidden-billing_contact_first_name").value = document.getElementById("billing_contact_first_name").value;
+                    document.getElementById("hidden-billing_contact_last_name").value = document.getElementById("billing_contact_last_name").value;
+                    document.getElementById("hidden-billing_contact_email").value = document.getElementById("billing_contact_email").value;
+
+                    let phone = await billingPhone.inputTelAccount.getValues();
+                    if(phone){
+                        billingPhone.billingPhoneNumber.value = phone.phone_number;
+                        billingPhone.billingCountryCode.value = phone.country_code;
+                    }                    
+                }
             },
             async checkSignUpUserEmail(field){ 
                 // Attached to the eventlistener
@@ -333,8 +360,16 @@ let Checkout = (function () {
             async billingSubmit(event){
                 event.preventDefault();
                 billingSubmitBtn.loading = true;
-                let form = event.srcElement;
+
+                Checkout.methods.updateBillingContact(false);
                 
+                let phone = await billingPhone.inputTelAccount.getValues();
+                if(phone){
+                    billingPhone.billingPhoneNumber.value = phone.phone_number;
+                    billingPhone.billingCountryCode.value = phone.country_code;
+                } 
+
+                let form = event.srcElement;                
                 let isValid = await App.validation.validateForm(form);
 
                 if(isValid) {
@@ -412,12 +447,16 @@ let Checkout = (function () {
                         let addressCards = document.getElementById("address-cards");
                         if (isChecked){
                             if(addressCards) addressCards.classList.add('hide');
-                            if(addAddressBtn[0]) addAddressBtn[0].classList.add('hide');
-                            if(billingAddressFields) billingAddressFields.classList.add('hide');                                                  
+                            if(addAddressBtn[0]) addAddressBtn[0].classList.add('hide');                            
+                            if(billingContactFields) billingContactFields.classList.add('hide');
+                            if(billingAddressFields) billingAddressFields.classList.add('hide');
+                            Checkout.methods.updateBillingContact(true);
                         }else{
                             if(addressCards) addressCards.classList.remove('hide');                            
                             if (addAddressBtn[0]) addAddressBtn[0].classList.remove('hide');
+                            if(billingContactFields) billingContactFields.classList.remove('hide');
                             if(billingAddressFields) billingAddressFields.classList.add('hide');
+                            Checkout.methods.updateBillingContact(false);
                         }
                     });
                 }

@@ -38,8 +38,8 @@ callback_actions: |-
     user_id: form.id,
     company_name: form.company_name -%}
   {%- endif -%}
-
-  {%- session account_company_name = form.company_name | default: "" -%}
+  
+  {%- session account_company_name = form.company_name | default: "" -%}  
   {%- session account_mobile_number = form.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_number | default: "" -%}
   {%- session account_mobile_country_code = form.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_country_code | default: "" -%}
 

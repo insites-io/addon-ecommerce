@@ -1,3 +1,14 @@
+{% comment %} Get the user uuid {% endcomment %}
+{%  liquid
+    if context.session.user_uuid and context.session.user_uuid != ''
+        assign user_uuid = context.session.user_uuid
+    else
+        graphql user = 'modules/client/account/get_current_user'
+        session user_uuid = user.current_user.external_id
+        assign user_uuid = user.current_user.external_id
+    endif
+%}
+
 <div id="payment-details">
     <div class="grid-x grid-padding-x">
         <div class="large-6 medium-6 small-12 cell">
@@ -26,9 +37,9 @@
                 value="{{ form.fields.properties.stripe_credit_card.value }}">
             </ins-input>
             <div id="card-options-list" card-grid="large-6 medium-6 small-12" class="grid-x grid-padding-x">
-                {%- if context.current_user.id -%}
-                    {%- graphql cards = "modules/ecommerce/credit_card/get_credit_card", 
-                        user_id: context.current_user.id
+                {%- if user_uuid -%}
+                    {%- graphql cards = "modules/ecommerce/payment_method/get_payment_method", 
+                        contact_uuid: user_uuid
                         size: 50 | dig: 'items' -%}
                     {%- if cards.total_entries > 0 -%}
                         {%- assign hide = "hide" -%}

@@ -7,15 +7,16 @@ request_type: POST
 callback: >
   {%- assign response_data = response.body | to_hash -%}
   {% if response_data.error %}
-    {%- log response_data.error, type: 'modules/ecommerce/create_charge' -%}
+    {%- log response_data.error, type: 'API modules/ecommerce/create_charge' -%}
   {% endif %}
-headers: >
+request_headers: >
   {% if data %}
-    {%- include 'modules/insites_ecommerce/shared/api_credentials' -%}
+    {% function stripe_settings = "modules/client/stripe/get_stripe_settings" %}
     {
       "Content-Type": "application/x-www-form-urlencoded",
-      "Authorization": "Bearer {{ context.exports.payments.gateway.secret_key }}",
-      "Idempotency-Key": "{{ data.idempotency_key }}"
+      "Authorization": "Bearer {{ stripe_settings.sk_key }}",
+      "Idempotency-Key": "{{ data.idempotency_key }}",
+      "Stripe-Account": "{{ stripe_settings.account_id }}"
     }
   {% endif %}
 ---

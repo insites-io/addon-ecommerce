@@ -1,0 +1,26 @@
+---
+name: create_customer
+to: https://api.stripe.com/v1/customers
+enabled: true
+trigger_condition: true
+request_type: POST
+callback: >
+  {%- assign response_data = response.body | to_hash -%}
+  {%- log response_data, type: '==TEST customers response_data' -%}
+  {% if response_data.error %}
+    {%- log response_data.error, type: 'post > create_customer' -%}
+  {% endif %}
+request_headers: >
+  {% if data %}
+    {% if data %}
+    {% function stripe_settings = "modules/client/stripe/get_stripe_settings" %}
+    {%- log stripe_settings.sk_key, type: '==TEST stripe_settings.sk_key' -%}
+    {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": "Bearer {{ stripe_settings.sk_key }}"
+    }
+    {% endif %}
+  {% endif %}
+---
+
+{%- if data.email -%}email={{ data.email | url_encode }}&{%- endif -%}{%- if data.description -%}description={{ data.description | url_encode }}&{%- endif -%}name={{ data.name | url_encode }}&{%- if data.source -%}source={{ data.source }}{%- endif -%}{%- for data in data.metadata -%}&metdata[{{ data[0] }}]={{ data[1] | url_encode }}{%- endfor -%}

@@ -51,7 +51,7 @@ let StripeElement = (() => {
                 }
             },
             validateStripeRequirements() {
-                if (emailField && emailField.value) {
+                if (email) {
                     this.setButtonLoading(true);
                     this.tokenizedStripeCC();
                 } else {
@@ -74,7 +74,13 @@ let StripeElement = (() => {
                         App.events.notyf('success', "Credit card has been added");
                         this.makeCardElement(result.token);
                         card.clear();
-                        stripeCardModal.close();
+                        stripeCardModal.close();                        
+                        if(guestAddCardForm){
+                            guestAddCardForm.classList.add("hide");
+                        }
+                        if(submitButtons){
+                            submitButtons.classList.remove("hide");
+                        }
                     }
                 });
             },
@@ -91,7 +97,7 @@ let StripeElement = (() => {
             // AXIOS Create credit card model
             async createStripeCardModel(token) {
                 let data = {
-                    "email": emailField.value,
+                    "email": email,
                     "creditcard": token.id
                 }
                 let response = await StripeModel.creditcard.createCreditCard(data);
@@ -108,9 +114,9 @@ let StripeElement = (() => {
             checkCardCount() {
                 let cards = cardFields.querySelectorAll('.card-options');
                 if (cards.length === 0)
-                    noCardNotif.classList.remove('hide');
+                    if(noCardNotif) noCardNotif.classList.remove('hide');                    
                 else
-                    noCardNotif.classList.add('hide');
+                    if(noCardNotif) noCardNotif.classList.add('hide');
             }
         },
         events: {

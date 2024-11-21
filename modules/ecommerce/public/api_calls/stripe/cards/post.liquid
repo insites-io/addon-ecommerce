@@ -1,0 +1,22 @@
+---
+name: create_card
+to: https://api.stripe.com/v1/customers/{{ data.payment_method_token }}/sources
+enabled: true
+trigger_condition: true
+request_type: POST
+callback: >
+  {%- assign response_data = response.body | to_hash -%}
+  {%- log response_data, type: '==TEST create_card response_data' -%}
+  {% if response_data.error %}
+    {%- log response_data.error, type: 'API modules/ecommerce/create_card' -%}
+  {% endif %}
+request_headers: >
+  {% if data %}
+    {% function stripe_settings = "modules/client/stripe/get_stripe_settings" %}
+    {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": "Bearer {{ stripe_settings.sk_key }}"
+    }
+  {% endif %}
+---
+source={{ data.source }}{% for data in data.metadata %}&metadata[{{ data[0] }}]={{ data[1] | url_encode }}{% endfor %}

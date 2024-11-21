@@ -1,0 +1,43 @@
+<form id="card-form">
+    <script src="https://js.stripe.com/v3/"></script>
+    <div class="form-row">
+        {%- if context.current_user -%}
+        <div class="spacer small"></div>
+        {%- endif -%}
+        <div id="card-element">
+            <!-- A Stripe Element will be inserted here. -->
+        </div>
+        <div id="card-errors" class="error-message">
+        </div>
+    </div>
+    <div class="spacer"></div>
+
+    <div class="grid-x hide-for-small-only">
+        <div class="large-12 medium-12 small-12 cell text-right btn-container">
+            {%- if context.current_user -%}
+            <ins-button type="button" outlined 
+                class="card-form-cancel"
+                label="Cancel">
+            </ins-button>
+            {%- endif -%}
+            <ins-button type="button" solid 
+                class="card-form-submit"
+                label="Add">
+            </ins-button>
+        </div>
+    </div>
+    <div class="grid-x grid-padding-x show-for-small-only">
+        <div class="small-12 cell btn-container">
+            <ins-button type="button" solid 
+                class="card-form-submit"
+                label="Add">
+            </ins-button>
+            {%- if context.current_user -%}
+            <ins-button type="button" outlined 
+                class="card-form-cancel"
+                label="Cancel">
+            </ins-button>
+            {%- endif -%}
+        </div>
+    </div>
+</form>

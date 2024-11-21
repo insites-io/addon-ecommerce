@@ -91,6 +91,8 @@ callback_actions: |-
 
 ---
 
+{% assign prop = form.fields.properties %}
+
 {%- form 
   html-id: "shipping-address-form"
   html-novalidate: true
@@ -98,17 +100,17 @@ callback_actions: |-
   html-onsubmit:"return Checkout.events.shippingSubmit(event);" -%}  
 
   <input type="hidden" id="temp-address-uuid" name="temp_uuid" value="{{ '' | uuid }}">
-  <input type="hidden" id="address-uuid" name="{{ form.fields.properties.uuid.name }}" value="{{ '' | uuid }}">
-  <input type="hidden" id="address-related-uuid" name="{{ form.fields.properties.related_uuid.name }}" value="{{ data.current_user.uuid }}">
+  <input type="hidden" id="address-uuid" name="{{ prop.uuid.name }}" value="{{ '' | uuid }}">
+  <input type="hidden" id="address-related-uuid" name="{{ prop.related_uuid.name }}" value="{{ data.current_user.uuid }}">
 
   <input type="hidden" 
     id="hidden-shipping-phone" 
-    name="{{ form.fields.properties.shipping_contact_phone_number.name }}"
-    value="{{ form.fields.properties.shipping_contact_phone_number.value }}" > 
+    name="{{ prop.shipping_contact_phone_number.name }}"
+    value="{{ prop.shipping_contact_phone_number.value }}" > 
   <input type="hidden" 
     id="hidden-shipping-phone-country-code"
-    name="{{ form.fields.properties.shipping_contact_phone_country_code.name }}"
-    value="{{ form.fields.properties.shipping_contact_phone_country_code.value }}" >
+    name="{{ prop.shipping_contact_phone_country_code.name }}"
+    value="{{ prop.shipping_contact_phone_country_code.value }}" >
 
   
   <input 
@@ -118,15 +120,15 @@ callback_actions: |-
   <input 
     type="hidden" 
     id="hidden-first-name"
-    value="{{ context.current_user.first_name }}" >
+    value="{{ context.session.shipping_contact_first_name }}" >
   <input 
     type="hidden" 
     id="hidden-last-name"
-    value="{{ context.current_user.last_name }}" >
+    value="{{ context.session.shipping_contact_last_name }}" >
   <input 
     type="hidden" 
     id="hidden-email"
-    value="{{ context.current_user.email }}" >
+    value="{{ context.session.shipping_contact_email }}" >
   <input 
     type="hidden" 
     id="hidden-country-code"
@@ -145,7 +147,7 @@ callback_actions: |-
     {% if context.current_user %}
     <ins-checkbox class="inline" 
       {% if context.session.same_shipping == 'true' %} checked {% endif %}
-      name="{{ form.fields.properties.same_shipping.name }}"
+      name="{{ prop.same_shipping.name }}"
       value=true
       id="same-shipping" 
       label="My shipping details are the same as my account details.">
@@ -163,29 +165,29 @@ callback_actions: |-
           field="text" 
           id="shipping-company-name" 
           value="{{ context.session.shipping_company_name}}"
-          name="{{ form.fields.properties.shipping_company_name.name }}">
+          name="{{ prop.shipping_company_name.name }}">
         </ins-input>
       </div>
       <div class="large-6 medium-6 small-12 cell">
         <ins-input required validate shipping-details-field
           label="First Name*" 
           placeholder="First Name"
-          name="{{ form.fields.properties.shipping_contact_first_name.name }}" 
+          name="{{ prop.shipping_contact_first_name.name }}" 
           id="shipping-first-name" 
           value="{{ context.session.shipping_contact_first_name}}"
           {% if form.errors['properties.shipping_contact_first_name'] %} has-error {% endif %}
-          error-message="{{ form.fields.properties.shipping_contact_first_name.validation.rules.presence.message }}">
+          error-message="{{ prop.shipping_contact_first_name.validation.rules.presence.message }}">
         </ins-input>
       </div>
       <div class="large-6 medium-6 small-12 cell">
         <ins-input required validate shipping-details-field
           label="Last Name*" 
           placeholder="Last Name"
-          name="{{ form.fields.properties.shipping_contact_last_name.name }}" 
+          name="{{ prop.shipping_contact_last_name.name }}" 
           id="shipping-last-name" 
           value="{{ context.session.shipping_contact_last_name}}"
           {% if form.errors['properties.shipping_contact_last_name'] %} has-error {% endif %}
-          error-message="{{ form.fields.properties.shipping_contact_last_name.validation.rules.presence.message }}">
+          error-message="{{ prop.shipping_contact_last_name.validation.rules.presence.message }}">
         </ins-input>
       </div>
       <div class="large-6 medium-6 small-12 cell">
@@ -193,11 +195,11 @@ callback_actions: |-
           label="Email Address**" 
           placeholder="Email Address*" 
           field="email"
-          name="{{ form.fields.properties.shipping_contact_email.name }}" 
+          name="{{ prop.shipping_contact_email.name }}" 
           id="shipping-email" 
           value="{{ context.session.shipping_contact_email}}"
           {% if form.errors['properties.shipping_contact_email'] %} has-error {% endif %}
-          error-message="{{ form.fields.properties.shipping_contact_email.validation.rules.presence.message }}"
+          error-message="{{ prop.shipping_contact_email.validation.rules.presence.message }}"
           tooltip="You will receive notifications to this email address if you have selected Yes to receive freight quotes"
           position="right">
         </ins-input>
@@ -271,17 +273,17 @@ callback_actions: |-
             </ins-input>
             <input type="hidden" id="shipping_address_id"
               value="{{ context.session.shipping_address_id | default: '' }}"
-              name="{{ form.fields.properties.shipping_address_id.name }}" >
+              name="{{ prop.shipping_address_id.name }}" >
           </div>
           <div class="large-6 medium-6 small-12 cell">
             <ins-input  required validate 
               label="Address 1*" 
               id="shipping_address_1"
               placeholder="Address 1" 
-              name="{{ form.fields.properties.address_1.name }}"
+              name="{{ prop.address_1.name }}"
               value="{{ context.session.shipping_address_1 | default: '' }}"
               {% if form.errors['properties.address_1'] %} has-error {% endif %}
-              error-message="{{ form.fields.properties.address_1.validation.rules.presence.message }}">
+              error-message="{{ prop.address_1.validation.rules.presence.message }}">
             </ins-input>
           </div>
           <div class="large-6 medium-6 small-12 cell">
@@ -289,10 +291,10 @@ callback_actions: |-
               label="Address 2" 
               id="shipping_address_2" 
               placeholder="Address 2"
-              name="{{ form.fields.properties.address_2.name }}"
+              name="{{ prop.address_2.name }}"
               value="{{ context.session.shipping_address_2 | default: '' }}"
               {% if form.errors['properties.address_2'] %} has-error {% endif %}
-              error-message="{{ form.fields.properties.address_2.validation.rules.presence.message }}">
+              error-message="{{ prop.address_2.validation.rules.presence.message }}">
             </ins-input>
           </div>
           <div class="large-6 medium-6 small-12 cell">
@@ -300,10 +302,10 @@ callback_actions: |-
               label="City*" 
               id="shipping_city" 
               placeholder="City"
-              name="{{ form.fields.properties.city.name }}"
+              name="{{ prop.city.name }}"
               value="{{ context.session.shipping_city | default: '' }}" 
               {% if form.errors['properties.city'] %} has-error {% endif %}
-              error-message="{{ form.fields.properties.city.validation.rules.presence.message }}">
+              error-message="{{ prop.city.validation.rules.presence.message }}">
             </ins-input>
           </div>
           <div class="large-6 medium-6 small-12 cell">
@@ -311,10 +313,10 @@ callback_actions: |-
               label="State*" 
               id="shipping_state" 
               placeholder="State"
-              name="{{ form.fields.properties.state.name }}"
+              name="{{ prop.state.name }}"
               value="{{ context.session.shipping_state | default: '' }}"
               {% if form.errors['properties.state'] %} has-error {% endif %}
-              error-message="{{ form.fields.properties.state.validation.rules.presence.message }}">
+              error-message="{{ prop.state.validation.rules.presence.message }}">
             </ins-input>
           </div>
           <div class="large-6 medium-6 small-12 cell">
@@ -322,10 +324,10 @@ callback_actions: |-
               label="Zip / Postal Code*" 
               id="shipping_postcode"
               placeholder="Zip / Postal Code" 
-              name="{{ form.fields.properties.postcode.name }}"
+              name="{{ prop.postcode.name }}"
               value="{{ context.session.shipping_postcode | default: '' }}"
               {% if form.errors['properties.postcode'] %} has-error {% endif %}
-              error-message="{{ form.fields.properties.postcode.validation.rules.presence.message }}">
+              error-message="{{ prop.postcode.validation.rules.presence.message }}">
             </ins-input>
           </div>
           <div class="large-6 medium-6 small-12 cell">
@@ -333,10 +335,10 @@ callback_actions: |-
               label="Country*" 
               id="shipping_country"
               placeholder="Country" 
-              name="{{ form.fields.properties.country.name }}"
+              name="{{ prop.country.name }}"
               value="{{ context.session.shipping_country | default: '' }}"
               {% if form.errors['properties.country'] %} has-error {% endif %}
-              error-message="{{ form.fields.properties.country.validation.rules.presence.message }}">
+              error-message="{{ prop.country.validation.rules.presence.message }}">
             </ins-input>
           </div>
         </div>
@@ -348,7 +350,7 @@ callback_actions: |-
             <ins-textarea 
               label="Shipping Instructions" 
               placeholder="Shipping Instructions"
-              name="{{ form.fields.properties.shipping_instructions.name }}"
+              name="{{ prop.shipping_instructions.name }}"
               value="{{ context.session.shipping_instructions | default: '' }}">
             </ins-textarea>
           </div>

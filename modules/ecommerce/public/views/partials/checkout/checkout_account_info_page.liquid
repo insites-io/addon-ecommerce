@@ -2,10 +2,10 @@
     Checkout page + form
 {%- endcomment -%}
 
-{%- graphql data = 'modules/ecommerce/account/get_current_user' | dig: 'current_user' -%}
-{% assign company_uuid = data.crm_contact[0].company_uuid %}
+{%- graphql data = 'modules/ecommerce/account/get_current_user' -%}
+{% assign company_uuid = data.current_user.crm_contact[0].company_uuid %}
 
-{% include 'modules/ecommerce/checkout/checkout_redirect_step', data %}
+{% include 'modules/ecommerce/checkout/checkout_redirect_step' %}
 
 <div class="grid-x grid-padding-x">
     <div class="large-offset-2 medium-offset-1 small-offset-0 large-8 medium-10 small-12 cell">

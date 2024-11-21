@@ -1,0 +1,32 @@
+    {% comment %} Create Stripe card {% endcomment %}
+    {% graphql create_stripe_card = 'modules/ecommerce/system/trigger_api_call', name: "modules/ecommerce/create_card",
+                data: data | dig: 'items','response' %}
+
+    {%- assign stripe_response = create_stripe_card.body | parse_json -%}
+    {% parse_json args %}
+    {
+        "uuid": "{{ '' | uuid }}",
+        "currency": "",
+        "bank_name": "",
+        "card_brand": "{{ stripe_response.brand }}",
+        "company_uuid": "",
+        "contact_uuid": "{{ data.contact_uuid }}",
+        "bank_account_bsb": "",
+        "card_expiry_year": "{{ stripe_response.exp_year }}",
+        "bank_account_name": "",
+        "card_expiry_month": " {{ stripe_response.exp_month }}",
+        "payment_method_name": "Stripe",
+        "payment_method_token":  "{{ stripe_response.id }}",
+        "card_last_four_digits": "{{ stripe_response.last4 }}",
+        "bank_account_last_four_digits": ""
+    }
+    {% endparse_json %}
+
+    {% comment %} Create payment_method record {% endcomment %}
+    {% graphql create_card = "modules/ecommerce/payment_method/create_payment_method"
+        args: args | dig: "items" %}
+    
+{%- comment -%}Return Stripe Card ID{%- endcomment -%}
+{%- if return == true -%}
+    {{ stripe_response.id }}
+{%- endif -%}

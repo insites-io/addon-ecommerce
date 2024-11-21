@@ -45,9 +45,9 @@
 
 <script>
     let payByCardField = document.getElementById('{{ cc_field_id }}');
-    let emailField = document.getElementById('{{ email_field_id }}');
+    let email = "{{ email }}";
     // Create a Stripe client.
-    let stripe = Stripe('{{ context.exports.payments.gateway.public_key }}');
+    let stripe = Stripe('{{ public_key }}');
 </script>
 
 {%- if context.environment == "staging" -%}

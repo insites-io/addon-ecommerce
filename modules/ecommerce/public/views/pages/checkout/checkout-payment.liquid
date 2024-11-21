@@ -1,31 +1,15 @@
 ---
 slug: checkout/payment
 layout: modules/ecommerce/checkout-layout
-# enable_profiler: true
-searchable: "true"
-max_deep_level: 3
+searchable: "false"
+max_deep_level: 2
 metadata: {
     "status": "published",
     "page_type": "content", 
     "page_name": "Checkout - Payment Detail",
-    "og:url": "{{ context.exports.global.company_url | strip }}",
-    "og:type": "",
-    "og:image": "",
-    "og:title": "Checkout - Payment Detail",
-    "og:description": "Checkout - Payment Detail",
-    "og:site_name": "{{ context.exports.global.company_name | strip }}",
-    "meta_title": "Checkout - Payment Detail",
-    "page_title": "Checkout - Payment Detail | {{ context.exports.global.company_name | strip }}",
-    "description": "Checkout - Payment Detail",
-    "canonical_url": "",
-    "search_engine_visibility": false,
-    "sitemap_enabled": false,
-    "sitemap_priority": "1.0",## primary order (DESC)
-    "sitemap_order": "0", ## secondary order (ASC)
-    "sitemap_changefreq": "never"
+    "page_title": "Checkout - Payment Detail",
+    "meta_title": "Checkout - Payment Detail"       
 }
-authorization_policies:
-  - modules/ecommerce/customer_logged_in
 ---
 
 {%- graphql data = 'modules/ecommerce/account/get_current_user' -%}
@@ -34,8 +18,7 @@ authorization_policies:
 
 <div class="grid-x grid-padding-x">
     <div class="large-offset-2 medium-offset-1 small-offset-0 large-8 medium-10 small-12 cell">
-        {% include 'modules/ecommerce/layout/checkout_steps', 
-            clickable: true %}
+        {% include 'modules/ecommerce/layout/checkout_steps', clickable: true, data %}
     </div>
 </div>
 
