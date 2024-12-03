@@ -1,0 +1,33 @@
+{% comment %} 
+    Parameters from parent:
+     - discount_uuid
+{% endcomment %}
+
+
+{%- if user_uuid != blank -%}
+
+    {% unless user_cart %}
+        {% graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
+        contact_uuid: user_uuid | dig: 'items','results' | first %}
+    {% endunless %}
+
+    {% if type == 'add' %}
+        {% assign new_discount_code_uuids = user_cart.discount_code_uuids | array_add: discount_uuid | array_uniq %}
+    {% elsif type == 'remove' %}
+        {% assign new_discount_code_uuids = user_cart.discount_code_uuids | array_delete: discount_uuid | array_uniq %}
+    {% endif %}
+
+    {% parse_json args %}
+    {
+        "id": "{{ user_cart.id }}",
+        "discount_code_uuids": {{ new_discount_code_uuids }}
+    }
+    {% endparse_json %}
+
+    {% log args, type: '==TEST args' %}
+    {% graphql update_cart_discount = 'modules/ecommerce/carts/update_cart_discount', args: args %}
+{% else %}
+    {% comment %} check cart local storage {% endcomment %}
+{% endif %}
+
+{% export update_cart_discount %}
