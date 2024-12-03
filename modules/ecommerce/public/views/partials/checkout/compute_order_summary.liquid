@@ -6,6 +6,15 @@
         - products
 {% endcomment %}
 
+{% if user_uuid and user_cart and carts and products %}
+    {% comment %} Do nothing {% endcomment %}
+{% else %}
+    {% include 'modules/ecommerce/carts/cart_items' %}
+    {% assign cart_items = context.exports.cart_items %}
+    {% assign user_cart = cart_items.user_cart %}
+    {% assign carts = cart_items.carts %}
+    {% assign products = cart_items.products %}
+{% endif %}
 
 {% assign discounts = user_cart.discounts %}
 

@@ -1,0 +1,60 @@
+{% comment %} 
+    Some pages may pass these parameters: 
+        - user_uuid
+        - user_cart
+        - carts
+        - products
+
+    If these parameters were not passed, get their values here
+{% endcomment %}
+
+
+{% comment %} Get the user uuid {% endcomment %}
+{%- if user_uuid == '' or user_uuid == blank -%}
+    {%  liquid
+        if context.session.user_uuid and context.session.user_uuid != ''
+            assign user_uuid = context.session.user_uuid
+        else
+            graphql user = 'modules/client/account/get_current_user'
+            session user_uuid = user.current_user.external_id
+            assign user_uuid = user.current_user.external_id
+        endif
+    %}
+{%- endif -%}
+
+
+{% comment %} Get user_cart {% endcomment %}
+{%- if user_uuid -%}
+    {%- if user_cart == '' or user_cart == blank -%}
+        {% graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
+            contact_uuid: user_uuid, show_discount_details: true | dig: 'items','results' | first %}
+    {%- endif -%}
+{%- else -%}
+    {% comment %} get cart in local storage {% endcomment %}
+{%- endif -%}
+
+
+{% comment %} Get the product info {% endcomment %}
+{%- if carts == '' or carts == blank -%}
+    {%  liquid
+        ## Convert an array of strings into an array of objects
+        assign carts = '' | split: ',' 
+        for item in user_cart.items
+            assign item_json = item | parse_json
+            assign carts = carts | array_add: item_json
+        endfor
+
+        assign product_uuids = carts | array_map: 'product_uuid' | array_flatten
+        graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: user_cart.items.size | dig: 'items','results'
+    %}
+{%- endif -%}
+
+{% parse_json cart_items %}
+{
+    "user_cart": {{ user_cart | default: '[]' }},
+    "carts": {{ carts | default: '[]' }},
+    "products": {{ products | default: '[]' }}
+}
+{% endparse_json %}
+
+{% export cart_items %}

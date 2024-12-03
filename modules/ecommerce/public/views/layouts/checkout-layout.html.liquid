@@ -80,6 +80,8 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
         </div>
     </div>
     
+    {% include 'modules/ecommerce/carts/cart_drawer' %}
+
     {%- capture foot_key -%} {{ context.exports.layout_cache_key.cache_key | append: "-footer_section"}} {%- endcapture -%}
     {%- cache foot_key -%}
     {% include 'modules/website/layout/footer' %}
@@ -102,11 +104,12 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
     {%- if context.environment == "staging" -%}
         <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
         <script src="{{ 'modules/ecommerce/services/stripeServices.js' | asset_url }}"></script>
+        <script src="{{ 'modules/ecommerce/scripts/shopping-cart.js' | asset_url }}"></script>
     {%- else -%}
         <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
         <script src="{{ 'modules/ecommerce/services/stripeServices.min.js' | asset_url }}"></script>
+        <script src="{{ 'modules/ecommerce/scripts/shopping-cart.min.js' | asset_url }}"></script>
     {%- endif -%}
 </body>
 
 </html>
-
