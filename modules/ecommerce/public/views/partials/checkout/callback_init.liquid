@@ -8,9 +8,9 @@
 {%- comment -%}
 Step 1: Get gateway settings from INS Ecommerce settings and process payment
 {%- endcomment -%}
-{%- graphql settings = "modules/ecommerce/system/get_settings" 
-    | dig: 'items' | dig: 'results' | first | dig: 'properties' -%}
-{%- assign gateway = settings.gateway_name | downcase -%}
+{% comment %} ==TEST system/get_settings {% endcomment %}
+{% comment %} {%- assign gateway = settings.gateway_name | downcase -%} {% endcomment %}
+{%- assign gateway = 'stripe' -%}
 {%- assign payment_status = "Failed" -%}
 {%- case gateway -%}
     {%- when 'stripe' -%}
@@ -86,12 +86,12 @@ Step 4: Trigger autoresponder, workflow email & API
 {% endparse_json %}
 {% parse_json data %}
 {
-    "payment_response": {{ context.exports.payment_response }},
+    "payment_response": {{ context.exports.payment_response | default: '[]' }},
     "customer_info": {{ context.current_user | default: customer_info }},
-    "cart_ids": {{ context.exports.order.cart_ids }},
-    "order_info": {{ context.exports.updated_order.items }},
-    "total_discounted_amount": {{ context.exports.order.total_discount_amount }}, 
-    "form": {{ form }}
+    "cart_ids": {{ context.exports.order.cart_ids | default: 0 }},
+    "order_info": {{ context.exports.updated_order.items | default: '' }},
+    "total_discounted_amount": {{ context.exports.order.total_discount_amount | default: 0 }}, 
+    "form": {{ form | default: '' }}
 }
 {% endparse_json %}
 {% log data, type: "==== Email & API: Payload data ====" %}

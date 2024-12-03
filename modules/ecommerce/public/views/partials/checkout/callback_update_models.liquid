@@ -46,22 +46,11 @@
     {% log context.exports.payment_response, type: "payment_response" %}
 {% log context.exports.order.cart_ids, type: "---- Cart IDs ----" %}
 
-{% graphql cart = "modules/ecommerce/cart/update_status_cart_ids", 
-    ids: context.exports.order.cart_ids,
-    status: cart_status,
-    user_id: user_id,
-    order_id: order_id %} 
-    
-{% log cart, type: "==== Cart Updated ====" %} 
+{% comment %} ==TEST cart - update_status_cart_ids {% endcomment %}
 
 
 {% comment %}Step 2.2: Update Cart Discount IDs {% endcomment %}
-{% log context.exports.order.cart_discount_code_idsan, type: "---- Update Cart Discount IDs ----" %}
-{% graphql cart_discount_codes = "modules/ecommerce/discount_code/callback_update_cart_discount_codes",
-    ids: context.exports.order.cart_discount_code_ids,
-    discount_debited: true,
-    user_id: user_id,
-    order_id: order_id %}
+{% comment %} ==TEST cart_discount_codes {% endcomment %}
 
 {% log cart_discount_codes, type: "==== Cart Discount Codes Updated ====" %} 
 

@@ -1,18 +1,18 @@
 mutation create_payment_method (
   $uuid: String
-  $currency: String
-  $bank_name: String
-  $card_brand: String
+  $currency: String    
   $company_uuid: String
   $contact_uuid: String
+  $bank_name: String
   $bank_account_bsb: String
-  $card_expiry_year: String
-  $bank_account_name: String
-  $card_expiry_month: String
-  $payment_method_name: String
-  $payment_method_token: String 
-  $card_last_four_digits: String
+  $bank_account_name: String  
   $bank_account_last_four_digits: String
+  $card_brand: String
+  $card_expiry_month: String
+  $card_expiry_year: String
+  $card_last_four_digits: String
+  $payment_method_name: String
+  $payment_method_token: String     
 ) {
   items: record_create(
     record: {
