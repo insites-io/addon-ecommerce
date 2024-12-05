@@ -1,0 +1,51 @@
+mutation user_create(
+  $email: String!
+  $first_name: String!
+  $last_name: String!
+  $password: String!
+  $uuid: String!
+  $mobile_phone_number: String
+  $mobile_phone_country_code: String
+  $stripe_id: String
+) { 
+  user: user_create(
+    user: {
+      email: $email, 
+      first_name: $first_name, 
+      last_name: $last_name, 
+      password: $password, 
+      profiles:[         
+        {
+          name: "modules/insites_core/crm_contact", 
+        	values: {
+            properties: [
+              {name: "uuid", value: $uuid},
+              {name: "mobile_phone_number", value: $mobile_phone_number},
+              {name: "mobile_phone_country_code", value: $mobile_phone_country_code},
+              {name: "stripe_id", value: $stripe_id}
+            ]
+        	}
+        },
+        {
+          name: "modules/ecommerce/customer", 
+        	values: {
+            properties: [
+              {name: "is_enabled", value_boolean: true},
+              {name: "is_activated", value_boolean: false}
+            ]
+        	}
+        }
+      ]
+    }
+  ) {
+    id
+    user_uuid: external_id
+    email
+    first_name
+    last_name
+    profiles {
+      id
+      properties
+    }
+  }
+}

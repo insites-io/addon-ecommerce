@@ -86,13 +86,12 @@ metadata: {
                 form_delete: true,
                 user_cart, carts, products %}
             <div class="spacer x-large"></div>
-            {%- if carts.size > 0 -%}
-                <div class="text-right">
-                    <a href="/checkout">
-                        <ins-button label="PROCEED TO CHECKOUT" solid color="blue" class="checkoutBtn"></ins-button>
-                    </a>
-                </div>
-            {%- endif -%}
+
+            <div id="proceed-to-checkout" class="text-right {% if carts == blank %}hide{% endif %}">
+                <a href="/checkout">
+                    <ins-button label="PROCEED TO CHECKOUT" solid color="blue" class="checkoutBtn"></ins-button>
+                </a>
+            </div>
 
             <div class="spacer x-large"></div>
 
