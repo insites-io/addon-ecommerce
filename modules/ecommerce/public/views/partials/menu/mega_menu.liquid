@@ -29,7 +29,7 @@
 
         <ul>
             {% for category in parent_categories %}
-            <li><a href="/{{category.slug}}">{{category.category_name}}</a></li>
+            <li><a href="/products/{{category.slug}}">{{category.category_name}}</a></li>
             {% endfor %}
         </ul>
     </div>
@@ -47,7 +47,7 @@
                 <ul>
                     {% for sub_category in sub_categories %}
                         {% if sub_category.parent_category_uuids contains parent_category.uuid %}
-                            <li>{{ sub_category.category_name }}</li>
+                            <li><a href="/products/{{sub_category.slug}}">{{ sub_category.category_name }}</a></li>
                         {% endif %}
                     {% endfor %}
                 </ul>
