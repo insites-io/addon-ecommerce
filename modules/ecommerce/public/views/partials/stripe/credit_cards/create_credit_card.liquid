@@ -27,6 +27,4 @@
         args: args | dig: "items" %}
     
 {%- comment -%}Return Stripe Card ID{%- endcomment -%}
-{%- if return == true -%}
-    {{ stripe_response.id }}
-{%- endif -%}
+{% export stripe_response %}

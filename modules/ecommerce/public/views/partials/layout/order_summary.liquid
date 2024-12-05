@@ -23,7 +23,7 @@
     </h2>
     <div class="spacer x-large"></div>
     
-    <div class="order-summary">    
+    <div id="order-summary-cart-wrap" class="order-summary">   
         {%- if show_product -%}
             {%- for item in carts -%}
 
@@ -239,7 +239,7 @@
             {%- unless total_amount contains '.' -%}
                 {%- assign total_amount = total_amount | append: '.00' -%}
             {%- endunless -%}            
-            <p class="order-total">{{ total_amount }}</p>
+            <p id="summary_total" class="order-total">{{ total_amount }}</p>
         </div>
     </div>
 </div>

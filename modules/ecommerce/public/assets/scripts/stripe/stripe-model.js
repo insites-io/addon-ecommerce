@@ -7,7 +7,14 @@ let StripeModel = (() => {
                     "stripe_credit_card": data.creditcard
                 }
                 let response = await StripeServices.createCreditCard({ 'payload': payload });
-                if(response.state) {
+                if(response.state) {                    
+                    if(response.data.is_new_user === true){
+                        // A new user account is created when a guest user adds a credit card.
+                        // Reload the page to reflect the changes on the user's end.
+                        let url = new URL(window.location.href);
+                        url.searchParams.set("is_new_user", true);
+                        window.location.href = url.toString();
+                    } 
                     return response;
                 } else {
                     App.events.notyf('error', "Failed to create creditcard");

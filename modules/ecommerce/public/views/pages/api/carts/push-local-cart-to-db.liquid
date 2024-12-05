@@ -1,0 +1,46 @@
+---
+slug: api/push-local-cart-to-db
+format: json
+method: post
+searchable: false
+---
+{%- assign params = context.params -%}
+{%- assign local_carts = context.params.carts -%}
+{%- assign user_uuid = context.params.user_uuid -%}
+
+
+{%- if local_carts.size > 0 -%}
+    {%-  liquid
+     
+        assign db_carts = '' | split: ',' 
+
+        for item in local_carts
+
+            ## Local Cart: Convert string into object
+            assign item_obj = item | parse_json
+            
+            ## Database Cart
+            assign temp_db_item = '' | parse_json
+            assign temp_db_item = temp_db_item | add_hash_key: 'product_uuid', item_obj.product_uuid
+            assign temp_db_item = temp_db_item | add_hash_key: 'quantity', item_obj.quantity
+            assign temp_db_item = temp_db_item | add_hash_key: 'product_sku', item_obj.product_sku
+            
+            ## Convert object into string before adding into array
+            assign db_item = temp_db_item | json
+            assign db_carts = db_carts | array_add: db_item
+
+        endfor
+    -%}
+
+    {%- parse_json args -%}
+    {
+        "uuid": "{{ '' | uuid }}",
+        "contact_uuid": "{{ user_uuid }}",
+        "items": {{ db_carts | default: '[]' }}
+    }
+    {%- endparse_json -%}
+    {%- graphql cart = 'modules/ecommerce/carts/add_cart', args: args -%}
+
+{%- endif -%}
+
+{{ cart }}

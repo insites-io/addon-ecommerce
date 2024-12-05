@@ -110,6 +110,12 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
         <script src="{{ 'modules/ecommerce/services/stripeServices.min.js' | asset_url }}"></script>
         <script src="{{ 'modules/ecommerce/scripts/shopping-cart.min.js' | asset_url }}"></script>
     {%- endif -%}
+
+    {% comment %} Get cart from local storage {% endcomment %}
+    {%- if context.current_user == blank or context.params.is_new_user == 'true'  -%}
+        {%- include 'modules/ecommerce/carts/cart_items_from_local_storage' -%}
+    {%- endif -%}
+    
 </body>
 
 </html>
