@@ -23,20 +23,28 @@ metadata: {
 }
 ---
 
-{% comment %} Get the user uuid {% endcomment %}
-{%  liquid
-    if context.session.user_uuid and context.session.user_uuid != ''
-        assign user_uuid = context.session.user_uuid
-    else
-        graphql user = 'modules/client/account/get_current_user'
-        session user_uuid = user.current_user.external_id
-        assign user_uuid = user.current_user.external_id
-    endif
-%}
+{% if context.current_user %}
 
+    {% comment %} Get the user uuid {% endcomment %}
+    {%  liquid
+        if context.session.user_uuid and context.session.user_uuid != ''
+            assign user_uuid = context.session.user_uuid
+        else
+            graphql user = 'modules/client/account/get_current_user'
+            session user_uuid = user.current_user.external_id
+            assign user_uuid = user.current_user.external_id
+        endif
+    %}
 
-{% graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
-        contact_uuid: user_uuid, show_discount_details: true | dig: 'items','results' | first %}
+    {% graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
+            contact_uuid: user_uuid, show_discount_details: true | dig: 'items','results' | first %}
+
+{% else %}
+
+    {% comment %} Guest user: get cart from local storage {% endcomment %}
+    {% assign get_cart_local_storage = true %}
+
+{% endif %}
 
 
 {% if user_cart.items.size > 0 %}
@@ -94,8 +102,6 @@ metadata: {
 </div>
 
 
-
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
 {%- if context.environment == "staging" -%}
     <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
@@ -103,4 +109,10 @@ metadata: {
 {%- else -%}
     <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
     <script src="{{ 'modules/ecommerce/scripts/shopping-cart.min.js' | asset_url }}"></script>
+{%- endif -%}
+
+
+{% comment %} This code must be below the <script> above {% endcomment %}
+{% if get_cart_local_storage == true %}    
+    {% include 'modules/ecommerce/carts/cart_items_from_local_storage' %}
 {%- endif -%}

@@ -77,7 +77,7 @@
             {%- unless sub_total contains '.' -%}
                 {%- assign sub_total = sub_total | append: '.00' -%}
             {%- endunless -%}
-            <p>{{ sub_total }}</p>
+            <p id="summary_subtotal">{{ sub_total }}</p>
         </div>
     </div>
     <div class="spacer x-small"></div>
@@ -93,7 +93,7 @@
             {%- unless shipping_cost contains '.' -%}
                 {%- assign shipping_cost = shipping_cost | append: '.00' -%}
             {%- endunless -%}
-            <p>{{ shipping_cost }}</p>
+            <p id="summary_delivery">{{ shipping_cost }}</p>
         </div>
     </div>                
     
@@ -204,7 +204,7 @@
             {%- unless processing_fee contains '.' -%}
                 {%- assign processing_fee = processing_fee | append: '.00' -%}
             {%- endunless -%}
-            <p>{{ processing_fee }}</p>
+            <p id="summary_processing_fee">{{ processing_fee }}</p>
         </div>
     </div>
     <div class="spacer x-small"></div> 
@@ -221,7 +221,7 @@
             {%- unless tax_amount contains '.' -%}
                 {%- assign tax_amount = tax_amount | append: '.00' -%}
             {%- endunless -%}
-            <p>{{ tax_amount }}</p>
+            <p id="summary_tax">{{ tax_amount }}</p>
         </div>
     </div>
     <div class="spacer medium"></div>    

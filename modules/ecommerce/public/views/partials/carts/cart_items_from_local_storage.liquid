@@ -1,0 +1,198 @@
+<script>
+    let shoppingCartItemsWrap = document.getElementById('shopping-cart-items-wrap');
+    let cartItems = JSON.parse(localStorage.getItem('carts')); 
+    let productUUIDs = cartItems.map(item => JSON.parse(item).product_uuid);
+
+    //Prices
+    let summary_subtotal = document.getElementById('summary_subtotal');
+    let summary_delivery = document.getElementById('summary_delivery');
+    let summary_processing_fee = document.getElementById('summary_processing_fee');
+    let summary_tax = document.getElementById('summary_tax');
+    let summary_subtotal_amount = 0;
+    let summary_delivery_amount = 0;
+    let summary_discount_amount = 0;
+    let summary_processing_fee_amount = 0;
+    let summary_tax_amount = 0;
+
+
+    console.log('cartItems', cartItems);
+    console.log('productUUIDs', productUUIDs);
+
+    if( cartItems.length > 0){
+        listCartItems(cartItems, productUUIDs);                       
+    }
+
+
+    async function listCartItems(carts, productUUIDs){
+        let url = `/get-cart-products.json?product_uuids=`+ productUUIDs;
+        let response = await apiServices.processRequest("get", url); 
+
+        if(response.state && response.data) {
+
+            let products = response.data
+
+            htmlContent = `<h2>Cart Items</h2>
+                    <div class="spacer x-large"></div>
+                    <div id="shopping-cart-list" class="shopping-cart grid-y">`;
+
+            for (let i = 0; i < carts.length; i++) {  
+
+                cart = JSON.parse(carts[i]); //convert string to object            
+                product = products.find(item => item.uuid === cart.product_uuid);
+
+                console.log('cart', cart); 
+                console.log('product', product);  
+                console.log('i', i);
+                
+                htmlContent = htmlContent + shoppingCartItemHtml(cart, product, i);                               
+            };
+
+            htmlContent = htmlContent + '</div>';
+
+            shoppingCartItemsWrap.insertAdjacentHTML('afterbegin', htmlContent);
+            computeOrderSummary();
+        }
+    }
+    
+    var placeholderImage = `<div class="placeholder-img vertical-align-middle">
+            <div>
+                <div class="spacer x-large"></div>    
+                <i class="icon-panorame"></i>
+                <div class="spacer x-large"></div>   
+            </div>
+        </div>`;
+
+
+    //This template is for /shopping-cart page
+    function shoppingCartItemHtml(cart, product, i){
+
+        //initialize
+        is_variant = false;
+
+        //Check if the cart item is a product or a variant of the product        
+        if( cart.product_sku == product.product_sku ){
+            selected_prop = product;
+        } else {
+            // product is a variant 
+            for (let variant of product.variants) {
+                if( cart.product_sku == variant.product_sku ){
+                    selected_prop = variant;
+                    is_variant = true;
+                }
+            }        
+        }
+
+        if(selected_prop?.product_image?.url){
+            img = `<img  src="${ selected_prop?.product_image?.url }" alt="${ cart.product_name }" >`;
+        } else {
+            img = placeholderImage;
+        }
+
+        preorder = ( selected_prop.stock_level < 1 )? `<ins-tag label="Pre-Order" class='preorder-tag body-x-small' ></ins-tag>`: "";
+
+        // Get variant info
+        if(is_variant == true){
+            variant_option = "";
+            for (let j = 0; j < selected_prop.product_options.length; j++) { 
+                option = JSON.parse(selected_prop.product_options[j]); //convert string to object 
+                variant_option = variant_option + `<p>
+                    <span class="body-x-small-bold">${ option.product_option_label }:</span>
+                    <span class="body-x-small">${ option.product_option_value }</span>
+                </p>`;
+            }
+        } else {
+            variant_option = "";
+        }
+
+        // Prices
+        if( selected_prop.is_on_sale == true ){
+            price = selected_prop.sale_price;
+            price_strikethrough = `<span class="body-x-small strikethrough">${ selected_prop.regular_price  }</span>`;
+        } else {
+            price = selected_prop.regular_price;
+            price_strikethrough = '';
+        }
+        item_total_price = price * cart.quantity
+        summary_subtotal_amount += item_total_price;
+
+        //Shipping Fee
+        is_free_shipping = selected_prop.is_free_shipping;
+        freight_amount = (selected_prop.is_free_shipping == true)? 0 : selected_prop.freight_amount;
+        summary_delivery_amount =+ freight_amount;
+
+        //Tax
+        if(product.is_tax_included == true){
+            tax = 0;
+        } else {
+            if(selected_prop.is_fixed_tax_amount == true){
+                tax = selected_prop.tax_amount * cart.quantity;
+            } else {
+                tax = price * selected_prop.tax_amount / 100 * cart.quantity
+            }
+        }
+        summary_tax_amount += tax;
+
+    
+
+
+
+
+        let content = `<div id="cart-item-${selected_prop.id}" class="cart-item-wrap cell">`;
+
+        if( i > 0 ) content = content + `<hr><div class="spacer x-large"></div>`;                                    
+        
+        content = content + `
+                <div class="grid-x" >
+                    <div class="img-wrap" style="width:88px;">
+                        ${img}
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6>
+                            ${ cart.product_name }
+                            ${ preorder }
+                        </h6> 
+                        <p class="body-small">SKU: ${ cart.product_sku }</p>
+                        <div class="spacer small"></div>
+                        ${variant_option}
+                        <p>
+                            <span class="body-x-small-bold">Price:</span>
+                            <span class="body-x-small item-price">${ price  }</span>
+                            ${ price_strikethrough }
+                        </p>
+                    </div>
+                    <div class="btn-wrap grid-y">
+                        <p class="cart-price compute-price">${ item_total_price }</p>
+                        <div class="spacer small"></div>
+                        <ins-input-stepper
+                            class="cart-stepper" 
+                            data-product_uuid="${ cart.product_uuid }"
+                            data-product_sku="${ cart.product_sku }"
+                            value="${ cart.quantity }" 
+                            step="1" min="1" 
+                            max="${ selected_prop.stock_level }" 
+                            small>
+                        </ins-input-stepper>
+                        <div class="spacer small"></div>
+                        <div class="text-right" >
+                            <ins-button label="Remove" icon="icon-trash-2" size="small" class="cart-remove-btn" data='{"product_uuid":"${cart.product_uuid}","product_sku":"${cart.product_sku}"}' ></ins-button>                            
+                        </div> 
+                    </div>        
+                </div>                   
+                <div class="spacer x-large"></div>
+            </div>`;    
+
+            return content;
+    }
+
+    function computeOrderSummary() {
+        
+        temp_total = summary_subtotal_amount + summary_delivery_amount + summary_tax_amount - summary_discount_amount;
+        summary_processing_fee_amount = temp_total * 0.017;
+
+        summary_subtotal.textContent = `$${summary_subtotal_amount}`;
+        summary_delivery.textContent = `$${summary_delivery_amount}`;
+        summary_processing_fee.textContent = `$${summary_processing_fee_amount.toFixed(2)}`;
+        summary_tax.textContent = `$${summary_tax_amount}`; 
+    }
+    
+</script>

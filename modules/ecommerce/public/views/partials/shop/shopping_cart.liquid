@@ -88,11 +88,23 @@
         
     </div>
 {%- else -%}
-    <div id="shopping-cart-list" class="shopping-cart grid-x grid-padding-x grid-padding-y">
-        <div class="small-12 cell">
-            <ins-card steady class="empty-state">
-                <span>No Cart Items</span>
-            </ins-card>
+
+    {% if context.current_user %}
+
+        <div id="shopping-cart-list" class="shopping-cart grid-x grid-padding-x grid-padding-y">
+            <div class="small-12 cell">
+                <ins-card steady class="empty-state">
+                    <span>No Cart Items</span>
+                </ins-card>
+            </div>
         </div>
-    </div>
+
+    {%- else -%}
+
+        <div id="shopping-cart-items-wrap">
+            {% comment %} Javascript generated content will be place here {% endcomment %}
+        </div>        
+
+    {%- endif -%}
+
 {%- endif -%}
