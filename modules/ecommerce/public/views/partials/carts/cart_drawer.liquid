@@ -372,7 +372,11 @@
     }
 
     function getCartFromLocalStorage(){
-        return JSON.parse(localStorage.getItem('carts'));     
+        let carts = localStorage.getItem('carts');
+        if (carts) {
+            carts = JSON.parse(carts);
+        }
+        return carts;     
     }
 
     function addCartToLocalStorage(data){ 

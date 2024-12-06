@@ -1,0 +1,24 @@
+name: cart
+metadata:
+  label: "Cart"
+  groups: []
+  is_archived: false
+properties:
+- name: contact_uuid
+  type: string
+  metadata:
+    weight: 0
+- name: items
+  type: array
+  metadata:
+    label: "items"
+    table: [{"column_key":"product_uuid","column_label":"Product UUID"},{"column_key":"quantity","column_label":"Quantity"},{"column_key":"product_sku","column_label":"Product SKU"}]
+    weight: 1
+    ui_element: "table"
+    is_required: false
+- name: uuid
+  type: string
+  metadata:
+    weight: 2
+- name: discount_code_uuids
+  type: array

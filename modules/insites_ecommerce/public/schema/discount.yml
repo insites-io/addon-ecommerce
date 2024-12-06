@@ -1,0 +1,36 @@
+name: discount
+properties:
+- name: uuid
+  type: string
+# Discount Details
+- name: discount_name
+  type: string
+- name: status
+  type: string
+- name: discount_code
+  type: string
+- name: auth_policy_id
+  type: integer
+- name: usage_limit
+  type: integer
+- name: usage_count
+  type: integer
+- name: discount_type
+  type: string
+- name: discount_value
+  type: float
+- name: usage_limit_per_user
+  type: integer
+# Discount Restrictions
+- name: applicable_to
+  type: string
+- name: is_applicable_to_all_products
+  type: boolean
+- name: is_applicable_to_all_categories
+  type: boolean
+- name: category_uuids
+  type: array
+- name: product_uuids
+  type: array
+- name: minimum_cart_value
+  type: float

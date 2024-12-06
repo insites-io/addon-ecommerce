@@ -1,5 +1,5 @@
 <script>
-    let is_new_user = {{ context.params.is_new_user }};
+    let is_new_user = {{ context.params.is_new_user | default: false }};
     let shoppingCartItemsWrap = document.getElementById('shopping-cart-items-wrap');
     let orderSummaryWrap = document.getElementById('order-summary-cart-wrap');
     let proceedToCheckout = document.getElementById('proceed-to-checkout');    
@@ -256,6 +256,7 @@
     async function pushLocalCartToDB(data){        
         let response = await apiServices.processRequest("post", "/push-local-cart-to-db.json", data);
               
+        console.log('pushLocalCartToDB', response);
         if(response.state && response.data.items.id) {
             // Empty the carts in the local storage
             localStorage.setItem('carts', []); 
