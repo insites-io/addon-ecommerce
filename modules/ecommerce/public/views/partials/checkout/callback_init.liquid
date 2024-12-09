@@ -26,12 +26,10 @@
     {%- assign order_uuid = form.properties.uuid | downcase -%}
     {%- if status == 'succeeded' -%}
         {%- assign status = 'success' -%}
-        {%- assign cart_status = "Paid" -%}
         {%- assign order_payment_status = "Paid" -%}
         {%- assign order_status = "Complete" -%}
     {%- else -%}
         {%- assign status = 'failed' -%}
-        {%- assign cart_status = "Failed" -%}
         {%- assign order_payment_status = "Failed" -%}
         {%- assign order_status = "Open" -%}
     {%- endif -%}
@@ -43,7 +41,6 @@ Step 2: Update inventory, cart and order models.
 {% include 'modules/ecommerce/checkout/callback_update_records'
     payment_response: payment_response,
     status: status,
-    cart_status: cart_status,
     order_status: order_status,
     order_payment_status: order_payment_status,
     user_id: user_id,

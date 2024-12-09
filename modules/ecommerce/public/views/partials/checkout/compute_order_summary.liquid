@@ -9,6 +9,7 @@
 {% if user_uuid and user_cart and carts and products %}
     {% comment %} Do nothing {% endcomment %}
 {% else %}
+    {% comment %} Get cart from DB:cart {% endcomment %}
     {% include 'modules/ecommerce/carts/cart_items' %}
     {% assign cart_items = context.exports.cart_items %}
     {% assign user_cart = cart_items.user_cart %}

@@ -1,0 +1,40 @@
+name: order_item
+properties:
+  - name: uuid
+    type: string
+
+  - name: order_uuid # belongs_to: modules/insites_ecommerce/order
+    type: string
+
+  - name: product_uuid # belongs_to: modules/insites_ecommerce/product
+    type: string
+
+  - name: order_item_image
+    type: upload
+
+  - name: order_item_name
+    type: string
+
+  - name: sku
+    type: string
+
+  - name: quantity
+    type: integer
+
+  - name: unit_price
+    type: float
+
+  - name: tax_percent
+    type: float
+
+  - name: tax_amount
+    type: float
+
+  - name: is_fixed_tax_amount
+    type: boolean
+
+  - name: line_item_price
+    type: float
+
+  - name: item_price
+    type: float

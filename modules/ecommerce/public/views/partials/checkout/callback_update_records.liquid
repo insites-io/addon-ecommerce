@@ -1,4 +1,5 @@
 
+{%- assign user_uuid = form.properties.order_contact_uuid -%}
 {%- assign date_time = "now" | date: "%Y-%m-%dT%H:%M:%SZ" -%}
 {%- capture payment_gateway_details -%}{{ payment_response }}{%- endcapture -%}
 {%- assign amount = payment_response.amount | divided_by: 100 -%}
@@ -34,18 +35,20 @@
     
 {% log create_payment, type: "Payment Created" %}
 
-{%- comment -%}Step 2.1: Update cart status: Paid / Failed{%- endcomment -%}
-{% comment %} 
-# Updated for pOS release for `sync` <data>_update_all [Ticket: NMS-4453]
-{% endcomment %}
-{%- if status == 'success' -%}
-{% graphql cart = "modules/ecommerce/cart/update_status_cart_ids", 
-    ids: context.exports.order.cart_ids,
-    status: cart_status,
-    administrator_uuid: context.session.user_uuid,
-    order_uuid: order_uuid %} 
-    
-{% log cart, type: "Cart Updated" %} 
+
+
+{% comment %} Create Order Items {% endcomment %}
+{%- include 'modules/ecommerce/order_items/create_order_items', user_uuid, order_uuid -%}
+{% assign user_cart = context.exports.user_cart %}
+
+
+{%- comment -%} Delete user cart {%- endcomment -%}
+{% graphql delete_cart = 'modules/ecommerce/carts/delete_cart', id: user_cart.id %}
+
+
+
+{%- if status == 'success' -%}    
+        
 {%- endif -%}
 
 
@@ -60,18 +63,6 @@
 
 {% log updated_order.items.id, type: "Order Updated" %}
 
-
-{% comment %} Create order_custom_field {% endcomment %}
-{% parse_json args %}
-{
-    "order_uuid": "{{updated_order.items.properties.uuid}}",
-    "seller_id": "{{form.properties.seller_id}}",
-    "preferred_pick_up_date": "{{form.properties.preferred_pick_up_date}}",
-    "preferred_delivery_date": "{{form.properties.preferred_delivery_date}}"
-}
-{% endparse_json %}
-{% graphql create_order_custom_field = 'modules/ecommerce/orders/create_order_custom_field', args: args %}
-{% log create_order_custom_field.items.id, type: "Create order_custom_field" %}
 
 
 {%- comment -%}Step 2.4: Update inventory{%- endcomment -%}

@@ -1,0 +1,29 @@
+{% comment %} Get Order amounts from DB:order {% endcomment %}
+{% graphql order_amounts = 'modules/ecommerce/orders/get_order_amounts',
+    uuid: uuid | dig: 'items','results' | first %}
+
+
+{% comment %} Initialize Variables {% endcomment %}
+{%  liquid 
+    assign sub_total_amount = order_amounts.subtotal_amount
+    assign sub_total_discount = order_amounts.total_discount_amount
+    assign sub_total_shipping = order_amounts.total_shipping_amount
+    assign sub_total_tax = order_amounts.total_tax_amount
+%}
+
+
+{% assign temp_total = sub_total_amount | plus: sub_total_shipping | minus: sub_total_discount | plus: sub_total_tax %}
+{% assign processing_fee = temp_total | times: 0.017 %}
+{% assign total_amount = temp_total | plus: processing_fee %}
+
+{% parse_json computed %}
+{
+    "sub_total_amount": {{ sub_total_amount | default: 0 }},
+    "shipping_amount": {{ sub_total_shipping | default: 0 }},
+    "total_discount_amount": {{ sub_total_discount | default: 0 }},
+    "processing_fee": {{ processing_fee | default: 0 }},
+    "tax_amount": {{ sub_total_tax | default: 0 }},    
+    "total_amount": {{ total_amount | default: 0 }}
+}
+{% endparse_json %}
+{% export computed %}

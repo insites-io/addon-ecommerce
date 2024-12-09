@@ -1,0 +1,11 @@
+mutation create_order_items(
+  $items: [RecordsCreateInputType!]!
+) {
+  records_create_rc(
+    records: 
+      $items
+  ) {
+    id
+    table
+  }
+}
