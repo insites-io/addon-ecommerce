@@ -1,0 +1,79 @@
+{%- comment -%} Get user cart {%- endcomment -%}
+{% graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
+        contact_uuid: user_uuid | dig: 'items','results' | first %}
+
+
+{%  liquid    
+    ## Get cart
+    assign cart_items = '' | split: ','     
+    for cart_item in user_cart.items
+        ## Convert an array of strings into an array of objects
+        assign temp_item = cart_item | parse_json
+        assign cart_items = cart_items | array_add: temp_item                
+    endfor
+
+    ## Get product info
+    assign product_uuids = cart_items | array_map: 'product_uuid' | array_flatten
+    graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: cart_items.size | dig: 'items','results'
+%}    
+
+
+{% comment %} Create data for order_items  {% endcomment %}
+{%  liquid   
+    assign order_items = '' | split: ','
+
+    for cart_item in cart_items
+        assign product = products | array_detect: uuid: cart_item.product_uuid
+        assign product_name = product.product_name
+
+        ## to fix issues in comparing '' versus null
+        if product.product_sku == null 
+            assign product = product | add_hash_key: 'product_sku', ''
+        endif
+        
+        ## Check if the cart_item is a product or a variant of the product
+        if cart_item.product_sku == product.product_sku
+            ## item is NOT a variant
+            assign selected_prop = product
+        else 
+            ## cart_item is a variant                
+            for variant in product.variants
+                if cart_item.product_sku == variant.product_sku
+                    assign selected_prop = variant
+                endif
+            endfor
+        endif             
+
+        if selected_prop.is_on_sale == true 
+            assign price = selected_prop.sale_price
+        else 
+            assign price = selected_prop.regular_price
+        endif          
+
+
+        assign temp_order_items = '' | parse_json
+        assign properties = '' | parse_json
+        assign uuid = '' | uuid
+
+        assign properties = properties | add_hash_key: 'uuid', uuid
+        assign properties = properties | add_hash_key: 'quantity', cart_item.quantity
+        assign properties = properties | add_hash_key: 'unit_price', price
+        assign properties = properties | add_hash_key: 'item_price', price
+        assign properties = properties | add_hash_key: 'order_uuid', order_uuid
+        assign properties = properties | add_hash_key: 'is_fixed_tax_amount', selected_prop.is_fixed_tax_amount
+        assign properties = properties | add_hash_key: 'tax_amount', selected_prop.tax_amount                
+        assign properties = properties | add_hash_key: 'product_uuid', cart_item.product_uuid
+        assign properties = properties | add_hash_key: 'sku', cart_item.product_sku
+        assign properties = properties | add_hash_key: 'order_item_name', product_name
+        assign properties = properties | add_hash_key: 'order_item_image', selected_prop.product_image.url
+
+        assign temp_order_items = temp_order_items | add_hash_key: "table", "modules/insites_ecommerce/order_item"
+        assign temp_order_items = temp_order_items | add_hash_key: "properties", properties
+        assign order_items = order_items | array_add: temp_order_items
+    endfor
+
+%}
+
+{% graphql create_order_item = 'modules/ecommerce/order_items/create_order_items', items: order_items %}
+
+{% export user_cart %}

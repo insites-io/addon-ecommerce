@@ -113,7 +113,7 @@
                         <span class="body-x-small-bold">Price:</span>
                         <span class="body-x-small item-price">{{ price | pricify }}</span>
                         {% if selected_prop.is_on_sale == true %}
-                        <span class="body-x-small strikethrough">{{ price_strikethrough | pricify }}</span>
+                        <span class="body-x-small strikethrough">{{ price_strikethrough | default: 0 | pricify }}</span>
                         {% endif %}
                     </p>
                 </div>

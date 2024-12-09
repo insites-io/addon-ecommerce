@@ -42,6 +42,10 @@ query get_cart_products(
         is_on_sale: property_boolean(name: "is_product_on_sale")
         stock_level: property_int(name: "stock_level") 
         product_options: property_array(name: "product_options")
+        is_free_shipping: property_boolean(name: "is_free_shipping")
+        freight_amount: property_float(name: "freight_amount")
+				is_fixed_tax_amount: property_boolean(name: "is_fixed_tax_amount")
+        tax_amount: property_float(name: "tax_amount")
 
         #more info
         product_image: property_upload(name: "product_image") {

@@ -1,0 +1,29 @@
+query get_order_amounts (
+  $page: Int = 1
+  $size: Int = 1
+  $uuid: String!
+) {
+  items: records (
+    per_page: $size,
+    page: $page,
+    filter: {
+      table: {value: "modules/insites_ecommerce/order"},
+      properties: [
+        { name: "uuid", value: $uuid }
+      ]
+    }
+  ) {
+    total_entries
+    results {
+      id
+      order_uuid: property(name: "order_uuid")
+      #properties
+      subtotal_amount: property_float(name: "subtotal_amount")      
+      total_tax_amount: property_float(name: "total_tax_amount")      
+      total_discount_amount: property_float(name: "total_discount_amount")
+      total_shipping_amount: property_float(name: "total_shipping_amount")
+      total_amount: property_float(name: "total_amount")      
+      total_amount_paid: property_float(name: "total_amount_paid")
+    }
+  }
+}

@@ -1,3 +1,6 @@
+{% assign params = context.params %}
+
+
 {% comment %} Get the user uuid {% endcomment %}
 {%  liquid
     if context.session.user_uuid and context.session.user_uuid != ''
@@ -9,11 +12,18 @@
     endif
 %}
 
-{% include 'modules/ecommerce/carts/cart_items', user_uuid %}
-{% assign cart_items = context.exports.cart_items %}
-{% assign user_cart = cart_items.user_cart %}
-{% assign carts = cart_items.carts %}
-{% assign products = cart_items.products %}
+{%- if params.slug == 'confirmation' and params.id != '' -%}   
+
+    {% graphql carts = 'modules/ecommerce/order_items/get_order_items', 
+        order_uuid: params.id  | dig: 'items','results' %}
+
+{%- else -%}
+    {% include 'modules/ecommerce/carts/cart_items', user_uuid %}
+    {% assign cart_items = context.exports.cart_items %}
+    {% assign user_cart = cart_items.user_cart %}
+    {% assign carts = cart_items.carts %}
+    {% assign products = cart_items.products %}
+{%- endif -%}
 
 
 <div class="order-summary-wrapper">
@@ -24,11 +34,21 @@
     <div class="spacer x-large"></div>
     
     <div id="order-summary-cart-wrap" class="order-summary">   
-        {%- if show_product -%}
+        {%- if show_product -%}            
+
             {%- for item in carts -%}
 
-                {% include 'modules/ecommerce/carts/cart_details', products, item, user_uuid %}
-                {% assign cart = context.exports.cart %}    
+                {%- if params.slug == 'confirmation' and params.id != '' -%}
+                    {%  liquid 
+                        assign cart = '' | parse_json
+                        assign cart = cart | add_hash_key: 'product_name', item.order_item_name
+                        assign cart = cart | add_hash_key: 'price', item.item_price
+                    %}
+                {%- else -%}
+                    {% include 'modules/ecommerce/carts/cart_details', products, item, user_uuid %}
+                    {% assign cart = context.exports.cart %}   
+                {%- endif -%}
+                             
             
                 <div class="grid-x grid-padding-x body-large">
                     <div class="product-name large-6 medium-8 small-6 cell">
@@ -59,12 +79,17 @@
     <hr>
     <div class="spacer"></div>
     {%- endif -%}
+
     
     {% comment %}--- GET ORDER COMPUTATION SUMMARY ---{% endcomment %}
-    {%- include 'modules/ecommerce/checkout/compute_order_summary' 
-        order_id, user_uuid, user_cart, carts, products -%}
-
+    {%- if params.slug == 'confirmation' and params.id != '' -%}
+        {% include 'modules/ecommerce/checkout/compute_completed_order_amounts', uuid: params.id %}
+    {%- else -%}
+        {%- include 'modules/ecommerce/checkout/compute_order_summary' 
+            order_id, user_uuid, user_cart, carts, products -%}
+    {%- endif -%}
     {% assign computed = context.exports.computed %}
+
 
    {% comment %} Subtotal {% endcomment %}
     <div class="grid-x grid-padding-x">
