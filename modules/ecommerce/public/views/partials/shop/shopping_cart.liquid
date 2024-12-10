@@ -87,6 +87,13 @@
         {%- endfor -%}
         
     </div>
+    <ins-loader
+        id="shopping-cart-loader"
+        state-title="Processing"
+        state-message="Please wait, we're processing your data."
+        state-icon="processing"
+        style="display: none;">
+    </ins-loader>
 {%- else -%}
 
     {% if context.current_user %}

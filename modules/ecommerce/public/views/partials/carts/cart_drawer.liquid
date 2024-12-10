@@ -162,7 +162,9 @@
             <p id="cart-subtotal" class="heading-3-small font-color-head">{{ subtotal | pricify }}</p>
         </div>
         <div class="spacer"></div>
-        <a href="/shopping-cart"><ins-button label="Go to Cart" icon="icon-shopping-cart" solid class="full"></ins-button></a>
+        <ins-button id="go-to-cart" label="Go to Cart" icon="icon-shopping-cart" solid class="full" 
+            onclick="goToShoppingCartPage()">
+        </ins-button>
         <div class="spacer x-small"></div>
         <ins-button label="Continue Shopping" icon="icon-arrow-back" id="continue-shopping-btn" class="full"></ins-button>
         <div class="spacer"></div>
@@ -194,7 +196,11 @@
             cartQuantity = event.detail; 
         });
     }
-        
+
+    let goToCartBtn = document.getElementById("go-to-cart");
+    let shoppingCartListEl = document.getElementById("shopping-cart-list");
+    let shoppingCartLoaderEl = document.getElementById("shopping-cart-loader");
+
 
     /* Add to Cart */
     let addToCartBtn = document.querySelectorAll(".add-to-cart-btn");
@@ -278,6 +284,11 @@
 
     function removeCartEventListener(btn){
         btn.addEventListener('insClick', event => {
+            if (shoppingCartListEl && shoppingCartLoaderEl) {
+                shoppingCartListEl.style.display = 'none';  
+                shoppingCartLoaderEl.style.display = 'block';
+            }
+            
             if(removeToCart(JSON.parse(event.detail.data))){
                 let cartItem = btn.closest('.cart-item-wrap');
                 if (cartItem) {
@@ -289,28 +300,61 @@
     }    
 
     /* Add cart to Database or to localStorage */
-    async function addToCart(data, type){                  
+    async function addToCart(data, type){       
+        goToCartButtonDisabled();
+
         data["type"] = type;
         if(user_uuid != ""){
             data["contact_uuid"] = user_uuid;
             let response = await apiServices.processRequest("post", "/add-to-cart.json", data);
             console.log('add response', response);        
-            if(response.state && response.data.items) {
+            if( response.state && response.data.items ) {
+                goToCartButtonEnabled();
                 return true;          
+            } else {
+                goToCartButtonEnabled();
+                App.events.notyf("error", "Something went wrong. Please try again");
             }
         } else {
             addCartToLocalStorage(data);            
         }
-    }         
+    }      
+
+    /* Redirects the user to the shopping cart page if the button is not disabled. */
+    function goToShoppingCartPage() {
+        !goToCartBtn.disabled ? window.location.href = '/shopping-cart' : '';
+    }
+
+    /* Enables the 'Go to Cart' button and sets its loading state to false. */
+    function goToCartButtonEnabled() {
+        goToCartBtn.disabled = false;
+        goToCartBtn.loading = false;
+    }
+
+    /* Disables the 'Go to Cart' button and sets its loading state to true. */
+    function goToCartButtonDisabled() {
+        goToCartBtn.disabled = true;
+        goToCartBtn.loading = true;
+    }
 
     /* Remove cart from Database or from localStorage */
-    async function removeToCart(data){                                      
+    async function removeToCart(data){      
+        goToCartButtonDisabled();                                
         if(user_uuid != ""){
             data["contact_uuid"] = user_uuid;
-            let response = await apiServices.processRequest("post", "/remove-to-cart.json", data);             
+            let response = await apiServices.processRequest("post", "/remove-to-cart.json", data);
+
             if(response.state && response.data.items) {
-                if(page == 'shopping-cart') location.reload();
+                if (page == 'shopping-cart') {
+                    shoppingCartListEl.style.display = 'flex';
+                    shoppingCartListEl.style.display = 'none';
+                    location.reload();
+                } 
+                goToCartButtonEnabled();
                 return true;          
+            } else {
+                goToCartButtonEnabled();
+                App.events.notyf("error", "Something went wrong. Please try again");
             }
         } else {
             removeCartFromLocalStorage(data);            

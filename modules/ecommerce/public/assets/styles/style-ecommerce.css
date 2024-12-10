@@ -907,3 +907,9 @@ ins-button button.ins-button.size--small:not(.is-loading) {
     padding-left: 8px;
     padding-right: 8px;
 }
+
+ins-button button.ins-button.size--normal.is-loading {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important
+}
