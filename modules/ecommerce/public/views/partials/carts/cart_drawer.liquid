@@ -301,10 +301,10 @@
 
     /* Add cart to Database or to localStorage */
     async function addToCart(data, type){       
-        goToCartButtonDisabled();
-
         data["type"] = type;
+
         if(user_uuid != ""){
+            goToCartButtonDisabled();
             data["contact_uuid"] = user_uuid;
             let response = await apiServices.processRequest("post", "/add-to-cart.json", data);
             console.log('add response', response);        
@@ -339,8 +339,8 @@
 
     /* Remove cart from Database or from localStorage */
     async function removeToCart(data){      
-        goToCartButtonDisabled();                                
         if(user_uuid != ""){
+            goToCartButtonDisabled();       
             data["contact_uuid"] = user_uuid;
             let response = await apiServices.processRequest("post", "/remove-to-cart.json", data);
 
