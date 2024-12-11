@@ -200,6 +200,7 @@
     let goToCartBtn = document.getElementById("go-to-cart");
     let shoppingCartListEl = document.getElementById("shopping-cart-list");
     let shoppingCartLoaderEl = document.getElementById("shopping-cart-loader");
+    let proceedToCheckoutBtn = document.getElementById("proceed-to-checkout-btn");
 
 
     /* Add to Cart */
@@ -261,6 +262,12 @@
     
     function cartStepperEventListener(step){
         step.addEventListener('insValueChange', event => {   
+            if (shoppingCartListEl && shoppingCartLoaderEl) {
+                shoppingCartListEl.style.display = 'none';  
+                shoppingCartLoaderEl.style.display = 'block';
+            }
+            
+
             let itemWrap = event.target.closest(".cart-item-wrap");            
             let stepperData = event.target.closest("ins-input-stepper").dataset;
             let data = {
@@ -302,7 +309,7 @@
     /* Add cart to Database or to localStorage */
     async function addToCart(data, type){       
         data["type"] = type;
-
+       
         if(user_uuid != ""){
             goToCartButtonDisabled();
             data["contact_uuid"] = user_uuid;
@@ -310,6 +317,13 @@
             console.log('add response', response);        
             if( response.state && response.data.items ) {
                 goToCartButtonEnabled();
+
+                if (page == 'shopping-cart') {
+                    shoppingCartListEl.style.display = 'flex';
+                    shoppingCartListEl.style.display = 'none';
+                    location.reload();
+                } 
+
                 return true;          
             } else {
                 goToCartButtonEnabled();
@@ -329,12 +343,14 @@
     function goToCartButtonEnabled() {
         goToCartBtn.disabled = false;
         goToCartBtn.loading = false;
+        proceedToCheckoutBtn ? proceedToCheckoutBtn.disabled = false : '';
     }
 
     /* Disables the 'Go to Cart' button and sets its loading state to true. */
     function goToCartButtonDisabled() {
         goToCartBtn.disabled = true;
         goToCartBtn.loading = true;
+        proceedToCheckoutBtn ? proceedToCheckoutBtn.disabled = true : '';
     }
 
     /* Remove cart from Database or from localStorage */

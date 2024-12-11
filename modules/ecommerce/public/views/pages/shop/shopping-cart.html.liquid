@@ -87,9 +87,7 @@ metadata: {
             <div class="spacer x-large"></div>
 
             <div id="proceed-to-checkout" class="text-right {% if carts == blank %}hide{% endif %}">
-                <a href="/checkout">
-                    <ins-button label="PROCEED TO CHECKOUT" solid color="blue" class="checkoutBtn"></ins-button>
-                </a>
+                <ins-button id="proceed-to-checkout-btn" label="PROCEED TO CHECKOUT" solid color="blue" class="checkoutBtn" onclick="document.location.href = '/checkout';"></ins-button>
             </div>
 
             <div class="spacer x-large"></div>
