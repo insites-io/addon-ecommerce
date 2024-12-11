@@ -8,7 +8,10 @@ fields:
     properties:
         uuid:
         contact_uuid:
-        discount_code_uuids:            
+        discount_code_uuids:
+        temp_discount_code:
+            property_options:
+                virtual: true
 callback_actions: >
     {%- parse_json payload -%}
     {
@@ -16,10 +19,11 @@ callback_actions: >
         "form_update": true,
         "form_delete": true,
         "form_id": "{{ form.id }}",
-        "user_id": "{{ form.properties.user_id }}",
+        "contact_uuid": "{{ form.properties.contact_uuid }}",
         "discount_code": "{{ form.properties.temp_discount_code }}"
     }
     {%- endparse_json -%}
+    {% log payload, type: "====payload in apply discount code====" %}
     {% include "modules/ecommerce/checkout/validate_discount_code" 
         payload: payload %}
 ---
