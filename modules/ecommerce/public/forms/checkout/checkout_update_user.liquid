@@ -129,8 +129,8 @@ callback_actions: |-
           class="label-input" 
           id="account-phone"
           label="Phone Number"
-          areacode-value="{{ data.crm_contact[0].mobile_phone_country_code | default: '61' }}"  
-          phonenum-value="{{ data.crm_contact[0].mobile_phone_number }}"
+          country-code="{{ data.current_user.crm_contact[0].mobile_phone_country_code | default: '61' }}"  
+          phonenum-value="{{ data.current_user.crm_contact[0].mobile_phone_number }}"
           phonenum-placeholder="Phone Number" 
           no-areacode>
         </ins-input-tel>
@@ -146,7 +146,7 @@ callback_actions: |-
           </a>
       </div>
       <div class="large-6 medium-6 small-12 cell text-right">
-        <ins-button solid type="submit" id="account-submit" class="w-100" label="Continue To Shipping"></ins-button>
+        <ins-button solid type="submit" id="account-submit" class="w-100 checkout-btn" label="Continue To Shipping"></ins-button>
       </div>
     </div>
   </div>

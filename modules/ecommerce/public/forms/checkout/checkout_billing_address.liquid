@@ -118,7 +118,7 @@ callback_actions: |-
 {% endif %}
 
 {% assign prop = form.fields.properties %}      
-   
+{% log context.session., type: "==== context.session in checkout_billing====" %}
 {%- form 
   html-id: "billing-address-form"
   html-novalidate: true
@@ -129,13 +129,23 @@ callback_actions: |-
   <input type="hidden" id="address-uuid" name="{{ prop.uuid.name }}" value="{{ '' | uuid }}">
   <input type="hidden" id="address-related-uuid" name="{{ prop.related_uuid.name }}" value="{{ data.current_user.uuid }}">
 
-  <input type="hidden" id="hidden-billing_company_name" name="{{ prop.billing_company_name.name }}" value="{{ context.session.billing_company_name }}">
-  <input type="hidden" id="hidden-billing_contact_first_name" name="{{ prop.billing_contact_first_name.name }}" value="{{ context.session.billing_contact_first_name }}">
-  <input type="hidden" id="hidden-billing_contact_last_name" name="{{ prop.billing_contact_last_name.name }}" value="{{ context.session.billing_contact_last_name }}">
-  <input type="hidden" id="hidden-billing_contact_email" name="{{ prop.billing_contact_email.name }}" value="{{ context.session.billing_contact_email }}">
-  <input type="hidden" id="hidden-billing_contact_phone_number" name="{{ prop.billing_contact_phone_number.name }}" value="{{ context.session.billing_contact_phone_number }}">
-  <input type="hidden" id="hidden-billing_contact_phone_country_code" name="{{ prop.billing_contact_phone_country_code.name }}" value="{{ context.session.billing_contact_phone_country_code }}">
+  <input type="hidden" id="hidden-billing_company_name" value="{{ context.session.billing_company_name }}">
+  <input type="hidden" id="hidden-billing_contact_first_name" value="{{ context.session.billing_contact_first_name }}">
+  <input type="hidden" id="hidden-billing_contact_last_name"  value="{{ context.session.billing_contact_last_name }}">
+  <input type="hidden" id="hidden-billing_contact_email"  value="{{ context.session.billing_contact_email }}">
+  <input type="hidden" id="hidden-billing_contact_phone_number" 
+    name="{{ prop.billing_contact_phone_number.name }}" 
+    value="{{ context.session.billing_contact_phone_number }}">
+  <input type="hidden" id="hidden-billing_contact_phone_country_code" 
+    name="{{ prop.billing_contact_phone_country_code.name }}" 
+    value="{{ context.session.billing_contact_phone_country_code }}">
 
+  <input type="hidden" id="hidden-shipping-first-name" value="{{ context.session.shipping_contact_first_name }}" >
+  <input type="hidden" id="hidden-shipping-last-name" value="{{ context.session.shipping_contact_last_name }}" >
+  <input type="hidden" id="hidden-shipping-email" value="{{ context.session.shipping_contact_email }}" >
+  <input type="hidden" id="hidden-shipping-company-name"value="{{ context.session.shipping_company_name }}" >
+  <input type="hidden" id="hidden-shipping-country-code"value="{{ context.session.shipping_contact_phone_country_code }}" >
+  <input type="hidden" id="hidden-shipping-mobile-number"value="{{ context.session.shipping_contact_phone_number }}" >
 
   <input
     type="hidden" 
@@ -173,6 +183,7 @@ callback_actions: |-
               label="Company Name" 
               id="billing_company_name"
               placeholder="Company Name" 
+              name="{{ prop.billing_company_name.name }}"
               value="{{ context.session.billing_company_name }}"
               {% if form.errors['properties.address_1'] %} has-error {% endif %}
               error-message="{{ prop.billing_company_name.validation.rules.presence.message }}">
@@ -181,30 +192,33 @@ callback_actions: |-
           <div class="large-6 medium-6 small-12 cell">
             <ins-input required validate 
               label="First Name*" 
+              name="{{ prop.billing_contact_first_name.name }}"
               id="billing_contact_first_name"
               placeholder="First Name" 
-              value="{{ context.session.billing_contact_first_name }}"
-              {% if form.errors['properties.address_1'] %} has-error {% endif %}
+              value="{{ context.session.billing_contact_first_name | default: '' }}"
+              {% if form.errors['properties.billing_contact_first_name'] %} has-error {% endif %}
               error-message="{{ prop.billing_contact_first_name.validation.rules.presence.message }}">
             </ins-input>
           </div>
           <div class="large-6 medium-6 small-12 cell">
             <ins-input required validate 
               label="Last Name*" 
+              name="{{ prop.billing_contact_last_name.name }}"
               id="billing_contact_last_name"
               placeholder="Last Name" 
-              value="{{ context.session.billing_contact_last_name }}"
-              {% if form.errors['properties.address_1'] %} has-error {% endif %}
+              value="{{ context.session.billing_contact_last_name | default: '' }}"
+              {% if form.errors['properties.billing_contact_last_name'] %} has-error {% endif %}
               error-message="{{ prop.billing_contact_last_name.validation.rules.presence.message }}">
             </ins-input>
           </div>
           <div class="large-6 medium-6 small-12 cell">
             <ins-input required validate 
               label="Email Address*" 
+              name="{{ prop.billing_contact_email.name }}"
               id="billing_contact_email"
               placeholder="Email Address" 
-              value="{{ context.session.billing_contact_email }}"
-              {% if form.errors['properties.address_1'] %} has-error {% endif %}
+              value="{{ context.session.billing_contact_email | default: '' }}"
+              {% if form.errors['properties.billing_contact_email'] %} has-error {% endif %}
               error-message="{{ prop.billing_contact_email.validation.rules.presence.message }}">
             </ins-input>
           </div>
@@ -213,8 +227,8 @@ callback_actions: |-
               class="label-input" 
               id="billing-phone" 
               label="Phone Number"
-              country-code="{{ context.session.billing_contact_phone_country_code}}"
-              phonenum-value="{{ context.session.billing_contact_phone_number}}"
+              country-code="{{ context.session.billing_contact_phone_country_code | default: '61'}}"
+              phonenum-value="{{ context.session.billing_contact_phone_number  | default: ''}}"
               phonenum-placeholder="Phone Number" no-areacode>
             </ins-input-tel>
           </div>
@@ -300,8 +314,8 @@ callback_actions: |-
             </ins-input>
           </div>
           <div class="large-6 medium-6 small-12 cell">
-            <ins-input data-billing-address-field required validate 
-              label="City*" 
+            <ins-input data-billing-address-field 
+              label="City" 
               id="billing_city" 
               placeholder="City"
               name="{{ prop.city.name }}"
@@ -365,7 +379,7 @@ callback_actions: |-
         <ins-button solid 
           id="billing-submit-button" 
           type="submit" 
-          class="checkout-step-btn w-100" 
+          class="checkout-step-btn w-100 checkout-btn" 
           label="{{submitLabel}}">
         </ins-button>
       </div>
@@ -383,4 +397,76 @@ callback_actions: |-
   let shipping_contact_email = "{{ context.session.shipping_contact_email }}";
   let shipping_contact_phone_number = "{{ context.session.shipping_contact_phone_number }}";
   let shipping_contact_phone_country_code = "{{ context.session.shipping_contact_phone_country_code }}";
+
+  // Get references to relevant elements
+  const sameBillingEl = document.getElementById('billing-same-with-shipping');
+  const billingFirstNameEl = document.getElementById('billing_contact_first_name');
+  const billingLastNameEl = document.getElementById('billing_contact_last_name');
+  const billingEmailEl = document.getElementById('billing_contact_email');
+  const billingCompanyNameEl = document.getElementById('billing_company_name');
+
+
+  // Shipping hidden details
+  const hiddenShippingFirstNameEl = document.getElementById('hidden-shipping-first-name');
+  const hiddenShippingLastNameEl = document.getElementById('hidden-shipping-last-name');
+  const hiddenShippingEmailEl = document.getElementById('hidden-shipping-email');
+  const hiddenShippingCompanyNameEl = document.getElementById('hidden-shipping-company-name');
+
+  // Billing hidden details
+  const hiddenBillingFirstNameEl = document.getElementById('hidden-billing_contact_first_name');
+  const hiddenBillingLastNameEl = document.getElementById('hidden-billing_contact_last_name');
+  const hiddenBillingEmailEl = document.getElementById('hidden-billing_contact_email');
+  const hiddenBillingCompanyNameEl = document.getElementById('hidden-billing_company_name');
+
+  // Phone details
+  const phone = {
+    inputTelAccount: document.getElementById('billing-phone'),
+    shippingMobilePhone: document.getElementById('hidden-shipping-mobile-number'),
+    shippingMobileCountryCode: document.getElementById('hidden-shipping-country-code'),
+    billingMobileCountryCode: document.getElementById('hidden-billing_contact_phone_country_code'),
+    billingMobilePhone: document.getElementById('hidden-billing_contact_phone_number')
+  };
+
+  // Event listener for shipping address change
+  sameBillingEl.addEventListener('insValueChange', event => {
+    const checked = event.target.checked;
+    console.log('billing address is the same as my shipping address', checked)
+
+    if (checked) {
+      billingFirstNameEl.value = hiddenShippingFirstNameEl.value;
+      billingLastNameEl.value = hiddenShippingLastNameEl.value;
+      billingEmailEl.value = hiddenShippingEmailEl.value;
+      billingCompanyNameEl.value = hiddenShippingCompanyNameEl.value;
+      updatePhone(true);  
+    } else {
+      billingFirstNameEl.value = hiddenBillingFirstNameEl.value || '';
+      billingLastNameEl.value = hiddenBillingLastNameEl.value || '';
+      billingEmailEl.value = hiddenBillingEmailEl.value || '';
+      billingCompanyNameEl.value = hiddenBillingCompanyNameEl.value || '',
+      updatePhone(); 
+    }
+  });
+
+  // Function to update phone details
+  function updatePhone(isShipping = false) {
+    const billingPhone = phone.inputTelAccount;
+    let phoneValue = '';
+    let countryCode = '';
+
+    if (isShipping) {
+      // For shipping, use shipping phone details
+      countryCode = `+${phone.shippingMobileCountryCode.value}`;
+      phoneValue = phone.shippingMobilePhone.value;
+    } else {
+      // For billing, use billing phone details, default to '+61' if not provided
+      countryCode = phone.billingMobileCountryCode.value ? 
+                    `+${phone.billingMobileCountryCode.value}` : '+61';
+      phoneValue = phone.billingMobilePhone.value || '';
+    }
+
+    // Set country code and phone number
+    billingPhone.setCountryCode(countryCode);
+    billingPhone.setAttribute('phonenum-value', phoneValue);
+  }
+
 </script>

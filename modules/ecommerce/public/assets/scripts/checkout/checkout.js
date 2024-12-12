@@ -37,58 +37,77 @@ let checkoutSubmitBtn = document.getElementById('checkout-submit-btn');
 
 let addAddressBtn = Array.from(document.getElementsByClassName('add-address-btn'));
 
+const inputIds = [
+    "shipping_address_1",
+    "shipping_address_2",
+    "shipping_state",
+    "shipping_postcode",
+    "shipping_country",
+    "billing_address_1",
+    "billing_address_2",
+    "billing_state",
+    "billing_postcode",
+    "billing_country"
+];
+
+
 let Checkout = (function () {
     return {
         methods: {
             // Update Shipping Detail 
             updateShippingDetails(checkState) {
-                let accountDetails = document.querySelectorAll('[shipping-details-field]');
-                accountDetails.forEach((field) => {
-                    let idValue = field.getAttribute('id');
-                    if(idValue) {
-                        if(checkState){
-                            if(idValue == "shipping-phone"){
-                                let countryCode = document.getElementById('hidden-shipping-phone-country-code');
-                                let phoneNumber = document.getElementById('hidden-shipping-phone');
-                                if(phoneNumber && countryCode){
-                                    document.getElementById(idValue).setAttribute('phonenum-value', phoneNumber.value);
-                                    document.getElementById(idValue).setCountryCode(countryCode.value);
-                                }
-                            } else {
-                                let hiddenFieldId = idValue.replace(/shipping-/g, "hidden-");
-                                let hiddenField = document.getElementById(hiddenFieldId);
-                                if(hiddenField){
-                                    document.getElementById(idValue).value = hiddenField.value;
-                                }
-                            }
-                            document.getElementById(idValue).setAttribute('has-error',false);
-                            document.getElementById(idValue).setAttribute('readonly',true);
-                        } else {
-                            document.getElementById(idValue).removeAttribute('readonly');
-                        }
-                    }
-                });
+                // let accountDetails = document.querySelectorAll('[shipping-details-field]');
+                // accountDetails.forEach((field) => {
+                //     let idValue = field.getAttribute('id');
+                //     if(idValue) {
+                //         if(checkState){
+                //             if(idValue == "shipping-phone"){
+                //                 let countryCode = document.getElementById('hidden-shipping-phone-country-code');
+                //                 let phoneNumber = document.getElementById('hidden-shipping-phone');
+                //                 if(phoneNumber && countryCode){
+                //                     document.getElementById(idValue).setAttribute('phonenum-value', phoneNumber.value);
+                //                     document.getElementById(idValue).setCountryCode(countryCode.value);
+                //                 }
+                //             } else {
+                //                 let hiddenFieldId = idValue.replace(/shipping-/g, "hidden-");
+                //                 let hiddenField = document.getElementById(hiddenFieldId);
+                //                 if(hiddenField){
+                //                     document.getElementById(idValue).value = hiddenField.value;
+                //                 }
+                //             }
+                //             document.getElementById(idValue).setAttribute('has-error',false);
+                //             document.getElementById(idValue).setAttribute('readonly',true);
+                //         } else {
+                //             document.getElementById(idValue).removeAttribute('readonly');
+                //         }
+                //     }
+                // });
             },
             async updateBillingContact(isSameWithShipping){
-                if(isSameWithShipping){
-                    document.getElementById("hidden-billing_company_name").value = shipping_company_name;
-                    document.getElementById("hidden-billing_contact_first_name").value = shipping_contact_first_name;
-                    document.getElementById("hidden-billing_contact_last_name").value = shipping_contact_last_name;
-                    document.getElementById("hidden-billing_contact_email").value = shipping_contact_email;
-                    document.getElementById("hidden-billing_contact_phone_number").value = shipping_contact_phone_number;
-                    document.getElementById("hidden-billing_contact_phone_country_code").value = shipping_contact_phone_country_code;
-                } else {
-                    document.getElementById("hidden-billing_company_name").value = document.getElementById("billing_company_name").value;
-                    document.getElementById("hidden-billing_contact_first_name").value = document.getElementById("billing_contact_first_name").value;
-                    document.getElementById("hidden-billing_contact_last_name").value = document.getElementById("billing_contact_last_name").value;
-                    document.getElementById("hidden-billing_contact_email").value = document.getElementById("billing_contact_email").value;
+                // if(isSameWithShipping){
+                //     console.log('isSameWithShipping updateBillingContact', isSameWithShipping);
+                //     document.getElementById("hidden-billing_company_name").value = shipping_company_name;
+                //     document.getElementById("hidden-billing_contact_first_name").value = shipping_contact_first_name;
+                //     document.getElementById("hidden-billing_contact_last_name").value = shipping_contact_last_name;
+                //     document.getElementById("hidden-billing_contact_email").value = shipping_contact_email;
+                //     document.getElementById("hidden-billing_contact_phone_number").value = shipping_contact_phone_number;
+                //     document.getElementById("hidden-billing_contact_phone_country_code").value = shipping_contact_phone_country_code;
+                // } 
+                
+                // else {
+                //     console.log('else updateBillingContact', isSameWithShipping);
 
-                    let phone = await billingPhone.inputTelAccount.getValues();
-                    if(phone){
-                        billingPhone.billingPhoneNumber.value = phone.phone_number;
-                        billingPhone.billingCountryCode.value = phone.country_code;
-                    }                    
-                }
+                //     document.getElementById("hidden-billing_company_name").value = document.getElementById("billing_company_name").value;
+                //     document.getElementById("hidden-billing_contact_first_name").value = document.getElementById("billing_contact_first_name").value;
+                //     document.getElementById("hidden-billing_contact_last_name").value = document.getElementById("billing_contact_last_name").value;
+                //     document.getElementById("hidden-billing_contact_email").value = document.getElementById("billing_contact_email").value;
+
+                //     let phone = await billingPhone.inputTelAccount.getValues();
+                //     if(phone){
+                //         billingPhone.billingPhoneNumber.value = phone.phone_number;
+                //         billingPhone.billingCountryCode.value = phone.country_code;
+                //     }                    
+                // }
             },
             async checkSignUpUserEmail(field){ 
                 // Attached to the eventlistener
@@ -113,6 +132,42 @@ let Checkout = (function () {
                     emailElem.hasError = false;
                     emailIsClean = true;
                 }
+            },
+            checkSelectedCard(){
+                const cards = document.querySelectorAll('ins-checkbox-card');
+        
+                cards.forEach(card => {
+                    const isSelected = card.hasAttribute('selected');
+                    console.log('isSelected', isSelected);
+                    
+                    // If a selected card is found, stop further processing
+                    if (isSelected) {
+                        Checkout.methods.removeAddressRequiredAttribute();
+                        return; 
+                    }
+                });
+            },
+            removeAddressRequiredAttribute() {
+                console.log('removeAddressRequiredAttribute function triggered. Removing required and validate attributes.');
+                // Remove the 'required' and 'validate' attributes
+                inputIds.forEach(id => {
+                    const inputElement = document.getElementById(id);
+                    if (inputElement) {
+                        inputElement.removeAttribute('required');
+                        inputElement.removeAttribute('validate');
+                    }
+                });
+            },
+            addAddressRequiredAttribute( ){
+                console.log('addAddressRequiredAttribute function triggered. Add required and validate attributes.');
+                // Add the 'required' and 'validate' attributes
+                inputIds.forEach(id => {
+                    const inputElement = document.getElementById(id);
+                    if (inputElement) {
+                        inputElement.setAttribute('required', '');
+                        inputElement.setAttribute('validate', '');
+                    }
+                });
             }
         },
         validation: {
@@ -283,6 +338,7 @@ let Checkout = (function () {
                 containerEl.classList.add("hide");
             },
             addNewAddress(button){
+                Checkout.methods.addAddressRequiredAttribute();
                 //Use the initial generated uuid
                 document.getElementById('address-uuid').value = document.getElementById('temp-address-uuid').value;
 
@@ -440,7 +496,7 @@ let Checkout = (function () {
                     });
                 }
             },
-            initBillingDetailsListener(){                               
+            initBillingDetailsListener(){                 
                 if (billingSameWithShipping) {
                     billingSameWithShipping.addEventListener('insCheck', (event) => {
                         let isChecked = event.detail.checked;                                                                        
@@ -468,6 +524,8 @@ let Checkout = (function () {
                         Checkout.events.selectAddressCard(address);
                     });
                 });
+
+                Checkout.methods.checkSelectedCard();
             },
             initAddressBtnListener() {
                 addAddressBtn.forEach(btn => {
@@ -513,7 +571,6 @@ let Checkout = (function () {
                     }
                 }
             }
-            
         }
     }
 })();

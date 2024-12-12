@@ -42,9 +42,6 @@ fields:
         shipping_address_2:
         shipping_address_3:
         shipping_city:
-            validation:
-                presence:  
-                    message: City is required 
         shipping_state:
             validation:
                 presence:  
@@ -89,9 +86,6 @@ fields:
         billing_address_2:
         billing_address_3:
         billing_city:
-            validation:
-                presence:  
-                    message: City name is required 
         billing_state:  
             validation:
                 presence:
@@ -223,7 +217,7 @@ callback_actions: >
 
     {%- session latest_step = 5 -%}
 ---
-
+{% log context.session., type: "==== context.session in checkout_payment====" %}
 {% comment %} Get the user uuid {% endcomment %}
 {%  liquid
     if context.session.user_uuid and context.session.user_uuid != ''
@@ -339,7 +333,7 @@ callback_actions: >
                                 </a>
                             </div>
                             <div class="large-6 medium-6 small-12 cell text-right">
-                                <ins-button solid type="submit" id="checkout-submit-btn" class="w-100" label="Purchase Order"></ins-button>
+                                <ins-button solid type="submit" id="checkout-submit-btn" class="w-100 checkout-btn" label="Purchase Order"></ins-button>
                             </div>
                         </div>
                         

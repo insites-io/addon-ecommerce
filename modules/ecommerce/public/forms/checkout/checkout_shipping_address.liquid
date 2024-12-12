@@ -89,7 +89,6 @@ callback_actions: |-
   {%- session latest_step = 3 -%}
 
 ---
-
 {% assign prop = form.fields.properties %}
 
 {%- form 
@@ -111,31 +110,21 @@ callback_actions: |-
     name="{{ prop.shipping_contact_phone_country_code.name }}"
     value="{{ prop.shipping_contact_phone_country_code.value }}" >
 
-  
-  <input 
-    type="hidden" 
-    id="hidden-company-name"
-    value="{{ context.session.account_company_name }}" >
-  <input 
-    type="hidden" 
-    id="hidden-first-name"
-    value="{{ context.session.shipping_contact_first_name }}" >
-  <input 
-    type="hidden" 
-    id="hidden-last-name"
-    value="{{ context.session.shipping_contact_last_name }}" >
-  <input 
-    type="hidden" 
-    id="hidden-email"
-    value="{{ context.session.shipping_contact_email }}" >
-  <input 
-    type="hidden" 
-    id="hidden-country-code"
-    value="{{ context.session.account_mobile_country_code }}" >
-  <input 
-    type="hidden" 
-    id="hidden-mobile-number"
-    value="{{ context.session.account_mobile_number }}" >
+
+  <input type="hidden" id="hidden-first-name" value="{{ context.session.shipping_contact_first_name }}" >
+  <input type="hidden" id="hidden-last-name" value="{{ context.session.shipping_contact_last_name }}" >
+  <input type="hidden" id="hidden-email" value="{{ context.session.shipping_contact_email }}" >
+  <input type="hidden" id="hidden-shipping-company-name" value="{{ context.session.shipping_company_name }}" >
+  <input type="hidden" id="hidden-shipping-country-code" value="{{ context.session.shipping_contact_phone_country_code }}" >
+  <input type="hidden" id="hidden-shipping-mobile-number" value="{{ context.session.shipping_contact_phone_number }}" >
+
+      
+  <input  type="hidden" id="hidden-company-name"value="{{ context.session.account_company_name }}" >
+  <input type="hidden" id="hidden-account-first-name" value="{{ current_user.first_name}}" >
+  <input type="hidden" id="hidden-account-last-name" value="{{ current_user.last_name}}" >
+  <input type="hidden" id="hidden-account-email" value="{{ current_user.email}}" >
+  <input type="hidden" id="hidden-country-code" value="{{ context.session.account_mobile_country_code }}" >
+  <input type="hidden" id="hidden-mobile-number" value="{{ context.session.account_mobile_number }}" >
 
     
   <div id="shipping-details" class="insites-form">
@@ -157,13 +146,14 @@ callback_actions: |-
     {% comment %} Contact Person Fields {% endcomment %}
     <div class="grid-x grid-padding-x shipping-contact-person {% if context.session.same_shipping == 'true' %} hide {% endif %}">
       <div class="large-12 medium-12 small-12 cell">
+
         <ins-input shipping-details-field 
           class="label-input" 
           label="Company Name" 
           placeholder="Company Name"
           field="text" 
           id="shipping-company-name" 
-          value="{{ context.session.shipping_company_name}}"
+          value="{{ context.session.shipping_company_name }}"
           name="{{ prop.shipping_company_name.name }}">
         </ins-input>
       </div>
@@ -173,7 +163,7 @@ callback_actions: |-
           placeholder="First Name"
           name="{{ prop.shipping_contact_first_name.name }}" 
           id="shipping-first-name" 
-          value="{{ context.session.shipping_contact_first_name}}"
+          value="{{ context.session.shipping_contact_first_name | default: ''}}"
           {% if form.errors['properties.shipping_contact_first_name'] %} has-error {% endif %}
           error-message="{{ prop.shipping_contact_first_name.validation.rules.presence.message }}">
         </ins-input>
@@ -184,7 +174,7 @@ callback_actions: |-
           placeholder="Last Name"
           name="{{ prop.shipping_contact_last_name.name }}" 
           id="shipping-last-name" 
-          value="{{ context.session.shipping_contact_last_name}}"
+          value="{{ context.session.shipping_contact_last_name | default: ''}}"
           {% if form.errors['properties.shipping_contact_last_name'] %} has-error {% endif %}
           error-message="{{ prop.shipping_contact_last_name.validation.rules.presence.message }}">
         </ins-input>
@@ -196,7 +186,7 @@ callback_actions: |-
           field="email"
           name="{{ prop.shipping_contact_email.name }}" 
           id="shipping-email" 
-          value="{{ context.session.shipping_contact_email}}"
+          value="{{ context.session.shipping_contact_email | default: ''}}"
           {% if form.errors['properties.shipping_contact_email'] %} has-error {% endif %}
           error-message="{{ prop.shipping_contact_email.validation.rules.presence.message }}"
           tooltip="You will receive notifications to this email address if you have selected Yes to receive freight quotes"
@@ -208,8 +198,8 @@ callback_actions: |-
           class="label-input" 
           id="shipping-phone" 
           label="Phone Number"
-          country-code="{{ context.session.shipping_contact_phone_country_code}}"
-          phonenum-value="{{ context.session.shipping_contact_phone_number}}"
+          country-code="{{ context.session.shipping_contact_phone_country_code | default: '61'}}"
+          phonenum-value="{{ context.session.shipping_contact_phone_number | default: ''}}"
           phonenum-placeholder="Phone Number" no-areacode>
         </ins-input-tel>
       </div>
@@ -275,12 +265,12 @@ callback_actions: |-
               name="{{ prop.shipping_address_id.name }}" >
           </div>
           <div class="large-6 medium-6 small-12 cell">
-            <ins-input  required validate 
+            <ins-input required validate 
               label="Address 1*" 
               id="shipping_address_1"
               placeholder="Address 1" 
               name="{{ prop.address_1.name }}"
-              value="{{ context.session.shipping_address_1 | default: '' }}"
+              value="{{ prop.address_1.value }}"
               {% if form.errors['properties.address_1'] %} has-error {% endif %}
               error-message="{{ prop.address_1.validation.rules.presence.message }}">
             </ins-input>
@@ -291,29 +281,29 @@ callback_actions: |-
               id="shipping_address_2" 
               placeholder="Address 2"
               name="{{ prop.address_2.name }}"
-              value="{{ context.session.shipping_address_2 | default: '' }}"
+              value="{{ prop.address_2.value }}"
               {% if form.errors['properties.address_2'] %} has-error {% endif %}
               error-message="{{ prop.address_2.validation.rules.presence.message }}">
             </ins-input>
           </div>
           <div class="large-6 medium-6 small-12 cell">
-            <ins-input  required validate 
-              label="City*" 
+            <ins-input 
+              label="City" 
               id="shipping_city" 
               placeholder="City"
               name="{{ prop.city.name }}"
-              value="{{ context.session.shipping_city | default: '' }}" 
+              value="{{ prop.city.value }}" 
               {% if form.errors['properties.city'] %} has-error {% endif %}
               error-message="{{ prop.city.validation.rules.presence.message }}">
             </ins-input>
           </div>
           <div class="large-6 medium-6 small-12 cell">
-            <ins-input  required validate 
+            <ins-input required validate 
               label="State*" 
               id="shipping_state" 
               placeholder="State"
               name="{{ prop.state.name }}"
-              value="{{ context.session.shipping_state | default: '' }}"
+              value="{{ prop.state.value }}"
               {% if form.errors['properties.state'] %} has-error {% endif %}
               error-message="{{ prop.state.validation.rules.presence.message }}">
             </ins-input>
@@ -324,7 +314,7 @@ callback_actions: |-
               id="shipping_postcode"
               placeholder="Zip / Postal Code" 
               name="{{ prop.postcode.name }}"
-              value="{{ context.session.shipping_postcode | default: '' }}"
+              value="{{ prop.postcode.value }}"
               {% if form.errors['properties.postcode'] %} has-error {% endif %}
               error-message="{{ prop.postcode.validation.rules.presence.message }}">
             </ins-input>
@@ -335,7 +325,7 @@ callback_actions: |-
               id="shipping_country"
               placeholder="Country" 
               name="{{ prop.country.name }}"
-              value="{{ context.session.shipping_country | default: '' }}"
+              value="{{ prop.country.value }}"
               {% if form.errors['properties.country'] %} has-error {% endif %}
               error-message="{{ prop.country.validation.rules.presence.message }}">
             </ins-input>
@@ -375,7 +365,7 @@ callback_actions: |-
         <ins-button solid 
           id="shipping-submit-button" 
           type="submit" 
-          class="checkout-step-btn w-100" 
+          class="checkout-step-btn w-100 checkout-btn" 
           label="{{submitLabel}}">
         </ins-button>
       </div>
@@ -384,3 +374,73 @@ callback_actions: |-
   </div>
 
 {%- endform -%}
+
+<script>
+  // Get references to relevant elements
+  const sameShippingEl = document.getElementById('same-shipping');
+  const shippingFirstNameEl = document.getElementById('shipping-first-name');
+  const shippingLastNameEl = document.getElementById('shipping-last-name');
+  const shippingEmailEl = document.getElementById('shipping-email');
+  const shippingCompanyNameEl = document.getElementById('shipping-company-name');
+
+  // Account and shipping hidden details
+  const hiddenAccountFirstNameEl = document.getElementById('hidden-account-first-name');
+  const hiddenAccountLastNameEl = document.getElementById('hidden-account-last-name');
+  const hiddenAccountEmailEl = document.getElementById('hidden-account-email');
+  const hiddenAccountCompanyNameEl = document.getElementById('hidden-company-name');
+  const hiddenShippingFirstNameEl = document.getElementById('hidden-first-name');
+  const hiddenShippingLastNameEl = document.getElementById('hidden-last-name');
+  const hiddenShippingEmailEl = document.getElementById('hidden-email');
+  const hiddenShippingCompanyNameEl = document.getElementById('hidden-shipping-company-name');
+
+  // Phone details
+  const phone = {
+    inputTelAccount: document.getElementById('shipping-phone'),
+    accountMobilePhone: document.getElementById('hidden-mobile-number'),
+    accountMobileCountryCode: document.getElementById('hidden-country-code'),
+    shippingMobilePhone: document.getElementById('hidden-shipping-mobile-number'),
+    shippingMobileCountryCode: document.getElementById('hidden-shipping-country-code')
+  };
+
+  // Event listener for shipping address change
+  sameShippingEl.addEventListener('insValueChange', event => {
+    const checked = event.target.checked;
+
+    if (checked) {
+      shippingFirstNameEl.value = hiddenAccountFirstNameEl.value;
+      shippingLastNameEl.value = hiddenAccountLastNameEl.value;
+      shippingEmailEl.value = hiddenAccountEmailEl.value;
+      shippingCompanyNameEl.value = hiddenAccountCompanyNameEl.value;
+      updatePhone(true);  
+    } else {
+      shippingFirstNameEl.value = hiddenShippingFirstNameEl.value || '';
+      shippingLastNameEl.value = hiddenShippingLastNameEl.value || '';
+      shippingEmailEl.value = hiddenShippingEmailEl.value || '';
+      shippingCompanyNameEl.value = hiddenShippingCompanyNameEl.value || '',
+      updatePhone(); 
+    }
+  });
+
+  // Function to update phone details
+  function updatePhone(isAccount = false) {
+    const shippingPhone = phone.inputTelAccount;
+    let phoneValue = '';
+    let countryCode = '';
+
+    if (isAccount) {
+      // For account, use account phone details
+      countryCode = `+${phone.accountMobileCountryCode.value}`;
+      phoneValue = phone.accountMobilePhone.value;
+    } else {
+      // For shipping, use shipping phone details, default to '+61' if not provided
+      countryCode = phone.shippingMobileCountryCode.value ? 
+                    `+${phone.shippingMobileCountryCode.value}` : '+61';
+      phoneValue = phone.shippingMobilePhone.value || '';
+    }
+
+    // Set country code and phone number
+    shippingPhone.setCountryCode(countryCode);
+    shippingPhone.setAttribute('phonenum-value', phoneValue);
+  }
+
+</script>
