@@ -4,23 +4,137 @@
         <ins-button label="Go Back" icon="icon-arrow-back"></ins-button>
     </a>
 </div>
-
-<div class="spacer xxx-large"></div>
-<h1 class="heading-1">Order Number: {{ context.params.slug2 }}</h1>
-<div class="spacer x-small"></div>
-<p><span class="font-color-head bold">Date Ordered:</span> {{}}</p>
 <div class="spacer xxx-large"></div>
 
 
-<ins-tab>
+{% graphql order = "modules/ecommerce/orders/get_order_details",
+    id: context.params.slug2, is_shipping_info_needed: true | dig: 'items','results' | first %}
+
+
+{% comment %} Date Format {% endcomment %}
+{%  liquid
+    function localisation_date_format = 'modules/ecommerce/localisation/get_localisation'
+
+    if localisation_date_format == 'DD/MM/YYYY'
+      assign date_time = order.date_time | date: '%d/%m/%Y'
+    else
+      assign date_time = order.date_time | date: '%m/%d/%Y'
+    endif
+%}
+
+
+{% comment %} Get products info {% endcomment %}
+{% graphql ordered_items = 'modules/ecommerce/order_items/get_order_items', 
+        order_uuid: order.uuid, is_product_info_needed: true  | dig: 'items','results' %}
+
+
+{% assign reorder_items = '' | split: ',' %}
+
+{% for item in ordered_items %}
+  {% liquid
+      if item.sku == item.product.sku
+        assign selected_prop = item.product
+      else 
+        for variant in item.product.variants
+          if item.sku == variant.sku
+            assign selected_prop = variant
+            assign is_variant = true
+          endif
+        endfor
+      endif
+
+      if selected_prop.is_on_sale == true 
+          assign price = selected_prop.sale_price
+      else 
+          assign price = selected_prop.regular_price
+      endif
+  %}       
+
+  {% parse_json reorder_data %}
+  {
+      "id": "{{ selected_prop.id }}",
+      "product_uuid": "{{ item.product_uuid }}",
+      "product_sku": "{{ item.sku }}",
+      "product_name": "{{ item.product.product_name }}",
+      "price": "{{ price | default: 0 }}"
+  }
+  {% endparse_json %}
+  {% assign reorder_items = reorder_items | array_add: reorder_data %}
+
+{% endfor %}
+
+
+<div class="grid-x">
+  <div class="grid-y large-7 medium-12 small-12">
+    <h1 class="heading-1">Order Number: {{ context.params.slug2 }}</h1>
+    <div class="spacer x-small"></div>
+    <p><span class="font-color-head bold">Date Ordered:</span> {{ date_time }}</p>
+  </div>  
+
+  <div class="spacer hide-for-large cell"></div>
+
+  <div class="large-5 medium-12 small-12 text-right">
+      <ins-button label="Re-Order" class="reorder-btn button-large" data='{{ reorder_items }}' icon="icon-shopping-cart" size="large" outlined ></ins-button>
+
+      <div class="spacer x-small hide-for-large cell"></div>
+
+      <ins-dropdown 
+        id="downloads-dropdown"     
+        class="button-large"
+        lined   
+        label="More">
+        <ins-dropdown-item
+          label="Download Invoice" 
+          link="#">
+        </ins-dropdown-item>
+        <ins-dropdown-item
+          label="Download Proof of Delivery" 
+          link="#">
+        </ins-dropdown-item>
+      </ins-dropdown>
+  </div>
+</div>
+<div class="spacer xxx-large"></div>
+
+
+<ins-tab id="order-tab">
 
   <ins-tab-item label="Order Details" >
-      {%- include 'modules/ecommerce/user/order_history_detail', order_uuid: context.params.slug2 -%}
+    {% include 'modules/ecommerce/client_portal/orders/order_history_detail', order %}
   </ins-tab-item>
-
-
-  <ins-tab-item label="Freight Quote">
-    {%- include 'modules/ecommerce/user/order_history_freight_quote', order_uuid: context.params.slug2 -%}
+    
+  <ins-tab-item label="Order Summary">
+    {% include 'modules/ecommerce/client_portal/orders/order_summary' %}
   </ins-tab-item>
 
 </ins-tab>
+
+
+{% comment %} Reorder - Cart {% endcomment %}
+<script>
+let reorderBtn = document.querySelectorAll(".reorder-btn ");
+reorderBtn.forEach(btn => {
+  btn.addEventListener('insClick', async event => {  
+    let data = JSON.parse(event.detail.data);       
+    for (let i = 0; i < data.length; i++) {     
+      newEvent = {
+        "detail": {
+          "data": data[i],
+          "label": "Add to Cart",
+          "iteration": i,
+          "all_items": data
+        }
+      }
+      await addToCartPreProcess(newEvent, "reorder");
+    };    
+  });
+});
+</script>
+{% include 'modules/ecommerce/carts/cart_drawer' %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+{%- if context.environment == "staging" -%}
+    <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
+{%- else -%}
+    <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
+{%- endif -%}

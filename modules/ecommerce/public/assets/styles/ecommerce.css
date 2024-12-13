@@ -6,6 +6,13 @@
     color: var(--font-head);
 }
 
+.heading-2-small {
+    font-family: var(--font-family-01);
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 40px; /* 125% */
+}
 .heading-3-small {
     font-family: var(--font-family-01);
     font-size: 24px;
@@ -78,6 +85,16 @@ p.form-label {
     font-style: normal;
     font-weight: 700;
     line-height: 18px; /* 150% */
+    text-transform: uppercase;
+}
+.button-large,
+.button-large span,
+ins-button.button-large button.ins-button.size--large span {
+    font-family: var(--family-font-01);
+    font-size: 16px !important;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 24px; /* 150% */
     text-transform: uppercase;
 }
 
@@ -567,6 +584,67 @@ ins-card.overview .wrap{
 #order-table .pagination-wrap {
     padding: 16px;
 }
+#order-tab ins-tab-item>div {
+    padding: 40px;
+}
+#downloads-dropdown {
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    margin-left: 16px;
+    border-radius: 50%;
+    border: 1px solid var(--color-main);
+    text-transform: initial;
+}
+#downloads-dropdown .icon-angle-down:before {
+    content: "\ea0e";
+    color: var(--color-main);
+}
+#downloads-dropdown .ins-dropdown_label span {
+    display: none;
+}
+#downloads-dropdown .ins-dropdown_label .icon-angle-down {
+    right: 16px;
+    top: 0px;
+}
+#downloads-dropdown .ins-dropdown_menu {
+    width: 239px;
+    left: -239px;    
+    top: 15px;
+    padding: 24px 0px;
+}
+#downloads-dropdown .ins-dropdown_menu-card {
+    text-align: left;
+}
+@media only screen and (max-width: 1023px) {
+    .reorder-btn button,
+    #downloads-dropdown {
+        width: 100%;
+    }
+    #downloads-dropdown{
+        border-radius: 4px;
+        margin-left: initial;
+        text-align: center;
+        align-content: center;
+    }
+    #downloads-dropdown .ins-dropdown_label span {
+        display: initial;
+        color: var(--color-main);
+    }
+    #downloads-dropdown .ins-dropdown_label .icon-angle-down {
+        left: -56px;
+        top: calc(50% - 10px);
+    }
+    #downloads-dropdown .ins-dropdown {
+        width: 100%;
+    }
+    #downloads-dropdown .ins-dropdown_menu {
+        top: 20px;
+        left: 0px;
+        min-width: 100%;    
+    }
+}
+
 
 /* pagination styles */
 .pageinations ins-select {

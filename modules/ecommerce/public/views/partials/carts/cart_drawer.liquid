@@ -200,52 +200,67 @@
     let addToCartBtn = document.querySelectorAll(".add-to-cart-btn");
     addToCartBtn.forEach(btn => {
         btn.addEventListener('insClick', event => {  
-            //show cart drawer
-            if(event.detail.label == "Add to Cart"){
-                cartDrawer.setDrawerState(true); 
-            } 
-
-            let data = JSON.parse(event.detail.data);      
-                data.quantity = cartQuantity; 
-            
-            //used for product with variants in product details page
-            if(productSKU){
-                data.id = variantID;
-                data.price = variantPrice;
-                data.product_sku = productSKU.textContent;
-            }     
-
-            let cartItem = document.getElementById(`cart-item-${data.id}`);
-
-            if(cartItem == null){
-
-                if(addToCart(data)){        
-
-                    if (!emptyCartWrap.classList.contains('hide')) {
-                        emptyCartWrap.classList.add('hide');
-                        bottomWrap.classList.remove('hide');
-                    }          
-                                    
-                    cartItemsWrap.insertAdjacentHTML('afterbegin', cartItemHtml(data));
-
-                    let newItemAdded = document.getElementById(`cart-item-${data.id}`);
-                    if (newItemAdded) {                   
-                        let cartStepper = document.querySelector(`#cart-item-${data.id} .cart-stepper`);                        
-                        cartStepperEventListener(cartStepper);
-
-                        let removeCartBtn = document.querySelector(`#cart-item-${data.id} .cart-remove-btn`);
-                        removeCartEventListener(removeCartBtn);
-                    } 
-
-                    computeSubTotal();
-                }
-            }
-
-            if(event.detail.label != "Add to Cart"){
-                window.location = "/shopping-cart";
-            } 
+            addToCartPreProcess(event);
         });
     });
+
+    function addToCartPreProcess(event, type){
+        //show cart drawer
+        if(event.detail.label == "Add to Cart"){
+            cartDrawer.setDrawerState(true); 
+        } 
+
+        if(type == "reorder"){
+            data = event.detail.data;
+            data.quantity = 1;
+            all_items = event.detail.all_items;        
+            reorder_iteration = event.detail.iteration;
+        } else {
+            data = JSON.parse(event.detail.data);
+            data.quantity = cartQuantity;
+
+            //used for reorder only
+            all_items = []; 
+            reorder_iteration = 0;
+        }         
+                        
+        //used for product with variants in product details page
+        if(productSKU){
+            data.id = variantID;
+            data.price = variantPrice;
+            data.product_sku = productSKU.textContent;
+        }     
+
+        let cartItem = document.getElementById(`cart-item-${data.id}`);
+
+        if(cartItem == null){
+
+            if(addToCart(data, type, all_items, reorder_iteration)){        
+
+                if (!emptyCartWrap.classList.contains('hide')) {
+                    emptyCartWrap.classList.add('hide');
+                    bottomWrap.classList.remove('hide');
+                }          
+                                
+                cartItemsWrap.insertAdjacentHTML('afterbegin', cartItemHtml(data));
+
+                let newItemAdded = document.getElementById(`cart-item-${data.id}`);
+                if (newItemAdded) {                   
+                    let cartStepper = document.querySelector(`#cart-item-${data.id} .cart-stepper`);                        
+                    cartStepperEventListener(cartStepper);
+
+                    let removeCartBtn = document.querySelector(`#cart-item-${data.id} .cart-remove-btn`);
+                    removeCartEventListener(removeCartBtn);
+                } 
+
+                computeSubTotal();
+            }
+        }
+
+        if(event.detail.label != "Add to Cart"){
+            window.location = "/shopping-cart";
+        } 
+    }
     
     /* Increment / Decrement Cart in Drawer */
     let cartStepper = document.querySelectorAll(".cart-stepper");
@@ -289,14 +304,27 @@
     }    
 
     /* Add cart to Database or to localStorage */
-    async function addToCart(data, type){                  
+    async function addToCart(data, type, all_items, reorder_iteration){                          
         data["type"] = type;
+        
         if(user_uuid != ""){
-            data["contact_uuid"] = user_uuid;
-            let response = await apiServices.processRequest("post", "/add-to-cart.json", data);
-            console.log('add response', response);        
-            if(response.state && response.data.items) {
-                return true;          
+            data["contact_uuid"] = user_uuid;           
+            if(type == "reorder"){
+                if(reorder_iteration > 0){
+                    return true;
+                }
+                for (const item of all_items) {
+                    let response = await apiServices.processRequest("post", "/add-to-cart.json", item);
+                    console.log('add reorder response', response); 
+                    is_added = (response.state && response.data.items)? true : false;
+                }
+                return is_added;
+            } else {
+                let response = await apiServices.processRequest("post", "/add-to-cart.json", data);
+                console.log('add response', response);        
+                if(response.state && response.data.items) {
+                    return true;          
+                }
             }
         } else {
             addCartToLocalStorage(data);            

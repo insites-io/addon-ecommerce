@@ -1,7 +1,7 @@
 query get_order_details (
   $id: ID
   $uuid: String
-  $is_more: Boolean=false
+  $is_shipping_info_needed: Boolean=false
   ){
   items: records(
     per_page: 1
@@ -17,9 +17,17 @@ query get_order_details (
     results {
 			
       id
-      uuid: property(name: "uuid")
-      user_id
+      uuid: property(name: "uuid")      
       order_reference: property(name: "order_reference")
+      date_time: property(name: "date_time")       
+      notes: property(name: "notes")
+
+      order_contact_email: property(name: "order_contact_email")
+      order_company_name: property(name: "order_company_name")      
+      order_contact_first_name: property(name: "order_contact_first_name")
+      order_contact_last_name: property(name: "order_contact_last_name")
+      order_contact_phone_number: property(name: "order_contact_phone_number") 
+      order_contact_phone_country_code: property(name: "order_contact_phone_country_code")
       
       billing_company_name: property(name: "billing_company_name")
       billing_contact_first_name: property(name: "billing_contact_first_name") 
@@ -37,6 +45,10 @@ query get_order_details (
       
       total_tax_amount: property_float(name: "total_tax_amount")   
       total_amount: property_float(name: "total_amount")  
+      
+      order_status: property(name: "order_status")    
+      order_payment_status: property(name: "order_payment_status") 
+      order_shipping_status: property(name: "order_shipping_status")     
                        
       payment: related_record(
         table: "modules/insites_ecommerce/payment"
@@ -51,7 +63,7 @@ query get_order_details (
       }
      
     },
-    results @include(if: $is_more){
+    results @include(if: $is_shipping_info_needed){
       
       shipping_company_name: property(name: "shipping_company_name")
       shipping_contact_first_name: property(name: "shipping_contact_first_name") 
@@ -66,21 +78,7 @@ query get_order_details (
       shipping_state: property(name: "shipping_state") 
       shipping_postcode: property(name: "shipping_postcode") 
       shipping_country: property(name: "shipping_country")   
-      shipping_instructions: property(name: "shipping_instructions")
-      
-      order_status: property(name: "order_status")    
-      order_shipping_status: property(name: "order_shipping_status")         
-      
-      cart: related_records(
-        table: "modules/insites_ecommerce/cart"
-        foreign_property: "order_uuid", 
-        join_on_property: "uuid") {
-          product_name: property(name: "product_name")  
-          product_weight: property(name: "product_weight")
-          quantity: property_int(name: "quantity") 
-          product_price: property_float(name: "product_price")                
-      }
-
+      shipping_instructions: property(name: "shipping_instructions")                      
     }
   }
 }
