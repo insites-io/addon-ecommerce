@@ -18,6 +18,7 @@ const shippingPhone = {
 let sameShippingDetailsBtn = document.getElementById('same-shipping');
 let shippingSubmitBtn = document.getElementById("shipping-submit-button");
 
+
 // Billing Address Elements------------------------------------------
 const billingPhone = {
     inputTelAccount: document.getElementById('billing-phone'),
@@ -36,6 +37,10 @@ let cardModal = document.getElementById('stripe-modal');
 let checkoutSubmitBtn = document.getElementById('checkout-submit-btn');
 
 let addAddressBtn = Array.from(document.getElementsByClassName('add-address-btn'));
+let newAddressFlag = false;
+let selectedCardId = null;
+let shippingSamewithAccountFlag = false;
+let billingSamewithShippingFlag = false;
 
 const inputIds = [
     "shipping_address_1",
@@ -138,10 +143,11 @@ let Checkout = (function () {
         
                 cards.forEach(card => {
                     const isSelected = card.hasAttribute('selected');
-                    console.log('isSelected', isSelected);
-                    
+
                     // If a selected card is found, stop further processing
                     if (isSelected) {
+                        selectedCardId = card.value;
+                        console.log('selectedCardId', selectedCardId)
                         Checkout.methods.removeAddressRequiredAttribute();
                         return; 
                     }
@@ -241,22 +247,69 @@ let Checkout = (function () {
             async shippingSubmit(event){
                 event.preventDefault();
                 shippingSubmitBtn.loading = true;
+
+                // Remove 'is-invalid' class from 'ins-checkbox-card' elements
+                // This is necessary because when the form is submitted with invalid fields, 
+                // the 'ins-checkbox-card' elements may incorrectly retain the 'is-invalid' class 
+                // even after the issue is corrected.
+                this.removeInvalidClassFromCheckboxCards();
+
                 let form = event.srcElement;
                 let phone = await shippingPhone.inputTelAccount.getValues();
                 if(phone){
                     shippingPhone.shippingMobilePhone.value = phone.phone_number;
                     shippingPhone.shippingMobileCountryCode.value = phone.country_code;
                 }
+      
                 let isValid = await App.validation.validateForm(form);
-
+    
                 if(isValid) {
-                    form.submit();
+                    if (newAddressFlag) {
+                        form.submit();
+                    } else {
+                        Checkout.events.saveSessionApi(true);
+                    }
                 } else {
                     this.setAddressCardError();
                     App.events.notyf("error", "Please check missing fields");
                     shippingSubmitBtn.loading = false;
                 }
                 return false;
+            },
+            async saveSessionApi(shipping = false){
+                if (shipping){
+                    payload = {
+                        same_shipping:`${shippingSamewithAccountFlag}`,
+                        address_id: selectedCardId,
+                        shipping_instructions: document.getElementById('shipping_instructions').value,
+                        shipping_company_name: document.getElementById('shipping-company-name').value,
+                        shipping_contact_first_name: document.getElementById('shipping-first-name').value,
+                        shipping_contact_last_name: document.getElementById('shipping-last-name').value,
+                        shipping_contact_email: document.getElementById('shipping-email').value,
+                        shipping_contact_phone_number: shippingPhone.shippingMobilePhone.value,
+                        shipping_contact_phone_country_code: shippingPhone.shippingMobileCountryCode.value,
+                        latest_step: 3
+                    }
+                } else {
+                    payload = {
+                        billing_same_with_shipping: `${billingSamewithShippingFlag}`,
+                        address_id: selectedCardId,
+                        billing_company_name: document.getElementById('billing_company_name').value,
+                        billing_contact_first_name: document.getElementById('billing_contact_first_name').value,
+                        billing_contact_last_name: document.getElementById('billing_contact_last_name').value,
+                        billing_contact_email: document.getElementById('billing_contact_email').value,
+                        billing_contact_phone_number: billingPhone.billingPhoneNumber.value,
+                        billing_contact_phone_country_code: billingPhone.billingCountryCode.value,
+                        latest_step: 4
+                    }
+                }
+                let url = '/save-checkout-session.json' 
+                let response = await apiServices.processRequest('post', url, payload);
+
+                if (response.state && response.data) {
+                    window.location.href = shipping ? "/checkout/billing" : "/checkout/payment";
+                    newAddressFlag = false;
+                } 
             },
             selectAddressCard(addressCard) {
                 let name = addressCard.getAttribute('name');
@@ -279,6 +332,8 @@ let Checkout = (function () {
                 // set selected state
                 addressCard.setAttribute('selected', true);
                 addressCard.selected = true;
+                selectedCardId = addressCard.value;
+                console.log('selected card', selectedCardId);
                 //Show the add new address button
                 document.getElementsByClassName('add-address-btn')[0]?.classList.remove('hide');
                 //Modify fields and form
@@ -413,6 +468,15 @@ let Checkout = (function () {
                     address.classList.add('is-invalid');
                 });
             },
+            // Function to remove 'is-invalid' class from 'ins-checkbox-card' elements
+            removeInvalidClassFromCheckboxCards() {
+                let addressBoxCards = Array.from(document.querySelectorAll('ins-checkbox-card'));
+                addressBoxCards.forEach(card => {
+                    card.classList.remove('is-invalid');
+                });
+
+                console.log('Removed "is-invalid" class from all ins-checkbox-card elements.');
+            },
             async billingSubmit(event){
                 event.preventDefault();
                 billingSubmitBtn.loading = true;
@@ -425,11 +489,21 @@ let Checkout = (function () {
                     billingPhone.billingCountryCode.value = phone.country_code;
                 } 
 
-                let form = event.srcElement;                
+                // Remove 'is-invalid' class from 'ins-checkbox-card' elements
+                // This is necessary because when the form is submitted with invalid fields, 
+                // the 'ins-checkbox-card' elements may incorrectly retain the 'is-invalid' class 
+                // even after the issue is corrected.
+                this.removeInvalidClassFromCheckboxCards();
+   
+                let form = event.srcElement; 
                 let isValid = await App.validation.validateForm(form);
 
                 if(isValid) {
-                    form.submit();
+                    if (newAddressFlag) {
+                        form.submit();
+                    } else {
+                        Checkout.events.saveSessionApi();
+                    }
                 } else {
                     this.setAddressCardError();
                     App.events.notyf("error", "Please check missing fields");
@@ -458,7 +532,6 @@ let Checkout = (function () {
                 let isValid = await App.validation.validateForm(form);
                 
                 Checkout.validation.validateCreditCard(form);
-
                 if(isValid) {
                     form.submit();
                 } else {
@@ -487,6 +560,7 @@ let Checkout = (function () {
                 if (sameShippingDetailsBtn) {
                     sameShippingDetailsBtn.addEventListener('insCheck', (event) => {
                         let isChecked = event.detail.checked;
+                        shippingSamewithAccountFlag = isChecked;
                         Checkout.methods.updateShippingDetails(isChecked);
                         if (isChecked){
                             for (var i = 0; i < shipCont.length; i++) { shipCont[i].classList.add('hide'); }
@@ -522,6 +596,8 @@ let Checkout = (function () {
                 addressCards.forEach(address => {
                     address.addEventListener('insClick', () => {
                         Checkout.events.selectAddressCard(address);
+                        Checkout.methods.removeAddressRequiredAttribute();
+                        newAddressFlag = false;
                     });
                 });
 
@@ -531,6 +607,8 @@ let Checkout = (function () {
                 addAddressBtn.forEach(btn => {
                     btn.addEventListener('insClick', () => {
                         Checkout.events.addNewAddress(btn);
+                        selectedCardId = null;
+                        newAddressFlag = true;
                     });
                 });
             },

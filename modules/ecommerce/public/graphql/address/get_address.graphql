@@ -3,11 +3,13 @@ query get_address(
   $related_type: String,
   $page: Int = 1,
   $size: Int = 50
+  $id: ID
 ){
   items: records(
     page: $page
     per_page: $size
     filter:{
+      id:{ value: $id }
       table: { value: "modules/insites_core/crm_address" } 
       deleted_at: { exists: false }
       properties:[

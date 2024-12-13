@@ -198,6 +198,7 @@ default_payload: >
         }
     }
 callback_actions: >
+    {% log form, type: "====callback form in checkout_payment====" %}
     {%- comment -%}
     These actions are made intentionally on `callback_actions` and not on `async_callback_action` bec.
     confirmation page needs to be able to see the 'payment details' & cart summary. 
@@ -252,7 +253,7 @@ callback_actions: >
             <div class="large-6 medium-6 small-12 cell text-right">
                 {% if context.current_user %}
                 <div class="spacer x-small"></div>
-                <ins-button type="button" id="add-card-btn" size="small" icon="icon-plus" label="Add Card test">
+                <ins-button type="button" id="add-card-btn" size="small" icon="icon-plus" label="Add Card">
                 </ins-button>
                 {% endif %}
             </div>

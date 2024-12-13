@@ -20,7 +20,48 @@ authorization_policies:
     {% graphql order = "modules/ecommerce/orders/get_order_details", 
         uuid: order_uuid, is_more: true | dig: 'items' | dig: 'results' | first %}
 {% endif %}
+{% log context.session, type: "====context.session in confirmation====" %}
 
+{% liquid
+    assign billing_account_name = order.billing_contact_first_name | append: ' ' | append: order.billing_contact_last_name 
+    assign shipping_phone_data = "{}" | parse_json
+
+    # Fetch current user data
+    graphql current_user = 'modules/ecommerce/account/get_current_user' | dig: 'current_user'
+
+    if current_user
+        assign account_contact = current_user | dig: 'crm_contact' | first
+
+        # Assign account details
+        assign company_uuid = account_contact.company_uuid | default: null
+        assign account_name = current_user.first_name | append: ' ' | append: current_user.last_name
+        assign account_email = current_user.email
+        assign account_phone_data = "{}" | parse_json
+
+        assign account_phone_data = account_phone_data | add_hash_key: 'account_phone', true
+        assign account_phone_data = account_phone_data | add_hash_key: 'country_code', account_contact.mobile_phone_country_code
+        assign account_phone_data = account_phone_data | add_hash_key: 'phone_number', account_contact.mobile_phone_number
+
+        include 'modules/ecommerce/checkout/phone_format', data: account_phone_data
+
+        # Fetch company details if company UUID is available
+        if company_uuid
+            graphql company = "modules/ecommerce/companies/get_company", uuid: company_uuid | dig: 'items', 'results' | first
+            if company
+                assign account_company_name = company.company_name
+            endif
+        endif
+    endif
+
+    log order.shipping_contact_phone_number , type: "====order.shipping_contact_phone_number  in confirmation===="
+
+    if order.shipping_contact_phone_number 
+        assign shipping_phone_data = shipping_phone_data | add_hash_key: 'shipping_phone', true
+        assign shipping_phone_data = shipping_phone_data | add_hash_key: 'country_code', order.shipping_contact_phone_country_code
+        assign shipping_phone_data = shipping_phone_data | add_hash_key: 'phone_number', order.shipping_contact_phone_number
+        include 'modules/ecommerce/checkout/phone_format', data: shipping_phone_data
+    endif 
+%}
 
 {% comment %} context.current_user.id == order.user_id {% endcomment %}
 {%- if true -%}
@@ -45,12 +86,10 @@ authorization_policies:
                 <div class="large-5 medium-12 small-12 cell">
                     <h3 class="heading-3">Account Details</h3>
                     <div class="spacer small"></div>
-                    {%- if order.billing_company_name -%}
-                    <p class="font-cabin">{{ order.billing_company_name }}</p>
-                    {%- endif -%}
-                    <p class="font-cabin">{{ order.billing_contact_first_name | append: ' ' | append: order.billing_contact_last_name }}</p>
-                    <p class="font-cabin">{{ order.billing_contact_email }}</p>
-                    <p class="font-cabin">{{ order.billing_contact_phone_country_code }} {{ order.billing_contact_phone_number }}</p>
+                    <p class="font-cabin">{{ account_company_name | default: order.billing_company_name }}</p>
+                    <p class="font-cabin">{{ account_name | default: order.billing_account_name }}</p>
+                    <p class="font-cabin">{{ account_email | default: order.billing_contact_email  }}</p>
+                    <p class="font-cabin">{{ context.exports.formatted_account_mobile_phone | default: 'N/A' }}</p>
                     <div class="spacer xx-large"></div>
                 </div>
 
@@ -85,7 +124,7 @@ authorization_policies:
                     {%- endif -%}
                     <p class="font-cabin">{{ order.shipping_contact_first_name | append: ' ' | append: order.shipping_contact_last_name }}</p>
                     <p class="font-cabin">{{ order.shipping_contact_email }}</p>
-                    <p class="font-cabin">{{ order.shipping_contact_phone_country_code }} {{ order.shipping_contact_phone_number }}</p>
+                    <p class="font-cabin">{{ context.exports.formatted_shipping_mobile_phone | default: 'N/A' }}</p>
                     <p class="font-cabin">{{ shipping_address }}</p>
                     <div class="spacer xx-large"></div>
                 </div>

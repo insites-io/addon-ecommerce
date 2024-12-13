@@ -136,7 +136,7 @@ callback_actions: |-
     <ins-checkbox class="inline" 
       {% if context.session.same_shipping == 'true' %} checked {% endif %}
       name="{{ prop.same_shipping.name }}"
-      value=true
+      value="{{ context.session.same_shipping | default: false }}"
       id="same-shipping" 
       label="My shipping details are the same as my account details.">
     </ins-checkbox>
@@ -337,6 +337,7 @@ callback_actions: |-
         <div class="grid-x grid-padding-x">
           <div class="large-12 medium-12 small-12 cell">
             <ins-textarea 
+              id= "shipping_instructions"
               label="Shipping Instructions" 
               placeholder="Shipping Instructions"
               name="{{ prop.shipping_instructions.name }}"

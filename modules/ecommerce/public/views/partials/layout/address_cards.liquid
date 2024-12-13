@@ -18,6 +18,7 @@
         
             {% comment %} Convert into integer for comparison with selected_card {% endcomment %}
             {% assign data_id = data.id | plus: 0 %} 
+            {% assign selected_card = selected_card | plus: 0 %}
 
             <ins-checkbox-card data-equalizer-watch
                 name="{{ type }}-address-cards"    

@@ -1,0 +1,121 @@
+---
+slug: api/save-checkout-session
+format: json
+method: post
+searchable: false
+metadata:
+  status: "published"
+  page_type: "endpoint"
+  og:url: ""
+  og:type: ""
+  og:image: ""
+  og:title: "Save checkout session API"
+  og:description: "Save checkout session API"
+  og:site_name: ""
+  meta_title: "Save checkout session API"
+  page_title: "Save checkout session API"
+  meta_description: "Save checkout session API"
+  canonical_url: ""
+  search_engine_visibility: false
+  sitemap_enabled: false
+  sitemap_priority: "1.0"
+  sitemap_order: "9999"
+  sitemap_changefreq: "never"
+---
+
+{% liquid
+    log context.current_user, type: "====save-session context.current_user===="
+    log context.params, type: "====save-session context.params===="
+
+    assign response = "{}" | parse_json
+    assign address_id = context.params.address_id | default: null
+    assign user_uuid = context.current_user.external_id
+
+    log address_id, type: "====save-session address_id===="
+
+    if address_id != null and user_uuid
+        graphql addresses = 'modules/ecommerce/address/get_address', user_uuid: user_uuid id: address_id | dig: 'items', 'results'
+        log addresses, type: "====addresses===="
+
+        if addresses.size > 0
+            assign address = addresses | first
+
+            if context.params.billing_same_with_shipping
+                session billing_address_1 = address.address_1
+                session billing_address_2 = address.address_2
+                session billing_city = address.city
+                session billing_state = address.state
+                session billing_postcode = address.postcode
+                session billing_country = address.country
+                session billing_address_id = address_id
+            else
+                session shipping_address_1 = address.address_1
+                session shipping_address_2 = address.address_2
+                session shipping_city = address.city
+                session shipping_state = address.state
+                session shipping_postcode = address.postcode
+                session shipping_country = address.country
+                session shipping_address_id = address_id
+            endif
+        endif
+    endif
+
+    # Assign shipping-related session variables if provided
+    if context.params.same_shipping
+        session same_shipping = context.params.same_shipping
+    endif
+    if context.params.shipping_instructions
+        session shipping_instructions = context.params.shipping_instructions
+    endif
+    if context.params.shipping_company_name
+        session shipping_company_name = context.params.shipping_company_name
+    endif
+    if context.params.shipping_contact_first_name
+        session shipping_contact_first_name = context.params.shipping_contact_first_name
+    endif
+    if context.params.shipping_contact_last_name
+        session shipping_contact_last_name = context.params.shipping_contact_last_name
+    endif
+    if context.params.shipping_contact_email
+        session shipping_contact_email = context.params.shipping_contact_email
+    endif
+    if context.params.shipping_contact_phone_number
+        session shipping_contact_phone_number = context.params.shipping_contact_phone_number
+    endif
+    if context.params.shipping_contact_phone_country_code
+        session shipping_contact_phone_country_code = context.params.shipping_contact_phone_country_code
+    endif
+
+    # Assign billing-related session variables if provided
+    if context.params.billing_same_with_shipping
+        session billing_same_with_shipping = context.params.billing_same_with_shipping
+    endif
+    if context.params.billing_company_name
+        session billing_company_name = context.params.billing_company_name
+    endif
+    if context.params.billing_contact_first_name
+        session billing_contact_first_name = context.params.billing_contact_first_name
+    endif
+    if context.params.billing_contact_last_name
+        session billing_contact_last_name = context.params.billing_contact_last_name
+    endif
+    if context.params.billing_contact_email
+        session billing_contact_email = context.params.billing_contact_email
+    endif
+    if context.params.billing_contact_phone_number
+        session billing_contact_phone_number = context.params.billing_contact_phone_number
+    endif
+    if context.params.billing_contact_phone_country_code
+        session billing_contact_phone_country_code = context.params.billing_contact_phone_country_code
+    endif
+
+    # Assign the latest step if present
+    if context.params.latest_step
+        session latest_step = context.params.latest_step
+    endif
+
+    # Add response status
+    assign response = response | add_hash_key: 'status', 200
+%}
+
+{{ response }}
