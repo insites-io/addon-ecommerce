@@ -166,7 +166,7 @@ callback_actions: |-
         id="billing-same-with-shipping"
         name="{{ prop.billing_same_with_shipping.name }}"
         {% if context.session.billing_same_with_shipping == 'true' %} checked {% endif %}
-        value=true
+        value="{{ context.session.billing_same_with_shipping | default: false }}"
         label="My billing address is the same as my shipping address">
       </ins-checkbox>
       
@@ -397,76 +397,4 @@ callback_actions: |-
   let shipping_contact_email = "{{ context.session.shipping_contact_email }}";
   let shipping_contact_phone_number = "{{ context.session.shipping_contact_phone_number }}";
   let shipping_contact_phone_country_code = "{{ context.session.shipping_contact_phone_country_code }}";
-
-  // Get references to relevant elements
-  const sameBillingEl = document.getElementById('billing-same-with-shipping');
-  const billingFirstNameEl = document.getElementById('billing_contact_first_name');
-  const billingLastNameEl = document.getElementById('billing_contact_last_name');
-  const billingEmailEl = document.getElementById('billing_contact_email');
-  const billingCompanyNameEl = document.getElementById('billing_company_name');
-
-
-  // Shipping hidden details
-  const hiddenShippingFirstNameEl = document.getElementById('hidden-shipping-first-name');
-  const hiddenShippingLastNameEl = document.getElementById('hidden-shipping-last-name');
-  const hiddenShippingEmailEl = document.getElementById('hidden-shipping-email');
-  const hiddenShippingCompanyNameEl = document.getElementById('hidden-shipping-company-name');
-
-  // Billing hidden details
-  const hiddenBillingFirstNameEl = document.getElementById('hidden-billing_contact_first_name');
-  const hiddenBillingLastNameEl = document.getElementById('hidden-billing_contact_last_name');
-  const hiddenBillingEmailEl = document.getElementById('hidden-billing_contact_email');
-  const hiddenBillingCompanyNameEl = document.getElementById('hidden-billing_company_name');
-
-  // Phone details
-  const phone = {
-    inputTelAccount: document.getElementById('billing-phone'),
-    shippingMobilePhone: document.getElementById('hidden-shipping-mobile-number'),
-    shippingMobileCountryCode: document.getElementById('hidden-shipping-country-code'),
-    billingMobileCountryCode: document.getElementById('hidden-billing_contact_phone_country_code'),
-    billingMobilePhone: document.getElementById('hidden-billing_contact_phone_number')
-  };
-
-  // Event listener for shipping address change
-  sameBillingEl.addEventListener('insValueChange', event => {
-    const checked = event.target.checked;
-    console.log('billing address is the same as my shipping address', checked)
-
-    if (checked) {
-      billingFirstNameEl.value = hiddenShippingFirstNameEl.value;
-      billingLastNameEl.value = hiddenShippingLastNameEl.value;
-      billingEmailEl.value = hiddenShippingEmailEl.value;
-      billingCompanyNameEl.value = hiddenShippingCompanyNameEl.value;
-      updatePhone(true);  
-    } else {
-      billingFirstNameEl.value = hiddenBillingFirstNameEl.value || '';
-      billingLastNameEl.value = hiddenBillingLastNameEl.value || '';
-      billingEmailEl.value = hiddenBillingEmailEl.value || '';
-      billingCompanyNameEl.value = hiddenBillingCompanyNameEl.value || '',
-      updatePhone(); 
-    }
-  });
-
-  // Function to update phone details
-  function updatePhone(isShipping = false) {
-    const billingPhone = phone.inputTelAccount;
-    let phoneValue = '';
-    let countryCode = '';
-
-    if (isShipping) {
-      // For shipping, use shipping phone details
-      countryCode = `+${phone.shippingMobileCountryCode.value}`;
-      phoneValue = phone.shippingMobilePhone.value;
-    } else {
-      // For billing, use billing phone details, default to '+61' if not provided
-      countryCode = phone.billingMobileCountryCode.value ? 
-                    `+${phone.billingMobileCountryCode.value}` : '+61';
-      phoneValue = phone.billingMobilePhone.value || '';
-    }
-
-    // Set country code and phone number
-    billingPhone.setCountryCode(countryCode);
-    billingPhone.setAttribute('phonenum-value', phoneValue);
-  }
-
 </script>
