@@ -147,14 +147,14 @@ let Checkout = (function () {
                     // If a selected card is found, stop further processing
                     if (isSelected) {
                         selectedCardId = card.value;
-                        console.log('selectedCardId', selectedCardId)
+                        console.info('selectedCardId', selectedCardId)
                         Checkout.methods.removeAddressRequiredAttribute();
                         return; 
                     }
                 });
             },
             removeAddressRequiredAttribute() {
-                console.log('removeAddressRequiredAttribute function triggered. Removing required and validate attributes.');
+                console.info('removeAddressRequiredAttribute function triggered. Removing required and validate attributes.');
                 // Remove the 'required' and 'validate' attributes
                 inputIds.forEach(id => {
                     const inputElement = document.getElementById(id);
@@ -165,7 +165,7 @@ let Checkout = (function () {
                 });
             },
             addAddressRequiredAttribute( ){
-                console.log('addAddressRequiredAttribute function triggered. Add required and validate attributes.');
+                console.info('addAddressRequiredAttribute function triggered. Add required and validate attributes.');
                 // Add the 'required' and 'validate' attributes
                 inputIds.forEach(id => {
                     const inputElement = document.getElementById(id);
@@ -198,29 +198,29 @@ let Checkout = (function () {
                             : element.classList.remove('is-invalid')
                     });
             },
-            validateAddress(currentStep) {
-                let container = currentStep.querySelectorAll('.validate-address');
-                if(container) {
-                    container.forEach(block => {
-                        let addressValid = block.querySelectorAll(".address-fields[required] .is-invalid");
-                        if (addressValid.length > 0) {
-                            block.querySelector('.error-message').classList.remove('hide');
-                            Checkout.validation.addressCardsHasError(block, true);
-                        } else {
-                            block.querySelector('.error-message').classList.add('hide');
-                            Checkout.validation.addressCardsHasError(block, false);
-                        }
-                    });
-                }
-            },
-            addressCardsHasError(step, error) {
-                step.querySelectorAll('.address-options ins-checkbox-card')
-                    .forEach(element => {
-                        error 
-                            ? element.classList.add('is-invalid')
-                            : element.classList.remove('is-invalid')
-                    });
-            }
+            // validateAddress(currentStep) {
+            //     let container = currentStep.querySelectorAll('.validate-address');
+            //     if(container) {
+            //         container.forEach(block => {
+            //             let addressValid = block.querySelectorAll(".address-fields[required] .is-invalid");
+            //             if (addressValid.length > 0) {
+            //                 block.querySelector('.error-message').classList.remove('hide');
+            //                 Checkout.validation.addressCardsHasError(block, true);
+            //             } else {
+            //                 block.querySelector('.error-message').classList.add('hide');
+            //                 Checkout.validation.addressCardsHasError(block, false);
+            //             }
+            //         });
+            //     }
+            // },
+            // addressCardsHasError(step, error) {
+            //     step.querySelectorAll('.address-options ins-checkbox-card')
+            //         .forEach(element => {
+            //             error 
+            //                 ? element.classList.add('is-invalid')
+            //                 : element.classList.remove('is-invalid')
+            //         });
+            // }
 
         },
         events: {
@@ -248,11 +248,11 @@ let Checkout = (function () {
                 event.preventDefault();
                 shippingSubmitBtn.loading = true;
 
-                // Remove 'is-invalid' class from 'ins-checkbox-card' elements
+                // Remove 'is-invalid' class from all elements
                 // This is necessary because when the form is submitted with invalid fields, 
-                // the 'ins-checkbox-card' elements may incorrectly retain the 'is-invalid' class 
+                // some elements may incorrectly retain the 'is-invalid' class 
                 // even after the issue is corrected.
-                this.removeInvalidClassFromCheckboxCards();
+                this.removeInvalidClassFromForm();
 
                 let form = event.srcElement;
                 let phone = await shippingPhone.inputTelAccount.getValues();
@@ -260,9 +260,13 @@ let Checkout = (function () {
                     shippingPhone.shippingMobilePhone.value = phone.phone_number;
                     shippingPhone.shippingMobileCountryCode.value = phone.country_code;
                 }
-      
                 let isValid = await App.validation.validateForm(form);
-    
+                
+                // Check if there's a selected card and set isValid to false if not
+                if (!selectedCardId && !newAddressFlag) {
+                    isValid = false;
+                }
+  
                 if(isValid) {
                     if (newAddressFlag) {
                         form.submit();
@@ -270,7 +274,9 @@ let Checkout = (function () {
                         Checkout.events.saveSessionApi(true);
                     }
                 } else {
-                    this.setAddressCardError();
+                    if (!selectedCardId && !newAddressFlag) {
+                        this.setAddressCardError();
+                    }
                     App.events.notyf("error", "Please check missing fields");
                     shippingSubmitBtn.loading = false;
                 }
@@ -333,7 +339,7 @@ let Checkout = (function () {
                 addressCard.setAttribute('selected', true);
                 addressCard.selected = true;
                 selectedCardId = addressCard.value;
-                console.log('selected card', selectedCardId);
+                console.info('selected card', selectedCardId);
                 //Show the add new address button
                 document.getElementsByClassName('add-address-btn')[0]?.classList.remove('hide');
                 //Modify fields and form
@@ -419,6 +425,7 @@ let Checkout = (function () {
                     address.setAttribute('selected', false);
                     address.selected = false;
                 });
+                selectedCardId = null;
             },
             clearAddressField(btnAddress){
                 let name = btnAddress.getAttribute('name');
@@ -463,25 +470,27 @@ let Checkout = (function () {
                 containerEl.classList.remove("hide");
             },
             setAddressCardError(){
-                let addressCards = Array.from(document.querySelectorAll('ins-checkbox-card'));
+                // let addressCards = Array.from(document.querySelectorAll('ins-checkbox-card'));
+                let addressCards = Array.from(document.querySelectorAll('.ins-checkbox-card-wrap'));
+
                 addressCards.forEach(address => {
-                    address.classList.add('is-invalid');
+                    address.style.borderColor = '';
+                    address.style.borderColor = 'red';
                 });
             },
-            // Function to remove 'is-invalid' class from 'ins-checkbox-card' elements
-            removeInvalidClassFromCheckboxCards() {
-                let addressBoxCards = Array.from(document.querySelectorAll('ins-checkbox-card'));
-                addressBoxCards.forEach(card => {
-                    card.classList.remove('is-invalid');
+            // Function to remove 'is-invalid' class from all form elements
+            removeInvalidClassFromForm() {
+                const invalidElements = document.querySelectorAll('.is-invalid');
+                invalidElements.forEach((element) => {
+                    element.classList.remove('is-invalid');
                 });
-
-                console.log('Removed "is-invalid" class from all ins-checkbox-card elements.');
+                console.info('Removed "is-invalid" class from all elements.');
             },
             async billingSubmit(event){
                 event.preventDefault();
                 billingSubmitBtn.loading = true;
 
-                Checkout.methods.updateBillingContact(false);
+                // Checkout.methods.updateBillingContact(false);
                 
                 let phone = await billingPhone.inputTelAccount.getValues();
                 if(phone){
@@ -489,14 +498,20 @@ let Checkout = (function () {
                     billingPhone.billingCountryCode.value = phone.country_code;
                 } 
 
-                // Remove 'is-invalid' class from 'ins-checkbox-card' elements
+                // Remove 'is-invalid' class from all elements
                 // This is necessary because when the form is submitted with invalid fields, 
-                // the 'ins-checkbox-card' elements may incorrectly retain the 'is-invalid' class 
+                // some elements may incorrectly retain the 'is-invalid' class 
                 // even after the issue is corrected.
-                this.removeInvalidClassFromCheckboxCards();
-   
+                this.removeInvalidClassFromForm();
+    
                 let form = event.srcElement; 
+
                 let isValid = await App.validation.validateForm(form);
+
+                // Check if there's a selected card and set isValid to false if not
+                if (!selectedCardId && !newAddressFlag) {
+                    isValid = false;
+                }
 
                 if(isValid) {
                     if (newAddressFlag) {
@@ -505,7 +520,9 @@ let Checkout = (function () {
                         Checkout.events.saveSessionApi();
                     }
                 } else {
-                    this.setAddressCardError();
+                    if (!selectedCardId && !newAddressFlag) {
+                        this.setAddressCardError();
+                    }
                     App.events.notyf("error", "Please check missing fields");
                     billingSubmitBtn.loading = false;
                 }
@@ -561,7 +578,7 @@ let Checkout = (function () {
                     sameShippingDetailsBtn.addEventListener('insCheck', (event) => {
                         let isChecked = event.detail.checked;
                         shippingSamewithAccountFlag = isChecked;
-                        Checkout.methods.updateShippingDetails(isChecked);
+                        // Checkout.methods.updateShippingDetails(isChecked);
                         if (isChecked){
                             for (var i = 0; i < shipCont.length; i++) { shipCont[i].classList.add('hide'); }
                         }else{
@@ -573,20 +590,21 @@ let Checkout = (function () {
             initBillingDetailsListener(){                 
                 if (billingSameWithShipping) {
                     billingSameWithShipping.addEventListener('insCheck', (event) => {
-                        let isChecked = event.detail.checked;                                                                        
+                        let isChecked = event.detail.checked;       
+                        billingSamewithShippingFlag = isChecked;                                                                 
                         let addressCards = document.getElementById("address-cards");
                         if (isChecked){
                             if(addressCards) addressCards.classList.add('hide');
                             if(addAddressBtn[0]) addAddressBtn[0].classList.add('hide');                            
                             if(billingContactFields) billingContactFields.classList.add('hide');
                             if(billingAddressFields) billingAddressFields.classList.add('hide');
-                            Checkout.methods.updateBillingContact(true);
+                            // Checkout.methods.updateBillingContact(true);
                         }else{
                             if(addressCards) addressCards.classList.remove('hide');                            
                             if (addAddressBtn[0]) addAddressBtn[0].classList.remove('hide');
                             if(billingContactFields) billingContactFields.classList.remove('hide');
                             if(billingAddressFields) billingAddressFields.classList.add('hide');
-                            Checkout.methods.updateBillingContact(false);
+                            // Checkout.methods.updateBillingContact(false);
                         }
                     });
                 }
