@@ -1,0 +1,25 @@
+---
+slug: purchase-again
+layout: modules/client/default
+searchable: false
+max_deep_level: 2
+metadata: {
+    "status": "published",
+    "page_type": "content", 
+    "page_name": "Order History",
+    "page_title": "Order History",
+    "meta_title": "Order History"       
+}
+authorization_policies:
+  - modules/client/is_user_logged_in 
+---
+
+{% if context.params.slug2 %} 
+
+    {% include 'modules/ecommerce/client_portal/orders/order_history_tabs' %}
+
+{% else %}
+
+    {% include 'modules/ecommerce/client_portal/orders/order_history' %}
+
+{% endif %}

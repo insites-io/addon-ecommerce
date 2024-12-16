@@ -141,8 +141,8 @@ authorization_policies:
             {%- comment -%}Payment Details: Customer is logged in{%- endcomment -%}
             {%- if context.current_user.id -%}
                 {% include 'modules/ecommerce/layout/order_summary', 
-                    show_product: true,
-                    order_uuid: context.params.order_uuid %}
+                    show_product: true, is_ordered_items: true,
+                    order_uuid: context.params.id %}
             {%- endif -%}
         </div>
     </div>

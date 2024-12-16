@@ -1,23 +1,14 @@
 {% assign params = context.params %}
+{% function user_uuid = 'modules/ecommerce/user/get_user_uuid' %}
 
+{%- if is_ordered_items == true and order_uuid != '' -%}   
 
-{% comment %} Get the user uuid {% endcomment %}
-{%  liquid
-    if context.session.user_uuid and context.session.user_uuid != ''
-        assign user_uuid = context.session.user_uuid
-    else
-        graphql user = 'modules/client/account/get_current_user'
-        session user_uuid = user.current_user.external_id
-        assign user_uuid = user.current_user.external_id
-    endif
-%}
-
-{%- if params.slug == 'confirmation' and params.id != '' -%}   
-
+    {% comment %} Get Order Summary for already purchased item(s) {% endcomment %}
     {% graphql carts = 'modules/ecommerce/order_items/get_order_items', 
-        order_uuid: params.id  | dig: 'items','results' %}
+        order_uuid: order_uuid  | dig: 'items','results' %}
 
 {%- else -%}
+    {% comment %} Get Order Summary for item(s) in the Cart {% endcomment %}
     {% include 'modules/ecommerce/carts/cart_items', user_uuid %}
     {% assign cart_items = context.exports.cart_items %}
     {% assign user_cart = cart_items.user_cart %}
@@ -27,11 +18,13 @@
 
 
 <div class="order-summary-wrapper">
+    {% unless no_heading %}
     <h2 class="color-font-sub heading-2">
         {%- if context.location.pathname == '/confirmation' -%}
         Payment {% else %} Order {% endif %} Summary
     </h2>
     <div class="spacer x-large"></div>
+    {% endunless %}
     
     <div id="order-summary-cart-wrap" class="order-summary">   
         {%- if show_product -%}            
@@ -82,8 +75,8 @@
 
     
     {% comment %}--- GET ORDER COMPUTATION SUMMARY ---{% endcomment %}
-    {%- if params.slug == 'confirmation' and params.id != '' -%}
-        {% include 'modules/ecommerce/checkout/compute_completed_order_amounts', uuid: params.id %}
+    {%- if is_ordered_items == true and order_uuid != '' -%}
+        {% include 'modules/ecommerce/checkout/compute_completed_order_amounts', uuid: order_uuid %}
     {%- else -%}
         {%- include 'modules/ecommerce/checkout/compute_order_summary' 
             order_id, user_uuid, user_cart, carts, products -%}
@@ -152,7 +145,7 @@
                 {%- endif -%}
                 
                 {%- assign type = code.discount_type | downcase -%}
-                {%- if context.params.slug == "confirmation" -%}
+                {%- if is_ordered_items == true -%}
                     {%- parse_json validate_code -%}{ "is_valid": true }{%- endparse_json -%}
                 {%- else -%}
 

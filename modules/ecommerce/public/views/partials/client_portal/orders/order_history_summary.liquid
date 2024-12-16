@@ -1,0 +1,80 @@
+<h2 class="heading-2-small">Order Summary</h2>
+<div class="spacer x-large"></div>
+
+<ins-table 
+  id="fieldTable" 
+  default-bulk-action="Update" 
+  without-pagination 
+  without-search>
+</ins-table>
+
+<div class="spacer x-large"></div>
+<hr>
+<div class="spacer"></div>
+
+
+{% include 'modules/ecommerce/layout/order_summary', 
+  order_uuid: order.uuid, 
+  is_ordered_items: true, no_heading: true %}
+
+{% function localisation_date_format = 'modules/ecommerce/localisation/get_localisation' %}
+
+<script src="{{ 'modules/ecommerce/scripts/table.min.js' | asset_url }}"></script>
+<script>
+  var orderListTable = document.getElementById('fieldTable');
+  let date_format = "{{ localisation_date_format | default: 'DD/MM/YYYY' }}";
+  let tableData = {{ ordered_items }};
+  
+
+  // set table headers
+  orderListTable.tableHeaders = [
+    { label: 'Product Name', type: "string", hasImage: true, sortable: true},
+    { label: 'Item Code', type: "string" },
+    { label: 'Variation', type: "string" },
+    { label: 'Qty', type: "number" },
+    { label: 'Price', type: "currency" }
+  ];
+
+  // set table data
+  orderListTable.tableData = mapData(tableData);
+
+  // sort by Product Name
+  orderListTable.addEventListener('insTableSort', sortHandler);
+  
+
+  function sortHandler(event){
+    console.log('sortHandler', event.detail);
+    tableData.sort(TableScript.methods.dynamicKeySort("order_item_name"));
+    if(event.detail.order == "desc"){
+      tableData.reverse();
+    }
+    orderListTable.tableData = mapData(tableData);
+  }
+    
+  function mapData(tableData) {
+    return tableData.map(data => {                                
+        
+        let product = data.product;
+        let variants = product.variants;
+        let product_img = data.order_item_image;
+
+        if(data.sku == product.sku)
+          variation = "";
+        else {
+          variants.forEach(variant => {
+            if(variant.sku == data.sku) variation = variant.sku;
+          });
+        }
+
+        return {
+            id: data.id,
+            "Product Name": data.order_item_name,
+            "Product Name_Img": product_img,
+            "Item Code": data.sku,
+            "Variation": variation,
+            "Qty": data.quantity,
+            "Price": data.item_price
+        }
+    });
+  }
+</script>
