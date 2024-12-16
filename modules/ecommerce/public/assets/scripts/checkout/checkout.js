@@ -119,61 +119,6 @@ const shippingPhone = {
 let Checkout = (function () {
     return {
         methods: {
-            // Update Shipping Detail 
-            updateShippingDetails(checkState) {
-                // let accountDetails = document.querySelectorAll('[shipping-details-field]');
-                // accountDetails.forEach((field) => {
-                //     let idValue = field.getAttribute('id');
-                //     if(idValue) {
-                //         if(checkState){
-                //             if(idValue == "shipping-phone"){
-                //                 let countryCode = document.getElementById('hidden-shipping-phone-country-code');
-                //                 let phoneNumber = document.getElementById('hidden-shipping-phone');
-                //                 if(phoneNumber && countryCode){
-                //                     document.getElementById(idValue).setAttribute('phonenum-value', phoneNumber.value);
-                //                     document.getElementById(idValue).setCountryCode(countryCode.value);
-                //                 }
-                //             } else {
-                //                 let hiddenFieldId = idValue.replace(/shipping-/g, "hidden-");
-                //                 let hiddenField = document.getElementById(hiddenFieldId);
-                //                 if(hiddenField){
-                //                     document.getElementById(idValue).value = hiddenField.value;
-                //                 }
-                //             }
-                //             document.getElementById(idValue).setAttribute('has-error',false);
-                //             document.getElementById(idValue).setAttribute('readonly',true);
-                //         } else {
-                //             document.getElementById(idValue).removeAttribute('readonly');
-                //         }
-                //     }
-                // });
-            },
-            async updateBillingContact(isSameWithShipping){
-                // if(isSameWithShipping){
-                //     console.log('isSameWithShipping updateBillingContact', isSameWithShipping);
-                //     document.getElementById("hidden-billing_company_name").value = shipping_company_name;
-                //     document.getElementById("hidden-billing_contact_first_name").value = shipping_contact_first_name;
-                //     document.getElementById("hidden-billing_contact_last_name").value = shipping_contact_last_name;
-                //     document.getElementById("hidden-billing_contact_email").value = shipping_contact_email;
-                //     document.getElementById("hidden-billing_contact_phone_number").value = shipping_contact_phone_number;
-                //     document.getElementById("hidden-billing_contact_phone_country_code").value = shipping_contact_phone_country_code;
-                // } 
-                
-                // else {
-                //     console.log('else updateBillingContact', isSameWithShipping);
-
-                //     document.getElementById("hidden-billing_company_name").value = document.getElementById("billing_company_name").value;
-                //     document.getElementById("hidden-billing_contact_first_name").value = document.getElementById("billing_contact_first_name").value;
-                //     document.getElementById("hidden-billing_contact_last_name").value = document.getElementById("billing_contact_last_name").value;
-                //     document.getElementById("hidden-billing_contact_email").value = document.getElementById("billing_contact_email").value;
-
-                //     let phone = await billingPhone.inputTelAccount.getValues();
-                //     if(phone){
-                //         billingPhone.billingPhoneNumber.value = phone.phone_number;
-                //         billingPhone.billingCountryCode.value = phone.country_code;
-                //     }                    
-                // }
-            },
             // Function to update phone details
             updatePhone(sameAddress = false, page = '') {
                 const setPhoneDetails = (telPhone, countryCodeValue, phoneValueValue) => {
@@ -287,31 +232,7 @@ let Checkout = (function () {
                             ? element.classList.add('is-invalid')
                             : element.classList.remove('is-invalid')
                     });
-            },
-            // validateAddress(currentStep) {
-            //     let container = currentStep.querySelectorAll('.validate-address');
-            //     if(container) {
-            //         container.forEach(block => {
-            //             let addressValid = block.querySelectorAll(".address-fields[required] .is-invalid");
-            //             if (addressValid.length > 0) {
-            //                 block.querySelector('.error-message').classList.remove('hide');
-            //                 Checkout.validation.addressCardsHasError(block, true);
-            //             } else {
-            //                 block.querySelector('.error-message').classList.add('hide');
-            //                 Checkout.validation.addressCardsHasError(block, false);
-            //             }
-            //         });
-            //     }
-            // },
-            // addressCardsHasError(step, error) {
-            //     step.querySelectorAll('.address-options ins-checkbox-card')
-            //         .forEach(element => {
-            //             error 
-            //                 ? element.classList.add('is-invalid')
-            //                 : element.classList.remove('is-invalid')
-            //         });
-            // }
-
+            }
         },
         events: {
             // Account Information submission
