@@ -1,0 +1,102 @@
+{%- for cart_product in cart -%}
+    {%- comment %} 
+        * Assign the cart quantity to a variable. If no quantity is found, set it as 'invalid'.
+    {% endcomment %}
+    {% assign quantity = cart_product.quantity | default: 'invalid' %}
+
+    {%- comment %} 
+        * Find the product from the "products" collection that matches the cart product UUID.
+    {% endcomment %}
+    {% assign matched_product = products | where: "uuid", cart_product.product_uuid | first %}
+
+    {%- comment %} 
+        * Log the product UUID for debugging purposes.
+    {% endcomment %}
+    {% log cart_product.product_uuid, type: "====cart_product.product_uuid====" %}
+
+    {%- if matched_product -%}
+        {%- comment %} 
+            * Determine the product price based on whether it's on sale or not.
+            * If it's on sale, use the sale price; otherwise, use the regular price.
+        {% endcomment %}
+        {% if matched_product.is_on_sale %}
+            {% assign price = matched_product.sale_price %}
+        {% else %}
+            {% assign price = matched_product.regular_price %}
+        {% endif %}
+
+        {% assign product_name = matched_product.product_name | default: 'invalid' %}
+        {% assign product_image = matched_product.product_image | default: 'invalid' %}
+        {% assign product_sku = matched_product.product_sku | default: 'invalid' %}
+        {% assign options = '' | split: ',' %}
+
+        {%- comment %} 
+            * Check if the cart's product SKU differs from the current product SKU.
+            * If it differs, handle variants accordingly.
+        {% endcomment %}
+        {% if matched_product.product_sku != cart_product.product_sku %}
+            {% assign variants = matched_product.variants %}
+            {% if variants.size > 0 %}
+                {%- comment %} 
+                    * If variants exist, find the variant that matches the cart's SKU.
+                {% endcomment %}
+                {% assign matched_variant = variants | where: "product_sku", cart_product.product_sku | first %}
+                
+                {% if matched_variant %}
+                    {% assign product_image = matched_variant.product_image | default: 'invalid' %}
+                    {% assign product_sku = matched_variant.product_sku | default: 'invalid' %}
+
+                    {%- comment %} 
+                        * Parse and store the options for the matched variant.
+                    {% endcomment %}
+                    {% for option in matched_variant.product_options %}
+                        {% assign option_json = option | parse_json %}
+                        {% assign options = options | array_add: option_json %}
+                    {% endfor %}
+
+                    {%- comment %} 
+                        * Determine the price of the matched variant (sale or regular price).
+                    {% endcomment %}
+                    {% if matched_variant.is_on_sale %}
+                        {% assign price = matched_variant.sale_price %}
+                    {% else %}
+                        {% assign price = matched_variant.regular_price %}
+                    {% endif %}
+                {% endif %} 
+            {% endif %}
+        {% endif %}
+    {%- endif %}
+
+    {%- comment %} 
+        * Render the product details: image, name, SKU, options (if any), and price/quantity.
+        * Display the variant image if available; otherwise, use the main product image.
+    {% endcomment %}
+    <div style="font-family: inherit; font-size: 16px; display: flex; padding: 0 24px 24px 40px;">
+        <div style="display: flex;">
+            <img src="{{ product_image.url }}" alt="{{ product_image }}" style="width: 88px; padding-right: 24px">
+        </div>
+
+        <div style="margin-left: 16px;">
+            <p style="font-weight: bold; color: #0d0d0d; margin-bottom: 5px;">{{ matched_product.product_name }}</p>
+            <p style="margin-bottom: 5px;">SKU {{ matched_product.product_sku }}</p>
+
+            {% if options and options != '' %}
+                {% comment %}
+                    * Display product options (e.g., size, color) for the matched variant.
+                {% endcomment %}
+                {% for option in options %}
+                    <p style="margin-bottom: 5px">
+                        <span class="body-x-small">{{ option.product_option_value | titleize }}</span>
+                    </p>
+                {% endfor %}
+            {% endif %}
+    
+            {%- comment %} 
+                * Display the quantity and price of the product in the cart.
+                * Format the price using the "pricify" filter and display in AUD.
+            {% endcomment %}
+            <p style="margin: 0;">{{ quantity }} x {{ price | pricify }} AUD</p> 
+        </div>
+    </div>
+
+{%- endfor -%}

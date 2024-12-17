@@ -1,0 +1,158 @@
+{%- graphql record = 'modules/insites_core/utilities/get_record_for_email', 
+    id: form_data.id -%}
+
+{%- assign record = record.items.results[0] -%}
+{%- assign props = form_data.properties -%}
+
+{%- graphql form_config = 'modules/insites_core/utilities/get_form_for_email', 
+    resource: record.table,
+    database_name: record.table -%}
+
+{%- graphql database = 'modules/insites_core/utilities/get_database_for_email', 
+    database_name: record.table -%}
+
+{%- assign items = "" | split: "," -%}
+{%- if form_config.items.total_entries == 0 -%}
+
+    {%- parse_json parsed -%}
+        {{ props | json }}
+    {%- endparse_json -%}
+
+    {%- for prop in parsed -%}
+        {%- if prop[0] != "id" and prop[0] != "errors" -%}
+            
+            {%- assign type = "" -%}
+            {%- if prop[1].path != blank -%}
+                {%- assign type = "upload" -%}
+            {%- endif -%}
+
+            {%- parse_json merged -%}
+                {
+                    "type": "{{ type }}",
+                    "name": "{{ prop[0] }}",
+                    "weight": 0,
+                    "label": "{{ prop[0] }}",
+                    "value": 
+                    {%- if type == "upload" -%}
+                        {{ prop[1] }}
+                    {%- else -%}
+                        "{{ prop[1] }}"
+                    {%- endif -%}
+                }
+            {%- endparse_json -%}
+
+            {%- assign items = items | add_to_array: merged -%}
+        {%- endif -%}
+    {%- endfor -%}
+
+{%- else -%}
+    {%- assign form_builder_props = database.items.results[0].properties -%}
+    
+    {%- for prop in form_builder_props -%}
+        {%- unless prop.name == "document" -%}
+            {%- parse_json merged -%}
+                {
+                    "type": "{{ prop.attribute_type }}",
+                    "ui_element": "{{ prop.metadata.ui_element }}",
+                    "weight": {{ prop.metadata.weight | default: 0 }},
+                    "label": "{{ prop.metadata.label | default: prop.name }}",
+                    "value":
+                    {%- if prop.attribute_type == "upload" or prop.attribute_type == "array" -%}
+                        {{ props[prop.name] }}
+                    {%- else -%}
+                        "{{ props[prop.name] }}"
+                    {%- endif -%}
+                }
+            {%- endparse_json -%}
+    
+            {%- assign items = items | add_to_array: merged -%}
+        {%- endunless -%}
+    {%- endfor -%}
+{%- endif -%}
+
+{%- assign uploads_url = "" | asset_url | replace: "assets", "property_uploads" -%}
+{%- assign sorted = items | sort_by: "weight" -%}
+
+{%- capture assigned_content -%}
+    {%- for item in sorted -%}
+    <table class="module" role="module" data-type="code" border="0" cellpadding="0"
+        cellspacing="0" width="100%" style="table-layout: fixed;"
+        data-muid="08674b2e-4722-46d0-a8cd-7a0026544202.1">
+        <tbody>
+            <tr>
+            <td height="100%" valign="top" role="module-content">
+                <!-- Loop for each form field -->
+                <table style="width:100%;background:#FDFDFD;" cellpadding="0" cellspacing="0"
+                border="0">
+                <tr>
+                    <td style="padding:32px 0px 0px 0px;">
+                    </td>
+                </tr>
+                <tr>
+                    <td align="left" bgcolor="#FDFDFD" class="inner-td"
+                    style="width:100%;text-align:left; background-color:inherit;padding:0px 40px;">
+                        <p style="margin:0px;color:#0D0D0D;font-size:14px;line-height:22px;font-weight:600;">
+                            {%- assign words = item.label | humanize -%}
+                            {%- assign words = words | split: ',' -%}
+                            {%- assign label = "" | split: ',' -%}
+                                {%- for text in words -%}
+                                    {%- assign text = text | capitalize -%}
+                                    {%- assign label = label | add_to_array: text -%}
+                                {%- endfor -%}
+                            {%- assign label = label | join: ' '  -%}
+
+                            {%- liquid
+                                assign words = item.label | humanize 
+                                assign words = words | split: ' ' 
+                                assign label = "" | split: ',' 
+                                    for text in words 
+                                        assign capitalized = text | capitalize 
+                                        assign label = label | add_to_array: capitalized  
+                                    endfor 
+                                assign label = label | join: ' ' 
+                            -%}
+                            {{- label -}}
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:8px 0px 0px 0px;">
+                    </td>
+                </tr>
+                <tr>
+                    <td align="left" bgcolor="#FDFDFD" class="inner-td"
+                    style="width:100%;text-align:left; background-color:inherit;padding:0px 40px;">
+                        <p style="margin:0px;color:#525252;font-size:14px;line-height:22px;">
+                            {%- if item.value == blank -%}
+                                -
+                            {%- elsif item.type == "upload" -%}
+                                
+                                <a href="{{ uploads_url | append: item.value.path }}" title="{{ item.label }}">
+                                    {{ item.value.file_name }}
+                                </a>
+
+                            {%- elsif item.type == "array" and item.ui_element == "file_multiple" -%}
+                                {%- for val in item.value -%}
+                                    {%- assign file_name = val | split: '/' | last -%}
+                                    <a href="{{ uploads_url | append: val }}" title="{{ file_name }}">
+                                        {{ file_name }}
+                                    </a>{% if forloop.last == false%}, &nbsp;{% endif %}
+                                {%- endfor -%}
+
+                            {%- elsif item.type == "array" -%}
+                                {{ item.value | join: ", " }}
+                            {%- else -%}
+                                {{ item.value }}
+                            {%- endif -%}  
+                        </p>
+                    </td>
+                </tr>
+                </table>
+            </td>
+            </tr>
+        </tbody>
+    </table>
+    {%- endfor -%}
+{%- endcapture -%}
+
+{%- return assigned_content -%}

@@ -1,0 +1,170 @@
+{%- if global.company_name and global.company_name != '' -%}
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+  cellspacing="0" width="100%" style="table-layout: fixed;"
+  data-muid="0264d094-e72f-48e6-8873-d6de34b91ad3" data-mc-module-version="2019-10-22">
+  <tbody>
+    <tr>
+      <td style="padding:24px 24px 8px 24px; line-height:24px; text-align:inherit;"
+        height="100%" valign="top" bgcolor="" role="module-content">
+        <div>
+          <div style="font-family: inherit; text-align: center">
+            <strong>{{- global.company_name | default: '' -}}</strong></div>
+          <div></div>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+{%- endif -%}
+
+{% comment %} Location 1 address {% endcomment %}
+{%- if global.loc_1_address_1 != blank or
+    global.loc_1_address_2 != blank or
+    global.loc_1_city != blank or
+    global.loc_1_state != blank or
+    global.loc_1_postcode != blank or
+    global.loc_1_country != blank -%}
+  {%- assign global_loc_1_address = '{}' | parse_json -%}
+  {%- assign global_loc_1_address = global_loc_1_address | add_hash_key: 'address', global.loc_1_address_1 -%}
+  {%- assign global_loc_1_address = global_loc_1_address | add_hash_key: 'address2', global.loc_1_address_2 -%}
+  {%- assign global_loc_1_address = global_loc_1_address | add_hash_key: 'city', global.loc_1_city -%}
+  {%- assign global_loc_1_address = global_loc_1_address | add_hash_key: 'state', global.loc_1_state -%}
+  {%- assign global_loc_1_address = global_loc_1_address | add_hash_key: 'postcode', global.loc_1_postcode -%}
+  {%- assign global_loc_1_address = global_loc_1_address | add_hash_key: 'country', global.loc_1_country -%}
+{%- else -%}
+  {%- assign global_loc_1_address = global.loc_1_address | parse_json | default: "" -%}
+{%- endif -%}
+
+{%- if global_loc_1_address.street_number and global_loc_1_address.street_number != '' -%}
+    {%- assign loc_1_address = loc_1_address | append: global_loc_1_address.street_number | strip | append : " " -%}
+{%- endif -%}
+{%- if global_loc_1_address.street and global_loc_1_address.street != '' -%}
+    {%- assign loc_1_address = loc_1_address | append: global_loc_1_address.street | strip | append : " " -%}
+{%- endif -%}
+{%- if global_loc_1_address.address and global_loc_1_address.address != '' -%}
+    {%- assign loc_1_address = loc_1_address | append: global_loc_1_address.address | strip | append : ", " -%}
+{%- endif -%}
+{%- if global_loc_1_address.address2 and global_loc_1_address.address2 != '' -%}
+    {%- assign loc_1_address = loc_1_address | append: global_loc_1_address.address2 | strip | append : ", " -%}
+{%- endif -%}
+{%- if global_loc_1_address.city and global_loc_1_address.city != '' -%}
+    {%- assign loc_1_address = loc_1_address | append: global_loc_1_address.city | strip | append : " " -%}
+{%- endif -%}
+{%- if global_loc_1_address.state and global_loc_1_address.state != '' -%}
+    {%- assign loc_1_address = loc_1_address | append: global_loc_1_address.state | strip | append : " " -%}
+{%- endif -%}
+{%- if global_loc_1_address.postcode and global_loc_1_address.postcode != '' -%}
+    {%- assign loc_1_address = loc_1_address | append: global_loc_1_address.postcode | strip | append : " " -%}
+{%- endif -%}
+{%- if global_loc_1_address.country and global_loc_1_address.country != '' -%}
+    {%- assign loc_1_address = loc_1_address | append: global_loc_1_address.country | strip | append : " " -%}
+{%- endif -%}
+
+{%- if loc_1_address and loc_1_address != '' -%}
+<!-- Loc 1 Address -->
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+  cellspacing="0" width="100%" style="table-layout: fixed;"
+  data-muid="0264d094-e72f-48e6-8873-d6de34b91ad3.1" data-mc-module-version="2019-10-22">
+  <tbody>
+    <tr>
+      <td style="padding:0px 24px 0px 24px; line-height:24px; text-align:inherit;"
+        height="100%" valign="top" bgcolor="" role="module-content">
+        <div>
+          <div style="font-family: inherit; text-align: center">{{- loc_1_address -}}
+          </div>
+          <div></div>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+{%- endif -%}
+
+
+{% comment %} PO Box 1 address {% endcomment %}
+{%- assign po_1_address = "" -%}
+{%- if global.po_1_num and global.po_1_num != '' -%}
+    {%- assign po_1_address = po_1_address | append: global.po_1_num | strip | append : " " -%}
+{%- endif -%}
+{%- if global.po_1_address.street_number and global.po_1_address.street_number != '' -%}
+    {%- assign po_1_address = po_1_address | append: global.po_1_address.street_number | strip | append : " " -%}
+{%- endif -%}
+{%- if global.po_1_address.street and global.po_1_address.street != '' -%}
+    {%- assign po_1_address = po_1_address | append: global.po_1_address.street | strip | append : " " -%}
+{%- endif -%}
+{%- if global.po_1_address.address and global.po_1_address.address != '' -%}
+    {%- assign po_1_address = po_1_address | append: global.po_1_address.address | strip | append : ", " -%}
+{%- endif -%}
+{%- if global.po_1_address.address2 and global.po_1_address.address2 != '' -%}
+    {%- assign po_1_address = po_1_address | append: global.po_1_address.address2 | strip | append : ", " -%}
+{%- endif -%}
+{%- if global.po_1_address.city and global.po_1_address.city != '' -%}
+    {%- assign po_1_address = po_1_address | append: global.po_1_address.city | strip | append : " " -%}
+{%- endif -%}
+{%- if global.po_1_address.state and global.po_1_address.state != '' -%}
+    {%- assign po_1_address = po_1_address | append: global.po_1_address.state | strip | append : " " -%}
+{%- endif -%}
+{%- if global.po_1_address.postcode and global.po_1_address.postcode != '' -%}
+    {%- assign po_1_address = po_1_address | append: global.po_1_address.postcode | strip | append : " " -%}
+{%- endif -%}
+{%- if global.po_1_address.country and global.po_1_address.country != '' -%}
+    {%- assign po_1_address = po_1_address | append: global.po_1_address.country | strip | append : " " -%}
+{%- endif -%}
+
+
+{%- if po_1_address and po_1_address != '' -%}
+<!-- PO Box 1 -->
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+  cellspacing="0" width="100%" style="table-layout: fixed;"
+  data-muid="0264d094-e72f-48e6-8873-d6de34b91ad3.1" data-mc-module-version="2019-10-22">
+  <tbody>
+    <tr>
+      <td style="padding:0px 24px 0px 24px; line-height:24px; text-align:inherit;"
+        height="100%" valign="top" bgcolor="" role="module-content">
+        <div>
+          <div style="font-family: inherit; text-align: center">{{- po_1_address -}}
+          </div>
+          <div></div>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+{%- endif -%}
+
+
+<!-- loc 1 phone-->
+{%- if global.loc_1_phone_number and global.loc_1_phone_number != '' -%}
+{% assign phone_number = global.loc_1_phone_number %}     
+
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+  cellspacing="0" width="100%" style="table-layout: fixed;"
+  data-muid="0264d094-e72f-48e6-8873-d6de34b91ad3.1.1"
+  data-mc-module-version="2019-10-22">
+  <tbody>
+    <tr>
+      <td style="padding:0px 24px 0px 24px; line-height:24px; text-align:inherit;"
+        height="100%" valign="top" bgcolor="" role="module-content">
+        <div>
+          <div style="font-family: inherit; text-align: center">
+            ({{ phone_number | slice: 0, 2 }}) 
+            {{ phone_number | slice: 2, 10 }} 
+          <div></div>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+{%- endif -%}
+
+{% comment %} <!-- spacer --> {% endcomment %}
+<table class="module" role="module" data-type="spacer" border="0" cellpadding="0"
+  cellspacing="0" width="100%" style="table-layout: fixed;"
+  data-muid="eb4dff20-ff16-4ad0-9c49-3b15ae2cd712">
+  <tbody>
+    <tr>
+      <td style="padding:0px 0px 40px 0px;" role="module-content" bgcolor="">
+      </td>
+    </tr>
+  </tbody>
+</table>

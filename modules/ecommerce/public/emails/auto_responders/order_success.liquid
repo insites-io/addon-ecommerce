@@ -1,0 +1,425 @@
+---
+name: order_success
+to: '{{ data.customer_info.email }}'
+delay: 0
+enabled: true
+trigger_condition: true
+from: >
+    {%- include 'modules/client/emails/autoresponder_from' -%}
+reply_to: >
+    {%- include 'modules/client/emails/autoresponder_reply_to' -%}
+cc:
+bcc:
+subject: Thank you for your order
+layout: modules/insites_core/insites_internal_email_layout
+---
+{% include "modules/insites_cms/globals" %}
+{% assign global = context.exports.global %}
+{% graphql current_user = 'modules/client/account/get_current_user'  %}
+
+{% assign user = data.customer_info %}
+{% assign form = data.form %}
+{% assign order = data.order_info %}
+{% assign products = data.products %}
+{% assign cart = data.cart %}
+
+{% assign order_uuid = order.properties.uuid | default: '' %}
+{% assign order_id = order.id %}
+{% assign order_reference = order.properties.order_reference %}
+{% assign order_number = order_id |  append: '-' |  append: order_reference %}
+
+{%- capture cta_link -%}
+    {{ platform_context.host }}/confirmation?id={{ order_uuid }}
+{%- endcapture -%}
+
+{% parse_json billing_data %}
+  {
+    "id": {{ form.id }},
+    "properties": {
+      {% assign properties = '' %}
+      {% assign props = form.properties %}
+
+      {% assign billing_company_name = props.billing_company_name | default: '-' %}
+      {% assign properties = properties | append: '"company_name": "' | append: billing_company_name | append: '"' %}
+
+      {% assign first_name = props.billing_contact_first_name | default: '-' %}
+      {% assign last_name = props.billing_contact_last_name | default: '-' %}
+      {% assign full_name = first_name | append: ' ' | append: last_name %}
+      {% assign properties = properties | append: ',' | append: '"name": "' | append: full_name | append: '"' %}
+
+      {% assign phone_number = null %}
+      {% assign mobile_number = props.billing_contact_phone_number %}
+      {% if mobile_number %}
+        {% assign country_code = props.billing_contact_phone_country_code | default: '-' %}
+        {% assign phone_number = country_code |  append: ' ' |  append: mobile_number %}
+      {% endif %}
+
+      {% assign phone_number = phone_number| default: '-' %}
+      {% assign properties = properties | append: ',' | append: '"phone_number": "+' | append: phone_number | append: '"' %}
+      {% assign email = props.billing_contact_email | default: '-' %}
+      {% assign properties = properties | append: ',' | append: '"email_address": "' | append: email | append: '"' %}
+
+      {% assign billing_address = null %}
+      {% if props.billing_address_1 and props.billing_address_1 != '' %}
+          {% assign billing_address = billing_address | append: props.billing_address_1 | append: ", " %}
+      {% endif %}
+      {% if props.billing_address_2 and props.billing_address_2 != '' %}
+          {% assign billing_address = billing_address | append: props.billing_address_2 | append: ", " %}
+      {% endif %}
+      {% if props.billing_address_3 and props.billing_address_3 != '' %}
+          {% assign billing_address = billing_address | append: props.billing_address_3 | append: ", " %}
+      {% endif %}
+      {% if props.billing_city and props.billing_city != '' %}
+          {% assign billing_address = billing_address | append: props.billing_city | append: ", " %}
+      {% endif %}
+      {% if props.billing_state and props.billing_state != '' %}
+          {% assign billing_address = billing_address | append: props.billing_state | append: " " %}
+      {% endif %}
+      {% if props.billing_postcode and props.billing_postcode != '' %}
+          {% assign billing_address = billing_address | append: props.billing_postcode | append: ", " %}
+      {% endif %}
+      {% if props.billing_country and props.billing_country != '' %}
+          {% assign billing_address = billing_address | append: props.billing_country | append: " " %}
+      {% endif %}
+
+      {% assign billing_address = billing_address | default: '-' %}
+
+      {% assign properties = properties | append: ',' | append: '"billing_address": "' | append: billing_address | append: '"' %}
+
+      {{ properties }}
+    },
+    "errors": {{ form.errors }}
+  }
+{% endparse_json %}
+
+{% parse_json shipping_data %}
+  {
+    "id": {{ form.id }},
+    "properties": {
+      {% assign properties = '' %}
+      {% assign props = form.properties %}
+
+      {% assign shipping_company_name = props.shipping_company_name | default: '-' %}
+      {% assign properties = properties | append: '"company_name": "' | append: shipping_company_name | append: '"' %}
+
+      {% assign first_name = props.shipping_contact_first_name | default: '-' %}
+      {% assign last_name = props.shipping_contact_last_name | default: '-' %}
+      {% assign full_name = first_name | append: ' ' | append: last_name %}
+      {% assign properties = properties | append: ',' | append: '"name": "' | append: full_name | append: '"' %}
+
+      {% assign phone_number = null %}
+      {% assign mobile_number = props.shipping_contact_phone_number %}
+      {% if mobile_number %}
+        {% assign country_code = props.shipping_contact_phone_country_code | default: '-' %}
+        {% assign phone_number = country_code |  append: ' ' |  append: mobile_number %}
+      {% endif %}
+
+      {% assign phone_number = phone_number| default: '-' %}
+      {% assign properties = properties | append: ',' | append: '"phone_number": "+' | append: phone_number | append: '"' %}
+      {% assign email = props.shipping_contact_email | default: '-' %}
+      {% assign properties = properties | append: ',' | append: '"email_address": "' | append: email | append: '"' %}
+
+      {% assign shipping_address = null %}
+      {% if props.shipping_address_1 and props.shipping_address_1 != '' %}
+          {% assign shipping_address = shipping_address | append: props.shipping_address_1 | append: ", " %}
+      {% endif %}
+      {% if props.shipping_address_2 and props.shipping_address_2 != '' %}
+          {% assign shipping_address = shipping_address | append: props.shipping_address_2 | append: ", " %}
+      {% endif %}
+      {% if props.shipping_address_3 and props.shipping_address_3 != '' %}
+          {% assign shipping_address = shipping_address | append: props.shipping_address_3 | append: ", " %}
+      {% endif %}
+      {% if props.shipping_city and props.shipping_city != '' %}
+          {% assign shipping_address = shipping_address | append: props.shipping_city | append: ", " %}
+      {% endif %}
+      {% if props.shipping_state and props.shipping_state != '' %}
+          {% assign shipping_address = shipping_address | append: props.shipping_state | append: " " %}
+      {% endif %}
+      {% if props.shipping_postcode and props.shipping_postcode != '' %}
+          {% assign shipping_address = shipping_address | append: props.shipping_postcode | append: ", " %}
+      {% endif %}
+      {% if props.shipping_country and props.shipping_country != '' %}
+          {% assign shipping_address = shipping_address | append: props.shipping_country | append: " " %}
+      {% endif %}
+
+      {% assign shipping_address = shipping_address | default: '-' %}
+      {% assign properties = properties | append: ',' | append: '"shipping_address": "' | append: shipping_address | append: '"' %}
+      
+      {% assign shipping_instruction = props.shipping_instructions | default: '-' %}
+      {% assign properties = properties | append: ',' | append: '"shipping_instructions": "' | append: shipping_instructions | append: '"' %}
+
+      {{ properties }}
+    },
+    "errors": {{ form.errors }}
+  }
+{% endparse_json %}
+
+{% parse_json order_details %}
+  {
+    "id": {{ form.id }},
+    "properties": {
+      {% assign properties = '' %}
+      {% assign props = order.properties %}
+
+      {% assign subtotal_amount = props.subtotal_amount | advanced_format: '%.2f' | pricify | default: '-invalid' %}
+      {% assign properties = properties | append: '"subtotal": "' | append: subtotal_amount | append: '"' %}
+      {% assign total_shipping_amount = props.total_shipping_amount | advanced_format: '%.2f' | pricify | default: '-' %}
+      {% assign properties = properties | append: ','  | append: '"delivery_&_handling": "' | append: total_shipping_amount | append: '"' %}
+      {% assign total_tax_amount = props.total_tax_amount | advanced_format: '%.2f' | pricify | default: '-invalid' %}
+      {% assign properties = properties | append: ','  | append: '"tax": "' | append: total_tax_amount | append: '"' %}
+      {% assign total_amount = props.total_amount | advanced_format: '%.2f' | pricify | default: '-invalid' %}
+      {% assign properties = properties | append: ','  | append: '"total": "' | append: total_amount | append: '"' %}
+
+      {{ properties }}
+    },
+    "errors": {{ form.errors }}
+  }
+{% endparse_json %}
+
+{% function billing_details = 'modules/ecommerce/emails/content_data', form_data: billing_data -%}
+{% function shipping_details = 'modules/ecommerce/emails/content_data', form_data: shipping_data -%}
+{% function order_details = 'modules/ecommerce/emails/content_data', form_data: order_details -%}
+
+{% comment %} <!-------------------------------- HTML --------------------------------> {% endcomment %}
+
+{% comment %} <!-- Top Background Div with Dynamic Image Variable --> {% endcomment %}
+<div style="width: 100%; height: 249px; background: url({{  'modules/ecommerce/images/autoresponder_success.png'  | asset_url }}) lightgray 50% / cover no-repeat;">
+</div>
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
+
+{% comment %} <!-- Heading --> {% endcomment %}
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+cellspacing="0" width="100%" style="table-layout: fixed;"
+data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10-22">
+    <tbody>
+        <tr>
+        <td style="padding:0px 40px 0px 40px; line-height:40px; text-align:inherit;"
+            height="100%" valign="top" bgcolor="" role="module-content">
+            <div>
+            <div style="font-family: inherit; text-align: left; line-height: 26px"><span
+                style="font-size: 32px; color: #0d0d0d; text-transform: capitalize"><strong>Thank you for your order</strong></span></div>
+            <div></div>
+            </div>
+        </td>
+        </tr>
+    </tbody>
+</table>
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 40 %}
+
+{% comment %} <!-- Content --> {% endcomment %}
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+cellspacing="0" width="100%" style="table-layout: fixed;"
+data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10-22">
+    <tbody>
+        <tr>
+        <td style="padding:0px 40px 0px 40px; line-height:40px; text-align:inherit;"
+            height="100%" valign="top" bgcolor="" role="module-content">
+            <div>
+            <div style="font-family: inherit; text-align: left"><span
+                style="font-size: 16px; color: #525252;">Hi {{ user.first_name }} {{ user.last_name }},</span></div>
+            <div></div>
+            </div>
+        </td>
+        </tr>
+    </tbody>
+</table>
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 32 %}
+
+{% comment %} <!-- Content --> {% endcomment %}
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+cellspacing="0" width="100%" style="table-layout: fixed;"
+data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10-22">
+    <tbody>
+        <tr>
+        <td style="padding:0px 40px 0px 40px; line-height:40px; text-align:inherit;"
+            height="100%" valign="top" bgcolor="" role="module-content">
+            <div>
+            <div style="font-family: inherit; text-align: left"><span
+                style="font-size: 16px; color: #525252;">Thanks for your purchase from {{ global.company_name }}.</span></div>
+            <div></div>
+            </div>
+        </td>
+        </tr>
+    </tbody>
+</table>
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
+<hr style="margin-left: 40px;margin-right: 40px;color: #DFDFDF;">
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
+
+{% comment %} <!-- Order Number --> {% endcomment %}
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+cellspacing="0" width="100%" style="table-layout: fixed;"
+data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10-22">
+    <tbody>
+        <tr>
+        <td style="padding:0px 40px 0px 40px; line-height:40px; text-align:inherit;"
+            height="100%" valign="top" bgcolor="" role="module-content">
+            <div>
+            <div style="font-family: inherit; text-align: left"><span
+                style="font-size: 24px; color: #0d0d0d"><strong>Order Number: {{ order_number }}</strong></span></div>
+            <div></div>
+            </div>
+        </td>
+        </tr>
+    </tbody>
+</table>
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 32 %}
+
+{% comment %} <!-- Billing Details --> {% endcomment %}
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+cellspacing="0" width="100%" style="table-layout: fixed;"
+data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10-22">
+    <tbody>
+        <tr>
+        <td style="padding:0px 40px 0px 40px; line-height:40px; text-align:inherit;"
+            height="100%" valign="top" bgcolor="" role="module-content">
+            <div>
+            <div style="font-family: inherit; text-align: left"><span
+                style="font-size: 16px; color: #0d0d0d"><strong>Billing Details</strong></span></div>
+            <div></div>
+            </div>
+        </td>
+        </tr>
+    </tbody>
+</table>
+
+{{ billing_details | html_safe }}
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 32 %}
+
+{% comment %} <!-- Shipping Details --> {% endcomment %}
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+cellspacing="0" width="100%" style="table-layout: fixed;"
+data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10-22">
+    <tbody>
+        <tr>
+        <td style="padding:0px 40px 0px 40px; line-height:40px; text-align:inherit;"
+            height="100%" valign="top" bgcolor="" role="module-content">
+            <div>
+            <div style="font-family: inherit; text-align: left"><span
+                style="font-size: 16px; color: #0d0d0d"><strong>Shipping Details</strong></span></div>
+            <div></div>
+            </div>
+        </td>
+        </tr>
+    </tbody>
+</table>
+
+{{ shipping_details | html_safe }}
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
+<hr style="margin-left: 40px;margin-right: 40px;color: #DFDFDF;">
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 40 %}
+
+{% comment %} <!-- Product List --> {% endcomment %}
+{% include 'modules/ecommerce/emails/product_list', products: products, cart: cart %}
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 40 %}
+<hr style="margin-left: 40px;margin-right: 40px;color: #DFDFDF;">
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 24 %}
+
+{% comment %} <!-- Order Details --> {% endcomment %}
+{{ order_details | html_safe }}
+
+{% if current_user %}
+    {% comment %} <!-- Spacer --> {% endcomment %}
+    {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 40 %}
+
+    {% comment %} <!-- View Button --> {% endcomment %}
+    <table class="module" role="module" data-type="code" border="0" cellpadding="0"
+    cellspacing="0" width="100%" style="table-layout: fixed;"
+    data-muid="4645f9d0-c468-47a1-8ecb-557d3ba660bf">
+    <tbody>
+        <tr>
+        <td height="100%" valign="top" role="module-content">
+            <table style="width:100%;background:#FDFDFD;" cellpadding="0" cellspacing="0"
+            border="0">
+            <tr style="width:100%;">
+                <td align="center"
+                style="width:100%;border-radius:6px;padding:0px 40px;font-size:16px; text-align:center;">
+                <table style="width:100%;background:#FDFDFD;" cellpadding="0"
+                    cellspacing="0" border="0">
+                    <tr style="width:100%;">
+                    <td align="center"
+                        style="width:100%;border-radius:6px;padding:0px 40px;font-size:16px; text-align:center; background-color:#3044FF">
+                        <a href="{{- cta_link -}}"
+                        style="background-color:#3044FF; border:0px solid #3044FF; border-radius:4px; border-width:0px; color:#ffffff; display:inline-block; font-size:16px; font-weight:600; letter-spacing:0px; line-height:normal; padding:16px 0px 16px 0px; text-align:center; text-decoration:none; border-style:solid; font-family:inherit; width:100%;"
+                        target="_blank">View Order</a>
+                    </td>
+                    </tr>
+                </table>
+                </td>
+            </tr>
+            </table>
+        </td>
+        </tr>
+    </tbody>
+    </table>
+
+    {% comment %} <!-- Spacer --> {% endcomment %}
+    {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
+
+    {% comment %} <!-- Text: Paste this link --> {% endcomment %}
+    <table class="module" role="module" data-type="text" border="0" cellpadding="0"
+    cellspacing="0" width="100%" style="table-layout: fixed;"
+    data-muid="fa0dab93-144a-4b01-a832-59e0e2cf3d71.2" data-mc-module-version="2019-10-22">
+    <tbody>
+        <tr>
+        <td style="padding:0px 40px 0px 40px; line-height:26px; text-align:inherit;"
+            height="100%" valign="top" bgcolor="" role="module-content">
+            <div>
+            <div style="font-family: inherit; text-align: inherit"><span
+                style="white-space-collapse: preserve; text-wrap: wrap">Or, paste this link into your browser:</span></div>
+            <div></div>
+            </div>
+        </td>
+        </tr>
+    </tbody>
+    </table>
+
+    {% comment %} <!-- Spacer --> {% endcomment %}
+    {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 8 %}
+
+    {% comment %} <!-- Link: Browser link --> {% endcomment %}
+    <table class="module" role="module" data-type="code" border="0" cellpadding="0"
+    cellspacing="0" width="100%" style="table-layout: fixed;"
+    data-muid="4960b04d-52a3-4afe-bca7-6cc0bf64d397">
+    <tbody>
+        <tr>
+        <td height="100%" valign="top" role="module-content">
+            <table style="width:100%;background:#FDFDFD;" cellpadding="0" cellspacing="0"
+            border="0">
+            <tr style="width:100%;">
+                <td align="left" bgcolor="#FDFDFD" class="inner-td"
+                style="width:100%;text-align:left; background-color:inherit;padding:0px 40px;">
+                <p
+                    style="white-space-collapse:preserve;text-wrap:wrap;font-size:14px;line-height:22px;color:#3044ff;text-wrap:wrap;word-break:break-all;margin:0px;">
+                    {{- cta_link -}}</p>
+                </td>
+            </tr>
+            </table>
+        </td>
+        </tr>
+    </tbody>
+    </table>
+    
+{% endif %}
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
+
+{% comment %} <!-- Footer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/client_footer', global: global %}

@@ -1,0 +1,177 @@
+---
+name: order_success_workflow
+delay: 0
+enabled: true
+trigger_condition: true
+to: >
+    {%- include 'modules/client/emails/autoresponder_reply_to' -%}
+from: >
+    {%- include 'modules/insites_core/email_layout/workflow_from' -%}
+reply_to: >
+    {%- include 'modules/insites_core/email_layout/workflow_from' -%}
+cc: 
+bcc: 
+subject: New ecommerce order 
+layout: modules/insites_core/insites_internal_email_layout
+---
+{% assign order_uuid = data.order_info.properties.uuid | default: '' %}
+{% assign order_id = data.order_info.id %}
+{% assign order_reference = data.order_info.properties.order_reference %}
+{% assign order_number = order_id |  append: '-' |  append: order_reference %}
+
+{%- capture cta_link -%}
+    {{ platform_context.host }}/admin/insites#/ecommerce/orders/{{ order_uuid }}
+{%- endcapture -%}
+
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
+
+{% comment %} <!-- Heading --> {% endcomment %}
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+cellspacing="0" width="100%" style="table-layout: fixed;"
+data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10-22">
+    <tbody>
+        <tr>
+        <td style="padding:0px 40px 0px 40px; line-height:40px; text-align:inherit;"
+            height="100%" valign="top" bgcolor="" role="module-content">
+            <div>
+            <div style="font-family: inherit; text-align: left"><span
+                style="font-size: 32px; color: #0d0d0d"><strong>New Order</strong></span></div>
+            <div></div>
+            </div>
+        </td>
+        </tr>
+    </tbody>
+</table>
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 40 %}
+
+{% comment %} <!-- Content --> {% endcomment %}
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+  cellspacing="0" width="100%" style="table-layout: fixed;"
+  data-muid="887789ce-ea31-48d2-abd4-462cea9ecab3.1" data-mc-module-version="2019-10-22">
+  <tbody>
+    <tr>
+      <td style="padding:0px 40px 0px 40px; line-height:26px; text-align:inherit;"
+        height="100%" valign="top" bgcolor="" role="module-content">
+        <div>
+          <div style="font-family: inherit; text-align: inherit"><span
+            style="white-space-collapse: preserve; text-wrap: wrap">A new order has been placed with order number {{ order_number }}.</span></div>
+          <div></div>
+        </div>
+      </td>
+    </tr>
+</tbody>
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 32 %}
+
+{% comment %} <!-- Content --> {% endcomment %}
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+  cellspacing="0" width="100%" style="table-layout: fixed;"
+  data-muid="887789ce-ea31-48d2-abd4-462cea9ecab3.1" data-mc-module-version="2019-10-22">
+  <tbody>
+    <tr>
+      <td style="padding:0px 40px 0px 40px; line-height:26px; text-align:inherit;"
+        height="100%" valign="top" bgcolor="" role="module-content">
+        <div>
+          <div style="font-family: inherit; text-align: inherit"><span
+            style="white-space-collapse: preserve; text-wrap: wrap">Click the button below to view the order in your instance admin.</span></div>
+          <div></div>
+        </div>
+      </td>
+    </tr>
+</tbody>
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 32 %}
+
+{% comment %} <!-- View Button --> {% endcomment %}
+<table class="module" role="module" data-type="code" border="0" cellpadding="0"
+  cellspacing="0" width="100%" style="table-layout: fixed;"
+  data-muid="4645f9d0-c468-47a1-8ecb-557d3ba660bf">
+  <tbody>
+    <tr>
+      <td height="100%" valign="top" role="module-content">
+        <table style="width:100%;background:#FDFDFD;" cellpadding="0" cellspacing="0"
+          border="0">
+          <tr style="width:100%;">
+            <td align="center"
+              style="width:100%;border-radius:6px;padding:0px 40px;font-size:16px; text-align:center;">
+              <table style="width:100%;background:#FDFDFD;" cellpadding="0"
+                cellspacing="0" border="0">
+                <tr style="width:100%;">
+                  <td align="center"
+                    style="width:100%;border-radius:6px;padding:0px 40px;font-size:16px; text-align:center; background-color:#3044FF">
+                    <a href="{{- cta_link -}}"
+                      style="background-color:#3044FF; border:0px solid #3044FF; border-radius:4px; border-width:0px; color:#ffffff; display:inline-block; font-size:16px; font-weight:600; letter-spacing:0px; line-height:normal; padding:16px 0px 16px 0px; text-align:center; text-decoration:none; border-style:solid; font-family:inherit; width:100%;"
+                      target="_blank">View Order</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
+
+{% comment %} <!-- Text: Paste this link --> {% endcomment %}
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+  cellspacing="0" width="100%" style="table-layout: fixed;"
+  data-muid="fa0dab93-144a-4b01-a832-59e0e2cf3d71.2" data-mc-module-version="2019-10-22">
+  <tbody>
+    <tr>
+      <td style="padding:0px 40px 0px 40px; line-height:26px; text-align:inherit;"
+        height="100%" valign="top" bgcolor="" role="module-content">
+        <div>
+          <div style="font-family: inherit; text-align: inherit"><span
+              style="white-space-collapse: preserve; text-wrap: wrap">Or, paste this link into your browser:</span></div>
+          <div></div>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+<table class="module" role="module" data-type="spacer" border="0" cellpadding="0"
+  cellspacing="0" width="100%" style="table-layout: fixed;"
+  data-muid="b1967865-2b14-4749-ad0f-199269770dd2.1.3.1">
+  <tbody>
+    <tr>
+      <td style="padding:0px 0px 8px 0px;" role="module-content" bgcolor="">
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+{% comment %} <!-- Link: Browser link --> {% endcomment %}
+<table class="module" role="module" data-type="code" border="0" cellpadding="0"
+  cellspacing="0" width="100%" style="table-layout: fixed;"
+  data-muid="4960b04d-52a3-4afe-bca7-6cc0bf64d397">
+  <tbody>
+    <tr>
+      <td height="100%" valign="top" role="module-content">
+        <table style="width:100%;background:#FDFDFD;" cellpadding="0" cellspacing="0"
+          border="0">
+          <tr style="width:100%;">
+            <td align="left" bgcolor="#FDFDFD" class="inner-td"
+              style="width:100%;text-align:left; background-color:inherit;padding:0px 40px;">
+              <p
+                style="white-space-collapse:preserve;text-wrap:wrap;font-size:14px;line-height:22px;color:#3044ff;text-wrap:wrap;word-break:break-all;margin:0px;">
+                {{- cta_link -}}</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}

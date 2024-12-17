@@ -76,6 +76,8 @@ Step 4: Trigger autoresponder, workflow email & API
     "payment_response": {{ payment_response | default: '[]' }},
     "customer_info": {{ context.current_user | default: customer_info }},
     "cart_ids": {{ context.exports.order.cart_ids | default: 0 }},
+    "cart": {{ context.exports.cart_items.carts | default: '[]' }},
+    "products": {{ context.exports.cart_items.products | default: '[]' }},
     "order_info": {{ context.exports.updated_order.items | default: '' }},
     "total_discounted_amount": {{ context.exports.order.total_discount_amount | default: 0 }}, 
     "form": {{ form | default: '' }}
@@ -84,12 +86,12 @@ Step 4: Trigger autoresponder, workflow email & API
 {% log data, type: "==== Email & API: Payload data ====" %}
 {% log status, type: "==== Email & API: status ====" %}
 
-    {%- comment -%}Step 4.1 Workflow & Email Notification{%- endcomment -%}
-    {% include 'modules/ecommerce/checkout/callback_email_notifications', 
-        status: status,
-        data: data %}
+{%- comment -%}Step 4.1 Workflow & Email Notification{%- endcomment -%}
+{% include 'modules/ecommerce/checkout/callback_email_notifications', 
+    status: status,
+    data: data %}
 
-    {%- comment -%}Step 4.2: Trigger API Call{%- endcomment -%}
-    {% include 'modules/ecommerce/checkout/callback_api_call', 
-        status: status,
-        data: data %}
+{%- comment -%}Step 4.2: Trigger API Call{%- endcomment -%}
+{% include 'modules/ecommerce/checkout/callback_api_call', 
+    status: status,
+    data: data %}
