@@ -6,20 +6,307 @@ max_deep_level: 2
 metadata: {
     "status": "published",
     "page_type": "content", 
-    "page_name": "Order History",
-    "page_title": "Order History",
-    "meta_title": "Order History"       
+    "page_name": "Purchase Again",
+    "page_title": "Purchase Again",
+    "meta_title": "Purchase Again"       
 }
 authorization_policies:
   - modules/client/is_user_logged_in 
 ---
 
-{% if context.params.slug2 %} 
+<h1>Purchase Again</h1>
+<div class="spacer small"></div>
+<p>Quickly reorder your favorite items from past purchases. Simply browse, select, and checkout for a fast, hassle-free experience.</p>
+<div class="spacer x-large"></div>
 
-    {% include 'modules/ecommerce/client_portal/orders/order_history_tabs' %}
+
+
+{% function user_uuid = 'modules/ecommerce/user/get_user_uuid' %}
+
+{% assign params = context.params %}
+{% assign page_num = params.page | default: 1 %}
+{% assign per_page = params.per_page | default: 10 %}
+{% assign product_name = params.name | default: '' %}
+{% assign date = params.date | default: '' %}
+{% assign dateFrom = params.from | default: '' %}
+{% assign dateTo = params.to | default: '' %}
+{% assign total_items = 0 %}
+
+
+
+
+{% comment %} Get categories {% endcomment %}
+{% graphql all_categories = 'modules/ecommerce/categories/get_categories' | dig: 'items','results'  %}
+{% assign categories = all_categories | map: 'category_name' | array_prepend: 'All' %}
+{% assign category_filter = params.category | default: '' %}
+
+{% if category_filter == 'All' %}
+    {% assign category_filter = '' %}
+    {% assign category_uuid_filter = '' %}
+{% endif %}
+{% if category_filter != '' %}
+    {% assign category_uuid_filter = all_categories | array_detect: category_name: category_filter | dig: 'uuid' %}
+{% endif %}
+
+
+
+
+{% comment %} Get all order_uuids {% endcomment %}
+{%- parse_json order_filters -%}
+{
+    "order_contact_uuid": "{{user_uuid}}",
+    "size": 50
+}
+{%- endparse_json -%}
+{%- graphql orders = 'modules/ecommerce/orders/get_orders', args: order_filters  -%}
+{% assign order_uuids = orders.items.results | map: 'uuid' %}
+
+{% comment %} Then get all items having order_uuids in the first query {% endcomment %}
+{% if product_name == '' and category_filter == '' %}
+
+    {%- parse_json order_item_filters -%}
+    {
+        "order_uuids": {{order_uuids}},
+        "is_product_info_needed": true,
+        "page": {{page_num}},
+        "size": {{per_page}},
+        "dateFrom": "{{dateFrom}}",
+        "dateTo": "{{dateTo}}"
+    }
+    {%- endparse_json -%}
+    {% graphql ordered_items = 'modules/ecommerce/order_items/get_order_items' args: order_item_filters | dig: 'items' %}
 
 {% else %}
 
-    {% include 'modules/ecommerce/client_portal/orders/order_history' %}
+    {%- parse_json order_item_filters -%}
+    {
+        "order_uuids": {{order_uuids}},
+        "is_product_info_needed": true,
+        "page": {{page_num}},
+        "size": {{per_page}},
+        "product_name": "{{product_name}}",
+        "category_uuid": "{{category_uuid_filter}}",
+        "dateFrom": "{{dateFrom}}",
+        "dateTo": "{{dateTo}}"
+    }
+    {%- endparse_json -%}
+    {% graphql ordered_items = 'modules/ecommerce/order_items/get_order_items_with_related_filter' args: order_item_filters | dig: 'items' %}
 
 {% endif %}
+
+
+{% comment %} Get localisation format {% endcomment %}
+{%  liquid
+    function localisation_date_format = 'modules/ecommerce/localisation/get_localisation'
+
+    if localisation_date_format == 'DD/MM/YYYY'
+      assign date_format = '%d/%m/%Y'
+    else
+      assign date_format = '%m/%d/%Y'
+    endif
+%}
+
+    
+<div class="grid-x">
+    <ins-filter 
+        id="purchased-filter"
+        class="cell large-8 medium-12 small-12"
+        label="Filter by:"
+        with-date-filter 
+        date-from="{{dateFrom}}"
+        date-to="{{dateTo}}"
+        date-title="Date">
+
+        <ins-filter-item
+            selected="{{category_filter}}"
+            name="Category"                
+            options='{{ categories }}'>
+        </ins-filter-item>
+    </ins-filter>
+
+    <div class="spacer hide-for-large cell"></div>
+
+    <ins-input
+        id="search-by-name"
+        class="cell large-4 medium-12 small-12"
+        placeholder="Search  by name"
+        label=""
+        field="search"
+        value="{{ product_name }}"
+        icon="icon-search-1">
+    </ins-input>
+</div>
+
+
+
+<div class="spacer x-large"></div>
+
+{% assign displayed_products = '' | split: ',' %}
+
+{%- if ordered_items.total_entries > 0 -%}
+
+    <div class="purchase-again grid-y grid-padding-y">
+
+    {%- for item in ordered_items.results -%}
+        
+        {%  liquid
+
+            assign product = item.product
+
+            ## A user may have ordered a product multiple times; display each product only once.
+            assign is_displayed_product = displayed_products | array_any: product.uuid
+            if is_displayed_product == true                 
+                continue
+            else 
+                assign displayed_products = displayed_products | array_add: product.uuid
+            endif
+
+
+            ## Categories
+            if category_filter != ''
+                assign category_name = category_filter
+            else
+                assign category_name = all_categories | array_detect: uuid: product.category_uuids[0] | dig: 'category_name'
+            endif
+
+            assign total_items = total_items | plus: 1 
+
+
+            if item.sku == product.sku
+                assign selected_prop = product
+            else 
+                for variant in product.variants
+                if item.sku == variant.sku
+                    assign selected_prop = variant
+                    assign is_variant = true
+                endif
+                endfor
+            endif
+
+            if selected_prop.is_on_sale == true 
+                assign price = selected_prop.sale_price
+            else 
+                assign price = selected_prop.regular_price
+            endif
+        %}   
+
+    
+        <div class="grid-x">
+            <div class="img-wrap">
+                {% if selected_prop.stock_level < 1 %}
+                    <div class="out-of-stock"></div>
+                {% endif %}
+                {% if selected_prop.is_on_sale == true %}
+                    <div class="on-sale-tag">SALE</div>
+                {% endif %}
+                {% if selected_prop.product_image.url %}
+                    <img  src="{{ selected_prop.product_image.url }}" alt="{{ product.product_name }}" >
+                {% else %}
+                    {% include 'modules/website/layout/placeholder_image', size: 'medium' %}
+                {% endif %}
+            </div>
+            <div class="details flex-grow-1">
+                <h6>{{ product.product_name }}</h6>
+                <div class="spacer x-small"></div>                
+                <p>{{ category_name | default: 'Category' }}</p>
+                <div class="spacer"></div>
+                <p class="product-current-price">{{ price | pricify }}
+                    {% if product.is_on_sale == true or variant.is_on_sale == true %}
+                    <span class="body-x-small strikethrough">{{ price_strikethrough | pricify }}</span>
+                    {% endif %}
+                </p>
+                <div class="spacer"></div>
+                <p class="body-x-small">Purchase Date: {{item.created_at | date: date_format }}</p>
+            </div>
+            <div class="buttons">
+                {% parse_json data %}
+                {
+                    "id": "{{ selected_prop.id }}",
+                    "product_uuid": "{{ product.uuid }}",
+                    "product_sku": "{{ selected_prop.sku }}",
+                    "product_name": "{{ product.product_name }}",
+                    "price": "{{ price | default: 0 }}"
+                }
+                {% endparse_json %}
+                <ins-button class="full add-to-cart-btn" label="Add to Cart" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
+                <div class="spacer x-small"></div>
+                <a href="/products/{{ product.slug }}">
+                    <ins-button class="full" label="View Details" outlined icon="icon-eye"></ins-button>
+                </a>
+            </div>
+        
+        </div>
+    {%- endfor -%}
+
+    </div>
+    <div class="spacer x-large"></div>
+
+    
+    {% assign ordered_items = ordered_items | add_hash_key: 'total_entries', total_items %}
+    {% include "modules/ecommerce/layout/pagination",  data: ordered_items, per_page, label: 'Items' %}
+
+{%- else -%}
+
+    <ins-card class="empty-state full" steady>
+        <p>
+            No purchase history
+            {% unless category_filter == '' and product_name == '' and dateFrom == '' and dateTo == '' %}
+            for selected filters
+            {% endunless %}
+        </p>
+    </ins-card>
+
+{%- endif -%}
+
+
+<script>
+    let baseUrl = "/products?";
+    let purchasedFilter = document.getElementById("purchased-filter");
+    let searchByName = document.getElementById("search-by-name");       
+    var filters = {
+        "category": "All",
+        "date": "All",
+        "from": "",
+        "to": "",
+        "name": "",
+        "page": {{ context.params.page | default: 1}},
+        "per_page": {{ per_page | default: 10}}
+    };
+
+    purchasedFilter.addEventListener('insFilterApply', filterHandler);
+    searchByName.addEventListener('insBlur', searchByNameHandler);
+    searchByName.addEventListener('insInput', inputHandler);    
+    
+    function filterHandler(e){
+        console.log('filterHandler', e.detail);
+        filters.category = e.detail.Category;
+        if(e.detail.Date.from && e.detail.Date.to){
+            filters.date = "";
+            filters.from = e.detail.Date.from;
+            filters.to = e.detail.Date.to;
+        } else {
+            filters.date = e.detail.Date;
+        }
+        
+        filters.page = 1;
+        createUrlParams(filters);
+    }
+    function inputHandler(e){
+        console.log('inputHandler', e);
+        if (e.detail.keyCode === 13){
+            filters.name = e.detail.value;
+            filters.page = 1;
+            createUrlParams(filters);
+        }
+    }
+    function searchByNameHandler(e){
+        console.log('searchByNameHandler', e.detail);
+        filters.name = e.detail.value;
+        filters.page = 1;
+        createUrlParams(filters);
+    }    
+
+    //pagination functions were included in partial /layout/pagination
+</script>
+
+{% include 'modules/ecommerce/carts/cart_drawer' %}

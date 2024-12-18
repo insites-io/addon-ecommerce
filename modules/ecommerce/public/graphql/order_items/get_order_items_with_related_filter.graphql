@@ -1,8 +1,10 @@
-query get_order_items (
+query get_order_items_with_related_filter (
   $page: Int=1
   $size: Int=50
   $order_uuid: String
-  $order_uuids: [String]
+  $order_uuids: [String!]
+  $product_name: String
+  $category_uuid: String
   $dateFrom: String
   $dateTo: String
   $is_product_info_needed: Boolean
@@ -20,6 +22,16 @@ query get_order_items (
       created_at: {
         gte: $dateFrom
         lte: $dateTo
+      }
+      related_records: {
+        join: {foreign_property: "uuid", join_on_property: "product_uuid"}, 
+        filter: {
+          properties: [
+            {name: "product_name", contains: $product_name}
+            {name: "category_uuids", contains: $category_uuid}
+          ]
+          table: {value: "modules/insites_ecommerce/product"}
+          }
       }
     }
   ) {

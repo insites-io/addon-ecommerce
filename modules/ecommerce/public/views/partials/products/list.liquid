@@ -8,7 +8,7 @@
 
 {%- comment -%} Filter params {%- endcomment -%}
 {%- assign page_num = params.page | default: 1 | plus: 0 -%}
-{%- assign page_size = params.per_page | default: 9 | plus: 0 -%}
+{%- assign per_page = params.per_page | default: 9 | plus: 0 -%}
 {%- assign brand = params.brand | default: "" -%}
 {%- assign show = params.show | default: "all" -%}
 {%- assign keyword = params.keyword | default: "" -%}
@@ -60,7 +60,7 @@
 {%- parse_json filters -%}
 {
     "page": {{page_num}},
-    "size": {{page_size}},
+    "size": {{per_page}},
     "keyword": "{{keyword}}",
     "min_price": "{{min_price}}",
     "max_price": "{{max_price}}",
@@ -145,7 +145,7 @@ Step: Call the search GraphQL with the parameters
 
         <div class="spacer x-large"></div>
 
-        {% include "modules/ecommerce/products/products_pagination",  products, page_size %}
+        {% include "modules/ecommerce/layout/pagination",  data: products.items, per_page, label: 'Items' %}
         
         {%- else -%}
 

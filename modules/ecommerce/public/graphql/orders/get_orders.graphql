@@ -28,6 +28,7 @@ query get_orders (
     results {
       id            
       #properties      
+      uuid: property(name: "uuid")
       order_number: property(name: "order_number")
       date_time: property(name: "date_time")
       total_amount: property_float(name: "total_amount") 
