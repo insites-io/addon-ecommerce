@@ -287,11 +287,8 @@ let Checkout = (function () {
             // Update billing details based on whether billing info is the same as shipping info
             updateBillingDetails(sameDetails) {
                 billingSamewithShippingFlag = sameDetails;
-                console.log('billingSamewithShippingFlag', billingSamewithShippingFlag);
-            
+
                 if (sameDetails) {
-                    // Hide unnecessary fields if same details flag is true
-                    this.toggleFieldsVisibility(true);
                     Checkout.methods.removeAddressRequiredAttribute();
             
                     billingFirstNameEl.value = hiddenBillingShippingFirstNameEl.value;
@@ -311,8 +308,6 @@ let Checkout = (function () {
                         billingCountryEl.value = hiddenBillingShippingCountryEl.value;
                     }
                 } else {
-                    // Restore visibility of fields if same details flag is false
-                    this.toggleFieldsVisibility(false);
                     Checkout.methods.addAddressRequiredAttribute();
             
                     // Handle guest user flag logic for billing address visibility
@@ -349,8 +344,8 @@ let Checkout = (function () {
                 }
             },
             // Helper function to toggle visibility of fields
-            toggleFieldsVisibility(hide) {
-                const visibilityAction = hide ? 'add' : 'remove';
+            toggleFieldsVisibility(checked) {
+                const visibilityAction = checked ? 'add' : 'remove';
 
                 if (addressCards) addressCards.classList[visibilityAction]('hide');
                 if (addAddressBtn[0]) addAddressBtn[0].classList[visibilityAction]('hide');
@@ -740,12 +735,13 @@ let Checkout = (function () {
             initBillingDetailsListener(){                    
                 if (billingSameWithShippingEl) {
                     if(billingSameWithShippingEl.value) {
-                        Checkout.methods.updateBillingDetails(billingSameWithShippingEl.value)
+                        Checkout.methods.updateBillingDetails(billingSameWithShippingEl.value);
                     }
 
                     billingSameWithShippingEl.addEventListener('insCheck', (event) => {
                         let isChecked = event.detail.checked;       
                         Checkout.methods.updateBillingDetails(isChecked);
+                        Checkout.methods.toggleFieldsVisibility(isChecked);
                     });
                 }
             },
