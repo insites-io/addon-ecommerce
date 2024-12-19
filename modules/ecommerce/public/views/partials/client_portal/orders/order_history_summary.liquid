@@ -57,10 +57,9 @@
         let product = data.product;
         let variants = product.variants;
         let product_img = data.order_item_image;
+        let variation = "";
 
-        if(data.sku == product.sku)
-          variation = "";
-        else {
+        if(data.sku != product.sku){
           variants.forEach(variant => {
             if(variant.sku == data.sku) variation = variant.sku;
           });

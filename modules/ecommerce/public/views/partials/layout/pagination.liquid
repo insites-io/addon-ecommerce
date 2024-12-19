@@ -81,7 +81,6 @@
     }
 
     function paginationHandler(e){
-        console.log('paginationHandler', e);
         if(e.detail.data == "previous"){
             filters.page = filters.page - 1;
             if(filters.page < 1){
@@ -103,7 +102,6 @@
             .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
             .join("&"); 
             window.location.href = '?' + params;
-            console.log('params',params);
         }
     }
 </script>        
