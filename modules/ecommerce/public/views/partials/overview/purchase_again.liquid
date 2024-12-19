@@ -1,87 +1,50 @@
-{% graphql orders = "modules/ecommerce/orders/get_completed_orders" | dig: 'items','orders' %}       
+{% function user_uuid = 'modules/ecommerce/user/get_user_uuid' %}
+
+{% comment %} Get all order_uuids {% endcomment %}
+{%- parse_json order_filters -%}
+{
+    "order_contact_uuid": "{{user_uuid}}",
+    "size": 50
+}
+{%- endparse_json -%}
+{%- graphql orders = 'modules/ecommerce/orders/get_orders', args: order_filters  -%}
+{% assign order_uuids = orders.items.results | map: 'uuid' %}
+
+{% comment %} Then get all items having order_uuids in the first query {% endcomment %}
+{%- parse_json order_item_filters -%}
+{
+    "order_uuids": {{order_uuids}},
+    "is_product_info_needed": true,
+    "size": 3
+}
+{%- endparse_json -%}
+{% graphql ordered_items = 'modules/ecommerce/order_items/get_order_items',
+     args: order_item_filters | dig: 'items','results' %}
+
+{% graphql all_categories = 'modules/ecommerce/categories/get_categories' | dig: 'items','results'  %}
 
 <section class="bg-color-ui-01">
     <div class="spacer x-large"></div>
-    <div class="product-carousel">                
-
-        <!-- desktop carousel -->
-        <ins-carousel 
-            id="newArrivalsCarouselDesktop"
-            class="newArrivalsCarousel show-for-large"
-            layout="1"
-            per-page="3"
-            no-pagination=true
-            bind-to="newArrivalCardsDesktop">
-
-             <h2>Purchase Again</h2>   
-            <div class="spacer"></div>
-            <div id="newArrivalCardsDesktop" class="product-cards">
-                {% for order in orders %}
-                    {% assign product = order.cart.product %} 
-                    {% include "modules/ecommerce/products/product_card", product: product, purchase_date: order.date_time %}
-                {% endfor %}
-            </div>
-        </ins-carousel>
-        <!-- desktop carousel -->
-
-        <!-- tablet carousel -->
-        <ins-carousel 
-            id="newArrivalsCarouselTablet"
-            class="newArrivalsCarousel show-for-medium-only"
-            layout="1"
-            per-page="3"
-            no-pagination=true
-            bind-to="newArrivalCardsTablet">
-
-            <h2>New Arrivals</h2>     
-            <div class="spacer xx-large"></div>
-            <div id="newArrivalCardsTablet" class="product-cards">
-                {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product %}
-                {% endfor %}
-            </div>
-        </ins-carousel>
-        <!-- tablet carousel -->
-
-        <!-- mobile carousel -->
-        <ins-carousel 
-            id="newArrivalsCarouselMobile"
-            class="newArrivalsCarousel show-for-small-only"
-            layout="1"
-            per-page="1"
-            no-pagination=true
-            bind-to="newArrivalCardsMobile">
-
-            <h2>New Arrivals</h2>     
-            <div class="spacer xx-large"></div>
-            <div id="newArrivalCardsMobile" class="product-cards">
-                {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product %}
-                {% endfor %}
-            </div>
-        </ins-carousel>
-        <!-- mobile carousel -->
-
+    
+    <div class="grid-x">
+        <div class="flex-grow-1">
+            <h2>Purchase Again</h2> 
+        </div>
+        <div class="text-right">
+            <a href="/purchase-again">See All Products</a>
+        </div>         
+    </div> 
+    <div class="spacer"></div>
+    <div class="purchase-again-cards-wrap">
+        <div class="product-cards grid-x">
+            {% for item in ordered_items %}
+                <div class="large-4 medium-12 small-12">
+                {% include "modules/ecommerce/products/product_card", 
+                    item: item, all_categories:all_categories, ordered_item: true, purchase_date: item.created_at %}
+                </div>
+            {% endfor %}
+        </div>
     </div>
+
     <div class="spacer xxxx-large"></div>
 </section>
-
-<script>
-var newArrivalsCarousel = document.querySelectorAll('.newArrivalsCarousel');
-var showAllLink = {};
-
-newArrivalsCarousel.forEach(carousel => {
-    var carouselID = carousel.id;
-    carousel.addEventListener('didLoad', event => {     
-        var carouselCtrlBtns = document.querySelector(`#${carouselID} .ins-carousel_ctrl-btns`);  
-        if(carouselCtrlBtns && showAllLink[carouselID] !== true){            
-            var newLink = document.createElement('a');
-                newLink.href = "/";
-                newLink.textContent = "Shop All";
-                newLink.className = "shop-all-link"; 
-            carouselCtrlBtns.appendChild(newLink);  
-            showAllLink[carouselID] = true;           
-        }               
-    });          
-});
-</script>

@@ -322,7 +322,7 @@
     }    
 
     /* Add cart to Database or to localStorage */
-    async function addToCart(data, type){       
+    async function addToCart(data, type, all_items, reorder_iteration){                          
         data["type"] = type;
        
         if(user_uuid != ""){

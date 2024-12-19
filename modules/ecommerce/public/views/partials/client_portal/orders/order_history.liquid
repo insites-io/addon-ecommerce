@@ -17,12 +17,12 @@
 }
 {%- endparse_json -%}
 
-{%- graphql order_list = 'modules/ecommerce/orders/get_orders', args: filters -%}
+{%- graphql orders = 'modules/ecommerce/orders/get_orders', args: filters -%}
 
 
 
 <div class="small-12 cell">
-    {%- if order_list.items.total_entries > 0 -%}
+    {%- if orders.items.total_entries > 0 -%}
     
     <ins-filter 
         id="order-filter"
@@ -52,13 +52,13 @@
 </div>
 
 
-{%- if order_list.items.total_entries > 0 -%}
+{%- if orders.items.total_entries > 0 -%}
 
 {% function localisation_date_format = 'modules/ecommerce/localisation/get_localisation' %}
 
 <script>
     let date_format = "{{ localisation_date_format | default: 'DD/MM/YYYY' }}";
-    let maxCount = {{ order_list.items.total_entries }};
+    let maxCount = {{ orders.items.total_entries }};
     let pageNumber = 1;
     let pageSize = 10;
     let searchKeyword = '';
@@ -66,7 +66,7 @@
     let orderListTable = document.getElementById('order-table');
     let orderFilter = document.getElementById('order-filter');
 
-    let tableContent = {{ order_list.items.results }};
+    let tableContent = {{ orders.items.results }};
     let tableHeaders = [
         { label: 'Order Number', type: "string" },
         { label: 'Date Ordered', type: "date" },

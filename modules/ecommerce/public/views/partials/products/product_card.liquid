@@ -1,10 +1,24 @@
 {%  liquid
 
-    if product.is_product_variant_enabled
+    if ordered_item == true
+        assign product = item.product
+        if item.sku == product.sku
+            assign selected_prop = product
+        else 
+            for variant in product.variants
+                if item.sku == variant.sku
+                    assign selected_prop = variant
+                    assign is_variant = true
+                endif
+            endfor
+        endif
+    elsif product.is_product_variant_enabled
         assign selected_prop = product.variant
     else 
         assign selected_prop = product
     endif
+
+    
 
     if selected_prop.is_on_sale == true 
         assign price = selected_prop.sale_price
@@ -44,7 +58,6 @@
                     </p>
                     <div class="spacer"></div>
                     {% if purchase_date  %}
-                    <div class="spacer"></div>
                     <p class="body-x-small">Purchase Date: {{purchase_date | date: '%d/%m/%Y'}}</p>
                     <div class="spacer"></div>
                     {% endif %}

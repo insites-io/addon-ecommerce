@@ -1,0 +1,101 @@
+        <div class="paginations grid-x grid-padding-x align-right align-middle">
+            <div class="shrink cell">
+                <span class="per__page color-font-head form-label"><strong>{{label | default: 'Items'}} per page:</strong></span>
+                <ins-select id="pagination" 
+                    placeholder="Select Size" 
+                    drop-up small>
+                    <ins-select-option label="{{ per_page }}" value="{{ per_page }}" default></ins-select-option>
+                    <ins-select-option label="15" value="15"  {% if per_page == 15 %}default{% endif %}></ins-select-option>
+                    <ins-select-option label="30" value="30"  {% if per_page == 30 %}default{% endif %}></ins-select-option>
+                </ins-select>
+            </div>
+            {%- assign tmp_start_count = data.current_page | times: per_page -%}
+            {%- assign tmp_start_minus = per_page | minus: 1 -%}
+            {%- assign tmp_start = tmp_start_count | minus: tmp_start_minus -%}
+            {%- assign tmp_end_count = data.current_page | times: per_page -%}
+            {%- if tmp_end_count > data.total_entries -%}
+            {%- assign end_count = data.total_entries -%}
+            {%- else -%}
+            {%- assign end_count = tmp_end_count -%}
+            {%- endif -%}
+
+            <div class="shrink cell">
+                <div class="paginate">
+                    <span>{{ tmp_start }}</span>
+                    <span>-</span>
+                    <span>{{ end_count }}</span>
+                    <span>of</span>
+                    <span>{{ data.total_entries }}</span>
+                    <div>
+                        {%- if data.current_page > 1 -%}
+                        <ins-button 
+                            class="previous"
+                            label=""
+                            data="previous"
+                            icon="icon-angle-left">
+                        </ins-button>
+                        {%- endif -%}
+                    </div>
+                    <div>
+                        {%- if data.current_page < data.total_pages -%}
+                        <ins-button 
+                            label=""
+                            data="next"
+                            class="btn-icon-right next"
+                            icon="icon-angle-right">
+                        </ins-button>
+                        {%- endif -%}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<script>
+    let pagination = document.getElementById("pagination");
+    let nextBtn = document.querySelectorAll(".next"); 
+    let previousBtn = document.querySelectorAll(".previous"); 
+
+    if (typeof filters === "undefined") {
+        var filters = {
+            "page": {{ context.params.page | default: 1}},
+            "per_page": {{ per_page | default: 10}}
+        };
+    }    
+
+    pagination.addEventListener('insValueChange', paginationHandler);
+
+    previousBtn.forEach(btn => {
+        btn.addEventListener('insClick', paginationHandler);
+    });
+
+    nextBtn.forEach(btn => {
+        btn.addEventListener('insClick', paginationHandler);
+    });
+
+    function paginationHandler(e){
+        console.log('paginationHandler', e);
+        if(e.detail.data == "previous"){
+            filters.page = filters.page - 1;
+            if(filters.page < 1){
+                filters.page = 1;
+            }
+        } else if(e.detail.data == "next"){
+            filters.page = filters.page + 1;
+        } else {
+            filters.page = 1;
+            filters.per_page = e.detail;
+        }
+        
+        createUrlParams(filters);        
+    }
+
+    if (typeof createUrlParams !== "function") {
+        function createUrlParams() {
+            let params = Object.entries(filters)
+            .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+            .join("&"); 
+            window.location.href = '?' + params;
+            console.log('params',params);
+        }
+    }
+</script>        

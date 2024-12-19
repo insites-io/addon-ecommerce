@@ -6,8 +6,8 @@
 
         <!-- desktop carousel -->
         <ins-carousel 
-            id="newArrivalsCarouselDesktop"
-            class="newArrivalsCarousel show-for-large"
+            id="whatsHotCarouselDesktop"
+            class="whatsHotCarousel carouselDesktop show-for-large"
             layout="1"
             per-page="4"
             no-pagination=true
@@ -25,14 +25,19 @@
 
         <!-- tablet carousel -->
         <ins-carousel 
-            id="newArrivalsCarouselTablet"
-            class="newArrivalsCarousel show-for-medium-only"
+            id="whatsHotCarouselTablet"
+            class="whatsHotCarousel carouselTablet show-for-medium-only"
             layout="1"
             per-page="3"
             no-pagination=true
             bind-to="newArrivalCardsTablet">
 
-            <h2>What's Hot</h2>     
+            <div class="grid-container">
+                <div class="grid-x">
+                    <h2>What's Hot</h2>    
+                </div>
+            </div>
+               
             <div class="spacer xx-large"></div>
             <div id="newArrivalCardsTablet" class="product-cards">
                 {% for product in products %}
@@ -44,14 +49,19 @@
 
         <!-- mobile carousel -->
         <ins-carousel 
-            id="newArrivalsCarouselMobile"
-            class="newArrivalsCarousel show-for-small-only"
+            id="whatsHotCarouselMobile"
+            class="whatsHotCarousel carouselMobile show-for-small-only"
             layout="1"
             per-page="1"
             no-pagination=true
             bind-to="newArrivalCardsMobile">
+            
+            <div class="grid-container">
+                <div class="grid-x">
+                    <h2>What's Hot</h2>    
+                </div>
+            </div>
 
-            <h2>What's Hot</h2>
             <div class="spacer xx-large"></div>
             <div id="newArrivalCardsMobile" class="product-cards">
                 {% for product in products %}
@@ -66,10 +76,10 @@
 </section>
 
 <script>
-var newArrivalsCarousel = document.querySelectorAll('.newArrivalsCarousel');
+var whatsHotCarousel = document.querySelectorAll('.whatsHotCarousel');
 var showAllLink = {};
 
-newArrivalsCarousel.forEach(carousel => {
+whatsHotCarousel.forEach(carousel => {
     var carouselID = carousel.id;
     carousel.addEventListener('didLoad', event => {     
         var carouselCtrlBtns = document.querySelector(`#${carouselID} .ins-carousel_ctrl-btns`);  

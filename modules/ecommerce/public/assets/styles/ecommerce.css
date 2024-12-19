@@ -176,12 +176,19 @@ ins-button.button-large button.ins-button.size--large span {
     padding: 16px;
 }
 .product-carousel .ins-carousel_ctrl-btns ins-button button {
-    top: 0px;
+    top: 0px;    
+    right: 28px;
     border-radius: 50% !important;
+}
+.product-carousel .carouselDesktop .ins-carousel_ctrl-btns ins-button button{
+    right: 104px;
 }
 .product-carousel .ins-carousel_ctrl-btns ins-button:nth-child(1) button {
     left: initial;
-    right: 58px;
+    right: 86px;
+}
+.product-carousel .carouselDesktop .ins-carousel_ctrl-btns ins-button:nth-child(1) button{
+    right: 162px;
 }
 @media only screen and (max-width: 768px) {
     .product-carousel .ins-carousel.layout-1 .ins-carousel_ctrl-btns{
@@ -191,15 +198,21 @@ ins-button.button-large button.ins-button.size--large span {
 .shop-all-link {    
     position: absolute;
     top: 0px;
-    right: 116px;
+    right: 148px;
     display: inline-block;
     height: 42px;
     align-content: center;
+}
+.carouselDesktop .shop-all-link {
+    right: 228px;
 }
 
 
 
 /* Product Cards */
+.carouselDesktop .product-cards {
+    margin-left: -16px;
+}
 .product-cards .cell {
     padding: 12px;
 }
@@ -208,7 +221,8 @@ ins-button.button-large button.ins-button.size--large span {
     background: var(--color-ui-02);
     padding: 16px !important;
 }
-.product-cards .img-wrap {
+.product-cards .img-wrap,
+.purchase-again .img-wrap {
     position: relative;
 }
 .product-cards img, 
@@ -229,6 +243,43 @@ ins-button.button-large button.ins-button.size--large span {
     font-weight: 700;
     line-height: 16px; 
 }
+
+/* Purchase Again */
+.purchase-again .img-wrap {
+    width: 250px;
+    height: 184px;
+}
+.purchase-again .img-wrap img,
+.purchase-again .placeholder-img{
+    width: 100%;
+    height: 184px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+.purchase-again, 
+.purchase-again .grid-x{
+    gap: 24px;
+}
+.purchase-again>.grid-x{
+    border-radius: 8px;
+    background: var(--color-ui-02);
+    padding: 16px;
+}
+@media only screen and (max-width: 1023px) {
+    .purchase-again>.grid-x>div{
+        width: 100%;
+    }
+}
+.filter-item__options{
+    height: 288px;
+    overflow-y: scroll;
+}
+/* Overview - Purchase Again */
+.purchase-again-cards-wrap {
+    margin-left: -12px;
+    margin-right: -12px;
+}
+
 
 .overflow-hidden {
     overflow: hidden;
@@ -647,30 +698,32 @@ ins-card.overview .wrap{
 
 
 /* pagination styles */
-.pageinations ins-select {
+.paginations ins-select {
     display: inline-block;
     margin-left: 8px;
 }
-
-.pageinations .ins-select-value-wrap {
+.paginations .ins-select-value-wrap {
     width: 53px;
     border: none;
 }
-
-.pageinations .ins-select-options-wrap {
+.paginations .ins-select-wrap .ins-select-options-wrap {
     border-color: var(--color-ui-04);
     border-bottom: none;
-    min-width: 200px;
+    min-width: initial;
     z-index: 9999;
 }
-
-.pageinations .ins-select-wrap {
+.paginations .ins-select-wrap {
     margin-bottom: 0px;
 }
-
-.pageinations .ins-select-wrap.activated .ins-select-options-wrap {
+.paginations .ins-select-wrap.activated .ins-select-options-wrap {
     border-bottom: solid 1px var(--color-ui-04);
     border-color: var(--color-ui-04);
+}
+.paginations .ins-select-wrap .done-wrap{
+    display: none;
+}
+.paginations .ins-select-option-wrap{
+    padding: 4px 10px;
 }
 
 
@@ -727,4 +780,13 @@ ins-card.overview .wrap{
 }
 .ins-accordion-item_header {
     padding-top: 0px;
+}
+.ins-select,
+.ins-form-field-wrap {
+    margin-bottom: 0px;
+}
+@media only screen and (max-width: 768px) {
+    ins-filter .filter {
+        margin-bottom: 0px;
+    }
 }

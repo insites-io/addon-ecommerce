@@ -8,32 +8,38 @@
         <!-- desktop carousel -->
         <ins-carousel 
             id="newArrivalsCarouselDesktop"
-            class="newArrivalsCarousel show-for-large"
+            class="newArrivalsCarousel carouselDesktop show-for-large"
             layout="1"
             per-page="4"
             no-pagination=true
             bind-to="newArrivalCardsDesktop">
 
-            <h2>New Arrivals</h2>     
+            <h2>New Arrivals</h2>
             <div class="spacer xx-large"></div>
             <div id="newArrivalCardsDesktop" class="product-cards">
                 {% for product in products %}
                     {% include "modules/ecommerce/products/product_card", product: product %}
                 {% endfor %}
             </div>
+            
         </ins-carousel>
         <!-- desktop carousel -->
 
         <!-- tablet carousel -->
         <ins-carousel 
             id="newArrivalsCarouselTablet"
-            class="newArrivalsCarousel show-for-medium-only"
+            class="newArrivalsCarousel carouselTablet show-for-medium-only"
             layout="1"
             per-page="3"
             no-pagination=true
             bind-to="newArrivalCardsTablet">
 
-            <h2>New Arrivals</h2>     
+            <div class="grid-container">
+                <div class="grid-x">
+                    <h2>New Arrivals</h2>     
+                </div>
+            </div>
+
             <div class="spacer xx-large"></div>
             <div id="newArrivalCardsTablet" class="product-cards">
                 {% for product in products %}
@@ -46,13 +52,18 @@
         <!-- mobile carousel -->
         <ins-carousel 
             id="newArrivalsCarouselMobile"
-            class="newArrivalsCarousel show-for-small-only"
+            class="newArrivalsCarousel carouselMobile show-for-small-only"
             layout="1"
             per-page="1"
             no-pagination=true
             bind-to="newArrivalCardsMobile">
 
-            <h2>New Arrivals</h2>     
+            <div class="grid-container">
+                <div class="grid-x">
+                    <h2>New Arrivals</h2>     
+                </div>
+            </div>
+
             <div class="spacer xx-large"></div>
             <div id="newArrivalCardsMobile" class="product-cards">
                 {% for product in products %}
