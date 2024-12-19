@@ -201,6 +201,7 @@ authorization_policies:
 
             if selected_prop.is_on_sale == true 
                 assign price = selected_prop.sale_price
+                assign price_strikethrough = selected_prop.regular_price | pricify
             else 
                 assign price = selected_prop.regular_price
             endif
@@ -227,8 +228,8 @@ authorization_policies:
                 <p>{{ category_name | default: 'Category' }}</p>
                 <div class="spacer"></div>
                 <p class="product-current-price">{{ price | pricify }}
-                    {% if product.is_on_sale == true or variant.is_on_sale == true %}
-                    <span class="body-x-small strikethrough">{{ price_strikethrough | pricify }}</span>
+                    {% if selected_prop.is_on_sale == true %}
+                    <span class="body-x-small strikethrough">{{ price_strikethrough }}</span>
                     {% endif %}
                 </p>
                 <div class="spacer"></div>
@@ -294,7 +295,6 @@ authorization_policies:
     searchByName.addEventListener('insInput', inputHandler);    
     
     function filterHandler(e){
-        console.log('filterHandler', e.detail);
         filters.category = e.detail.Category;
         if(e.detail.Date.from && e.detail.Date.to){
             filters.date = "";
@@ -308,7 +308,6 @@ authorization_policies:
         createUrlParams(filters);
     }
     function inputHandler(e){
-        console.log('inputHandler', e);
         if (e.detail.keyCode === 13){
             filters.name = e.detail.value;
             filters.page = 1;
@@ -316,7 +315,6 @@ authorization_policies:
         }
     }
     function searchByNameHandler(e){
-        console.log('searchByNameHandler', e.detail);
         filters.name = e.detail.value;
         filters.page = 1;
         createUrlParams(filters);

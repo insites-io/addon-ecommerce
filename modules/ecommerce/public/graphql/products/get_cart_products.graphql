@@ -7,9 +7,7 @@ query get_cart_products(
     page: $page
     per_page: $size
     filter:{
-      table:{
-        value_in:["modules/insites_ecommerce/product"]
-      }
+      table: { value: "modules/insites_ecommerce/product" }
       properties:[
       	{ name: "status", value: "enabled" }
         { name: "uuid", value_in: $uuid }

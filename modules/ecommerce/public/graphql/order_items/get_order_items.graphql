@@ -2,7 +2,7 @@ query get_order_items (
   $page: Int=1
   $size: Int=50
   $order_uuid: String
-  $order_uuids: [String]
+  $order_uuids: [String!]
   $dateFrom: String
   $dateTo: String
   $is_product_info_needed: Boolean
