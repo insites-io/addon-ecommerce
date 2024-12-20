@@ -118,11 +118,11 @@ callback_actions: |-
   <input type="hidden" id="hidden-shipping-country-code" value="{{ context.session.shipping_contact_phone_country_code }}" >
   <input type="hidden" id="hidden-shipping-mobile-number" value="{{ context.session.shipping_contact_phone_number }}" >
 
-      
   <input  type="hidden" id="hidden-company-name"value="{{ context.session.account_company_name }}" >
-  <input type="hidden" id="hidden-account-first-name" value="{{ current_user.first_name}}" >
-  <input type="hidden" id="hidden-account-last-name" value="{{ current_user.last_name}}" >
-  <input type="hidden" id="hidden-account-email" value="{{ current_user.email}}" >
+  <input type="hidden" id="hidden-current-user-id" value="{{ current_user.id }}" >
+  <input type="hidden" id="hidden-account-first-name" value="{{ current_user.first_name }}" >
+  <input type="hidden" id="hidden-account-last-name" value="{{ current_user.last_name }}" >
+  <input type="hidden" id="hidden-account-email" value="{{ current_user.email }}" >
   <input type="hidden" id="hidden-country-code" value="{{ context.session.account_mobile_country_code }}" >
   <input type="hidden" id="hidden-mobile-number" value="{{ context.session.account_mobile_number }}" >
 
@@ -270,7 +270,7 @@ callback_actions: |-
               id="shipping_address_1"
               placeholder="Address 1" 
               name="{{ prop.address_1.name }}"
-              value="{{ prop.address_1.value }}"
+              value="{{ context.session.shipping_address_1 }}"
               {% if form.errors['properties.address_1'] %} has-error {% endif %}
               error-message="{{ prop.address_1.validation.rules.presence.message }}">
             </ins-input>
@@ -281,7 +281,7 @@ callback_actions: |-
               id="shipping_address_2" 
               placeholder="Address 2"
               name="{{ prop.address_2.name }}"
-              value="{{ prop.address_2.value }}"
+              value="{{ context.session.shipping_address_2 }}"
               {% if form.errors['properties.address_2'] %} has-error {% endif %}
               error-message="{{ prop.address_2.validation.rules.presence.message }}">
             </ins-input>
@@ -292,7 +292,7 @@ callback_actions: |-
               id="shipping_city" 
               placeholder="City"
               name="{{ prop.city.name }}"
-              value="{{ prop.city.value }}" 
+              value="{{ context.session.shipping_city }}" 
               {% if form.errors['properties.city'] %} has-error {% endif %}
               error-message="{{ prop.city.validation.rules.presence.message }}">
             </ins-input>
@@ -303,7 +303,7 @@ callback_actions: |-
               id="shipping_state" 
               placeholder="State"
               name="{{ prop.state.name }}"
-              value="{{ prop.state.value }}"
+              value="{{ context.session.shipping_state }}"
               {% if form.errors['properties.state'] %} has-error {% endif %}
               error-message="{{ prop.state.validation.rules.presence.message }}">
             </ins-input>
@@ -314,7 +314,7 @@ callback_actions: |-
               id="shipping_postcode"
               placeholder="Zip / Postal Code" 
               name="{{ prop.postcode.name }}"
-              value="{{ prop.postcode.value }}"
+              value="{{ context.session.shipping_postcode }}"
               {% if form.errors['properties.postcode'] %} has-error {% endif %}
               error-message="{{ prop.postcode.validation.rules.presence.message }}">
             </ins-input>
@@ -325,7 +325,7 @@ callback_actions: |-
               id="shipping_country"
               placeholder="Country" 
               name="{{ prop.country.name }}"
-              value="{{ prop.country.value }}"
+              value="{{ context.session.shipping_country }}"
               {% if form.errors['properties.country'] %} has-error {% endif %}
               error-message="{{ prop.country.validation.rules.presence.message }}">
             </ins-input>

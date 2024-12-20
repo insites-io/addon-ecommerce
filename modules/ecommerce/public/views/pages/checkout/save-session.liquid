@@ -30,32 +30,52 @@ metadata:
     assign response = "{}" | parse_json
     assign address_id = context.params.address_id | default: null
     assign user_uuid = context.current_user.external_id
-
+    assign guest_user = context.params.guest_user
     log address_id, type: "====save-session address_id===="
 
-    if address_id != null and user_uuid
-        graphql addresses = 'modules/ecommerce/address/get_address', user_uuid: user_uuid id: address_id | dig: 'items', 'results'
-        log addresses, type: "====addresses===="
+    if guest_user
+        if context.params.billing_same_with_shipping
+            session billing_address_1 = context.params.billing.address_1
+            session billing_address_2 = context.params.billingaddress_2
+            session billing_city = context.params.billing_city
+            session billing_state = context.params.billing_state
+            session billing_postcode = context.params.billing_postcode
+            session billing_country = context.params.billing_country
+            session billing_address_id = address_id 
+        else
+            session shipping_address_1 = context.params.shipping_address_1
+            session shipping_address_1 = context.params.shipping_address_2
+            session shipping_city = context.params.shipping_city
+            session shipping_state = context.params.shipping_state
+            session shipping_postcode = context.params.shipping_postcode
+            session shipping_country = context.params.shipping_country
+            session shipping_address_id = address_id
+        endif
+    else
+        if address_id != null and user_uuid
+            graphql addresses = 'modules/ecommerce/address/get_address', user_uuid: user_uuid id: address_id | dig: 'items', 'results'
+            log addresses, type: "====addresses===="
 
-        if addresses.size > 0
-            assign address = addresses | first
+            if addresses.size > 0
+                assign address = addresses | first
 
-            if context.params.billing_same_with_shipping
-                session billing_address_1 = address.address_1
-                session billing_address_2 = address.address_2
-                session billing_city = address.city
-                session billing_state = address.state
-                session billing_postcode = address.postcode
-                session billing_country = address.country
-                session billing_address_id = address_id
-            else
-                session shipping_address_1 = address.address_1
-                session shipping_address_2 = address.address_2
-                session shipping_city = address.city
-                session shipping_state = address.state
-                session shipping_postcode = address.postcode
-                session shipping_country = address.country
-                session shipping_address_id = address_id
+                if context.params.billing_same_with_shipping
+                    session billing_address_1 = address.address_1
+                    session billing_address_2 = address.address_2
+                    session billing_city = address.city
+                    session billing_state = address.state
+                    session billing_postcode = address.postcode
+                    session billing_country = address.country
+                    session billing_address_id = address_id
+                else
+                    session shipping_address_1 = address.address_1
+                    session shipping_address_2 = address.address_2
+                    session shipping_city = address.city
+                    session shipping_state = address.state
+                    session shipping_postcode = address.postcode
+                    session shipping_country = address.country
+                    session shipping_address_id = address_id
+                endif
             endif
         endif
     endif
