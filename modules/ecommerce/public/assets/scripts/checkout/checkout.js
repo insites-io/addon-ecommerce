@@ -247,6 +247,8 @@ let Checkout = (function () {
                         newAddressFlag = true;
                         if (!billingSamewithShippingFlag) {
                             Checkout.methods.addAddressRequiredAttribute();
+                        } else {
+                            if (billingAddressFields) billingAddressFields.classList.add('hide');
                         }
                     }
                 }
@@ -311,6 +313,8 @@ let Checkout = (function () {
                     Checkout.methods.addAddressRequiredAttribute();
             
                     // Handle guest user flag logic for billing address visibility
+
+                    console.log('guestUserFlag', guestUserFlag)
                     if (!guestUserFlag) {
                         if (billingAddressFields) billingAddressFields.classList.add('hide');
                     } else {
@@ -734,8 +738,9 @@ let Checkout = (function () {
             },
             initBillingDetailsListener(){                    
                 if (billingSameWithShippingEl) {
-                    if(billingSameWithShippingEl.value) {
-                        Checkout.methods.updateBillingDetails(billingSameWithShippingEl.value);
+                    let billingSameWithShipping = billingSameWithShippingEl.value;
+                    if (billingSameWithShipping) {
+                        Checkout.methods.updateBillingDetails(billingSameWithShipping);
                     }
 
                     billingSameWithShippingEl.addEventListener('insCheck', (event) => {

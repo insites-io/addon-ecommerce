@@ -249,7 +249,7 @@
     }
     
     // Push the cart from local storage into the database.
-    if( is_new_user == true & user_uuid != ""){
+    if( is_new_user && is_new_user == true && user_uuid != ""){
         pushLocalCartToDB({carts:cartItems, user_uuid: user_uuid});
     }
 
