@@ -90,7 +90,7 @@ p.form-label {
 .button-large,
 .button-large span,
 ins-button.button-large button.ins-button.size--large span {
-    font-family: var(--family-font-01);
+    font-family: var(--font-family-01);
     font-size: 16px !important;
     font-style: normal;
     font-weight: 700;
@@ -215,11 +215,13 @@ ins-button.button-large button.ins-button.size--large span {
 }
 .product-cards .cell {
     padding: 12px;
+    height: 100%;
 }
 .product-cards .wrap {
     border-radius: 8px;
     background: var(--color-ui-02);
     padding: 16px !important;
+    height: 100%;
 }
 .product-cards .img-wrap,
 .purchase-again .img-wrap {
@@ -695,6 +697,47 @@ ins-card.overview .wrap{
         min-width: 100%;    
     }
 }
+.order-filter-wrap {
+    position: relative;
+    bottom: -41px;
+    z-index: 100;
+}
+@media only screen and (max-width: 1023px) {
+    .order-filter-wrap {
+        position: relative;
+        bottom: initial;
+    }
+}
+@media only screen and (max-width: 1169px) {
+    ins-filter-item .filter-item__button {
+       #margin-bottom: 8px;
+    }
+}
+
+/* Order History Summary */
+.ecommerce .ibt-table-wrap .ibt-table_th {
+    color: var(--font-color-head);
+    font-family: var(--font-family-02);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 24px; /* 150% */
+}
+.ecommerce .ibt-table-wrap .ibt-table_td {
+    color: var(--color-body);
+    font-family: var(--font-family-02);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px; /* 150% */
+}
+.ecommerce .ibt-table-wrap .ibt-table_td.has-image .img-wrap img {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 32px;
+    border: 1px solid var(--color-ui-04);
+}
 
 
 /* pagination styles */
@@ -774,7 +817,7 @@ ins-card.overview .wrap{
     height: 100%;
 }
 
-/* Insites Components */
+/* Override Insites Components */
 .ins-checkbox-card-wrap {
     padding: 24px;
 }
@@ -782,11 +825,74 @@ ins-card.overview .wrap{
     padding-top: 0px;
 }
 .ins-select,
-.ins-form-field-wrap {
+.no-margin .ins-form-field-wrap {
     margin-bottom: 0px;
+}
+ins-filter-item,
+ins-filter .filter__label {
+    margin-right: 8px;
+}
+ins-filter .filter__label {
+    margin-bottom: 8px;
+}
+ins-filter .filter__label,
+ins-filter-item .filter-item__button--text,
+ins-filter .date-filter__text {
+    color: var(--font-color-head);
+    font-family: var(--font-family--02);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 20px; /* 142.857% */
+}
+ins-filter-item .filter-item__button,
+ins-filter .date-filter {
+    border-radius: 2px;
+    background: var(--color-ui-03);
+    display: flex;
+    gap: 4px;
+    padding: 8px 12px;
+    justify-content: center;
+    align-items: center;    
+}
+ins-filter-item .filter-item__button--option{
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+ins-filter-item .filter-item__button--option .fas {
+    margin-left: 0px;
+}
+ins-filter .date-filter .fas {
+    margin-left: 16px;
+}
+ins-filter-item .filter-item__button--option .fas, 
+ins-filter .date-filter .fas  {
+    color: var(--font-color-body);
+    text-align: center;
+    font-family: Insites-Font-Icons;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
 }
 @media only screen and (max-width: 768px) {
     ins-filter .filter {
         margin-bottom: 0px;
+    }
+}
+@media only screen and (max-width: 1133px) {
+    ins-filter .filter {
+        display: flex;
+        flex-direction: column;        
+    }
+}
+@media only screen and (max-width: 1274px) {
+    ins-filter .filter__btn-container {
+        display: flex;
+        flex-direction: column;
+        width: fit-content;
+        gap: 8px;
+        align-items: baseline;
     }
 }

@@ -29,7 +29,7 @@
     endif
 %}    
     <div class="cell">
-        <div class="wrap">
+        <div class="wrap grid-y">
             <div class="img-wrap">
             {% if selected_prop.stock_level < 1 %}
                 <div class="out-of-stock"></div>
@@ -44,7 +44,7 @@
             {% endif %}
             </div>
             <div class="spacer medium"></div>
-            <div class="container grid-y">
+            <div class="container grid-y flex-grow-1">
                 <div class="details">
                     <h6>{{ product.product_name }}</h6>
                     <div class="spacer x-small"></div>

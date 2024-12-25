@@ -8,8 +8,24 @@ metadata: {
     "page_type": "content", 
     "page_name": "Order History",
     "page_title": "Order History",
-    "meta_title": "Order History"       
+    "meta_title": "Order History",
+    "heading": "Order History"    
 }
+dynamic_cache:
+  layout: true
+  key: |-
+    {%- parse_json models -%}
+    [
+      "modules/insites_cms/global",
+      "modules/insites_core/localisation",
+      "modules/insites_ecommerce/category",
+      "modules/insites_ecommerce/order",
+      "modules/insites_ecommerce/order_item",
+      "modules/insites_ecommerce/product"
+    ]
+    {%- endparse_json -%}
+    {%- include "modules/website/cache/generate_cache_key", models: models -%}
+    {{context.current_user.id}}
 authorization_policies:
   - modules/client/is_user_logged_in 
 ---

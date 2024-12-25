@@ -8,8 +8,24 @@ metadata: {
     "page_type": "content", 
     "page_name": "Purchase Again",
     "page_title": "Purchase Again",
-    "meta_title": "Purchase Again"       
+    "meta_title": "Purchase Again",
+    "heading": "Purchase Again"      
 }
+dynamic_cache:
+  layout: true
+  key: |-
+    {%- parse_json models -%}
+    [
+      "modules/insites_cms/global",
+      "modules/insites_core/localisation",
+      "modules/insites_ecommerce/category",
+      "modules/insites_ecommerce/order",
+      "modules/insites_ecommerce/order_item",
+      "modules/insites_ecommerce/product"
+    ]
+    {%- endparse_json -%}
+    {%- include "modules/website/cache/generate_cache_key", models: models -%}
+    {{context.current_user.id}}
 authorization_policies:
   - modules/client/is_user_logged_in 
 ---
@@ -107,7 +123,7 @@ authorization_policies:
 %}
 
     
-<div class="grid-x">
+<div class="grid-x align-bottom no-margin">
     <ins-filter 
         id="purchased-filter"
         class="cell large-8 medium-12 small-12"
@@ -129,7 +145,7 @@ authorization_policies:
     <ins-input
         id="search-by-name"
         class="cell large-4 medium-12 small-12"
-        placeholder="Search  by name"
+        placeholder="Search by name"
         label=""
         field="search"
         value="{{ product_name }}"
@@ -185,6 +201,7 @@ authorization_policies:
 
             if selected_prop.is_on_sale == true 
                 assign price = selected_prop.sale_price
+                assign price_strikethrough = selected_prop.regular_price | pricify
             else 
                 assign price = selected_prop.regular_price
             endif
@@ -211,8 +228,8 @@ authorization_policies:
                 <p>{{ category_name | default: 'Category' }}</p>
                 <div class="spacer"></div>
                 <p class="product-current-price">{{ price | pricify }}
-                    {% if product.is_on_sale == true or variant.is_on_sale == true %}
-                    <span class="body-x-small strikethrough">{{ price_strikethrough | pricify }}</span>
+                    {% if selected_prop.is_on_sale == true %}
+                    <span class="body-x-small strikethrough">{{ price_strikethrough }}</span>
                     {% endif %}
                 </p>
                 <div class="spacer"></div>
@@ -239,11 +256,7 @@ authorization_policies:
     {%- endfor -%}
 
     </div>
-    <div class="spacer x-large"></div>
-
-    
-    {% assign ordered_items = ordered_items | add_hash_key: 'total_entries', total_items %}
-    {% include "modules/ecommerce/layout/pagination",  data: ordered_items, per_page, label: 'Items' %}
+    <div class="spacer x-large"></div>    
 
 {%- else -%}
 
@@ -257,6 +270,10 @@ authorization_policies:
     </ins-card>
 
 {%- endif -%}
+
+{% comment %} Pagination {% endcomment %}
+{% assign ordered_items = ordered_items | add_hash_key: 'total_entries', total_items %}
+{% include "modules/ecommerce/layout/pagination",  data: ordered_items, per_page, label: 'Items' %}
 
 
 <script>
@@ -278,7 +295,6 @@ authorization_policies:
     searchByName.addEventListener('insInput', inputHandler);    
     
     function filterHandler(e){
-        console.log('filterHandler', e.detail);
         filters.category = e.detail.Category;
         if(e.detail.Date.from && e.detail.Date.to){
             filters.date = "";
@@ -292,7 +308,6 @@ authorization_policies:
         createUrlParams(filters);
     }
     function inputHandler(e){
-        console.log('inputHandler', e);
         if (e.detail.keyCode === 13){
             filters.name = e.detail.value;
             filters.page = 1;
@@ -300,7 +315,6 @@ authorization_policies:
         }
     }
     function searchByNameHandler(e){
-        console.log('searchByNameHandler', e.detail);
         filters.name = e.detail.value;
         filters.page = 1;
         createUrlParams(filters);

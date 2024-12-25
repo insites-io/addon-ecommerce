@@ -21,35 +21,40 @@
 
 
 
-<div class="small-12 cell">
-    {%- if orders.items.total_entries > 0 -%}
+
+{%- if orders.items.total_entries > 0 -%}
     
-    <ins-filter 
-        id="order-filter"
-        label="Filter by:"
-        with-date-filter 
-        date-title="Date">
+    <div class="grid-x">
+        <div class="large-7 medium-12 small-12 cell order-filter-wrap" style="background2: yellow;">
+            <ins-filter 
+                id="order-filter"
+                label="Filter by:"
+                with-date-filter 
+                date-title="Date">
 
-        <ins-filter-item
-            name="Order Status"
-            options='["All", "Open", "Processing", "Cancelled", "Completed"]'>
-        </ins-filter-item>
-    </ins-filter>
-
+                <ins-filter-item
+                    name="Order Status"
+                    options='["All", "Open", "Processing", "Cancelled", "Completed"]'>
+                </ins-filter-item>
+            </ins-filter>
+            <div class="spacer hide-for-large"></div>
+        </div>
+    </div>
+    
     <ins-table 
-        id="order-table" 
+        id="order-table"         
         sort-keyword="order-number"
         searchbar-placeholder="Search by order number">         
     </ins-table>
 
-    {%- else -%}
+{%- else -%}
 
     <ins-card class="empty-state full" steady>
         <p>No Order History</p>
     </ins-card>
 
-    {%- endif -%}
-</div>
+{%- endif -%}
+
 
 
 {%- if orders.items.total_entries > 0 -%}

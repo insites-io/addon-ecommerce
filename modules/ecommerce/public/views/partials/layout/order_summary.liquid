@@ -113,12 +113,12 @@
             {%- endunless -%}
             <p id="summary_delivery">{{ shipping_cost }}</p>
         </div>
-    </div>                
+    </div>     
+    <div class="spacer x-small"></div>           
     
     
     {% comment %} Discounts {% endcomment %}
     {% if user_cart.discounts.size > 0 %}
-        <div class="spacer x-small"></div>
         <div class="list-discount-codes">
             <div class="grid-x">
                 <div class="small-6 medium-6 large-8 cell">
