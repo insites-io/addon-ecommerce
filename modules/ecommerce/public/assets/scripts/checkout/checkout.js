@@ -199,7 +199,6 @@ let Checkout = (function () {
                     // If a selected card is found, stop further processing
                     if (isSelected) {
                         selectedCardId = card.value;
-                        console.info('selectedCardId', selectedCardId)
                         Checkout.methods.removeAddressRequiredAttribute();
                         return; 
                     }
@@ -241,18 +240,26 @@ let Checkout = (function () {
                 if (hiddenCurrentUserId) {
                     const userId = hiddenCurrentUserId.value;
                     guestUserFlag = !userId || userId === '';
-            
+
                     // If guestUserFlag is true, set newAddressFlag to true
                     if (guestUserFlag) {
                         newAddressFlag = true;
-                        if (!billingSamewithShippingFlag) {
-                            Checkout.methods.addAddressRequiredAttribute();
-                        } else {
-                            if (billingAddressFields) billingAddressFields.classList.add('hide');
+                    }
+                }
+            },
+            // Function to hide the new address fields based on specific flags and conditions
+            hideNewAddress() {
+                // Check if the user is a guest and a new address is being added
+                if (guestUserFlag && newAddressFlag) {
+                    
+                    if (!billingSamewithShippingFlag) {
+                        Checkout.methods.addAddressRequiredAttribute();
+                    } else {
+                        if (billingAddressFields) {
+                            billingAddressFields.classList.add('hide');
                         }
                     }
                 }
-                console.info('guestUserFlag is', guestUserFlag);
             },
             // Validate address conditions for non-guest users
             validateAddress(isValid){
@@ -289,6 +296,7 @@ let Checkout = (function () {
             // Update billing details based on whether billing info is the same as shipping info
             updateBillingDetails(sameDetails) {
                 billingSamewithShippingFlag = sameDetails;
+                Checkout.methods.hideNewAddress();
 
                 if (sameDetails) {
                     Checkout.methods.removeAddressRequiredAttribute();
@@ -309,12 +317,11 @@ let Checkout = (function () {
                         billingPostCodeEl.value = hiddenBillingShippingPostCodeEl.value;
                         billingCountryEl.value = hiddenBillingShippingCountryEl.value;
                     }
+
                 } else {
                     Checkout.methods.addAddressRequiredAttribute();
             
                     // Handle guest user flag logic for billing address visibility
-
-                    console.log('guestUserFlag', guestUserFlag)
                     if (!guestUserFlag) {
                         if (billingAddressFields) billingAddressFields.classList.add('hide');
                     } else {
@@ -475,15 +482,16 @@ let Checkout = (function () {
                 }
 
                 if (guestUserFlag) {
+                    // Create guestPayload with address details
                     const guestPayload = {
                         [`${address}_address_1`]: document.getElementById(`${address}_address_1`).value,
                         [`${address}_address_2`]: document.getElementById(`${address}_address_2`).value,
                         [`${address}_city`]: document.getElementById(`${address}_city`).value,
                         [`${address}_state`]: document.getElementById(`${address}_state`).value,
                         [`${address}_postcode`]: document.getElementById(`${address}_postcode`).value,
-                        [`${address}_country`]: document.getElementById(`${address}_country`).value
+                        [`${address}_country`]: document.getElementById(`${address}_country`).value,
                     };
-
+                
                     // Merge AddressPayload into the main payload
                     payload = { ...payload, ...guestPayload };
                 }
@@ -704,6 +712,7 @@ let Checkout = (function () {
                 let isValid = await App.validation.validateForm(form);
                 
                 Checkout.validation.validateCreditCard(form);
+
                 if(isValid) {
                     form.submit();
                 } else {
@@ -716,6 +725,7 @@ let Checkout = (function () {
         },
         init: {
             initEventListener() {
+                Checkout.methods.checkIfLoggedInUser();
                 this.initShippingDetailsListener();
                 this.initBillingDetailsListener();
                 this.initAddressCardListener();
@@ -726,7 +736,6 @@ let Checkout = (function () {
                 this.initCardsEventListener();
                 this.initCheckNavigation();
                 this.initEmailAccountChecker();
-                Checkout.methods.checkIfLoggedInUser();
             },
             initShippingDetailsListener() {
                 if (shippingSameWithAccountEl) {

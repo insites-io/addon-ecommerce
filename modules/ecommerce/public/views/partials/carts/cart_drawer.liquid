@@ -110,7 +110,7 @@
                         {% endfor %}
                     {% endif %}
                     <p>
-                        <span class="body-x-small-bold">Price:</span>
+                        <span class="body-x-small-bold">Price CArt:</span>
                         <span class="body-x-small item-price">{{ price | pricify }}</span>
                         {% if selected_prop.is_on_sale == true %}
                         <span class="body-x-small strikethrough">{{ price_strikethrough | default: 0 | pricify }}</span>
@@ -290,14 +290,15 @@
             let stepperData = event.target.closest("ins-input-stepper").dataset;
 
             // Calculate the total price for the item
-            let computedPrice = computeItemTotal(itemWrap, event.detail);
+            let priceData = computeItemTotal(itemWrap, event.detail);
 
             let data = {
                 "id": stepperData.id,
                 "product_name": stepperData.product_name,
                 "product_uuid": stepperData.product_uuid,
                 "product_sku": stepperData.product_sku,
-                "price": computedPrice,
+                "price": priceData.price,  
+                "item_total_price": priceData.item_total_price,
                 "quantity": event.detail
             };   
 
@@ -425,6 +426,8 @@
     }       
 
     function cartItemHtml(data){
+        const total_price = data.item_total_price || data.price;
+
         return ` <div id="cart-item-${data.id}" class="cart-item-wrap">
                 <div class="grid-x" >
                     <div class="cell grid-y large-7 medium-7 small-7">
@@ -437,7 +440,7 @@
                         </p>
                     </div>
                     <div class="cell grid-y large-5 medium-5 small-5 text-right">
-                        <p class="cart-price compute-price">$${ data.price }</p>
+                        <p class="cart-price compute-price">$${ total_price }</p>
                         <div class="spacer x-small"></div>
                         <ins-input-stepper
                             class="cart-stepper" 
@@ -577,10 +580,14 @@
     function computeItemTotal(itemWrap, qty) {
         let itemPrice = itemWrap.querySelector(".item-price");
         let computePrice = itemWrap.querySelector(".compute-price");
-        let price = parseFloat(itemPrice.textContent.replace('$', '')) * qty;
-        computePrice.textContent = `$${price}`;
+        let parseItemPrice = parseFloat(itemPrice.textContent.replace('$', ''))
+        let itemTotalPrice = parseItemPrice * qty;
+        computePrice.textContent = `$${itemTotalPrice}`;
 
-        return price;
+        return {
+            price: parseItemPrice,
+            item_total_price: itemTotalPrice
+        };
     }
 
     function computeSubTotal(){    

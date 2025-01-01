@@ -42,3 +42,21 @@
 {%- session latest_step = null -%}
 {%- session stripe_customer_id = null -%}
 {%- session user_uuid = null -%}
+
+
+{% comment %} Clear guest session data when available {% endcomment %}
+{% if context.session.guest_info %}
+    {%- session context.session.guest_info = null -%}
+{% endif %}
+
+{% if context.session.guest_cart %}
+    {%- session context.session.guest_cart = null -%}
+{% endif %}
+
+{% if context.session.guest_products %}
+    {%- session context.session.guest_products = null -%}
+{% endif %}
+
+{% if context.session.guest_order_summary %}
+    {%- session context.session.guest_order_summary = null -%}
+{% endif %}

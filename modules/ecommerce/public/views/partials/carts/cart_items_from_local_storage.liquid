@@ -3,8 +3,6 @@
     let shoppingCartItemsWrap = document.getElementById('shopping-cart-items-wrap');
     let orderSummaryWrap = document.getElementById('order-summary-cart-wrap');
     let proceedToCheckout = document.getElementById('proceed-to-checkout');    
-    let cartItems = JSON.parse(localStorage.getItem('carts')); 
-    let productUUIDs = cartItems.map(item => JSON.parse(item).product_uuid);
 
     //Prices
     let summary_subtotal = document.getElementById('summary_subtotal');
@@ -19,6 +17,23 @@
     let summary_tax_amount = 0;
     let summary_total_amount = 0;
 
+    let cartItems = localStorage.getItem('carts');
+    let products = [];
+    let cartData = [];
+
+    // Check if cartItems is not null and not an empty string
+    if (cartItems) {
+        try {
+            cartItems = JSON.parse(cartItems);
+        } catch (e) {
+            console.error("Error parsing JSON from localStorage:", e);
+            cartItems = []; 
+        }
+    } else {
+        cartItems = []; 
+    }
+
+    let productUUIDs = cartItems.map(item => JSON.parse(item).product_uuid);
 
     console.log('cartItems', cartItems);
     console.log('productUUIDs', productUUIDs);
@@ -54,14 +69,14 @@
         let response = await apiServices.processRequest("get", url); 
 
         if(response.state && response.data) {
-
-            let products = response.data
+            products = response.data
             let shoppingCartHtml = "";
             let orderSummaryHtml = "";
 
             for (let i = 0; i < carts.length; i++) {  
 
-                cart = JSON.parse(carts[i]); //convert string to object            
+                cart = JSON.parse(carts[i]); //convert string to object     
+                cartData.push(cart);
                 product = products.find(item => item.uuid === cart.product_uuid);
                 is_variant = false;
 
@@ -176,8 +191,7 @@
 
 
     //This template is for /shopping-cart page
-    function createShoppingCartHtml(data, i){        
-
+    function createShoppingCartHtml(data, i){     
         let content = `<div id="cart-item-${data.selected_prop.id}" class="cart-item-wrap cell">`;
 
         if( i > 0 ) content = content + `<hr><div class="spacer x-large"></div>`;                                    
@@ -269,11 +283,65 @@
                 proceedToCheckout.classList.add('hide');
             }
         }
+
+        const summaryData = {
+            subtotalAmount: summary_subtotal_amount,
+            deliveryAmount: summary_delivery_amount,
+            processingFeeAmount: summary_processing_fee_amount,
+            taxAmount: summary_tax_amount,
+            totalAmount: summary_total_amount
+        };
+
+        saveCheckoutSessionForGuest(summaryData); 
     }
+
     
     // Push the cart from local storage into the database.
     if( is_new_user && is_new_user == true && user_uuid != ""){
         pushLocalCartToDB({carts:cartItems, user_uuid: user_uuid});
+    }
+
+    /**
+     * Saves the checkout session data for a guest user by sending the payload to the server.
+     * It includes details like subtotal, shipping, processing fees, taxes, and total amount.
+     * A success or error notification is triggered based on the response.
+     */
+    async function saveCheckoutSessionForGuest(summaryData) {
+        // Convert cartData strings to objects
+        const cart = cartData.map(item => {
+            // Only parse if item is a string
+            if (typeof item === 'string') {
+                return JSON.parse(item);
+            }
+            return item; // If it's already an object, return as-is
+        });
+
+        console.log('cart', cart)
+
+        // Create payload for the checkout session
+        const payload = {
+            guest_user: true,
+            sub_total_amount: summaryData.subtotalAmount,
+            shipping_amount: summaryData.deliveryAmount,
+            total_discount_amount: 0, // Temporary placeholder for future discount amount
+            processing_fee: summaryData.processingFeeAmount,
+            tax_amount: summaryData.taxAmount,
+            total_amount: summaryData.totalAmount,
+            products: products,
+            cart: cart
+        };
+
+        console.log('Local storage payload for guest', payload);
+
+        // Send request to save the session data
+        const url = '/save-checkout-session.json';
+        const response = await apiServices.processRequest('post', url, payload);
+
+        if (response.state && response.data) {
+            // Success logic can be added here if needed in the future
+        } else {
+            App.events.notyf("error", "An error occurred while saving the order summary.");
+        }
     }
 
     async function pushLocalCartToDB(data){        

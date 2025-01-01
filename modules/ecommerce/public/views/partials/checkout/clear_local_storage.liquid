@@ -1,0 +1,10 @@
+{%- comment %} Inject JavaScript to clear localStorage when the order is success {% endcomment %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.localStorage) {
+            // Clear the cart from localStorage
+            localStorage.setItem('carts', JSON.stringify([]));
+            console.info('Cart has been cleared.');
+    }
+    });
+</script>

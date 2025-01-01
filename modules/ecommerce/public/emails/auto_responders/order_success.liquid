@@ -334,7 +334,9 @@ data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10
 {% comment %} <!-- Order Details --> {% endcomment %}
 {{ order_details | html_safe }}
 
-{% if current_user %}
+{% assign logged_in_user = current_user.current_user |  default: null %}
+
+{% if logged_in_user != null %}
     {% comment %} <!-- Spacer --> {% endcomment %}
     {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 40 %}
 

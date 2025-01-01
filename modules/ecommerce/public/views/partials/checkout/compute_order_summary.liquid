@@ -6,130 +6,148 @@
         - products
 {% endcomment %}
 
-{% if user_uuid and user_cart and carts and products %}
-    {% comment %} Do nothing {% endcomment %}
+{%- assign user_id = context.current_user.id | default: null -%}
+{% include 'modules/ecommerce/carts/cart_items' %}
+
+{% comment %} Guest Order Summary {% endcomment %}
+{% if user_id == null %}
+    {% if context.session.guest_order_summary %}
+        {% assign guest_order_summary = context.session.guest_order_summary %}
+        {% parse_json computed %}
+            {
+                "sub_total_amount": {{ guest_order_summary.sub_total_amount | default: 0 }},
+                "shipping_amount": {{ guest_order_summary.shipping_amount | default: 0 }},
+                "total_discount_amount": {{ guest_order_summary.total_discount_amount | default: 0 }},
+                "processing_fee": {{ guest_order_summary.processing_fee | default: 0 }},
+                "tax_amount":  {{ guest_order_summary.tax_amount| default: 0 }},    
+                "total_amount": {{ guest_order_summary.total_amount | default: 0 }}
+            }
+        {% endparse_json %}
+    {% endif %}
+
 {% else %}
-    {% comment %} Get cart from DB:cart {% endcomment %}
-    {% include 'modules/ecommerce/carts/cart_items' %}
-    {% assign cart_items = context.exports.cart_items %}
-    {% assign user_cart = cart_items.user_cart %}
-    {% assign carts = cart_items.carts %}
-    {% assign products = cart_items.products %}
-{% endif %}
+    {% if user_uuid and user_cart and carts and products %}
+    {% comment %} Do nothing {% endcomment %}
+    {% else %}
+        {% assign cart_items = context.exports.cart_items %}
+        {% assign user_cart = cart_items.user_cart %}
+        {% assign carts = cart_items.carts %}
+        {% assign products = cart_items.products %}
+    {% endif %}
 
-{% assign discounts = user_cart.discounts %}
+    {% assign discounts = user_cart.discounts %}
 
+    {% comment %} Initialize Variables {% endcomment %}
+    {%  liquid 
+        assign sub_total_amount = 0
+        assign sub_total_discount = 0
+        assign sub_total_shipping = 0
+        assign sub_total_tax = 0
+        assign used_discounts = '' | split: ','
+    %}
 
-{% comment %} Initialize Variables {% endcomment %}
-{%  liquid 
-    assign sub_total_amount = 0
-    assign sub_total_discount = 0
-    assign sub_total_shipping = 0
-    assign sub_total_tax = 0
-    assign used_discounts = '' | split: ','
-%}
+    {% if carts.size > 0 %}
 
+        {% for item in carts %}
+                        
+            {% include 'modules/ecommerce/carts/cart_details', products, item, user_uuid %}
+            {% assign cart = context.exports.cart %}    
+            {% assign item_total_price = cart.item_total_price %}
+            {% assign sub_total_amount = sub_total_amount | plus: item_total_price %}
 
-{% if carts.size > 0 %}
-  
-    {% for item in carts %}
-                      
-        {% include 'modules/ecommerce/carts/cart_details', products, item, user_uuid %}
-        {% assign cart = context.exports.cart %}    
-        {% assign item_total_price = cart.item_total_price %}
-        {% assign sub_total_amount = sub_total_amount | plus: item_total_price %}
-
-        {% comment %} Shipping Fee {% endcomment %}
-        {%  liquid
-            assign is_free_shipping = cart.selected_prop.is_free_shipping
-            if is_free_shipping == true
-                assign freight_amount = 0
-            else
-                assign freight_amount = cart.selected_prop.freight_amount
-            endif
-            assign sub_freight_amount = freight_amount | times: item.quantity
-            assign sub_total_shipping = sub_total_shipping | plus: sub_freight_amount
-        %}
-        
-        {% comment %} Tax {% endcomment %}
-        {%  liquid
-            if cart.is_tax_included == true
-                assign tax = 0
-            else
-                if cart.selected_prop.is_fixed_tax_amount == true
-                    assign tax = cart.selected_prop.tax_amount | times: item.quantity
-                else 
-                    assign tax = cart.price | times: cart.selected_prop.tax_amount | divided_by: 100 | times: item.quantity
+            {% comment %} Shipping Fee {% endcomment %}
+            {%  liquid
+                assign is_free_shipping = cart.selected_prop.is_free_shipping
+                if is_free_shipping == true
+                    assign freight_amount = 0
+                else
+                    assign freight_amount = cart.selected_prop.freight_amount
                 endif
-            endif
-            assign sub_total_tax = sub_total_tax | plus: tax
-        %}
-        
-        {% comment %} Discounts {% endcomment %}
-        {% for discount in discounts %}
+                assign sub_freight_amount = freight_amount | times: item.quantity
+                assign sub_total_shipping = sub_total_shipping | plus: sub_freight_amount
+            %}
             
-            {% assign in_product_ids =  discount.product_uuids | array_any: item.product_uuid %}
+            {% comment %} Tax {% endcomment %}
+            {%  liquid
+                if cart.is_tax_included == true
+                    assign tax = 0
+                else
+                    if cart.selected_prop.is_fixed_tax_amount == true
+                        assign tax = cart.selected_prop.tax_amount | times: item.quantity
+                    else 
+                        assign tax = cart.price | times: cart.selected_prop.tax_amount | divided_by: 100 | times: item.quantity
+                    endif
+                endif
+                assign sub_total_tax = sub_total_tax | plus: tax
+            %}
+            
+            {% comment %} Discounts {% endcomment %}
+            {% for discount in discounts %}
                 
-            {% if discount.is_applicable_to_all_products or in_product_ids %}
-
-                {% if item_total_price >= discount.minimum_cart_value %}
-
-                    {% assign discount_type = discount.discount_type | downcase %}
-                    {% assign discount_value = discount.discount_value %}
-                    {% assign is_discount_used = used_discounts | array_any: discount.discount_code %}
-
-                    {% if discount_type == "fixed_amount" and is_discount_used == false %}
-
-                        {% assign sub_total_discount = sub_total_discount | plus: discount_value %}
-                        {% assign used_discounts = used_discounts | array_add: discount.discount_code %}
-
-                    {% elsif discount_type == "percentage" %}
-
-                        {% assign temp = item_total_price | times: discount_value | divided_by: 100 %}
-                        {% assign sub_total_discount = sub_total_discount | plus: temp %}   
-
-                    {%- elsif discount_type contains "shipping" -%}                          
+                {% assign in_product_ids =  discount.product_uuids | array_any: item.product_uuid %}
                     
-                        {%- liquid                
-                            assign shipping_discount = 0                             
+                {% if discount.is_applicable_to_all_products or in_product_ids %}
 
-                            if discount_type contains "fix" and is_free_shipping == false
-                                assign shipping_discount = discount_value | times: item.quantity
-                            elsif discount_type contains "percent" and is_free_shipping == false
-                                assign shipping_discount = freight_amount | times: discount_value | divided_by: 100 | times: item.quantity
-                            elsif discount_type contains 'free shipping'
-                                assign shipping_discount = freight_amount | times: item.quantity
-                            endif
-                            
-                            if shipping_discount > sub_freight_amount
-                                assign shipping_discount = sub_freight_amount
-                            endif
+                    {% if item_total_price >= discount.minimum_cart_value %}
 
-                            assign sub_total_discount = sub_total_discount | plus: shipping_discount
-                        -%}
+                        {% assign discount_type = discount.discount_type | downcase %}
+                        {% assign discount_value = discount.discount_value %}
+                        {% assign is_discount_used = used_discounts | array_any: discount.discount_code %}
 
-                {% endif %}             
-                {% endif %}
-            {% endif %}        
+                        {% if discount_type == "fixed_amount" and is_discount_used == false %}
+
+                            {% assign sub_total_discount = sub_total_discount | plus: discount_value %}
+                            {% assign used_discounts = used_discounts | array_add: discount.discount_code %}
+
+                        {% elsif discount_type == "percentage" %}
+
+                            {% assign temp = item_total_price | times: discount_value | divided_by: 100 %}
+                            {% assign sub_total_discount = sub_total_discount | plus: temp %}   
+
+                        {%- elsif discount_type contains "shipping" -%}                          
+                        
+                            {%- liquid                
+                                assign shipping_discount = 0                             
+
+                                if discount_type contains "fix" and is_free_shipping == false
+                                    assign shipping_discount = discount_value | times: item.quantity
+                                elsif discount_type contains "percent" and is_free_shipping == false
+                                    assign shipping_discount = freight_amount | times: discount_value | divided_by: 100 | times: item.quantity
+                                elsif discount_type contains 'free shipping'
+                                    assign shipping_discount = freight_amount | times: item.quantity
+                                endif
+                                
+                                if shipping_discount > sub_freight_amount
+                                    assign shipping_discount = sub_freight_amount
+                                endif
+
+                                assign sub_total_discount = sub_total_discount | plus: shipping_discount
+                            -%}
+
+                    {% endif %}             
+                    {% endif %}
+                {% endif %}        
+            {% endfor %}
+            {% comment %} End Discounts {% endcomment %}
+                        
         {% endfor %}
-        {% comment %} End Discounts {% endcomment %}
-                    
-    {% endfor %}
+    {% endif %}
+
+    {% assign temp_total = sub_total_amount | plus: sub_total_shipping | minus: sub_total_discount | plus: sub_total_tax %}
+    {% assign processing_fee = temp_total | times: 0.017 %}
+    {% assign total_amount = temp_total | plus: processing_fee %}
+
+    {% parse_json computed %}
+        {
+        "sub_total_amount": {{ sub_total_amount | default: 0 }},
+        "shipping_amount": {{ sub_total_shipping | default: 0 }},
+        "total_discount_amount": {{ sub_total_discount | default: 0 }},
+        "processing_fee": {{ processing_fee | default: 0 }},
+        "tax_amount": {{ sub_total_tax | default: 0 }},    
+        "total_amount": {{ total_amount | default: 0 }}
+        }
+    {% endparse_json %}
+    
 {% endif %}
 
-
-{% assign temp_total = sub_total_amount | plus: sub_total_shipping | minus: sub_total_discount | plus: sub_total_tax %}
-{% assign processing_fee = temp_total | times: 0.017 %}
-{% assign total_amount = temp_total | plus: processing_fee %}
-
-{% parse_json computed %}
-{
-    "sub_total_amount": {{ sub_total_amount | default: 0 }},
-    "shipping_amount": {{ sub_total_shipping | default: 0 }},
-    "total_discount_amount": {{ sub_total_discount | default: 0 }},
-    "processing_fee": {{ processing_fee | default: 0 }},
-    "tax_amount": {{ sub_total_tax | default: 0 }},    
-    "total_amount": {{ total_amount | default: 0 }}
-}
-{% endparse_json %}
 {% export computed %}

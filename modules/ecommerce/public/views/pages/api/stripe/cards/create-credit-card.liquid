@@ -53,7 +53,6 @@ metadata: {
     }
     {%- endparse_json -%}
     {%- include 'modules/ecommerce/stripe/credit_cards/create_credit_card', data: data -%}
-
 {%- else -%}
     {%- comment -%} New customer: Create Stripe customer {%- endcomment -%}    
     {%- parse_json customer_data -%}
@@ -89,7 +88,7 @@ metadata: {
 
         {%- comment -%} Guest user: check if email already exist {%- endcomment -%}
         {%- graphql user_exist = "modules/ecommerce/user/get_user_by_email", email: customer_email | dig: "items" -%}
-
+       
         {%- comment -%} Create new user account {%- endcomment -%}
         {%- if user_exist.total_entries == 0 -%}
             {%- assign password = 'now' | date: '%y%m%d' | uuid  -%}
@@ -107,16 +106,27 @@ metadata: {
             }
             {%- endparse_json -%}
             {%- graphql new_user = 'modules/ecommerce/user/create_user', args: new_user_data -%}
-            {%- assign user_uuid = new_user.user.user_uuid -%}
 
-            {%- comment -%} Auto login user after creation of user account {%- endcomment -%}
-            {%- if new_user.user.id -%}
-                {%- graphql logged_user = 'modules/ecommerce/account/create_user_session', email: customer_email, password: password -%}               
-                {%- assign is_new_user = true -%}
-                {%- log '====TEST Auto login user' -%}
-            {%- endif -%}
+            {%- assign user = new_user.user -%}
+            {%- assign user_uuid = user.user_uuid -%}
+            {%- assign user_id = user.id -%}
+        {% else %}
+            {%- assign result = user_exist.results | first -%}
+            {%- assign contact = result | dig: 'crm_contact' | first -%}
+
+            {%- assign user_uuid = contact | dig: 'user_uuid'  -%}
+            {%- assign user_id = contact | dig: 'id'  -%}
         {%- endif -%}
 
+        {%- parse_json guest_info -%}
+            {
+                "id": "{{ user_id }}",
+                "uuid": "{{ user_uuid }}",
+                "stripe_id": "{{ stripe_customer_id }}"
+            }
+        {%- endparse_json -%}
+
+        {% session guest_info = guest_info %}
     {%- endif -%}
 
     {%- parse_json data -%}

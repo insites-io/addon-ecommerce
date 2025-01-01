@@ -66,9 +66,9 @@ Step 4: Trigger autoresponder, workflow email & API
 {%- endcomment -%}
 {% parse_json customer_info %}
 {
-    "email": "{{ form.properties.billing_email }}",
-    "first_name": "{{ form.properties.billing_first_name }}",
-    "last_name": "{{ form.properties.billing_last_name }}"
+    "email": "{{ form.properties.billing_contact_email }}",
+    "first_name": "{{ form.properties.billing_contact_first_name }}",
+    "last_name": "{{ form.properties.billing_contact_last_name }}"
 }
 {% endparse_json %}
 {% parse_json data %}

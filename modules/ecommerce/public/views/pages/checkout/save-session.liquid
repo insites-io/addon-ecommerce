@@ -24,37 +24,88 @@ metadata:
 ---
 
 {% liquid
-    log context.current_user, type: "====save-session context.current_user===="
-    log context.params, type: "====save-session context.params===="
-
     assign response = "{}" | parse_json
     assign address_id = context.params.address_id | default: null
     assign user_uuid = context.current_user.external_id
     assign guest_user = context.params.guest_user
-    log address_id, type: "====save-session address_id===="
 
-    if guest_user
-        if context.params.billing_same_with_shipping
-            session billing_address_1 = context.params.billing.address_1
-            session billing_address_2 = context.params.billingaddress_2
-            session billing_city = context.params.billing_city
-            session billing_state = context.params.billing_state
-            session billing_postcode = context.params.billing_postcode
-            session billing_country = context.params.billing_country
-            session billing_address_id = address_id 
-        else
-            session shipping_address_1 = context.params.shipping_address_1
-            session shipping_address_1 = context.params.shipping_address_2
-            session shipping_city = context.params.shipping_city
-            session shipping_state = context.params.shipping_state
-            session shipping_postcode = context.params.shipping_postcode
-            session shipping_country = context.params.shipping_country
-            session shipping_address_id = address_id
+    if guest_user and guest_user == true
+        # Assign address-related session variables for guest
+        if context.params.billing_address_1
+            session billing_address_1 = context.params.billing_address_1
         endif
+        if context.params.billing_address_2
+            session billing_address_2 = context.params.billing_address_2
+        endif
+        if context.params.billing_city
+            session billing_city = context.params.billing_city
+        endif
+        if context.params.billing_state
+            session billing_state = context.params.billing_state
+        endif
+        if context.params.billing_postcode
+            session billing_postcode = context.params.billing_postcode
+        endif
+        if context.params.billing_country
+            session billing_country = context.params.billing_country
+        endif
+
+        if context.params.shipping_address_1
+            session shipping_address_1 = context.params.shipping_address_1
+        endif
+        if context.params.shipping_address_2
+            session shipping_address_2 = context.params.shipping_address_2
+        endif
+        if context.params.billing_city
+            session billing_city = context.params.billing_city
+        endif
+        if context.params.shipping_state
+            session shipping_state = context.params.shipping_state
+        endif
+        if context.params.shipping_postcode
+            session shipping_postcode = context.params.shipping_postcode
+        endif
+        if context.params.shipping_country
+            session shipping_country = context.params.shipping_country
+        endif
+
+        # Assign order-summary-related session variables for guest
+        assign guest_order_summary = '{}' | parse_json 
+
+        if context.params.sub_total_amount
+            assign guest_order_summary = guest_order_summary | add_hash_key: "sub_total_amount", context.params.sub_total_amount
+        endif
+        if context.params.shipping_amount
+            assign guest_order_summary = guest_order_summary | add_hash_key: "shipping_amount", context.params.shipping_amount
+        endif
+        if context.params.total_discount_amount
+            assign guest_order_summary = guest_order_summary | add_hash_key: "total_discount_amount", context.params.total_discount_amount
+        endif
+        if context.params.processing_fee
+            assign guest_order_summary = guest_order_summary | add_hash_key: "processing_fee", context.params.processing_fee
+        endif
+        if context.params.tax_amount
+            assign guest_order_summary = guest_order_summary | add_hash_key: "tax_amount", context.params.tax_amount
+        endif
+        if context.params.total_amount
+            assign guest_order_summary = guest_order_summary | add_hash_key: "total_amount", context.params.total_amount
+        endif
+
+        # Only store in session if guest_order_summary is not still the initial empty object
+        if guest_order_summary != '{}' 
+            session guest_order_summary = guest_order_summary
+        endif
+
+        # Assign order-cart-related session variables for guest
+        if context.params.cart
+            session guest_cart = context.params.cart
+        endif
+        if context.params.products
+          session guest_products = context.params.products
+        endif 
     else
         if address_id != null and user_uuid
             graphql addresses = 'modules/ecommerce/address/get_address', user_uuid: user_uuid id: address_id | dig: 'items', 'results'
-            log addresses, type: "====addresses===="
 
             if addresses.size > 0
                 assign address = addresses | first
@@ -136,6 +187,8 @@ metadata:
 
     # Add response status
     assign response = response | add_hash_key: 'status', 200
+    assign response = response | add_hash_key: 'data', context.session
+
 %}
 
 {{ response }}

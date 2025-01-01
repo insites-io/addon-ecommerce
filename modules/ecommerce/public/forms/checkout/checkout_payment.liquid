@@ -5,7 +5,7 @@ resource_owner: anyone
 redirect_to: > 
     {% log form.properties.uuid, type: "==== Redirect To: confirmation?order_uuid= " %}
     {%- if context.exports.payment_response.status == "succeeded" or context.exports.payment_response.status == "active" -%}
-    confirmation?id={{ form.properties.uuid }}
+        confirmation?id={{ form.properties.uuid }}
     {%- else -%}
         {%- if context.exports.payment_response.error.code == "card_declined" -%}
         checkout/payment?status=payment-error&type={{ context.exports.payment_response.error.decline_code | default: "" }}
@@ -143,12 +143,25 @@ default_payload: >
     {%- comment -%} Get currency from eCommerce settings {%- endcomment -%}
     {%- graphql settings = "modules/ecommerce/system/get_settings" | dig: 'items' | dig: 'results' | first -%}
 
-    {% comment %} Get current_user uuid {% endcomment %}
-    {% graphql current_user_uuid = 'modules/ecommerce/account/get_current_user' | dig: 'current_user','uuid' %}
+    {% comment %} Get current_user details {% endcomment %}
+    {% graphql order_contact_uuid = 'modules/ecommerce/account/get_current_user' | dig: 'current_user','uuid' %}
+    {% assign order_contact_first_name =  context.current_user.first_name %}
+    {% assign order_contact_last_name = context.current_user.last_name %}
+    {% assign order_contact_email = context.current_user.email %}
     
     {%- comment -%} Compute order values {%- endcomment -%}
     {% include 'modules/ecommerce/checkout/compute_order_summary' %}
+
+    {% comment %} Get guest details {% endcomment %}
+    {% if user_uuid != '' or user_uuid == null %}
+        {% assign order_contact_uuid = context.session.guest_info.uuid %}
+        {% assign order_contact_first_name = context.session.billing_contact_first_name %}
+        {% assign order_contact_last_name = context.session.billing_contact_last_name %}
+        {% assign order_contact_email = context.session.billing_contact_email %}
+    {% endif %}
+
     {% assign computed = context.exports.computed %}
+
     {
         "properties_attributes": {
             "shipping_company_name": "{{context.session.shipping_company_name | default: ''}}",
@@ -181,9 +194,10 @@ default_payload: >
             "billing_postcode": "{{context.session.billing_postcode | default: ''}}",
             "billing_country": "{{context.session.billing_country | default: ''}}",
             "order_reference": "{{ '' | uuid | split: '-' | first }}", 
-            "order_contact_uuid": "{{ current_user_uuid }}", 
-            "order_contact_first_name": "{{ context.current_user.first_name }}", 
-            "order_contact_last_name": "{{ context.current_user.last_name }}", 
+            "order_contact_uuid": "{{ order_contact_uuid }}", 
+            "order_contact_first_name": "{{ order_contact_first_name }}", 
+            "order_contact_last_name": "{{ order_contact_last_name }}", 
+            "order_contact_email": "{{ order_contact_email }}", 
             "order_status": "Open", 
             "order_payment_status": "Open",
             "order_shipping_status": "", 
@@ -200,7 +214,6 @@ default_payload: >
         }
     }
 callback_actions: >
-    {% log form, type: "====callback form in checkout_payment====" %}
     {%- comment -%}
     These actions are made intentionally on `callback_actions` and not on `async_callback_action` bec.
     confirmation page needs to be able to see the 'payment details' & cart summary. 
