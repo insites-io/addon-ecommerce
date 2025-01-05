@@ -1,5 +1,11 @@
 {% assign params = context.params %}
-{% function user_uuid = 'modules/ecommerce/user/get_user_uuid' %}
+{% function user_uuid = 'modules/ecommerce/user/get_user_uuid'  %}
+
+{% if user_uuid and user_uuid != '' %}
+    {% assign user_uuid = user_uuid %}
+{% else %}
+    {% assign user_uuid = '' %}
+{% endif %}
 
 {%- if is_ordered_items == true and order_uuid != '' -%}   
 
@@ -18,16 +24,21 @@
 
 
 <div class="order-summary-wrapper">
-    {% unless no_heading %}
-    <h2 class="color-font-sub heading-2">
-        {%- if context.location.pathname == '/confirmation' -%}
-        Payment {% else %} Order {% endif %} Summary
-    </h2>
-    <div class="spacer x-large"></div>
-    {% endunless %}
+
     
+    {% unless no_heading %}
+        <h2 class="color-font-sub heading-2">
+            {%- if context.location.pathname == '/confirmation' -%}
+            Payment {% else %} Order {% endif %} Summary
+        </h2>
+        <div class="spacer x-large"></div>
+    {% endunless %}
+        
     <div id="order-summary-cart-wrap" class="order-summary">   
-        {%- if show_product -%}            
+        {% comment %}
+            - This is only for logged-in users
+        {% endcomment %}
+        {%- if show_product and user_uuid != '' -%}   
 
             {%- for item in carts -%}
 
@@ -41,7 +52,7 @@
                     {% include 'modules/ecommerce/carts/cart_details', products, item, user_uuid %}
                     {% assign cart = context.exports.cart %}   
                 {%- endif -%}
-                             
+                                
             
                 <div class="grid-x grid-padding-x body-large">
                     <div class="product-name large-6 medium-8 small-6 cell">
@@ -67,10 +78,10 @@
         {%- endif -%}
     </div>
 
-    {%- if show_product and carts.size > 0 -%}
-    <div class="spacer"></div>
-    <hr>
-    <div class="spacer"></div>
+    {%- if show_product and carts.size > 0 and user_uuid != '' -%}
+        <div class="spacer"></div>
+        <hr>
+        <div class="spacer"></div>
     {%- endif -%}
 
     
