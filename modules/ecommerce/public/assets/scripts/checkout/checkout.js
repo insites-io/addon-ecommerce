@@ -34,6 +34,7 @@ let addCardBtn = document.getElementById('add-card-btn');
 let cardModal = document.getElementById('stripe-modal');
 let checkoutSubmitBtn = document.getElementById('checkout-submit-btn');
 
+let existingAddressCards = [];
 let addAddressBtn = Array.from(document.getElementsByClassName('add-address-btn'));
 let newAddressFlag = false;
 let selectedCardId = null;
@@ -264,7 +265,7 @@ let Checkout = (function () {
             // Validate address conditions for non-guest users
             validateAddress(isValid){
                 if (!guestUserFlag) {
-                    if (!selectedCardId && !newAddressFlag) {
+                    if (!selectedCardId && !newAddressFlag && existingAddressCards.length > 1) {
                         isValid = false;
                         Checkout.events.setAddressCardError();
                     } 
@@ -651,9 +652,9 @@ let Checkout = (function () {
             },
             setAddressCardError(){
                 // let addressCards = Array.from(document.querySelectorAll('ins-checkbox-card'));
-                let addressCards = Array.from(document.querySelectorAll('.ins-checkbox-card-wrap'));
+                let addressCardsWrap = Array.from(document.querySelectorAll('.ins-checkbox-card-wrap'));
 
-                addressCards.forEach(address => {
+                addressCardsWrap.forEach(address => {
                     address.style.borderColor = '';
                     address.style.borderColor = 'red';
                 });
@@ -760,8 +761,8 @@ let Checkout = (function () {
                 }
             },
             initAddressCardListener() {
-                let addressCards = Array.from(document.querySelectorAll('ins-checkbox-card'));
-                addressCards.forEach(address => {
+                existingAddressCards = Array.from(document.querySelectorAll('ins-checkbox-card'));
+                existingAddressCards.forEach(address => {
                     address.addEventListener('insClick', () => {
                         Checkout.events.selectAddressCard(address);
                         Checkout.methods.removeAddressRequiredAttribute();
