@@ -128,7 +128,9 @@
                         data-product_name="{{ item.product_name }}"
                         value="{{ item.quantity }}" 
                         step="1" min="1" 
-                        max="{{ selected_prop.stock_level  }}" 
+                        {% if selected_prop.stock_level > 0 %}
+                            max="{{ selected_prop.stock_level }}" 
+                        {% endif %}
                         small>
                     </ins-input-stepper>
                     <div class="spacer small"></div>
@@ -241,7 +243,7 @@
         }     
 
         let cartItem = document.getElementById(`cart-item-${data.id}`);
-
+ 
         if(cartItem == null){
 
             if(addToCart(data, type, all_items, reorder_iteration)){        
