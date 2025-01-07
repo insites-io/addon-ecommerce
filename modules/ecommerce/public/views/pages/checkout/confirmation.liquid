@@ -14,7 +14,6 @@ authorization_policies:
 #    - modules/ecommerce/order_created_date_valid 
 #    - modules/ecommerce/customer_logged_in  ## commented out to allow 'guest customer' to view order confirmation
 ---
-{% include 'modules/ecommerce/checkout/clear_local_storage' %}
 {% assign order_uuid = context.params.id %}
 {% if order_uuid != blank %}
     {% graphql order = "modules/ecommerce/orders/get_order_details", 
@@ -51,6 +50,9 @@ authorization_policies:
             endif
         endif
     else 
+        include 'modules/ecommerce/checkout/clear_local_storage' 
+        include 'modules/ecommerce/checkout/clear_session'
+        
         # Guest: Fetch billing contact number
         if order.billing_contact_phone_number 
             assign account_phone_data = account_phone_data | add_hash_key: 'account_phone', true

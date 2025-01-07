@@ -70,7 +70,6 @@
     {%  liquid
         assign user_uuid = context.session.guest_info.uuid
         assign customer_email = context.session.billing_contact_email
-        assign stripe_customer_id = context.session.guest_info.stripe_id
         assign card_brand = context.session.guest_info.card_brand
     %}                    
 

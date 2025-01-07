@@ -82,7 +82,7 @@ metadata: {
         {%- assign user_id = user.id -%}
 
     {% else %}
-        {% comment %} Update the CRM data for the existing contact. {% endcomment %}
+        {% comment %} Update the CRM data for the existing user. {% endcomment %}
         {%- parse_json crm_data -%}
         {
             "id": "{{ user_id }}", 
@@ -103,8 +103,7 @@ metadata: {
     {
         "id": "{{ user_id }}",
         "uuid": "{{ user_uuid }}",
-        "card_brand": "pm_card_{{ card_brand | downcase }}",
-        "stripe_id": "{{ stripe_customer_id }}"
+        "card_brand": "pm_card_{{ card_brand | downcase }}"
     }
     {%- endparse_json -%}
 
@@ -159,6 +158,8 @@ metadata: {
             {%- endparse_json -%}    
             {%- graphql update_contact = 'modules/ecommerce/system/trigger_api_call', name: 'modules/client/update_contact', data: crm_data | dig: 'items','response','body' | parse_json -%}
             {% log update_contact, type: "Logged-in user Stripe ID saved to CRM" %}
+        {% else %}
+            {% log "Error: Logged-in user has no CRM data" %}
         {% endif %}
 
         {%- parse_json data -%}
