@@ -1,0 +1,38 @@
+---
+name: payment_intent_confirm
+to: https://api.stripe.com/v1/payment_intents/{{ data.payment_intent_id }}/confirm
+enabled: true
+trigger_condition: true
+request_type: POST
+callback: >
+  {%- assign response_data = response.body | to_hash -%}
+  {% if response_data.error %}
+    {%- log response_data.error, type: 'API modules/ecommerce/payment_intent_confirm' -%}
+  {% endif %}
+request_headers: >
+  {% if data %}
+    {% function stripe_settings = "modules/client/stripe/get_stripe_settings" %}
+    {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": "Bearer {{ stripe_settings.sk_key }}",
+      "Stripe-Account": "{{ stripe_settings.account_id }}"
+    }
+  {% endif %}
+---
+{%- assign allowed_params = 'payment_method' | split: ',' -%}
+{%- assign request_params = '' | split: "|" -%}
+{%- for var in data -%}
+  {%- if var[1] != blank -%}
+    {%- if var[0] == 'metadata' and var[1].size > 0 -%}
+      {% assign metadata_hash = var[1] | to_hash %}
+      {% for meta in metadata_hash %}
+        {%- capture pair %}metadata[{{ meta[0] }}]={{ meta[1] | url_encode }}{% endcapture -%}
+        {%- assign request_params = request_params | add_to_array: pair -%}
+      {% endfor %}
+    {% elsif allowed_params contains var[0] %}
+      {%- capture pair %}{{ var[0] }}={{ var[1] | url_encode }}{% endcapture -%}
+      {%- assign request_params = request_params | add_to_array: pair -%}
+    {%- endif -%}
+  {%- endif -%}
+{%- endfor -%}
+{{ request_params | join: '&' | html_safe }}
