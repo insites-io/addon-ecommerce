@@ -686,7 +686,21 @@ ins-card.overview .wrap{
 #downloads-dropdown .ins-dropdown_menu-card {
     text-align: left;
 }
+#order-table .ibt-table-wrap.no-label .ibt-table-header-wrap {
+    padding-top: 66px;
+}
+@media (max-width: 768px) {
+    #order-table .ibt-table-wrap .ins-searchbar-container {
+        position: absolute;
+    }
+}
 @media only screen and (max-width: 1023px) {
+    #order-table .ibt-table-wrap.no-label .ibt-table-header-wrap {
+        padding-top: 82px;
+    }
+    #order-table .ins-form-field-wrap {
+        margin-bottom: 40px;
+    }
     .reorder-btn button,
     #downloads-dropdown {
         width: 100%;
@@ -741,7 +755,7 @@ ins-card.overview .wrap{
     line-height: 24px; /* 150% */
 }
 .ecommerce .ibt-table-wrap .ibt-table_td {
-    color: var(--color-body);
+    color: var(--font-color-body);
     font-family: var(--font-family-02);
     font-size: 16px;
     font-style: normal;
@@ -854,13 +868,39 @@ ins-filter .filter__label {
 }
 ins-filter .filter__label,
 ins-filter-item .filter-item__button--text,
-ins-filter .date-filter__text {
+ins-filter .date-filter__text,
+ins-filter .date-filter,
+ins-filter-item .filter-item__button--option,
+.ibt-table .action-item,
+.ibt-table-wrap__page,
+.ibt-table-wrap__pagination,
+.ibt-table-wrap__pagination--option,
+.ibt-table-wrap__prev-next button.page {
     color: var(--font-color-head);
-    font-family: var(--font-family--02);
+    font-family: var(--font-family-02);
     font-size: 14px;
     font-style: normal;
     font-weight: 700;
     line-height: 20px; /* 142.857% */
+}
+ins-filter .date-filter,
+ins-filter-item .filter-item__button--option,
+.ibt-table-wrap__page,
+.ibt-table-wrap__pagination,
+.ibt-table-wrap__pagination--option,
+.ibt-table-wrap__prev-next button.page {
+    font-weight: 400;
+    color: var(--font-color-body);
+}
+.ibt-table .action-item {
+    font-weight: 400;
+    color: var(--color-main);
+}
+.ibt-table-wrap__prev-next button.next, 
+.ibt-table-wrap__prev-next button.prev {
+    color: var(--color-ui-04);
+    font-size: 16px;
+    line-height: 16px;
 }
 ins-filter-item .filter-item__button,
 ins-filter .date-filter {
@@ -924,5 +964,8 @@ ins-filter .date-filter .fas  {
     }
     .ibt-table-wrap .ibt-table-accordion {
         display: block;
+    }
+    .ibt-table-wrap .ins-searchbar-container {
+        width: 100%;
     }
 }
