@@ -216,6 +216,10 @@ ins-button.button-large button.ins-button.size--large span {
 .product-cards .cell {
     padding: 12px;
     height: 100%;
+    cursor: pointer;
+}
+.product-cards .cell:hover h6{
+    color: var(--color-main);
 }
 .product-cards .wrap {
     border-radius: 8px;
@@ -639,6 +643,17 @@ ins-card.overview .wrap{
 }
 #order-tab ins-tab-item>div {
     padding: 40px;
+}
+#order-tab .ins-tab .ins-tab-headers .ins-tab-header {
+    font-family: var(--font-family-02);
+    font-size: 16px;
+    font-weight: 400;
+    color: #575757;
+    line-height: 24px;
+    text-decoration-skip-ink: none;    
+}
+#order-tab .ins-tab .ins-tab-headers .ins-tab-header.active {
+    font-weight: 700;
 }
 #downloads-dropdown {
     display: inline-block;
