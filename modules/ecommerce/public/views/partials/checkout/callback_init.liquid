@@ -49,7 +49,6 @@ Step 2: Update inventory, cart and order models.
     gateway: gateway,
     currency: currency %}
 
-
 {%- comment -%}
 Step 3: (optional) Create address models
 {%- endcomment -%}
@@ -57,8 +56,10 @@ Step 3: (optional) Create address models
     {% include 'modules/ecommerce/checkout/callback_create_address', 
         user_id: user_id,
         form: form %}
+    {% assign guest_user = false %}
+{% else %}
+    {% assign guest_user = true %}
 {%- endif -%}
-
 
 
 {%- comment -%}
@@ -71,6 +72,7 @@ Step 4: Trigger autoresponder, workflow email & API
     "last_name": "{{ form.properties.billing_contact_last_name }}"
 }
 {% endparse_json %}
+
 {% parse_json data %}
 {
     "payment_response": {{ payment_response | default: '[]' }},
@@ -80,7 +82,9 @@ Step 4: Trigger autoresponder, workflow email & API
     "products": {{ context.exports.cart_items.products | default: '[]' }},
     "order_info": {{ context.exports.updated_order.items | default: '' }},
     "total_discounted_amount": {{ context.exports.order.total_discount_amount | default: 0 }}, 
-    "form": {{ form | default: '' }}
+    "form": {{ form | default: '' }},
+    "guest_user": {{ guest_user | default: false }}
+
 }
 {% endparse_json %}
 {% log data, type: "==== Email & API: Payload data ====" %}
