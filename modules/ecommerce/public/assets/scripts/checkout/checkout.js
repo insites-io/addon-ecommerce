@@ -211,8 +211,17 @@ let Checkout = (function () {
                 inputIds.forEach(id => {
                     const inputElement = document.getElementById(id);
                     if (inputElement) {
+                        // Remove 'required' and 'validate' attributes from the input
                         inputElement.removeAttribute('required');
                         inputElement.removeAttribute('validate');
+
+                        let invalidEl = inputElement.querySelectorAll(".is-invalid");
+                        // If invalid elements are found, remove the 'is-invalid' class
+                        if (invalidEl){
+                            invalidEl.forEach(el => {
+                                el.classList.remove('is-invalid');
+                            });
+                        }
                     }
                 });
             },
@@ -265,6 +274,7 @@ let Checkout = (function () {
             // Validate address conditions for non-guest users
             validateAddress(isValid){
                 if (!guestUserFlag) {
+                    console.log('existingAddressCards', existingAddressCards)
                     if (!selectedCardId && !newAddressFlag && existingAddressCards.length > 1) {
                         isValid = false;
                         Checkout.events.setAddressCardError();
@@ -416,8 +426,15 @@ let Checkout = (function () {
                 let form = event.srcElement;
                 let isValid = await App.validation.validateForm(form);
 
+                console.log('form', form)
+
+                console.log('isValid1', isValid)
+
+
                 // Validate address based on the flags
                 isValid = Checkout.methods.validateAddress(isValid);
+
+                console.log('isValid', isValid)
 
                 if (isValid) {
                     if (!guestUserFlag && newAddressFlag) {
