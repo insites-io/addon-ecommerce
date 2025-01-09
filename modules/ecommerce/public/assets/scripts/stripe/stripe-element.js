@@ -98,7 +98,8 @@ let StripeElement = (() => {
             async createStripeCardModel(token) {
                 let data = {
                     "email": email,
-                    "creditcard": token.id
+                    "creditcard": token.id,
+                    "card_brand": token.card.brand
                 }
                 let response = await StripeModel.creditcard.createCreditCard(data);
                 // Insert the token ID into the form checkout - Optional if no element / not checkout form

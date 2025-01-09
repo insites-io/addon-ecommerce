@@ -4,7 +4,8 @@ let StripeModel = (() => {
             async createCreditCard(data) {
                 let payload = {
                     "email": data.email,
-                    "stripe_credit_card": data.creditcard
+                    "stripe_credit_card": data.creditcard,
+                    "card_brand": data.card_brand
                 }
                 let response = await StripeServices.createCreditCard({ 'payload': payload });
                 if(response.state) {                    

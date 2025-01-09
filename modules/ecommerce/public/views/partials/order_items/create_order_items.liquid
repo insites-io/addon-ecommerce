@@ -5,18 +5,25 @@
 
 {%  liquid    
     ## Get cart
-    assign cart_items = '' | split: ','     
-    for cart_item in user_cart.items
-        ## Convert an array of strings into an array of objects
-        assign temp_item = cart_item | parse_json
-        assign cart_items = cart_items | array_add: temp_item                
-    endfor
+    if guest_user == false
+        assign cart_items = '' | split: ','     
+        graphql user_cart = 'modules/ecommerce/carts/get_user_cart', contact_uuid: user_uuid | dig: 'items','results' | first 
 
-    ## Get product info
-    assign product_uuids = cart_items | array_map: 'product_uuid' | array_flatten
-    graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: cart_items.size | dig: 'items','results'
+        for cart_item in user_cart.items
+            ## Convert an array of strings into an array of objects
+            assign temp_item = cart_item | parse_json
+            assign cart_items = cart_items | array_add: temp_item                
+        endfor
+
+        ## Get product info
+        assign product_uuids = cart_items | array_map: 'product_uuid' | array_flatten
+        graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: cart_items.size | dig: 'items','results'
+    else 
+        assign cart_items = context.session.guest_cart
+        assign products = context.session.guest_products
+    endif
+
 %}    
-
 
 {% comment %} Create data for order_items  {% endcomment %}
 {%  liquid   

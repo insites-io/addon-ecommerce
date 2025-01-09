@@ -15,13 +15,13 @@ layout: modules/insites_core/insites_internal_email_layout
 ---
 {% include "modules/insites_cms/globals" %}
 {% assign global = context.exports.global %}
-{% graphql current_user = 'modules/client/account/get_current_user'  %}
 
 {% assign user = data.customer_info %}
 {% assign form = data.form %}
 {% assign order = data.order_info %}
 {% assign products = data.products %}
 {% assign cart = data.cart %}
+{% assign guest_user = data.guest_user %}
 
 {% assign order_uuid = order.properties.uuid | default: '' %}
 {% assign order_id = order.id %}
@@ -334,9 +334,7 @@ data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10
 {% comment %} <!-- Order Details --> {% endcomment %}
 {{ order_details | html_safe }}
 
-{% assign logged_in_user = current_user.current_user |  default: null %}
-
-{% if logged_in_user != null %}
+{% if guest_user == false %}
     {% comment %} <!-- Spacer --> {% endcomment %}
     {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 40 %}
 

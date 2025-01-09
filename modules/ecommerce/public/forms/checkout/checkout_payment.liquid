@@ -3,7 +3,7 @@ name: checkout_payment
 resource: modules/insites_ecommerce/order
 resource_owner: anyone
 redirect_to: > 
-    {% log form.properties.uuid, type: "==== Redirect To: confirmation?order_uuid= " %}
+    {% log form.properties, type: "==== form.properties checkout_payment form  ====" %}
     {%- if context.exports.payment_response.status == "succeeded" or context.exports.payment_response.status == "active" -%}
         confirmation?id={{ form.properties.uuid }}
     {%- else -%}
@@ -153,7 +153,7 @@ default_payload: >
     {% include 'modules/ecommerce/checkout/compute_order_summary' %}
 
     {% comment %} Get guest details {% endcomment %}
-    {% if user_uuid != '' or user_uuid == null %}
+    {% if order_contact_uuid == '' or order_contact_uuid == null %}
         {% assign order_contact_uuid = context.session.guest_info.uuid %}
         {% assign order_contact_first_name = context.session.billing_contact_first_name %}
         {% assign order_contact_last_name = context.session.billing_contact_last_name %}

@@ -12,135 +12,170 @@ metadata: {
   "meta_description": "Create Credit Card",
   "canonical_url": "",
   "is_visible_to_search_engines": "false",
-  "sitemap_priority": 0.0, ## primary order (DESC)
-  "sitemap_order": 9999, ## secondary order (ASC)
+  "sitemap_priority": 0.0, 
+  "sitemap_order": 9999,
   "sitemap_changefreq": "never"
 }
 ---
 
-{%- assign status = 200 -%}
-{%- assign payload = context.params.payload | parse_json -%}
-{%- assign customer_email = payload.email | strip -%}
-{%- assign stripe_customer_id = blank -%}
-{%- assign user_id = blank -%}
-
 {%- liquid
+    assign status = 200
+    assign payload = context.params.payload | parse_json 
+    assign customer_email = payload.email | strip
+    assign card_brand = payload.card_brand | default: null
+    assign stripe_customer_id = blank 
+    assign user_id = blank 
+    assign guest_user = false 
+    assign email_exist = false
+
     if context.current_user
         assign customer_name = context.current_user.first_name | append: " " | append: context.current_user.last_name 
     else
-        ## guest user
         assign customer_name = context.session.billing_contact_first_name | append: " " | append: context.session.billing_contact_last_name 
+        assign guest_user = true
+    endif
+
+    graphql user_exist = "modules/ecommerce/user/get_user_by_email", email: customer_email | dig: "items"
+
+    if user_exist.total_entries > 0
+        assign email_exist = true
+
+        assign user_exist = user_exist | dig: 'results' | first 
+        assign user_id = user_exist.id
+        assign user_uuid = user_exist.uuid 
     endif
 -%}
 
-{%- comment -%} Check the CRM contact to see if the user with this email has a Stripe ID {%- endcomment -%}
-{%- if context.current_user -%}
-    {%- graphql user_stripe = 'modules/client/customers/get_user_stripe_id', email: customer_email | dig: 'items','results' | first -%}
-    {%- assign user_id = user_stripe.id -%}
-    {%- assign user_uuid = user_stripe.external_id -%}
-    {%- assign stripe_id = user_stripe | dig: 'profiles' | first | dig: 'stripe_id' -%}
-{%- endif -%}
+{% if guest_user == true %}
+    {% comment %} 
+        Guest User Workflow
+        - Steps:
+        - 1. Check if the email exists in the system.
+        - 2. If yes, update the CRM data for the existing contact.
+        - 3. If no, create a new user and add them to the CRM.
+        - 4. Add the guest user info to the session.
 
+        Note:
+         - For guest users, we don't need to create a Stripe customer ID.
+         - Guest payments are processed via Payment Intent or as one-time payments,
+           without saving the customer or payment method for future use.
+    {% endcomment %}
 
-{%- if stripe_id and stripe_id != '' -%}
+    {% if email_exist == false %}
+        {% comment %} Create a new user. {% endcomment %}
+        {%- parse_json new_user_data -%}
+        {
+            "email": "{{ customer_email }}",
+            "first_name": "{{ context.session.billing_contact_first_name }}",
+            "last_name": "{{ context.session.billing_contact_last_name }}",
+            "password": "{{ password }}",
+            "uuid": "{{ '' | uuid }}",
+            "mobile_phone_number": "{{ context.session.billing_contact_phone_number }}",
+            "mobile_phone_country_code": "{{ context.session.billing_contact_phone_country_code }}"
+        }
+        {%- endparse_json -%}
+        {%- graphql new_user = 'modules/ecommerce/user/create_user', args: new_user_data -%}
+        {% log new_user, type: "Guest user created" %}
 
-    {%- comment -%} User already has a stripe_id: Proceed in creating new Stripe card {%- endcomment -%}
-    {%- parse_json data -%}
-    {
-        "contact_uuid": "{{ user_uuid }}",
-        "payment_method_token":  "{{ stripe_id }}",
-        "source": "{{ payload.stripe_credit_card }}"
-    }
-    {%- endparse_json -%}
-    {%- include 'modules/ecommerce/stripe/credit_cards/create_credit_card', data: data -%}
-{%- else -%}
-    {%- comment -%} New customer: Create Stripe customer {%- endcomment -%}    
-    {%- parse_json customer_data -%}
-    {
-        "email": "{{ customer_email }}",
-        "name": "{{ customer_name }}",
-        "description": ""
-    }
-    {%- endparse_json -%}
-    {%- graphql create_stripe_customer = 'modules/ecommerce/system/trigger_api_call', name: "modules/ecommerce/create_customer",
-        data: customer_data | dig: 'items' | dig: 'response' -%}    
+        {%- assign user = new_user.user -%}
+        {%- assign user_uuid = user.user_uuid -%}
+        {%- assign user_id = user.id -%}
 
-    {%- assign stripe_customer_response = create_stripe_customer.body | parse_json  -%}
-    {%- assign stripe_customer_id = stripe_customer_response.id -%}
-
-    {%- comment -%} Save the Stripe ID to the CRM contact {%- endcomment -%}
-    {%- if context.current_user -%}
-
+    {% else %}
+        {% comment %} Update the CRM data for the existing user. {% endcomment %}
         {%- parse_json crm_data -%}
         {
             "id": "{{ user_id }}", 
             "email": "{{ customer_email }}",
-            "stripe_id": "{{ stripe_customer_id }}"
+            "first_name": "{{ context.session.billing_contact_first_name }}",
+            "last_name": "{{ context.session.billing_contact_last_name }}",
+            "mobile_phone_number": "{{ context.session.billing_contact_phone_number }}",
+            "mobile_phone_country_code": "{{ context.session.billing_contact_phone_country_code }}"
         }
         {%- endparse_json -%}    
-        {%- graphql update_contact = 'modules/ecommerce/system/trigger_api_call', 
-            name: 'modules/client/update_contact', 
-            data: crm_data | dig: 'items','response','body' | parse_json -%}
+        {%- graphql update_contact = 'modules/ecommerce/system/trigger_api_call', name: 'modules/client/update_contact', data: crm_data | dig: 'items','response','body' | parse_json -%}
+        {% log update_contact, type: "Existing guest user updated" %}
 
-        {%- log update_contact, type: 'new stripe customer, update_contact' -%}
+    {% endif %}
 
-    {%- else -%}
-
-        {%- comment -%} Guest user: check if email already exist {%- endcomment -%}
-        {%- graphql user_exist = "modules/ecommerce/user/get_user_by_email", email: customer_email | dig: "items" -%}
-       
-        {%- comment -%} Create new user account {%- endcomment -%}
-        {%- if user_exist.total_entries == 0 -%}
-            {%- assign password = 'now' | date: '%y%m%d' | uuid  -%}
-            {%- parse_json new_user_data -%}
-            {
-                "email": "{{ customer_email }}",
-                "first_name": "{{ context.session.billing_contact_first_name }}",
-                "last_name": "{{ context.session.billing_contact_last_name }}",
-                "password": "{{ password }}",
-                "uuid": "{{ '' | uuid }}",
-                "email": "{{ customer_email }}",
-                "mobile_phone_number": "{{ context.session.billing_contact_phone_number }}",
-                "mobile_phone_country_code": "{{ context.session.billing_contact_phone_country_code }}",
-                "stripe_id": "{{ stripe_customer_id }}"
-            }
-            {%- endparse_json -%}
-            {%- graphql new_user = 'modules/ecommerce/user/create_user', args: new_user_data -%}
-
-            {%- assign user = new_user.user -%}
-            {%- assign user_uuid = user.user_uuid -%}
-            {%- assign user_id = user.id -%}
-        {% else %}
-            {%- assign result = user_exist.results | first -%}
-            {%- assign contact = result | dig: 'crm_contact' | first -%}
-
-            {%- assign user_uuid = contact | dig: 'user_uuid'  -%}
-            {%- assign user_id = contact | dig: 'id'  -%}
-        {%- endif -%}
-
-        {%- parse_json guest_info -%}
-            {
-                "id": "{{ user_id }}",
-                "uuid": "{{ user_uuid }}",
-                "stripe_id": "{{ stripe_customer_id }}"
-            }
-        {%- endparse_json -%}
-
-        {% session guest_info = guest_info %}
-    {%- endif -%}
-
-    {%- parse_json data -%}
+    {% comment %} Add the guest user info to the session.{% endcomment %}
+    {%- parse_json guest_info -%}
     {
-        "contact_uuid": "{{ user_uuid }}",
-        "payment_method_token":  "{{ stripe_customer_id }}",
-        "source": "{{ payload.stripe_credit_card }}"
+        "id": "{{ user_id }}",
+        "uuid": "{{ user_uuid }}",
+        "card_brand": "pm_card_{{ card_brand | downcase }}"
     }
     {%- endparse_json -%}
-    {%- include 'modules/ecommerce/stripe/credit_cards/create_credit_card', data: data -%}
-{%- endif -%}
+
+    {% session guest_info = guest_info %}
+
+{% else %}
+    {% comment %}
+        Logged-in User Workflow
+        - Steps:
+        - 1. Check if the user already has a Stripe ID.
+        - 2. If yes, use the existing Stripe ID to create a new credit card for the user.
+        - 3. If no, create a new Stripe customer, save the Stripe ID in CRM, and then create the credit card.
+    {% endcomment %}
+
+    {% comment %} Check if the user already has a Stripe ID. {% endcomment %}
+    {%- graphql user_stripe = 'modules/client/customers/get_user_stripe_id', email: customer_email | dig: 'items','results' | first -%}
+    {%- assign stripe_id = user_stripe | dig: 'profiles' | first | dig: 'stripe_id' -%}
+
+    {% if stripe_id and stripe_id != '' %}
+        {%- parse_json data -%}
+        {
+            "contact_uuid": "{{ user_uuid }}",
+            "payment_method_token":  "{{ stripe_id }}",
+            "source": "{{ payload.stripe_credit_card }}"
+        }
+        {%- endparse_json -%}
+        {%- include 'modules/ecommerce/stripe/credit_cards/create_credit_card', data: data -%}
+        {% log data, type: "Stripe card created for logged-in user with existing Stripe ID" %}
+    {% else %}
+        {% comment %} Create a new Stripe customer. {% endcomment %}
+        {%- parse_json customer_data -%}
+        {
+            "email": "{{ customer_email }}",
+            "name": "{{ customer_name }}",
+            "description": ""
+        }
+        {%- endparse_json -%}
+        {%- graphql create_stripe_customer = 'modules/ecommerce/system/trigger_api_call', name: "modules/ecommerce/create_customer", data: customer_data | dig: 'items' | dig: 'response' -%}    
+
+        {%- assign stripe_customer_response = create_stripe_customer.body | parse_json -%}
+        {%- assign stripe_customer_id = stripe_customer_response.id -%}
+        {% log stripe_customer_id, type: "Logged-in user does not have a Stripe ID, new Stripe customer created" %}
+
+        {% if email_exist == true %}
+            {% comment %} Save the Stripe ID in CRM. {% endcomment %}
+            {%- parse_json crm_data -%}
+            {
+                "id": "{{ user_id }}", 
+                "email": "{{ customer_email }}",
+                "stripe_id": "{{ stripe_customer_id }}"
+            }
+            {%- endparse_json -%}    
+            {%- graphql update_contact = 'modules/ecommerce/system/trigger_api_call', name: 'modules/client/update_contact', data: crm_data | dig: 'items','response','body' | parse_json -%}
+            {% log update_contact, type: "Logged-in user Stripe ID saved to CRM" %}
+        {% else %}
+            {% log "Error: Logged-in user has no CRM data" %}
+        {% endif %}
+
+        {%- parse_json data -%}
+        {
+            "contact_uuid": "{{ user_uuid }}",
+            "payment_method_token":  "{{ stripe_customer_id }}",
+            "source": "{{ payload.stripe_credit_card }}"
+        }
+        {%- endparse_json -%}
+        {%- include 'modules/ecommerce/stripe/credit_cards/create_credit_card', data: data -%}
+    {% endif %}
+
+{% endif %}
 
 {
-    "stripe_id": "{{context.exports.stripe_response.id}}",
+    "stripe_id": "{{ context.exports.stripe_response.id }}",
     "is_new_user": {{ is_new_user | default: false }}
 }
 {%- response_status status -%}

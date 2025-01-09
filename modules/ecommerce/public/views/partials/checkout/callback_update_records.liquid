@@ -38,7 +38,7 @@
 
 
 {% comment %} Create Order Items {% endcomment %}
-{%- include 'modules/ecommerce/order_items/create_order_items', user_uuid, order_uuid -%}
+{%- include 'modules/ecommerce/order_items/create_order_items', user_uuid, order_uuid, guest_user -%}
 {% assign user_cart = context.exports.user_cart %}
 
 

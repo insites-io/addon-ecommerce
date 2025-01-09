@@ -34,9 +34,21 @@
         {%- assign order_status = "Open" -%}
     {%- endif -%}
 
+{%- comment -%}
+Step 2: (optional) Create address models
+{%- endcomment -%}
+{%- if context.current_user.id -%}
+    {% include 'modules/ecommerce/checkout/callback_create_address', 
+        user_id: user_id,
+        form: form %}
+    {% assign guest_user = false %}
+{% else %}
+    {% assign guest_user = true %}
+{%- endif -%}
+
 
 {%- comment -%}
-Step 2: Update inventory, cart and order models.
+Step 3: Update inventory, cart and order models.
 {%- endcomment -%}
 {% include 'modules/ecommerce/checkout/callback_update_records'
     payment_response: payment_response,
@@ -47,19 +59,9 @@ Step 2: Update inventory, cart and order models.
     order_uuid: order_uuid,
     form: form,
     gateway: gateway,
-    currency: currency %}
-
-
-{%- comment -%}
-Step 3: (optional) Create address models
-{%- endcomment -%}
-{%- if context.current_user.id -%}
-    {% include 'modules/ecommerce/checkout/callback_create_address', 
-        user_id: user_id,
-        form: form %}
-{%- endif -%}
-
-
+    currency: currency,
+    guest_user: guest_user
+    %}
 
 {%- comment -%}
 Step 4: Trigger autoresponder, workflow email & API 
@@ -71,6 +73,7 @@ Step 4: Trigger autoresponder, workflow email & API
     "last_name": "{{ form.properties.billing_contact_last_name }}"
 }
 {% endparse_json %}
+
 {% parse_json data %}
 {
     "payment_response": {{ payment_response | default: '[]' }},
@@ -80,7 +83,9 @@ Step 4: Trigger autoresponder, workflow email & API
     "products": {{ context.exports.cart_items.products | default: '[]' }},
     "order_info": {{ context.exports.updated_order.items | default: '' }},
     "total_discounted_amount": {{ context.exports.order.total_discount_amount | default: 0 }}, 
-    "form": {{ form | default: '' }}
+    "form": {{ form | default: '' }},
+    "guest_user": {{ guest_user | default: false }}
+
 }
 {% endparse_json %}
 {% log data, type: "==== Email & API: Payload data ====" %}
