@@ -67,39 +67,38 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
 </head>
 <body>
     <div class="main-wrap">
-    
-        {%- assign slug_type = '' -%}
-        {% comment %} Check if slug2 is a category or a product {% endcomment %}
-        {%- if context.params.slug2 -%}                        
-            {% comment %} Check if slug2 is a category {% endcomment %}
-            {%- graphql category = 'modules/ecommerce/categories/is_category_exist', slug: context.params.slug2 | dig: 'items','results' | first -%}    
-            {%- if category.id -%}
-                {%- assign slug_type = 'category' -%}
-            {%- else -%}
-                {% comment %} Check if slug2 is a product {% endcomment %}
-                {%- graphql product_exist = 'modules/ecommerce/products/is_product_exist', slug: context.params.slug2 | dig: 'items','results' | first -%}
-                {%- if product.id -%}
-                    {%- assign slug_type = 'product' -%}
-                {%- endif -%}
-            {%- endif -%}                                                                
-        {%- endif -%}
         
         {% include 'modules/website/layout/header' %}
 
         {%- if context.params.slug2 -%}
+
+            {%- graphql category = 'modules/ecommerce/categories/is_category_exist', slug: context.params.slug2 | dig: 'items','results' | first -%}    
+            {%- graphql product = 'modules/ecommerce/products/is_product_exist', slug: context.params.slug2 | dig: 'items','results' | first -%}       
+
             <div class="breadbrumbs__wrapper wrapper">
                 <div class="grid-container">
-                    <div class="breadcrumbs">{%- comment -%}{% if slug_type != 'product' %}text-center{% endif %}{%- endcomment -%}
-                        <span>
-                            <a href="/products">Product</a>    
-                        </span>
-                        <i class="icon-chevron-right"></i>
-                        <!-- <span>&gt;</span> -->
-                        {%- if slug_type == 'product' -%}
-                            <span class="active">{{ product.product_name }}</span>
-                        {%- else -%}
-                            <span class="active">{{ category.category_name }}</span>
-                        {%- endif -%}
+                    <div class="breadcrumbs grid-x">
+                        <a href="/products">All Products</a>                        
+                        
+                        {%- if category.id -%}
+
+                            <i class="icon-chevron-right"></i>
+                            <span class="active">{{ category.category_name }}</span>                          
+
+                        {%- elsif product.id -%}
+
+                            {%- if product.category.slug -%}
+                                <i class="icon-chevron-right"></i>
+                                <a href="/products/{{ product.category.slug }}">{{ product.category.category_name }}</a>    
+                                <i class="icon-chevron-right"></i>
+                                <span class="active">{{ product.product_name }}</span>                            
+                            {%- else -%} 
+                                <i class="icon-chevron-right"></i>
+                                <span class="active">{{ product.product_name }}</span>     
+                            {%- endif -%} 
+
+                        {%- endif -%}   
+                                  
                     </div>
                 </div>
             </div>

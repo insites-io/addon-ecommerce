@@ -979,3 +979,28 @@ ins-filter .date-filter .fas  {
     padding-left: 0px !important;
     padding-right: 10px !important;
 }
+.breadcrumbs {
+    gap: 16px;
+    align-items: center;
+}
+.breadcrumbs a,
+.breadcrumbs span {
+    color: var(--font-color-body);
+    font-family: var(--font-family-02);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 20px; /* 142.857% */
+}
+.breadcrumbs .active {
+    color: var(--font-color-head);
+    font-weight: 700;
+}
+.breadcrumbs a:hover {
+    text-decoration: none;
+    color: var(--color-main);
+}
+.breadcrumbs span {
+    margin: initial;
+    margin-left: initial !important;
+}

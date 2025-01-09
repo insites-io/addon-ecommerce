@@ -64,7 +64,7 @@ URL Structures:
 
 
 <div class="ecommerce-wrapper grid-container">
-    <div class="spacer xxxx-large"></div>
+    <div class="spacer x-large"></div>
 
     {% parse_json sort_by %}
     {
@@ -80,9 +80,11 @@ URL Structures:
         {%- if slug_type == 'product' -%}
             {%- include 'modules/ecommerce/products/detail' -%}
         {%- else -%}        
+            <div class="spacer small"></div>
             {%- include 'modules/ecommerce/products/list', all_categories -%}
         {%- endif -%}
     {%- else -%}
+        <div class="spacer small"></div>
         {%- include 'modules/ecommerce/products/list', all_categories -%}
     {%- endif -%}
 

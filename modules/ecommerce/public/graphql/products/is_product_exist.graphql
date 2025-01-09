@@ -20,6 +20,17 @@ query is_product_exist (
       id
       slug: property(name: "slug")  
       product_name: property(name: "product_name")  
+      #category_uuids: property_array(name: "category_uuids")  
+      category: related_record(
+        table: "modules/insites_ecommerce/category"
+        join_on_property: "category_uuids"
+        foreign_property: "uuid"
+      ){
+        #id
+        #uuid: property(name: "uuid")
+        slug: property(name: "slug")
+        category_name: property(name: "category_name")
+      }
       #properties
     }
   }
