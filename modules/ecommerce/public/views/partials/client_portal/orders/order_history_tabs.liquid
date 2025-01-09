@@ -56,7 +56,8 @@
       "product_uuid": "{{ item.product_uuid }}",
       "product_sku": "{{ item.sku }}",
       "product_name": "{{ item.product.product_name }}",
-      "price": "{{ price | default: 0 }}"
+      "price": "{{ price | default: 0 }}",
+      "quantity": "{{ item.quantity | default: 1 }}"
   }
   {% endparse_json %}
   {% assign reorder_items = reorder_items | array_add: reorder_data %}
