@@ -98,12 +98,13 @@ metadata: {
                     assign cart_id = user_cart.id   
                 endif
 
+                ## NOTE: Comment out this code as we temporarily remove the discount code feature.
                 ## Include discount code form based on cart availability
-                if cart_id 
-                    include_form 'modules/ecommerce/apply_discount_code', id: cart_id 
-                else 
-                    include_form 'modules/ecommerce/apply_discount_code'
-                endif
+                ##if cart_id 
+                ##    include_form 'modules/ecommerce/apply_discount_code', id: cart_id 
+                ##else 
+                ##    include_form 'modules/ecommerce/apply_discount_code'
+                ##endif
             %}
         </div>
     </div>
