@@ -274,7 +274,6 @@ let Checkout = (function () {
             // Validate address conditions for non-guest users
             validateAddress(isValid){
                 if (!guestUserFlag) {
-                    console.log('existingAddressCards', existingAddressCards)
                     if (!selectedCardId && !newAddressFlag && existingAddressCards.length > 1) {
                         isValid = false;
                         Checkout.events.setAddressCardError();
@@ -426,15 +425,8 @@ let Checkout = (function () {
                 let form = event.srcElement;
                 let isValid = await App.validation.validateForm(form);
 
-                console.log('form', form)
-
-                console.log('isValid1', isValid)
-
-
                 // Validate address based on the flags
                 isValid = Checkout.methods.validateAddress(isValid);
-
-                console.log('isValid', isValid)
 
                 if (isValid) {
                     if (!guestUserFlag && newAddressFlag) {
