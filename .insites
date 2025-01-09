@@ -6,11 +6,18 @@
     "url": "https://insites-app-client-portal-v5-uat.staging.oregon.platform-os.com",
     "key": "PVLB8iIgj0Xq6AsDr4w1oLO8lejMEzyte7dczyMcAW4"
   },
-  "cp-eco": {
+  "dev1": {
     "instance_uuid": "f91ad2ea-9e13-443e-988e-f01bf3f428b6",
     "token": "d34f83ab-6e19-4c80-bfcd-fd665276a661",
     "email": "ivory+insites-console@combinate.me",
     "url": "https://ins-app-client-portal-addon-v5.staging.oregon.platform-os.com",
     "key": "7dir9UCODOjsrl1sEKKuSfLW0d9pEFDnGv61WQMy6WA"
+  },
+  "stg": {
+    "instance_uuid": "8136c767-20a9-4277-91e5-0a603eb21f97",
+    "token": "d34f83ab-6e19-4c80-bfcd-fd665276a661",
+    "email": "ivory+insites-console@combinate.me",
+    "url": "https://ins-addon-ecom-v5.staging.oregon.platform-os.com",
+    "key": "qxXNVLWE2MmYcDGup-5a2gNPbhVAkntgFcCUQ_PIpQI"
   }
 }
