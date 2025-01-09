@@ -110,15 +110,15 @@
                         {% endfor %}
                     {% endif %}
                     <p>
-                        <span class="body-x-small-bold">Price CArt:</span>
-                        <span class="body-x-small item-price">{{ price | pricify }}</span>
+                        <span class="body-x-small-bold">Price:</span>
+                        <span class="body-x-small item-price">{{ price | pricify: 'USD', no_cents_if_whole: false }}</span>
                         {% if selected_prop.is_on_sale == true %}
-                        <span class="body-x-small strikethrough">{{ price_strikethrough | default: 0 | pricify }}</span>
+                        <span class="body-x-small strikethrough">{{ price_strikethrough | default: 0 | pricify: 'USD', no_cents_if_whole: false }}</span>
                         {% endif %}
                     </p>
                 </div>
                 <div class="cell grid-y large-5 medium-5 small-5 text-right">
-                    <p class="cart-price compute-price">{{ item_total | pricify }}</p>
+                    <p class="cart-price compute-price">{{ item_total | pricify: 'USD', no_cents_if_whole: false }}</p>
                     <div class="spacer x-small"></div>
                     <ins-input-stepper
                         class="cart-stepper" 
@@ -163,7 +163,7 @@
         <div class="spacer"></div>
         <div class="grid-x align-justify" >
             <p class="heading-3-small font-color-head">Sub Total</p>
-            <p id="cart-subtotal" class="heading-3-small font-color-head">{{ subtotal | pricify }}</p>
+            <p id="cart-subtotal" class="heading-3-small font-color-head">{{ subtotal | pricify: 'USD', no_cents_if_whole: false }}</p>
         </div>
         <div class="spacer"></div>
         <ins-button id="go-to-cart" label="Go to Cart" icon="icon-shopping-cart" solid class="full" 
@@ -437,11 +437,11 @@
                         <div class="spacer x-small"></div>
                         <p>
                             <span class="body-x-small-bold">Price:</span>
-                            <span class="body-x-small item-price">$${ data.price }</span>
+                            <span class="body-x-small item-price">$${ parseFloat(data.price).toFixed(2) }</span>
                         </p>
                     </div>
                     <div class="cell grid-y large-5 medium-5 small-5 text-right">
-                        <p class="cart-price compute-price">$${ total_price }</p>
+                        <p class="cart-price compute-price">$${ parseFloat(total_price).toFixed(2) }</p>
                         <div class="spacer x-small"></div>
                         <ins-input-stepper
                             class="cart-stepper" 
@@ -583,7 +583,7 @@
         let computePrice = itemWrap.querySelector(".compute-price");
         let parseItemPrice = parseFloat(itemPrice.textContent.replace('$', ''))
         let itemTotalPrice = parseItemPrice * qty;
-        computePrice.textContent = `$${itemTotalPrice}`;
+        computePrice.textContent = `$${itemTotalPrice.toFixed(2)}`;
 
         return {
             price: parseItemPrice,
@@ -599,7 +599,7 @@
             subTotal += parseFloat(price.textContent.replace('$', ''));
         });
 
-        cartSubtotal.textContent = `$${subTotal}`;
+        cartSubtotal.textContent = `$${subTotal.toFixed(2)}`;
         cartDrawer.label = `Cart (${prices.length})`;
 
         if(prices.length == 0){
