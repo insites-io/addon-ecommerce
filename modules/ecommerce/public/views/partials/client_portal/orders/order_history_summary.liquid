@@ -59,6 +59,7 @@
         let variants = product.variants;
         let product_img = data.order_item_image;
         let variation = "";
+        let sub_price = data.item_price * data.quantity;
 
         if(data.sku != product.sku){
           variants.forEach(variant => {
@@ -73,7 +74,7 @@
             "Item Code": data.sku,
             "Variation": variation,
             "Qty": data.quantity,
-            "Price": data.item_price
+            "Price": sub_price
         }
     });
   }
