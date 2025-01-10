@@ -199,13 +199,40 @@ ins-button.button-large button .btn__icon {
         display: initial;
     }
 }
-.shop-all-link {    
+.product-carousel .carouselMobile .ins-carousel_ctrl-btns ins-button button {    
+    top: 62px;
+    width: 48px;
+    height: 48px;
+}
+.product-carousel .carouselMobile .ins-carousel_ctrl-btns ins-button:nth-child(1) button {
+    right: 64px;
+} 
+.product-carousel .carouselMobile .ins-carousel_ctrl-btns ins-button:nth-child(2) button {
+    right: 0px;
+} 
+.carouselMobile .product-cards {
+    margin-top: 96px;
+}
+.carouselMobile  .product-cards .cell {
+    padding: 0px;
+}
+.shop-all-link {        
     position: absolute;
     top: 0px;
     right: 148px;
     display: inline-block;
     height: 42px;
     align-content: center;
+    color: var(--font-color-head) !important;
+    font-size: 16px;
+    font-family: var(--font-family-02);
+}
+.shop-all-link:hover {
+    color: var(--color-main) !important;
+}
+.product-carousel .carouselMobile .shop-all-link {
+    top: 62px;
+    left: 0px;
 }
 .carouselDesktop .shop-all-link {
     right: 228px;

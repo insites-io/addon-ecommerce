@@ -50,27 +50,25 @@
         <!-- tablet carousel -->
 
         <!-- mobile carousel -->
-        <ins-carousel 
-            id="newArrivalsCarouselMobile"
-            class="newArrivalsCarousel carouselMobile show-for-small-only"
-            layout="1"
-            per-page="1"
-            no-pagination=true
-            bind-to="newArrivalCardsMobile">
+        <div class="wrapper">
+            <ins-carousel 
+                id="newArrivalsCarouselMobile"
+                class="newArrivalsCarousel carouselMobile show-for-small-only"
+                layout="1"
+                per-page="1"
+                no-pagination=true
+                bind-to="newArrivalCardsMobile">
+                
+                <h2>New Arrivals</h2>
 
-            <div class="grid-container">
-                <div class="grid-x">
-                    <h2>New Arrivals</h2>     
+                <div class="spacer"></div>
+                <div id="newArrivalCardsMobile" class="product-cards">
+                    {% for product in products %}
+                        {% include "modules/ecommerce/products/product_card", product: product %}
+                    {% endfor %}
                 </div>
-            </div>
-
-            <div class="spacer xx-large"></div>
-            <div id="newArrivalCardsMobile" class="product-cards">
-                {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product %}
-                {% endfor %}
-            </div>
-        </ins-carousel>
+            </ins-carousel>
+        </div>
         <!-- mobile carousel -->
 
     </div>
