@@ -23,12 +23,14 @@
                         {% endif %}
                     </div>
                     <div class="flex-grow-1">
-                        <h6>
-                            {{ cart.product_name }} 
-                            {% if cart.selected_prop.stock_level < 1 %}
-                            <ins-tag label="Pre-Order" class='preorder-tag body-x-small' ></ins-tag>
-                            {% endif %}
-                        </h6> 
+                        <a href="/products/{{ cart.slug }}">
+                            <h6>
+                                {{ cart.product_name }} 
+                                {% if cart.selected_prop.stock_level < 1 %}
+                                <ins-tag label="Pre-Order" class='preorder-tag body-x-small' ></ins-tag>
+                                {% endif %}
+                            </h6> 
+                        </a>
                         <p class="body-small">SKU: {{ item.product_sku }}</p>
                         <div class="spacer small"></div>
                         {% comment %} Get variant info {% endcomment %}

@@ -547,6 +547,9 @@ ins-drawer .ins-drawer-wrap .ins-content .ins-drawer-body {
     width: 200px;
     text-align: right;
 }
+.shopping-cart a h6:hover {
+    color: var(--color-main);
+}
 ins-tag.preorder-tag span.ins-tag {
     padding: 0px 8px;
     background: rgba(236, 156, 0, 0.10);
