@@ -117,12 +117,12 @@
                 assign hideOutOfStock = ''
             endif
         %}
-        <div id="out-of-stock-wrap" class="wrap {{ hideOutOfStock }}">
-            <div class="spacer x-large"></div> 
+        <div id="out-of-stock-wrap" class="wrap {{ hideOutOfStock }}">            
             <div class="out-of-stock-notice">            
                 <p>We're currently out of stock on this product, but you can secure yours by placing a pre-order now!</p>
                 <p>We will notify you when your pre-order becomes available for delivery.</p>
             </div>
+            <div class="spacer x-large"></div>
         </div>
 
         {%- if product.is_product_variant_enabled -%} 

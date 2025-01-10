@@ -76,7 +76,7 @@ h6, .heading-6 {
     line-height: 18px; /* 128.571% */
 }
 p.form-label {
-    margin-bottom: 0px;
+    /* margin-bottom: 0px; */
 }
 
 .button-default {
