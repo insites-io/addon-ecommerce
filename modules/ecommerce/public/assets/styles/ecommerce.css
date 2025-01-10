@@ -550,10 +550,26 @@ ins-drawer .ins-drawer-wrap .ins-content .ins-drawer-body {
     font-weight: 700;
     line-height: 16px; /* 160% */
 }
-
+.cart-item-wrap .cart-remove-btn:hover button  {
+    background: var(--error-hover-light) !important;
+}
+.cart-item-wrap .cart-remove-btn:hover *  {
+    color: var(--error);
+}
 
 
 /* Shopping Cart Page */
+#shopping-cart-list {
+    position: relative;
+    padding-right: 20px;
+}    
+#shopping-cart-list .wrap{
+    max-height: 1900px;
+    overflow-y: auto;
+    margin-right: -16px; 
+    padding-right: 16px; 
+    box-sizing: content-box;
+}
 #shopping-cart-list .cart-item-wrap .grid-x {
     column-gap: 24px;
 }

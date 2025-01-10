@@ -1,7 +1,8 @@
 {%- if carts.size > 0 -%}
     <h2>Cart Items</h2>
-    <div class="spacer x-large"></div>
-    <div id="shopping-cart-list" class="shopping-cart grid-y">
+    <div class="spacer x-large"></div>    
+    <div id="shopping-cart-list">
+        <div class="wrap shopping-cart grid-y">
 
         {%- for item in carts -%}          
 
@@ -92,6 +93,7 @@
             
         {%- endfor -%}
         
+        </div>
     </div>
     <ins-loader
         id="shopping-cart-loader"
