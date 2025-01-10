@@ -111,14 +111,14 @@
                     {% endif %}
                     <p>
                         <span class="body-x-small-bold">Price:</span>
-                        <span class="body-x-small item-price">{{ price | pricify: 'USD', no_cents_if_whole: false }}</span>
+                        <span class="body-x-small item-price">{{ price | plus: 0 | pricify: 'USD', no_cents_if_whole: false }}</span>
                         {% if selected_prop.is_on_sale == true %}
                         <span class="body-x-small strikethrough">{{ price_strikethrough | default: 0 | pricify: 'USD', no_cents_if_whole: false }}</span>
                         {% endif %}
                     </p>
                 </div>
                 <div class="cell grid-y large-5 medium-5 small-5 text-right">
-                    <p class="cart-price compute-price">{{ item_total | pricify: 'USD', no_cents_if_whole: false }}</p>
+                    <p class="cart-price compute-price">{{ item_total | plus: 0 | pricify: 'USD', no_cents_if_whole: false }}</p>
                     <div class="spacer x-small"></div>
                     <ins-input-stepper
                         class="cart-stepper" 
@@ -163,7 +163,7 @@
         <div class="spacer"></div>
         <div class="grid-x align-justify" >
             <p class="heading-3-small font-color-head">Sub Total</p>
-            <p id="cart-subtotal" class="heading-3-small font-color-head">{{ subtotal | pricify: 'USD', no_cents_if_whole: false }}</p>
+            <p id="cart-subtotal" class="heading-3-small font-color-head">{{ subtotal | plus: 0 | pricify: 'USD', no_cents_if_whole: false }}</p>
         </div>
         <div class="spacer"></div>
         <ins-button id="go-to-cart" label="Go to Cart" icon="icon-shopping-cart" solid class="full" 
@@ -236,14 +236,14 @@
         }         
                         
         //used for product with variants in product details page
-        if(productSKU){
+        if(productSKU == data.product_sku){
             data.id = variantID;
             data.price = variantPrice;
             data.product_sku = productSKU.textContent;
         }     
 
         let cartItem = document.getElementById(`cart-item-${data.id}`);
- 
+
         if(cartItem == null){
 
             if(addToCart(data, type, all_items, reorder_iteration)){        
@@ -344,7 +344,7 @@
     }    
 
     /* Add cart to Database or to localStorage */
-    async function addToCart(data, type, all_items, reorder_iteration){                          
+    async function addToCart(data, type, all_items, reorder_iteration){        
         data["type"] = type;
        
         if(user_uuid != ""){
