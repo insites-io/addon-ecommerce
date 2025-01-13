@@ -2,6 +2,7 @@
 .Trashes
 .env
 .pos
+.insites
 
 *.sublime-*
 *.swp

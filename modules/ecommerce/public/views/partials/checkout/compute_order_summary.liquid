@@ -7,6 +7,7 @@
 {% endcomment %}
 
 {%- assign user_id = context.current_user.id | default: null -%}
+{% assign page_slug = context.params.slug %}
 {% include 'modules/ecommerce/carts/cart_items' %}
 
 {% comment %} Guest Order Summary {% endcomment %}
@@ -131,6 +132,10 @@
             {% comment %} End Discounts {% endcomment %}
                         
         {% endfor %}
+    {% endif %}
+
+    {% if page_slug == 'shopping-cart' %}
+        {% assign sub_total_shipping = 0 %}
     {% endif %}
 
     {% assign temp_total = sub_total_amount | plus: sub_total_shipping | minus: sub_total_discount | plus: sub_total_tax %}
