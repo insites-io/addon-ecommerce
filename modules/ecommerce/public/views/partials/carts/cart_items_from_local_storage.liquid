@@ -21,6 +21,8 @@
     let products = [];
     let cartData = [];
 
+    let page_url = window.location.pathname;
+
     // Check if cartItems is not null and not an empty string
     if (cartItems) {
         try {
@@ -72,8 +74,6 @@
             products = response.data
             let shoppingCartHtml = "";
             let orderSummaryHtml = "";
-
-            console.log('carts.length;', carts.length)
 
             for (let i = 0; i < carts.length; i++) {  
 
@@ -160,7 +160,7 @@
                 }
                 
                 if(shoppingCartItemsWrap) shoppingCartHtml += createShoppingCartHtml(data, i);  
-                if(orderSummaryWrap) orderSummaryHtml += createOrderSummaryHtml(data, i); 
+                if(page_url !=='/shopping-cart' && orderSummaryWrap) orderSummaryHtml += createOrderSummaryHtml(data, i); 
             };
 
             
@@ -174,7 +174,7 @@
             }
 
             // for checkout pages - Order Summary
-            if(orderSummaryWrap) {                
+            if(page_url !=='/shopping-cart' && orderSummaryWrap) {                
                 orderSummaryHtml +=  `<hr><div class="spacer"></div>`;
                 orderSummaryWrap.insertAdjacentHTML('afterbegin', orderSummaryHtml);                
             }
@@ -270,6 +270,9 @@
     });
 
     function computeOrderSummary() {
+        if (page_url == '/shopping-cart') {
+            summary_delivery_amount = 0
+        }
         
         temp_total = summary_subtotal_amount + summary_delivery_amount + summary_tax_amount - summary_discount_amount;
         summary_processing_fee_amount = temp_total * 0.017;       
