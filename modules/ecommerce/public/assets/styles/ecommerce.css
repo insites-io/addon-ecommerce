@@ -246,8 +246,15 @@ ins-button.button-large button .btn__icon {
 }
 .product-cards .cell {
     padding: 12px;
-    height: 100%;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+ins-carousel .product-cards .cell {
+    height: 100%;
+}
+ins-carousel .product-cards>div {
+    display: flex;
 }
 .product-cards .cell:hover h6,
 .purchase-again .grid-x:hover h6 {
@@ -268,6 +275,10 @@ ins-button.button-large button .btn__icon {
     min-height: 300px;
     object-fit: cover;
     border-radius: 4px;
+}
+ins-carousel .product-cards img,
+ins-carousel .product-cards .placeholder-img {
+    height: 300px;
 }
 .product-cards .container{
     justify-content: space-between;

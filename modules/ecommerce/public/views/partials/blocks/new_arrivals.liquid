@@ -2,7 +2,7 @@
     <div class="spacer xxxx-large"></div>
     <div class="product-carousel large-offset-1">
 
-        {% graphql products = "modules/ecommerce/products/get_products" | dig: 'items','results' %}        
+        {% graphql products = "modules/ecommerce/products/get_products", size: 8 | dig: 'items','results' %}        
         
 
         <!-- desktop carousel -->
@@ -18,7 +18,7 @@
             <div class="spacer xx-large"></div>
             <div id="newArrivalCardsDesktop" class="product-cards">
                 {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product %}
+                    {% include "modules/ecommerce/products/product_card", product: product, all_categories: context.exports.all_categories %}
                 {% endfor %}
             </div>
             

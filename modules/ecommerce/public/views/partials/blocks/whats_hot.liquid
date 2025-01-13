@@ -2,7 +2,7 @@
     <div class="spacer xxxx-large"></div>
     <div class="product-carousel large-offset-1">
 
-        {% graphql products = "modules/ecommerce/products/get_products", is_featured: true | dig: 'items','results' %}        
+        {% graphql products = "modules/ecommerce/products/get_products", is_featured: true, size: 8 | dig: 'items','results' %}        
 
         <!-- desktop carousel -->
         <ins-carousel 
