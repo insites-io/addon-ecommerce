@@ -62,10 +62,14 @@ let shoppingCart = (function () {
                 let type = response.is_valid === true || response.is_valid === 'true'
                     ? "success" : "error";
                 App.events.notyf(type, response.message);
-                if(type === 'success') {
-                    setTimeout(() => {
-                        formEl.submit();
-                    }, 500);
+                if (type === 'success') {
+                    if (response.guest_user) {
+                       location.reload();
+                    } else {
+                        setTimeout(() => {
+                            formEl.submit();
+                        }, 500);
+                    }
                 } else formEl.querySelector('#apply-discount-btn').loading = false; 
             },
             async validateRemoveForm(event){
