@@ -227,7 +227,6 @@ let Checkout = (function () {
             },
             addAddressRequiredAttribute() {
                 console.info('addAddressRequiredAttribute function triggered. Add required and validate attributes.');
-            
                 // List of input IDs to exclude
                 const excludedIds = ['shipping_address_2', 'billing_address_2'];
             
@@ -261,9 +260,10 @@ let Checkout = (function () {
             hideNewAddress() {
                 // Check if the user is a guest and a new address is being added
                 if (guestUserFlag && newAddressFlag) {
-                    
-                    if (!billingSamewithShippingFlag) {
+                    if (!billingSamewithShippingFlag || billingSamewithShippingFlag == 'false') {
                         Checkout.methods.addAddressRequiredAttribute();
+                        billingAddressFields.classList.remove('hide');
+                        addAddressBtn[0].classList.add('hide');
                     } else {
                         if (billingAddressFields) {
                             billingAddressFields.classList.add('hide');
@@ -368,10 +368,20 @@ let Checkout = (function () {
             toggleFieldsVisibility(checked) {
                 const visibilityAction = checked ? 'add' : 'remove';
 
+                // Toggle visibility for address-related fields
                 if (addressCards) addressCards.classList[visibilityAction]('hide');
-                if (addAddressBtn[0]) addAddressBtn[0].classList[visibilityAction]('hide');
                 if (billingContactFields) billingContactFields.classList[visibilityAction]('hide');
-                if (billingAddressFields) billingAddressFields.classList[visibilityAction]('hide');
+            
+                // Show or hide add address button based on billing flag and visibility action
+                const shouldShowAddAddressBtn = !(billingSamewithShippingFlag === true || billingSamewithShippingFlag === 'true');
+
+                if (shouldShowAddAddressBtn && !guestUserFlag) {
+                    if (addAddressBtn[0]) addAddressBtn[0].classList.remove('hide');
+                    if (billingAddressFields) billingAddressFields.classList.add('hide');
+                } else {
+                    if (addAddressBtn[0]) addAddressBtn[0].classList.add('hide');
+                }
+                
             }
         },
         validation: {
@@ -685,7 +695,7 @@ let Checkout = (function () {
                 let isValid = await App.validation.validateForm(form);
       
                 // Validate address based on the flags
-                if (!billingSamewithShippingFlag){
+                if (!billingSamewithShippingFlag || billingSamewithShippingFlag == 'false') {
                     isValid = Checkout.methods.validateAddress(isValid);
                 }
 
