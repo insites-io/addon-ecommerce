@@ -152,10 +152,6 @@ default_payload: >
     {%- comment -%} Compute order values {%- endcomment -%}
     {% include 'modules/ecommerce/checkout/compute_order_summary' %}
 
-    {%- comment -%} Discount UUIDs {%- endcomment -%}
-    {% assign user_cart = context.exports.cart_items.user_cart %}
-    {% assign discount_code_uuids = user_cart.discount_code_uuids %}
-    
     {% comment %} Get guest details {% endcomment %}
     {% if order_contact_uuid == '' or order_contact_uuid == null %}
         {% assign order_contact_uuid = context.session.guest_info.uuid %}
@@ -214,7 +210,6 @@ default_payload: >
             "total_discount_amount": "{{ computed.total_discount_amount }}",
             "total_amount_paid": "{{ computed.total_amount }}",
             "total_amount": "{{ computed.total_amount }}",
-            "discount_code_uuids": {{ discount_code_uuids | default: '[]' }},
             "uuid": "{{ '' | uuid }}"                       
         }
     }

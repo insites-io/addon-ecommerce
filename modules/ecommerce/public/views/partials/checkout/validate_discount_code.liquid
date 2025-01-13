@@ -10,13 +10,10 @@ payload: {
 }
 {% endcomment %}
 
+
+
 {%- assign contact_uuid = payload.contact_uuid | default: blank -%}
 {%- assign discount_code =  payload.discount_code | default: blank -%}
-{% assign guest_discounts = context.session.guest_discount.discounts %}
-{% assign guest_discount_uuids = context.session.guest_discount.discount_uuids %}
-{% assign discount_duplicate = false %}
-{% assign guest_user = false %}
-{% assign variable = value %}
 
 
 {% comment %} Step 1: Check if code exist {% endcomment %}
@@ -26,6 +23,7 @@ payload: {
 {% endif %}
     
 
+
 {% if discount.uuid %}
     {% comment %} Step 2-A: If valid, check if code is already been used to avoid duplicate{% endcomment %}
     {%- if payload.check_duplicates -%}
@@ -33,22 +31,13 @@ payload: {
             {% graphql current_codes = 'modules/ecommerce/carts/get_cart_discount',
                     contact_uuid: contact_uuid, discount_code_uuids: discount.uuid
                     | dig: 'items' %}
-
-           {% if current_codes.results.size > 0 %}
-                {% assign discount_duplicate = true %}
-           {% endif %}
         {%- else -%}
-            {% assign guest_user = true %}
-            {% comment %} Check guest cart discout codes {% endcomment %}
-   
-            {%- if guest_discount_uuids contains discount.uuid -%}
-                {% assign discount_duplicate = true %}
-            {%- endif -%}
- 
+            {% comment %} check cart local storage {% endcomment %}
         {%- endif -%}
     {%- endif -%}
 
-    {%- if discount_duplicate == true -%}
+
+    {%- if current_codes.results.size > 0 -%}
         {%- assign message = "Discount code has already been applied." -%}
         {%- assign is_valid = "duplicate" -%}
     {%- else -%}
@@ -87,29 +76,27 @@ payload: {
                         contact_uuid: contact_uuid | dig: 'items','results' | first %}
                 {% else %}
                     {% comment %} check cart local storage {% endcomment %}
-                    {% assign guest_cart_items = context.session.guest_cart %}
                 {% endif %}
 
-                {% if user_cart.items.size > 0 or guest_cart_items.size > 0 %}                        
+                
+                {% comment %}  {% endcomment %}
+                {% if user_cart.items.size > 0 %}                        
                     {%  liquid
                         ## Convert an array of strings into an array of objects
                         assign item_obj = '' | split: ',' 
-                        assign cart_items = user_cart.items | default: guest_cart_items
-
-                        for item in cart_items
+                        for item in user_cart.items
                             assign item_json = item | parse_json
                             assign item_obj = item_obj | array_add: item_json
                         endfor
 
-                        assign cart_product_uuids = item_obj | array_map: 'product_uuid' | array_flatten  
+                        assign cart_product_uuids = item_obj | array_map: 'product_uuid' | array_flatten                            
 
                         ## Get cart category_uuids 
                         if discount.applicable_to == 'categories' 
-                            graphql products = 'modules/ecommerce/products/get_cart_products', uuid: cart_product_uuids, size: cart_items.size | dig: 'items','results'
+                            graphql products = 'modules/ecommerce/products/get_cart_products', uuid: cart_product_uuids, size: user_cart.items.size | dig: 'items','results'
                             assign cart_category_uuids = products | map: "category_uuids" | flatten | array_uniq
                         endif
                     %}
-               
                 {% endif %}
 
                 {% comment %} Check if any of the products in the cart is included in discount_code products  {% endcomment %}
@@ -125,43 +112,18 @@ payload: {
 
             {% endif %}
 
+          
+
+
             {%- if is_valid == true -%}
                 {% comment %} Step 4-A: If valid, save discount code on 'insites_cart_discount_code' {% endcomment %}
                 {%- assign message = "Discount code has been applied." -%}
-
-                {%- if guest_user == false -%}
-                    {% comment %} Update cart, add new discount_code_uuid {% endcomment %}
-                    {% include 'modules/ecommerce/discounts/update_discount', 
-                        user_uuid: contact_uuid,
-                        type: 'add', 
-                        discount_uuid: discount.uuid %}
-                {% else %}
-                   {% comment %} Update guest discount {% endcomment %}
-                    {% assign new_discount_uuid = discount.uuid %}  
-
-                    {% if guest_discount_uuids.size > 0 %}
-                        {% assign updated_discount_uuids = guest_discount_uuids | join: ',' | append: ',' | append: new_discount_uuid %}
-                    {% else %}
-                        {% assign updated_discount_uuids = new_discount_uuid %}
-                    {% endif %}
-
-                    {% assign guest_discounts = guest_discounts | parse_json %}
-                    {% assign new_discount = discount | parse_json %}
-                    
-                    {% assign updated_discounts = guest_discounts | array_add: new_discount %}
-
-                    {% comment %} Ensure proper formatting {% endcomment %}
-                    {% assign updated_discount_uuids = updated_discount_uuids | split: ',' %}
-
-                    {%- parse_json guest_discount -%}
-                    {
-                        "discount_uuids": {{ updated_discount_uuids | json }},
-                        "discounts": {{ updated_discounts | json  }}
-                    }
-                    {%- endparse_json -%}
-
-                    {%- session guest_discount = guest_discount -%}
-                {% endif %}
+               
+                {% comment %} Update cart, add new discount_code_uuid {% endcomment %}
+                {% include 'modules/ecommerce/discounts/update_discount', 
+                    user_uuid: contact_uuid,
+                    type: 'add', 
+                    discount_uuid: discount.uuid %}
 
             {%- else -%}
                 {% comment %} Step 4-B: Else invalid, return error & delete from 'cart_discount_code' {% endcomment %}
@@ -207,9 +169,9 @@ payload: {
 {%- parse_json validate_code -%}
 {
   "is_valid": "{{ is_valid }}",
-  "message": "{{ message }}",
-  "guest_user": {{ guest_user | default: false }}
+  "message": "{{ message }}"
 }
 {%- endparse_json -%}
+
 
 {% liquid return validate_code %}
