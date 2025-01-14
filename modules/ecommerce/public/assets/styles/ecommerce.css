@@ -70,10 +70,18 @@ h6, .heading-6 {
 .form-label {
     color: var(--font-color-head);
     font-family: var(--font-family-01);
-    font-size: 14px;
+    font-size: 14px !important;
     font-style: normal;
     font-weight: 700;
     line-height: 18px; /* 128.571% */
+}
+.form-placeholder {
+    color: var(--font-color-body);
+    font-family: var(--font-family-02);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 16px; /* 114.286% */
 }
 p.form-label {
     /* margin-bottom: 0px; */
@@ -846,23 +854,31 @@ ins-card.overview .wrap{
 }
 
 
-/* pagination styles */
+/* Pagination */
+.paginations {
+    gap: 8px;
+}
+.paginations .form-label,
 .paginations ins-select {
-    display: inline-block;
-    margin-left: 8px;
+    margin: 0px;
 }
 .paginations .ins-select-value-wrap {
-    width: 53px;
+    width: 40px;
     border: none;
+}
+.paginations .ins-select-wrap {
+    margin-bottom: 0px;
+}
+.paginations .ins-select-wrap .ins-select-value-input {
+    padding: 0px;
+    font-family: var(--font-family-02);
+    color: var(--font-color-body);
 }
 .paginations .ins-select-wrap .ins-select-options-wrap {
     border-color: var(--color-ui-04);
     border-bottom: none;
     min-width: initial;
     z-index: 9999;
-}
-.paginations .ins-select-wrap {
-    margin-bottom: 0px;
 }
 .paginations .ins-select-wrap.activated .ins-select-options-wrap {
     border-bottom: solid 1px var(--color-ui-04);
@@ -873,6 +889,20 @@ ins-card.overview .wrap{
 }
 .paginations .ins-select-option-wrap{
     padding: 4px 10px;
+    font-family: var(--font-family-02);
+    color: var(--font-color-body);
+}
+.paginations .ins-select-wrap .ins-select-value-wrap i.icon-caret-down {
+    right: 6px;
+    color: var(--font-color-body);
+}
+.paginations ins-button button {
+    display: flex;
+    width: 18px !important;
+    min-width: initial;
+    height: 18px;
+    border-radius: 0px !important;
+    color: var(--font-color-body);
 }
 
 

@@ -1,16 +1,15 @@
 {% if data.total_entries > 0 %}
 
-        <div class="paginations grid-x grid-padding-x align-right align-middle">
-            <div class="shrink cell">
-                <span class="per__page color-font-head form-label"><strong>{{label | default: 'Items'}} per page:</strong></span>
-                <ins-select id="pagination" 
-                    placeholder="Select Size" 
-                    drop-up small>
-                    <ins-select-option label="{{ per_page }}" value="{{ per_page }}" default></ins-select-option>
-                    <ins-select-option label="15" value="15"  {% if per_page == 15 %}default{% endif %}></ins-select-option>
-                    <ins-select-option label="30" value="30"  {% if per_page == 30 %}default{% endif %}></ins-select-option>
-                </ins-select>
-            </div>
+        <div class="paginations grid-x align-right align-middle">
+            <span class="per__page form-label">{{label | default: 'Items'}} per page:</span>            
+            <ins-select id="pagination" class="form-placeholder"
+                placeholder="Select Size" 
+                drop-up small>
+                <ins-select-option label="{{ per_page }}" value="{{ per_page }}" default></ins-select-option>
+                <ins-select-option label="15" value="15"  {% if per_page == 15 %}default{% endif %}></ins-select-option>
+                <ins-select-option label="30" value="30"  {% if per_page == 30 %}default{% endif %}></ins-select-option>
+            </ins-select>
+
             {%- assign tmp_start_count = data.current_page | times: per_page -%}
             {%- assign tmp_start_minus = per_page | minus: 1 -%}
             {%- assign tmp_start = tmp_start_count | minus: tmp_start_minus -%}
@@ -21,35 +20,35 @@
             {%- assign end_count = tmp_end_count -%}
             {%- endif -%}
 
-            <div class="shrink cell">
-                <div class="paginate">
-                    <span>{{ tmp_start }}</span>
-                    <span>-</span>
-                    <span>{{ end_count }}</span>
-                    <span>of</span>
-                    <span>{{ data.total_entries }}</span>
-                    <div>
-                        {%- if data.current_page > 1 -%}
-                        <ins-button 
-                            class="previous"
-                            label=""
-                            data="previous"
-                            icon="icon-angle-left">
-                        </ins-button>
-                        {%- endif -%}
-                    </div>
-                    <div>
-                        {%- if data.current_page < data.total_pages -%}
-                        <ins-button 
-                            label=""
-                            data="next"
-                            class="btn-icon-right next"
-                            icon="icon-angle-right">
-                        </ins-button>
-                        {%- endif -%}
-                    </div>
-                </div>
+            <div class="form-placeholder">
+                <span>{{ tmp_start }}</span>
+                <span>-</span>
+                <span>{{ end_count }}</span>
+                <span>of</span>
+                <span>{{ data.total_entries }}</span>
             </div>
+                
+            <div>
+                {%- if data.current_page > 1 -%}
+                <ins-button 
+                    class="previous"
+                    label=""
+                    data="previous"
+                    icon="icon-angle-left">
+                </ins-button>
+                {%- endif -%}
+            </div>
+            <div>
+                {%- if data.current_page < data.total_pages -%}
+                <ins-button 
+                    label=""
+                    data="next"
+                    class="btn-icon-right next"
+                    icon="icon-angle-right">
+                </ins-button>
+                {%- endif -%}
+            </div>
+
         </div>
 
 {% endif %}
