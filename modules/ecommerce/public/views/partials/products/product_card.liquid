@@ -38,7 +38,15 @@
                 <div class="sale-tag">SALE</div>
             {% endif %}
             {% if product.product_image.url %}
-                <img  src="{{ product.product_image.url }}" alt="{{ product.product_name }}" >
+                {% assign image_url = product.product_image.url %}
+                {% assign base_url = image_url | split: '/' %}
+                {% assign filename = base_url.last %}
+                
+                <!-- Manually encode only the filename part -->
+                {% assign encoded_filename = filename | replace: ' ', '%20' | replace: ';', '%3B' %}
+                
+                <!-- Rebuild the URL without encoding the base URL -->
+                <img src="{{ image_url | remove: filename }}{{ encoded_filename }}" alt="{{ product.product_name }}">
             {% else %}
                 {% include 'modules/website/layout/placeholder_image', size: 'medium' %}
             {% endif %}
@@ -72,7 +80,7 @@
                         "price": "{{ price | default: 0 }}"
                     }
                     {% endparse_json %}
-                    <ins-button class="full add-to-cart-btn" label="Add to Cart" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
+                    <ins-button class="full add-to-cart-btn" label="Add to Cart" data='{{ data | escapejs }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
                     <div class="spacer x-small"></div>
                     <a href="/products/{{ product.slug }}">
                         <ins-button class="full" label="View Details" outlined icon="icon-eye"></ins-button>

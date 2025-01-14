@@ -11,11 +11,11 @@
             layout="1"
             per-page="4"
             no-pagination=true
-            bind-to="newArrivalCardsDesktop">
+            bind-to="whatsHotCardsDesktop">
 
             <h2>What's Hot</h2>     
             <div class="spacer xx-large"></div>
-            <div id="newArrivalCardsDesktop" class="product-cards">
+            <div id="whatsHotCardsDesktop" class="product-cards">
                 {% for product in products %}
                     {% include "modules/ecommerce/products/product_card", product: product %}
                 {% endfor %}
@@ -30,7 +30,7 @@
             layout="1"
             per-page="3"
             no-pagination=true
-            bind-to="newArrivalCardsTablet">
+            bind-to="whatsHotCardsTablet">
 
             <div class="grid-container">
                 <div class="grid-x">
@@ -39,7 +39,7 @@
             </div>
                
             <div class="spacer xx-large"></div>
-            <div id="newArrivalCardsTablet" class="product-cards">
+            <div id="whatsHotCardsTablet" class="product-cards">
                 {% for product in products %}
                     {% include "modules/ecommerce/products/product_card", product: product %}
                 {% endfor %}
@@ -55,12 +55,12 @@
                 layout="1"
                 per-page="1"
                 no-pagination=true
-                bind-to="newArrivalCardsMobile">
+                bind-to="whatsHotCardsMobile">
                 
                 <h2>What's Hot</h2>
 
                 <div class="spacer"></div>
-                <div id="newArrivalCardsMobile" class="product-cards">
+                <div id="whatsHotCardsMobile" class="product-cards">
                     {% for product in products %}
                         {% include "modules/ecommerce/products/product_card", product: product %}
                     {% endfor %}
