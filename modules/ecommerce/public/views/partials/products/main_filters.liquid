@@ -27,7 +27,7 @@
                             placeholder="{{ params.brand | default: 'Select brand' }}" 
                             small>
                             {% for product_brand in product_brands %}
-                                <ins-button-select-option label="{{product_brand}}" value="{{product_brand}}" {% if params.brand == "product_brand" %}activated{% endif %}></ins-button-select-option>
+                                <ins-button-select-option label="{{product_brand}}" value="{{product_brand}}" {% if params.brand == product_brand %}activated{% endif %}></ins-button-select-option>
                             {% endfor %}
                         </ins-button-select >
 
@@ -62,9 +62,9 @@
                         </ins-button-select>
                     </div>
                     <div class="align-middle align-right grid-x hide-for-small-only">
-                        <div><p class="button-default font-color-head">View:</p></div>
-                        <ins-button id="view-grid-btn" icon="icon-grid" color="white" size="normal" label="" class="icon-button active"></ins-button>
-                        <ins-button id="view-list-btn" icon="icon-list" color="white" size="normal" label="" class="icon-button"></ins-button>
+                        <div><p class="body-small bold font-color-head">View:</p></div>
+                        <ins-button id="view-grid-btn" icon="icon-grid" color="white" size="normal" label="" class="view-button active"></ins-button>
+                        <ins-button id="view-list-btn" icon="icon-list" color="white" size="normal" label="" class="view-button"></ins-button>
                     </div>
                 </div>
             </div>

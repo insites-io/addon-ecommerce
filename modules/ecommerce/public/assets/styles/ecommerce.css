@@ -560,11 +560,50 @@ ins-drawer#mobile-filter-drawer .ins-drawer-wrap.opened .ins-content.left {
 .product-list .filter .ins-form-field-wrap {
     margin-bottom: 0px;
 }
+.product-list .filter .ins-select-wrap.buttonise {
+    border-radius: 2px;
+    background: var(--color-ui-03);
+}
+.product-list .filter .ins-select-label-wrap.ripple:hover {
+    background: initial;
+    outline: 1px solid var(--color-ui-06);
+}
 .product-list .filter .ins-select-wrap {
     margin-bottom: 0px;
     margin-left: 8px;
 }
-
+.product-list .filter .ins-select-label-wrap {
+    color: var(--font-color-head) !important;
+    font-family: var(--font-family-02) !important;
+    font-size: 14px !important;
+    font-style: normal;
+    font-weight: 700 !important;
+    line-height: 20px !important; /* 142.857% */
+}
+.product-list .filter .ins-select-option-wrap,
+.product-list .filter .ins-select-label-wrap span {
+    color: var(--font-color-body);
+    font-family: var(--font-family-02) !important;    
+    font-weight: 400;
+}
+.product-list .filter .ins-select-label-wrap span {            
+    padding-right: 20px !important;
+    font-size: 14px !important;
+}
+.product-list .filter .ins-select-option-wrap {
+    padding: 16px;
+    font-size: 16px !important;
+}
+.product-list .filter .ins-select-option-wrap:hover {
+    background: var(--color-ui-02);    
+}
+.product-list .filter .ins-select-label-wrap i.icon-caret-down {
+    right: 10px;
+}
+ins-button.view-button:hover button,
+ins-button.view-button.active button {
+    color: var(--color-main);
+}
 
 /* Cart Drawer */
 ins-drawer .ins-drawer-wrap .ins-content .ins-drawer-body {
