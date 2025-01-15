@@ -192,7 +192,7 @@
             "id": "{{ product.id }}",
             "product_uuid": "{{ product.uuid }}",
             "product_sku": "{{ selected_prop.sku }}",
-            "product_name": "{{ product.product_name }}",
+            "product_name": "{{ product.product_name | replace: "'", "`" }}",
             "price": "{{ price | default: 0 }}"
         }
         {% endparse_json %}
@@ -207,11 +207,11 @@
                 small>
             </ins-input-stepper>
             <div class="spacer x-large"></div> 
-            <ins-button class="full add-to-cart-btn" data='{{ add_to_cart_data | escapejs }}' label="{{ btnLabel }}" solid></ins-button>
+            <ins-button class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid></ins-button>
         </div>
     
         <div class="spacer small"></div>        
-        <ins-button class="full add-to-cart-btn" label="Add to Cart" data='{{ add_to_cart_data | escapejs  }}' outlined></ins-button>
+        <ins-button class="full add-to-cart-btn" label="Add to Cart" data='{{ add_to_cart_data }}' outlined></ins-button>
         
     </div>
 
