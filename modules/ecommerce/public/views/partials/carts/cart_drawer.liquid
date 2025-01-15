@@ -153,13 +153,14 @@
 
     </div>
     
-    <div id="empty-cart-wrap" class="hide">
+    
+    <div id="empty-cart-wrap" class="empty-cart-wrap {% if user_cart.items.size > 0 %}hide{% endif %}">
         <h3 class="text-center">Your cart is empty!</h3>
         <div class="spacer x-small"></div>
         <p class="text-center">Don't miss out on the best deals!</p>
     </div>
-
-    <div id="bottom-wrap">
+    
+    <div id="bottom-wrap" class="bottom-wrap {% if user_cart.items.size <= 0 %}hide{% endif %}">
         <div class="spacer"></div>
         <div class="grid-x align-justify" >
             <p class="heading-3-small font-color-head">Sub Total</p>
@@ -174,9 +175,9 @@
         <div class="spacer"></div>
         <p class="body-small text-center">Shipping calculated at checkout</p>
     </div>    
+    
 
 </ins-drawer>
-
 
 
 
@@ -217,6 +218,10 @@
     });
 
     function addToCartPreProcess(event, type){
+        //show hide
+        emptyCartWrap.classList.add("hide");
+        bottomWrap.classList.remove("hide");
+
         //show cart drawer
         if(event.detail.label == "Add to Cart"){
             cartDrawer.setDrawerState(true); 
@@ -318,30 +323,26 @@
     });
 
     
-    function removeCartEventListener(btn){
-        const shoppingCartListQuery = document.querySelector("#shopping-cart-list");
-        const shoppingGuestCartLoaderQuery = document.querySelector("#shopping-guest-cart-loader");
+    function removeCartEventListener(btn){        
+        btn.addEventListener('insClick', async event => {
 
-        btn.addEventListener('insClick', event => {
-            if (shoppingCartListEl && shoppingCartLoaderEl) {
-                shoppingCartListEl.style.display = 'none';  
-                shoppingCartLoaderEl.style.display = 'block';
-            } else if (shoppingCartListQuery && shoppingGuestCartLoaderQuery) {
-                shoppingCartListQuery.style.display = "none";
-                shoppingGuestCartLoaderQuery.style.display = "block";
-            }
-            
-            if(removeToCart(JSON.parse(event.detail.data))){
-                let cartItem = btn.closest('.cart-item-wrap');
-                if (cartItem) {
-                    cartItem.remove();
-                    computeSubTotal();
+            let confirm = await App.events.swal("warning", 
+                    "Remove Item?", 
+                    "Are you sure you want to remove this item from your cart?", 
+                    "Remove");
+
+            if (confirm) {
+                if(removeToCart(JSON.parse(event.detail.data))){
+                    let cartItem = btn.closest('.cart-item-wrap');
+                    if (cartItem) {
+                        cartItem.remove();
+                        computeSubTotal();
+                    }
                 }
-            }
-
-            reloadIfShoppingCartPage();
+            }                        
         });
     }    
+
 
     /* Add cart to Database or to localStorage */
     async function addToCart(data, type, all_items, reorder_iteration){        
@@ -405,6 +406,18 @@
 
     /* Remove cart from Database or from localStorage */
     async function removeToCart(data){   
+
+        const shoppingCartListQuery = document.querySelector("#shopping-cart-list");
+        const shoppingGuestCartLoaderQuery = document.querySelector("#shopping-guest-cart-loader");
+
+        if (shoppingCartListEl && shoppingCartLoaderEl) {
+            shoppingCartListEl.style.display = 'none';  
+            shoppingCartLoaderEl.style.display = 'block';
+        } else if (shoppingCartListQuery && shoppingGuestCartLoaderQuery) {
+            shoppingCartListQuery.style.display = "none";
+            shoppingGuestCartLoaderQuery.style.display = "block";
+        }
+
         if(user_uuid != ""){
             goToCartButtonDisabled();       
             data["contact_uuid"] = user_uuid;
@@ -425,6 +438,8 @@
         } else {
             removeCartFromLocalStorage(data);            
         }
+
+        reloadIfShoppingCartPage();
     }       
 
     function cartItemHtml(data){

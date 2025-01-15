@@ -626,6 +626,9 @@ ins-button.view-button.active button {
 }
 
 /* Cart Drawer */
+ins-drawer.cart-drawer .ins-drawer-wrap {
+    z-index: 1000;
+}
 ins-drawer .ins-drawer-wrap .ins-content .ins-drawer-body {
     padding: 24px 16px;
 }
@@ -692,9 +695,13 @@ ins-drawer.cart-drawer .ins-drawer-header h4 {
 }
 #shopping-cart-list .cart-item-wrap .grid-x {
     column-gap: 24px;
+    flex-wrap: wrap;
+}
+#shopping-cart-list .text-wrap {
+    flex: 1;
 }
 #shopping-cart-list .cart-item-wrap .btn-wrap {
-    width: 200px;
+    width: 140px;
     text-align: right;
 }
 .shopping-cart a h6:hover {
