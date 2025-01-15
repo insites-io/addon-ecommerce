@@ -51,7 +51,9 @@ let productList = (function () {
 
                 if(keywordInput){
                     keywordInput.addEventListener('insInput', productList.methods.keywordInputEvent);
-                    keywordInput.addEventListener('insIconClick', productList.methods.keywordInputEvent);
+                    keywordInput.addEventListener('insIconClick', function(event) {
+                        productList.methods.keywordInputEvent(event, 'iconClick');
+                    });
                 }
 
             },
@@ -194,8 +196,8 @@ let productList = (function () {
                     mobileFilterDrawer.setDrawerState(false);
                 }
             },
-            keywordInputEvent(event){
-                if (event.detail.keyCode === 13){
+            keywordInputEvent(event, type){                
+                if (event.detail.keyCode === 13 || (type == "iconClick" && event.detail.value != "")){
                     productList.methods.clearFilterToList();
                     productFilter.keyword = event.detail.value;
                     window.location.href = productList.methods.buildURLLink();
@@ -258,7 +260,6 @@ let productList = (function () {
 
                 let mobileCategoryToggle = document.getElementById('mobile-category-button');
                 if(mobileCategoryToggle){
-                    console.log('mobile-category-button');
                     mobileCategoryToggle.addEventListener('insClick', productList.methods.openMobileFilterDrawer);
                 }
                 let mobileFilterClose = document.getElementById('mobile-filter-cls');
