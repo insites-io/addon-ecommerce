@@ -3,7 +3,6 @@ name: checkout_payment
 resource: modules/insites_ecommerce/order
 resource_owner: anyone
 redirect_to: > 
-    {% log form.properties, type: "==== form.properties checkout_payment form  ====" %}
     {%- if context.exports.payment_response.status == "succeeded" or context.exports.payment_response.status == "active" -%}
         confirmation?id={{ form.properties.uuid }}
     {%- else -%}
@@ -233,7 +232,6 @@ callback_actions: >
 
     {%- session latest_step = 5 -%}
 ---
-{% log context.session., type: "==== context.session in checkout_payment====" %}
 {% comment %} Get the user uuid {% endcomment %}
 {%  liquid
     if context.session.user_uuid and context.session.user_uuid != ''

@@ -21,7 +21,6 @@
 
 {% comment %} Workflow notification {% endcomment %}
 {% log workflow_name, type: "==== Trigger workflow notification: workflow_name ====" %}
-{% log data, type: "data_workflow_enabled" %}
 {%- graphql trigger = "modules/ecommerce/system/trigger_email_notification", 
     name: workflow_name, 
     data: data -%}
