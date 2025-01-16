@@ -192,7 +192,7 @@
             "id": "{{ product.id }}",
             "product_uuid": "{{ product.uuid }}",
             "product_sku": "{{ selected_prop.sku }}",
-            "product_name": "{{ product.product_name }}",
+            "product_name": "{{ product.product_name | replace: "'", "`" }}",
             "price": "{{ price | default: 0 }}"
         }
         {% endparse_json %}

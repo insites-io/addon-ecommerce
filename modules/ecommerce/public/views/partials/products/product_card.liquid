@@ -76,10 +76,11 @@
                         "id": "{{ selected_prop.id }}",
                         "product_uuid": "{{ product.uuid }}",
                         "product_sku": "{{ selected_prop.sku }}",
-                        "product_name": "{{ product.product_name }}",
+                        "product_name": "{{ product.product_name | replace: "'", "`"}}",
                         "price": "{{ price | default: 0 }}"
                     }
                     {% endparse_json %}
+
                     <ins-button class="full add-to-cart-btn" label="Add to Cart" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
                     <div class="spacer x-small"></div>
                     <a href="/products/{{ product.slug }}">
