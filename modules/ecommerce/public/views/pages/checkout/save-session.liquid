@@ -37,8 +37,8 @@ metadata:
         if context.params.billing_address_2
             session billing_address_2 = context.params.billing_address_2
         endif
-        if context.params.billing_city
-            session billing_city = context.params.billing_city
+        if context.params.billing_suburb
+            session billing_suburb = context.params.billing_suburb
         endif
         if context.params.billing_state
             session billing_state = context.params.billing_state
@@ -56,8 +56,8 @@ metadata:
         if context.params.shipping_address_2
             session shipping_address_2 = context.params.shipping_address_2
         endif
-        if context.params.billing_city
-            session billing_city = context.params.billing_city
+        if context.params.billing_suburb
+            session billing_suburb = context.params.billing_suburb
         endif
         if context.params.shipping_state
             session shipping_state = context.params.shipping_state
@@ -113,7 +113,7 @@ metadata:
                 if context.params.billing_same_with_shipping
                     session billing_address_1 = address.address_1
                     session billing_address_2 = address.address_2
-                    session billing_city = address.city
+                    session billing_suburb = address.suburb
                     session billing_state = address.state
                     session billing_postcode = address.postcode
                     session billing_country = address.country
@@ -121,7 +121,7 @@ metadata:
                 else
                     session shipping_address_1 = address.address_1
                     session shipping_address_2 = address.address_2
-                    session shipping_city = address.city
+                    session shipping_suburb = address.suburb
                     session shipping_state = address.state
                     session shipping_postcode = address.postcode
                     session shipping_country = address.country

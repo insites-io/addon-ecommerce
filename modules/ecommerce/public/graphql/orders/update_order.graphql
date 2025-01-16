@@ -8,7 +8,6 @@ mutation update_order (
     $shipping_address_1: String
     $shipping_address_2: String
     $shipping_address_3: String
-    $shipping_city: String
     $shipping_county: String
     $shipping_district: String
     $shipping_suburb: String
@@ -25,7 +24,6 @@ mutation update_order (
     $billing_address_1: String
     $billing_address_2: String
     $billing_address_3: String
-    $billing_city: String
     $billing_county: String
     $billing_district: String
     $billing_suburb: String
@@ -65,7 +63,6 @@ mutation update_order (
                 { name: "shipping_address_1", value: $shipping_address_1 }
                 { name: "shipping_address_2", value: $shipping_address_2 }
                 { name: "shipping_address_3", value: $shipping_address_3 }
-                { name: "shipping_city", value: $shipping_city }
                 { name: "shipping_county", value: $shipping_county }
                 { name: "shipping_district", value: $shipping_district }
                 { name: "shipping_suburb", value: $shipping_suburb }
@@ -82,7 +79,6 @@ mutation update_order (
                 { name: "billing_address_1", value: $billing_address_1 }
                 { name: "billing_address_2", value: $billing_address_2 }
                 { name: "billing_address_3", value: $billing_address_3 }
-                { name: "billing_city", value: $billing_city }
                 { name: "billing_county", value: $billing_county }
                 { name: "billing_district", value: $billing_district }
                 { name: "billing_suburb", value: $billing_suburb }

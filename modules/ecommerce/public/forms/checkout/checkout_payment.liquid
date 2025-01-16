@@ -41,7 +41,7 @@ fields:
                     message: Address is required 
         shipping_address_2:
         shipping_address_3:
-        shipping_city:
+        shipping_suburb:
         shipping_state:
             validation:
                 presence:  
@@ -86,7 +86,7 @@ fields:
                     message: Address is required 
         billing_address_2:
         billing_address_3:
-        billing_city:
+        billing_suburb:
         billing_state:  
             validation:
                 presence:
@@ -173,7 +173,7 @@ default_payload: >
             "shipping_address_1": "{{context.session.shipping_address_1 | default: ''}}",
             "shipping_address_2": "{{context.session.shipping_address_2 | default: ''}}",
             "shipping_address_3": "{{context.session.shipping_address_3 | default: ''}}",
-            "shipping_city": "{{context.session.shipping_city | default: ''}}",
+            "shipping_suburb": "{{context.session.shipping_suburb | default: ''}}",
             "shipping_state": "{{context.session.shipping_state | default: ''}}",
             "shipping_postcode": "{{context.session.shipping_postcode | default: ''}}",
             "shipping_country": "{{context.session.shipping_country | default: ''}}",
@@ -188,7 +188,7 @@ default_payload: >
             "billing_address_1": "{{context.session.billing_address_1 | default: ''}}",
             "billing_address_2": "{{context.session.billing_address_2 | default: ''}}",
             "billing_address_3": "{{context.session.billing_address_3 | default: ''}}",
-            "billing_city": "{{context.session.billing_city | default: ''}}",
+            "billing_suburb": "{{context.session.billing_suburb | default: ''}}",
             "billing_state": "{{context.session.billing_state | default: ''}}",
             "billing_postcode": "{{context.session.billing_postcode | default: ''}}",
             "billing_country": "{{context.session.billing_country | default: ''}}",

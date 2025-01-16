@@ -69,8 +69,8 @@ layout: modules/insites_core/insites_internal_email_layout
       {% if props.billing_address_3 and props.billing_address_3 != '' %}
           {% assign billing_address = billing_address | append: props.billing_address_3 | append: ", " %}
       {% endif %}
-      {% if props.billing_city and props.billing_city != '' %}
-          {% assign billing_address = billing_address | append: props.billing_city | append: ", " %}
+      {% if props.billing_suburb and props.billing_suburb != '' %}
+          {% assign billing_address = billing_address | append: props.billing_suburb | append: ", " %}
       {% endif %}
       {% if props.billing_state and props.billing_state != '' %}
           {% assign billing_address = billing_address | append: props.billing_state | append: " " %}
@@ -129,8 +129,8 @@ layout: modules/insites_core/insites_internal_email_layout
       {% if props.shipping_address_3 and props.shipping_address_3 != '' %}
           {% assign shipping_address = shipping_address | append: props.shipping_address_3 | append: ", " %}
       {% endif %}
-      {% if props.shipping_city and props.shipping_city != '' %}
-          {% assign shipping_address = shipping_address | append: props.shipping_city | append: ", " %}
+      {% if props.shipping_suburb and props.shipping_suburb != '' %}
+          {% assign shipping_address = shipping_address | append: props.shipping_suburb | append: ", " %}
       {% endif %}
       {% if props.shipping_state and props.shipping_state != '' %}
           {% assign shipping_address = shipping_address | append: props.shipping_state | append: " " %}
