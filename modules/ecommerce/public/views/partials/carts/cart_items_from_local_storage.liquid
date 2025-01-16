@@ -120,7 +120,7 @@
                 // Prices
                 if( selected_prop.is_on_sale == true ){
                     price = selected_prop.sale_price;
-                    price_strikethrough = `<span class="body-x-small strikethrough">${ selected_prop.regular_price  }</span>`;
+                    price_strikethrough = `<span class="body-x-small strikethrough">$${ formatNumber(selected_prop.regular_price) }</span>`;
                 } else {
                     price = selected_prop.regular_price;
                     price_strikethrough = '';
@@ -216,12 +216,12 @@
                         ${ data.variant_option }
                         <p>
                             <span class="body-x-small-bold">Price:</span>
-                            <span class="body-x-small item-price">${ data.price  }</span>
+                            <span class="body-x-small item-price">$${ formatNumber(data.price) }</span>
                             ${ data.price_strikethrough }
                         </p>
                     </div>
                     <div class="btn-wrap grid-y">
-                        <p class="cart-price compute-price">${ data.item_total_price }</p>
+                        <p class="cart-price compute-price">$${ formatNumber(data.item_total_price) }</p>
                         <div class="spacer small"></div>
                         <ins-input-stepper
                             class="cart-stepper" 
