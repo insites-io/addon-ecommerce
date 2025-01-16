@@ -181,7 +181,7 @@ callback_actions: |-
       </div>
       <div class="large-6 medium-6 small-12 cell">
         <ins-input required validate shipping-details-field
-          label="Email Address**" 
+          label="Email Address*" 
           placeholder="Email Address*" 
           field="email"
           name="{{ prop.shipping_contact_email.name }}" 
@@ -189,7 +189,6 @@ callback_actions: |-
           value="{{ context.session.shipping_contact_email | default: ''}}"
           {% if form.errors['properties.shipping_contact_email'] %} has-error {% endif %}
           error-message="{{ prop.shipping_contact_email.validation.rules.presence.message }}"
-          tooltip="You will receive notifications to this email address if you have selected Yes to receive freight quotes"
           position="right">
         </ins-input>
       </div>
