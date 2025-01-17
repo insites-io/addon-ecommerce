@@ -159,7 +159,7 @@ var AddressLookup = (function () {
                         let searchAddressField = new google.maps.places.Autocomplete(lookupField);
 
                         // Set initial restrict to the listed countries
-                        //searchAddressField.setComponentRestrictions({ country: ["au"] });
+                        searchAddressField.setComponentRestrictions({ country: ["au"] });
 
                         // Fill address event
                         searchAddressField.addListener('place_changed', (event) => {
