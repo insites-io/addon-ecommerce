@@ -271,6 +271,18 @@
             <p id="summary_total" class="order-total">{{ total_amount }}</p>
         </div>
     </div>
+
+    {% if context.params.slug == 'shopping-cart' %}
+    <div class="spacer x-large"></div>
+    <div class="notes-wrap">
+        <p class="body-x-small bold">Notes</p>
+        <ul class="body-x-small">
+            <li>Shipping costs will be calculated during checkout.</li>
+            <li>Tax and processing fees may be adjusted based on the shipping cost.</li>
+        </ul>
+    </div>
+    {% endif %}
+
 </div>
 
 <div id="view-order-summary">

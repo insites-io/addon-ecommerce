@@ -784,6 +784,12 @@ ins-tag.preorder-tag span.ins-tag {
     font-weight: 700;
     line-height: normal;
 }
+.notes-wrap {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--color-ui-04);
+    background: var(--color-ui-02);
+}
 
 
 /* Client Portal */
