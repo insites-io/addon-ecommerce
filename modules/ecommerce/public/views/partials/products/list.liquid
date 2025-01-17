@@ -111,19 +111,27 @@ Step: Call the search GraphQL with the parameters
 
 
 
-<div class="product-list grid-x grid-padding-x  {% if total_cat_child == 0 %} align-center {% endif %}">
-    
-    {% comment %} Sidebar Categories {% endcomment %}
+<div class="product-list grid-x grid-padding-x  {% if total_cat_child == 0 %} align-center {% endif %}">    
     <div class="large-3 medium-12 small-12 cell">
-        {%- if context.device.device_type == "smartphone" -%}
-        <div class="spacer"></div>
-        <ins-button label="Categories" icon="icon-sliders" id="mobile-category-button" outlined></ins-button>
-        <div class="spacer small"></div>
-        {%- else -%}
-        <div class="sidebar-categories">        
+        
+        {% comment %} Drawer Categories for Mobile view {% endcomment %}
+        <div class="hide-for-large">
+            <div class="spacer"></div>
+            <ins-button label="Categories" icon="icon-sliders" id="mobile-category-button" outlined></ins-button>
+            <div class="spacer small"></div>
+            <ins-drawer 
+                custom-width="430px"
+                position="right"
+                bordered=false
+                id="mobile-filter-drawer">
+                <div class="wrap">{% comment %} copy #sidebar-categories html via javascript {% endcomment %}</div>
+            </ins-drawer>
+        </div>    
+            
+        {% comment %} Sidebar Categories for Desktop view {% endcomment %}
+        <div class="sidebar-categories show-for-large">        
             {%- include 'modules/ecommerce/products/sidebar_categories' -%}
-        </div>
-        {%- endif -%}
+        </div>        
     </div>
     
 

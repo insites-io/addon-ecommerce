@@ -260,6 +260,11 @@ let productList = (function () {
 
                 let mobileCategoryToggle = document.getElementById('mobile-category-button');
                 if(mobileCategoryToggle){
+                    let sidebarCategoriesHtml = document.getElementById('sidebar-categories').innerHTML;
+                    // Replace 'id' with 'data'
+                    let modifiedHTML = sidebarCategoriesHtml.replace(/\bid="([^"]+)"/g, 'data="$1"');
+                    let mobileFilterWrap = document.querySelector('#mobile-filter-drawer .wrap');                
+                    mobileFilterWrap.innerHTML = modifiedHTML;
                     mobileCategoryToggle.addEventListener('insClick', productList.methods.openMobileFilterDrawer);
                 }
                 let mobileFilterClose = document.getElementById('mobile-filter-cls');

@@ -468,12 +468,54 @@ ins-carousel .product-cards .placeholder-img {
     font-weight: 700;
 }
 
-ins-drawer#mobile-filter-drawer .ins-drawer-wrap .ins-content.left {
+/* Drawer Categories */
+#mobile-filter-drawer .ins-drawer-wrap .ins-content,
+#mobile-filter-drawer .ins-drawer-header.sticky,
+#mobile-filter-drawer .ins-accordion-item_header>.inner-head,
+#mobile-filter-drawer .ins-accordion-item{
+    background: var(--color-ui-02);
+}
+#mobile-filter-drawer .open .ins-accordion-item_header>.inner-head {
+    background: var(--color-main-hover-light);    
+}
+#mobile-filter-drawer .ins-accordion-item_header>.inner-head a{
+    display: inline;
+}
+#mobile-filter-drawer .open .ins-accordion-item_header>.inner-head a,
+#mobile-filter-drawer  .icon-minus{
+    color: var(--color-main);
+}
+#mobile-filter-drawer .ins-drawer-wrap .ins-content.left {
     left: -100%;
 }
-
-ins-drawer#mobile-filter-drawer .ins-drawer-wrap.opened .ins-content.left {
+#mobile-filter-drawer .ins-drawer-wrap.opened .ins-content.left {
     left: 0;
+}
+#mobile-filter-drawer .ins-drawer-header .ins-drawer-close-btn {
+    top: 24px;
+}
+#mobile-filter-drawer .ins-drawer-header.sticky+.ins-drawer-body {
+    margin-top: 66px;
+    padding: 0px 24px;
+}
+#mobile-filter-drawer .ins-accordion-item_header>.inner-head,
+#mobile-filter-drawer a span{
+    padding: 12px 16px;
+}
+#mobile-filter-drawer ins-accordion .inner-content a {
+    padding: 12px 16px 12px 32px;
+}
+#mobile-filter-drawer ins-accordion a span {
+    padding: 0px;
+}
+#mobile-filter-drawer a span {
+    display: block;
+}
+#mobile-filter-drawer a,
+#mobile-filter-drawer a:visited {
+    color: var(--font-color-body);
+    font-weight: 400;
+    text-decoration: none;
 }
 
 
@@ -819,6 +861,9 @@ ins-tag.preorder-tag span.ins-tag {
 }
 #order-summary-drawer .ins-drawer-header .ins-drawer-close-btn {
     color: var(--color-main);
+}
+#order-summary-drawer .ins-drawer-header .ins-drawer-close-btn {
+    top: 24px;
 }
 #order-summary-drawer .ins-drawer-header.sticky+.ins-drawer-body {
     margin-top: 66px;
