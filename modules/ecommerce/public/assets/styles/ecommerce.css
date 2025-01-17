@@ -5,6 +5,9 @@
 .font-head {
     color: var(--font-head);
 }
+.color-ui-05 {
+    color: var(--color-ui-05);
+}
 
 .heading-2-small {
     font-family: var(--font-family-01);
@@ -783,12 +786,45 @@ ins-tag.preorder-tag span.ins-tag {
     font-style: normal;
     font-weight: 700;
     line-height: normal;
+    color: var(--font-color-head);
 }
 .notes-wrap {
     padding: 12px;
     border-radius: 8px;
     border: 1px solid var(--color-ui-04);
     background: var(--color-ui-02);
+}
+#mobile-order-summary {
+    position: fixed;
+    bottom: 0px;
+    left:0px;
+    display: flex;
+    width: 430px;
+    width: 100%;
+    height: 82px;
+    padding: 16px 24px;
+    justify-content: center;
+    align-items: center;
+    gap: 107px;
+    flex-shrink: 0;
+    background: var(--color-ui-01);
+    box-shadow: 0px -2px 5px 0px rgba(0, 0, 0, 0.10);
+    z-index: 100;
+}
+#mobile-order-summary .total {
+    color: var(--color-ui-05);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+#order-summary-drawer .ins-drawer-header .ins-drawer-close-btn {
+    color: var(--color-main);
+}
+#order-summary-drawer .ins-drawer-header.sticky+.ins-drawer-body {
+    margin-top: 66px;
+    padding-top:  0px;
+    padding-bottom: 40px;
 }
 
 

@@ -206,7 +206,7 @@
     let goToCartBtn = document.getElementById("go-to-cart");
     let shoppingCartListEl = document.getElementById("shopping-cart-list");
     let shoppingCartLoaderEl = document.getElementById("shopping-cart-loader");
-    let proceedToCheckoutBtn = document.getElementById("proceed-to-checkout-btn");
+    let proceedToCheckoutBtns = document.querySelectorAll(".proceed-to-checkout-btn");
 
 
     /* Add to Cart */
@@ -394,14 +394,22 @@
     function goToCartButtonEnabled() {
         goToCartBtn.disabled = false;
         goToCartBtn.loading = false;
-        proceedToCheckoutBtn ? proceedToCheckoutBtn.disabled = false : '';
+        if(proceedToCheckoutBtns){
+            proceedToCheckoutBtns.forEach(btn => {
+                btn.disabled = false;
+            });
+        }
     }
 
     /* Disables the 'Go to Cart' button and sets its loading state to true. */
     function goToCartButtonDisabled() {
         goToCartBtn.disabled = true;
         goToCartBtn.loading = true;
-        proceedToCheckoutBtn ? proceedToCheckoutBtn.disabled = true : '';
+        if(proceedToCheckoutBtns){
+            proceedToCheckoutBtns.forEach(btn => {
+                btn.disabled = true;
+            });
+        }
     }
 
     /* Remove cart from Database or from localStorage */

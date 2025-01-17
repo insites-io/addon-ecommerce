@@ -86,8 +86,8 @@ metadata: {
                 user_cart, carts, products %}
             <div class="spacer x-large"></div>
 
-            <div id="proceed-to-checkout" class="text-right {% if carts == blank %}hide{% endif %}">
-                <ins-button id="proceed-to-checkout-btn" label="PROCEED TO CHECKOUT" solid color="blue" class="checkoutBtn" onclick="document.location.href = '/checkout';"></ins-button>
+            <div id="proceed-to-checkout" class="show-for-medium text-right {% if carts == blank %}hide{% endif %}">
+                <ins-button label="PROCEED TO CHECKOUT" solid color="blue" class="checkoutBtn proceed-to-checkout-btn" onclick="document.location.href = '/checkout';"></ins-button>
             </div>
 
             <div class="spacer x-large"></div>

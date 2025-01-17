@@ -23,14 +23,10 @@
 {%- endif -%}
 
 
-<div class="order-summary-wrapper show-for-medium">
-
+<div id="order-summary-wrap" class="show-for-medium">
     
     {% unless no_heading %}
-        <h2 class="color-font-sub heading-2">
-            {%- if context.location.pathname == '/confirmation' -%}
-            Payment {% else %} Order {% endif %} Summary
-        </h2>
+        <h2 class="color-font-sub heading-2">Order Summary</h2>
         <div class="spacer x-large"></div>
     {% endunless %}
         
@@ -285,6 +281,41 @@
 
 </div>
 
-<div id="view-order-summary">
-
+<div id="mobile-order-summary" class="show-for-small-only">
+    <div class="total">
+        <p class="color-ui-05">Total</p>
+        <p class="order-total">$3,318.30</p>
+    </div>
+    <ins-button type="button" id="view-order-summary-btn" label="VIEW ORDER SUMMARY"></ins-button>
 </div>
+
+<ins-drawer 
+  custom-width="430px" 
+  position="bottom" 
+  bordered=false
+  id="order-summary-drawer"
+  class="mobile-order-summary inline">
+    <div id="order-summary-drawer-content">       
+
+    </div>
+    {% if context.params.slug != 'checkout' %}
+    <div class="spacer x-large"></div>
+    <ins-button label="PROCEED TO CHECKOUT" solid color="blue" class="checkoutBtn proceed-to-checkout-btn full" onclick="document.location.href = '/checkout';"></ins-button>
+    {% endif %}
+</ins-drawer>
+
+<script>
+    let orderSummaryWrap = document.getElementById('order-summary-wrap');
+    let orderSummaryHtmlContent = orderSummaryWrap.innerHTML;
+    let viewOrderSummaryBtn = document.getElementById('view-order-summary-btn');
+    let orderSummaryDrawer = document.getElementById('order-summary-drawer');
+    let orderSummaryDrawerContent = document.getElementById('order-summary-drawer-content');    
+    
+    // Replace 'id' with 'data'
+    let modifiedHTML = orderSummaryHtmlContent.replace(/\bid="([^"]+)"/g, 'data="$1"');
+
+    viewOrderSummaryBtn.addEventListener('insClick', async event => {
+        orderSummaryDrawer.setDrawerState(true); 
+        orderSummaryDrawerContent.innerHTML = modifiedHTML;
+    });    
+</script>
