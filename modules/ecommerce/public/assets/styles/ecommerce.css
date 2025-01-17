@@ -6,7 +6,7 @@
     color: var(--font-head);
 }
 .color-ui-05 {
-    color: var(--color-ui-05);
+    color: var(--color-ui-05) !important;
 }
 
 .heading-2-small {
@@ -803,9 +803,8 @@ ins-tag.preorder-tag span.ins-tag {
     width: 100%;
     height: 82px;
     padding: 16px 24px;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    gap: 107px;
     flex-shrink: 0;
     background: var(--color-ui-01);
     box-shadow: 0px -2px 5px 0px rgba(0, 0, 0, 0.10);
@@ -825,6 +824,9 @@ ins-tag.preorder-tag span.ins-tag {
     margin-top: 66px;
     padding-top:  0px;
     padding-bottom: 40px;
+}
+#view-order-summary-btn .btn__label {
+    width: 154px;
 }
 
 
