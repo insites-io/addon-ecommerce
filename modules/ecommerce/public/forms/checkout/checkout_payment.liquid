@@ -133,6 +133,9 @@ fields:
         total_discount_amount:
         total_amount: ## Float!
         total_amount_paid:
+        processing_fee:
+            property_options:
+                virtual: true
         discount_code_uuids:        
         uuid:
             validation:
@@ -208,6 +211,7 @@ default_payload: >
             "total_shipping_amount": "{{ computed.shipping_amount  }}",
             "total_discount_amount": "{{ computed.total_discount_amount }}",
             "total_amount_paid": "{{ computed.total_amount }}",
+            "processing_fee": {{ computed.processing_fee }},
             "total_amount": "{{ computed.total_amount }}",
             "uuid": "{{ '' | uuid }}"                       
         }
@@ -346,6 +350,7 @@ callback_actions: >
                                     <ins-button solid type="button" label="Back" outlined></ins-button>
                                 </a>
                             </div>
+                            <div class="show-for-small-only spacer xxx-large"></div> 
                             <div class="large-6 medium-6 small-12 cell text-right">
                                 <ins-button solid type="submit" id="checkout-submit-btn" class="w-100 checkout-btn" label="Purchase Order"></ins-button>
                             </div>

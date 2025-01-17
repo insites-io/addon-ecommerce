@@ -338,7 +338,7 @@ let Checkout = (function () {
                         if (addAddressBtn[0]) addAddressBtn[0].classList.add('hide');
                         if (billingAddressFields) billingAddressFields.classList.remove('hide');
                     }
-            
+
                     if (guestUserFlag) {
                         billingFirstNameEl.value = ''
                         billingLastNameEl.value =  '';
@@ -358,8 +358,6 @@ let Checkout = (function () {
                         billingLastNameEl.value = hiddenBillingLastNameEl.value || '';
                         billingEmailEl.value = hiddenBillingEmailEl.value || '';
                         billingCompanyNameEl.value = hiddenBillingCompanyNameEl.value || '';
-                        billingCompanyNameEl.value = hiddenBillingCompanyNameEl.value || '';
-
                         Checkout.methods.updatePhone(false, 'billing');
                     }
                 }
@@ -765,9 +763,20 @@ let Checkout = (function () {
                     });
                 }
             },
-            initBillingDetailsListener(){                    
+            initBillingDetailsListener(){               
                 if (billingSameWithShippingEl) {
-                    let billingSameWithShipping = billingSameWithShippingEl.value;
+                    let billingSameWithShipping =  billingSameWithShippingEl.value;
+
+                    // Handle string "true" and "false"
+                    if (typeof billingSameWithShippingEl.value === "string") {
+                        if (billingSameWithShippingEl.value === 'true') {
+                            billingSameWithShipping = true;
+                        } else {
+                            billingSameWithShipping = false;
+                        }
+                        
+                    }
+
                     if (billingSameWithShipping) {
                         Checkout.methods.updateBillingDetails(billingSameWithShipping);
                     }

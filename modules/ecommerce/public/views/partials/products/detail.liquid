@@ -18,6 +18,8 @@
         assign price = selected_prop.regular_price
         assign price_strikethrough = ''
     endif
+
+    assign variants = '[]'
     
 %}
 
@@ -207,7 +209,7 @@
                 small>
             </ins-input-stepper>
             <div class="spacer x-large"></div> 
-            <ins-button class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid></ins-button>
+            <ins-button id="add-to-cart-btn-{{ add_to_cart_data.id }}"  class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid></ins-button>
         </div>
     
         <div class="spacer small"></div>        
@@ -234,6 +236,7 @@
 
 <script>
     const variants = {{ variants }};
+
     //variantID <-- This is already set in cart_drawer.liquid
     //variantPrice <-- This is already set in cart_drawer.liquid
     //productSKU = document.getElementById("product-sku"); //this is already set in cart_drawer.liquid
@@ -242,19 +245,21 @@
     const ourOfStockWrap = document.getElementById("out-of-stock-wrap");
     let variantSelect = document.querySelectorAll(".variant-select");
 
-    //Extracts and processes the first product option to update the content
-    document.addEventListener("DOMContentLoaded", function() {
-        const productOption = JSON.parse(variants[0].product_options[0]);
-        options = [
-            {
-                product_option_label: productOption.product_option_label,
-                product_option_value: productOption.product_option_value
-            }
+    if (variants.length > 0){
+        //Extracts and processes the first product option to update the content
+        document.addEventListener("DOMContentLoaded", function() {
+                const productOption = JSON.parse(variants[0].product_options[0]);
+                options = [
+                    {
+                        product_option_label: productOption.product_option_label,
+                        product_option_value: productOption.product_option_value
+                    }
 
-        ]
-        // Call the 'updateContent' function with the 'options' array as an argument
-        updateContent(options);
-    });
+                ]
+                // Call the 'updateContent' function with the 'options' array as an argument
+                updateContent(options);
+            });
+    }
 
     variantSelect.forEach(el => {
         el.addEventListener('insValueChange', event => { 
@@ -301,7 +306,10 @@
             } else {
                 variantPrice = selectedVariant.regular_price;
                 productPrice.textContent = `$${selectedVariant.regular_price}`;
-                regularProductPrice.textContent = "";
+                if (regularProductPrice) {
+                    regularProductPrice.textContent = "";
+                }
+            
             }
             //Out of Stock Notice
             if(selectedVariant.stock_level < 1){

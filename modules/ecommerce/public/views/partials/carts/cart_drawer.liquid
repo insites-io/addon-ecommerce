@@ -238,19 +238,23 @@
             //used for reorder only
             all_items = []; 
             reorder_iteration = 0;
+
+            type = event.detail.label
         }         
-                        
+        
         //used for product with variants in product details page
-        if(productSKU == data.product_sku){
-            data.id = variantID;
-            data.price = variantPrice;
-            data.product_sku = productSKU.textContent;
-        }     
-
+        if (productSKU && variantID != 0) {
+            if (productSKU.textContent == data.product_sku){
+                data.id = variantID;
+                data.price = variantPrice;
+                data.product_sku = productSKU.textContent;
+            }     
+        }
+       
         let cartItem = document.getElementById(`cart-item-${data.id}`);
-
+ 
         if(cartItem == null){
-
+      
             if(addToCart(data, type, all_items, reorder_iteration)){        
 
                 if (!emptyCartWrap.classList.contains('hide')) {
@@ -273,9 +277,6 @@
             }
         }
 
-        if(event.detail.label != "Add to Cart"){
-            window.location = "/shopping-cart";
-        } 
     }
     
     /* Increment / Decrement Cart in Drawer */
@@ -288,9 +289,20 @@
     function cartStepperEventListener(step){
         step.addEventListener('insValueChange', event => {   
             goToCartButtonDisabled();
-            if (shoppingCartListEl && shoppingCartLoaderEl) {
-                shoppingCartListEl.style.display = 'none';  
-                shoppingCartLoaderEl.style.display = 'block';
+
+            if (user_uuid != '') {
+                if (shoppingCartListEl && shoppingCartLoaderEl) {
+                    shoppingCartListEl.style.display = 'none';  
+                    shoppingCartLoaderEl.style.display = 'block';
+                }
+            } else {
+                const shoppingCartListQuery = document.querySelector("#shopping-cart-list");
+                const shoppingGuestCartLoaderQuery = document.querySelector("#shopping-guest-cart-loader");
+
+                if (shoppingCartListQuery && shoppingGuestCartLoaderQuery) {
+                    shoppingCartListQuery.style.display = 'none';  
+                    shoppingGuestCartLoaderQuery.style.display = 'block';
+                }
             }
 
             let itemWrap = event.target.closest(".cart-item-wrap");            
@@ -347,7 +359,14 @@
     /* Add cart to Database or to localStorage */
     async function addToCart(data, type, all_items, reorder_iteration){        
         data["type"] = type;
-       
+
+        // Reset the cartQuantity
+        cartQuantity = 1;
+
+        if (type.toLowerCase() == 'buy now'){
+            setButtonLoadingState(data.id, true)
+        }
+
         if(user_uuid != ""){
             data["contact_uuid"] = user_uuid;          
      
@@ -363,9 +382,9 @@
                 return is_added;
             } else {
                 goToCartButtonDisabled();
-                let response = await apiServices.processRequest("post", "/add-to-cart.json", data);
-                console.log('add response', response);        
-                if( response.state && response.data.items ) {
+                let response = await apiServices.processRequest("post", "/add-to-cart.json", data);     
+
+                if(response.state) {
                     goToCartButtonEnabled();
 
                     if (page == 'shopping-cart') {
@@ -374,16 +393,47 @@
                         location.reload();
                     } 
 
+                    handleShoppingCartRedirect(type, data)
+
                     return true;          
                 } else {
                     goToCartButtonEnabled();
                     App.events.notyf("error", "Something went wrong. Please try again");
                 }
+         
             }
         } else {
-            addCartToLocalStorage(data);            
+            addCartToLocalStorage(data);    
+            handleShoppingCartRedirect(type, data)        
         }
     }      
+
+    /* Redirects the user to the shopping cart page if the type is not "Add to Cart" or "stepper",
+        and handles additional logic when the type is "Buy Now". */
+    function handleShoppingCartRedirect(type, data) {
+        if (type != "Add to Cart" && type != "stepper") {
+            window.location.href = "/shopping-cart";
+
+            if (type.toLowerCase() === "buy now") {
+                setButtonLoadingState(data.id, false);
+            }
+        }
+    }
+
+    /* Sets the loading property of the 'add to cart' button based on its ID and the desired state */
+    function setButtonLoadingState(id, isLoading) {
+        const detailButton = document.getElementById(`add-to-cart-btn-${id}`);
+        
+        // Check if the button exists
+        if (detailButton) {
+            detailButton.loading = isLoading;  // Set the loading property to the desired state
+        }
+    }
+
+    /* Redirects the user to the shopping cart page if the button is not disabled. */
+    function goToShoppingCartPage() {
+        !goToCartBtn.disabled ? window.location.href = '/shopping-cart' : '';
+    }
 
     /* Redirects the user to the shopping cart page if the button is not disabled. */
     function goToShoppingCartPage() {
@@ -444,7 +494,11 @@
 
     function cartItemHtml(data){
         const total_price = data.item_total_price || data.price;
-        const formattedTotalPrice = formatNumber(parseFloat(total_price.replace(/[^0-9.]/g, '')));
+        const formattedTotalPrice = formatNumber(
+            parseFloat(
+                (total_price && typeof total_price === 'string' ? total_price.replace(/[^0-9.]/g, '') : total_price)
+            )
+        );
 
         return ` <div id="cart-item-${data.id}" class="cart-item-wrap">
                 <div class="grid-x" >

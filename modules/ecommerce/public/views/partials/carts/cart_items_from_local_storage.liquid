@@ -63,7 +63,15 @@
         // Insert the empty cart message if the shopping cart container exists
         if (shoppingCartItemsWrap) {
             shoppingCartItemsWrap.innerHTML = emptyCartHtml;
+
+            // Empty the order summary
+            summary_subtotal.textContent = '$0.00';
+            summary_delivery.textContent = '$0.00';
+            summary_processing_fee.textContent = '$0.00';
+            summary_tax.textContent = '$0.00';
+            summary_total.textContent = '$0.00';
         }
+
     };
 
     async function listCartItems(carts, productUUIDs){
