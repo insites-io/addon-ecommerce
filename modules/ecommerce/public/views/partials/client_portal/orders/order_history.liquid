@@ -20,8 +20,6 @@
 {%- graphql orders = 'modules/ecommerce/orders/get_orders', args: filters -%}
 
 
-
-
 {%- if orders.items.total_entries > 0 -%}
     
     <div class="grid-x">
@@ -143,9 +141,9 @@
         
         if (sortedKeyword && displayedData.length > 1) {
             //Sort
-            displayedData.sort(TableScript.methods.dynamicKeySort(sortedKeyword));
+            //displayedData.sort(TableScript.methods.dynamicKeySort(sortedKeyword));
             //Descending order
-            if(sortedKeyword == "id") displayedData.reverse();
+            //if(sortedKeyword == "id") displayedData.reverse();
         }
 
         orderListTable.tableData = mapData(displayedData);
@@ -173,6 +171,11 @@
                 dateTo = new Date(searchKey.to);
             }
         }
+
+        if(dateFrom || dateTo){
+            dateFrom.setHours(0, 0, 0, 0);
+            dateTo.setHours(23, 59, 59, 999);
+        }        
 
         if (!searchKeyword) {
             processTableData();
@@ -213,7 +216,7 @@
         if (!filteredData.length) {
             orderListTable.loadingScreen = true;
             orderListTable.loaderTitle = '';
-            orderListTable.loaderMessage = 'No result found for "' + searchKeyword + '"';
+            orderListTable.loaderMessage = 'No results were found for the selected status and date.';
             orderListTable.loaderIcon = '';
         }
     }
