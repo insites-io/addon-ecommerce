@@ -685,10 +685,14 @@
         cartSubtotal.textContent = "$" + formatNumber(subTotal);
         cartDrawer.label = `Cart (${prices.length})`;
 
-        //Update total in cart icon
-        if(cartCounts.length > 0){
+        //Update total in the cart icon
+        if(cartCounts){
             cartCounts.forEach(cartCount => {
                 cartCount.textContent = prices.length;
+                if(prices.length > 0)
+                    cartCount.classList.remove('hide');
+                else
+                    cartCount.classList.add('hide');
             });
         }
 
