@@ -176,8 +176,9 @@
             if(shoppingCartItemsWrap) {
                 shoppingCartHeading = `<h2>Cart Items</h2>
                     <div class="spacer x-large"></div>
-                    <div id="shopping-cart-list" class="shopping-cart grid-y">`;
-                shoppingCartHtml = shoppingCartHeading + shoppingCartHtml + '</div>';
+                    <div id="shopping-cart-list">
+                    <div class="wrap shopping-cart grid-y">`;
+                shoppingCartHtml = shoppingCartHeading + shoppingCartHtml + '</div></div>';
                 shoppingCartItemsWrap.insertAdjacentHTML('afterbegin', shoppingCartHtml);
             }
 
@@ -214,7 +215,7 @@
                     <div class="img-wrap" style="width:88px;">
                         ${data.img}
                     </div>
-                    <div class="flex-grow-1">
+                    <div class="text-wrap">
                         <h6>
                             ${ data.cart.product_name }
                             ${ data.preorder }
