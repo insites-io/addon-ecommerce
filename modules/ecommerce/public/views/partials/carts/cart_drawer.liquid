@@ -37,7 +37,7 @@
 
 
 <ins-drawer 
-  label="Cart ({{ user_cart.items.size }})" 
+  label="Cart ({{ user_cart.items.size | default: 0 }})" 
   custom-width="390px" 
   position="right" 
   id="cartDrawer"
@@ -153,14 +153,15 @@
 
     </div>
     
-    
-    <div id="empty-cart-wrap" class="empty-cart-wrap {% if user_cart.items.size > 0 %}hide{% endif %}">
+    {% comment %} user_cart = blank if the user has a guest account {% endcomment %}
+    <div id="empty-cart-wrap" class="empty-cart-wrap {% if user_cart.items.size > 0 or user_cart == blank %}hide{% endif %}">
         <h3 class="text-center">Your cart is empty!</h3>
         <div class="spacer x-small"></div>
         <p class="text-center">Don't miss out on the best deals!</p>
     </div>
     
-    <div id="bottom-wrap" class="bottom-wrap {% if user_cart.items.size <= 0 %}hide{% endif %}">
+    {% comment %} user_cart = blank if the user has a guest account {% endcomment %}
+    <div id="bottom-wrap" class="bottom-wrap {% if user_cart.items.size <= 0 or user_cart == blank %}hide{% endif %}">
         <div class="spacer"></div>
         <div class="grid-x align-justify" >
             <p class="heading-3-small font-color-head">Sub Total</p>
@@ -594,6 +595,8 @@
                     }
                 }, pollInterval);
             }
+        } else {
+            emptyCartWrap.classList.remove('hide');
         }
     }
 
@@ -689,10 +692,15 @@
         if(cartCounts){
             cartCounts.forEach(cartCount => {
                 cartCount.textContent = prices.length;
-                if(prices.length > 0)
+                if(prices.length > 0){
                     cartCount.classList.remove('hide');
-                else
+                    emptyCartWrap.classList.add('hide');
+                    bottomWrap.classList.remove('hide');
+                } else{
                     cartCount.classList.add('hide');
+                    emptyCartWrap.classList.remove('hide');
+                    bottomWrap.classList.add('hide');
+                }
             });
         }
 
@@ -707,4 +715,8 @@
     contShoppingBtn.addEventListener('insClick', event => {                 
         cartDrawer.setDrawerState(false); 
     });
+
+    function openDrawer(){
+        cartDrawer.setDrawerState(true);
+    }
 </script>
