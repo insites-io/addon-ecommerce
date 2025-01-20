@@ -43,6 +43,7 @@ let StripeElement = (() => {
                         insCardEl.setAttribute('last-four', token.card.last4);
                         insCardEl.setAttribute('expiry-month', token.card.exp_month);
                         insCardEl.setAttribute('expiry-year', token.card.exp_year);
+                        insCardEl.setAttribute('compact', true);
                         insCardEl.value = token.card.id;
                     divEl.appendChild(insCardEl);
                     cardOptionsList.appendChild(divEl);
