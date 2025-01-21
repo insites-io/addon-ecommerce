@@ -50,10 +50,6 @@
         assign used_discounts = '' | split: ','
     %}
 
-    <script>
-        console.log('carts', {{carts}});
-    </script>
-
     {% if carts.size > 0 %}
 
         {% for item in carts %}
@@ -62,10 +58,6 @@
             {% assign cart = context.exports.cart %}    
             {% assign item_total_price = cart.item_total_price %}
             {% assign sub_total_amount = sub_total_amount | plus: item_total_price %}
-
-            <script>
-                console.log('cart', {{cart}});
-            </script>
 
             {% comment %} Shipping Fee {% endcomment %}
             {%  liquid
