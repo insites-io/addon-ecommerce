@@ -20,6 +20,8 @@
                 "shipping_amount": {{ guest_order_summary.shipping_amount | default: 0 }},
                 "total_discount_amount": {{ guest_order_summary.total_discount_amount | default: 0 }},
                 "processing_fee": {{ guest_order_summary.processing_fee | default: 0 }},
+                "tax_label": "{{ guest_order_summary.tax_label }}",
+                "tax_included_in_price":  {{ guest_order_summary.tax_included_in_price| default: 0 }}, 
                 "tax_amount":  {{ guest_order_summary.tax_amount| default: 0 }},    
                 "total_amount": {{ guest_order_summary.total_amount | default: 0 }}
             }
@@ -44,8 +46,13 @@
         assign sub_total_discount = 0
         assign sub_total_shipping = 0
         assign sub_total_tax = 0
+        assign sub_total_tax_included = 0
         assign used_discounts = '' | split: ','
     %}
+
+    <script>
+        console.log('carts', {{carts}});
+    </script>
 
     {% if carts.size > 0 %}
 
@@ -55,6 +62,10 @@
             {% assign cart = context.exports.cart %}    
             {% assign item_total_price = cart.item_total_price %}
             {% assign sub_total_amount = sub_total_amount | plus: item_total_price %}
+
+            <script>
+                console.log('cart', {{cart}});
+            </script>
 
             {% comment %} Shipping Fee {% endcomment %}
             {%  liquid
@@ -69,17 +80,37 @@
             %}
             
             {% comment %} Tax {% endcomment %}
-            {%  liquid
-                if cart.is_tax_included == true
-                    assign tax = 0
-                else
-                    if cart.selected_prop.is_fixed_tax_amount == true
-                        assign tax = cart.selected_prop.tax_amount | times: item.quantity
+            {% comment %} 
+                when is_tax_included = true, the tax is already included in the price of the product
+            {% endcomment %}
+            {%  liquid                
+                
+                if cart.selected_prop.is_fixed_tax_amount == true
+                    assign tax = cart.selected_prop.tax_amount | times: item.quantity
+                else 
+                    if cart.selected_prop.is_tax_included == true                                                       
+                        ## tax = (Price x Tax Rate​) / (1 + Tax Rate​)
+                        assign tax_rate = cart.selected_prop.tax_amount | divided_by: 100
+                        assign temp_val = cart.price | times: tax_rate
+                        assign temp_val2 = 1 | plus: tax_rate
+                        assign tax = temp_val | divided_by: temp_val2 | times: item.quantity
                     else 
                         assign tax = cart.price | times: cart.selected_prop.tax_amount | divided_by: 100 | times: item.quantity
                     endif
                 endif
+                
                 assign sub_total_tax = sub_total_tax | plus: tax
+
+                if cart.selected_prop.is_tax_included == true                   
+                    ## save the tax that is already included in the price of the product 
+                    ## we will use this to subtract in the total amount
+                    assign sub_total_tax_included = sub_total_tax_included | plus: tax
+                    assign tax_label = 'Includes Tax'
+                elsif sub_total_tax_included > 0
+                     assign tax_label = 'Includes Tax'
+                else 
+                    assign tax_label = 'Tax'
+                endif
             %}
             
             {% comment %} Discounts {% endcomment %}
@@ -138,17 +169,20 @@
         {% assign sub_total_shipping = 0 %}
     {% endif %}
 
-    {% assign temp_total = sub_total_amount | plus: sub_total_shipping | minus: sub_total_discount | plus: sub_total_tax %}
+    {% assign temp_total = sub_total_amount | plus: sub_total_shipping | minus: sub_total_discount | plus: sub_total_tax | minus: sub_total_tax_included %}
     {% assign processing_fee = temp_total | times: 0.017 %}
     {% assign total_amount = temp_total | plus: processing_fee %}
 
+    {% comment %} tax_included_in_price represents the sum of taxes that are already included in the product price {% endcomment %}
     {% parse_json computed %}
         {
         "sub_total_amount": {{ sub_total_amount | default: 0 }},
         "shipping_amount": {{ sub_total_shipping | default: 0 }},
         "total_discount_amount": {{ sub_total_discount | default: 0 }},
         "processing_fee": {{ processing_fee | default: 0 }},
-        "tax_amount": {{ sub_total_tax | default: 0 }},    
+        "tax_label": "{{ tax_label }}",
+        "tax_amount": {{ sub_total_tax | default: 0 }},
+        "tax_included_in_price": {{ sub_total_tax_included | default: 0 }},
         "total_amount": {{ total_amount | default: 0 }}
         }
     {% endparse_json %}

@@ -84,8 +84,14 @@ metadata:
         if context.params.processing_fee
             assign guest_order_summary = guest_order_summary | add_hash_key: "processing_fee", context.params.processing_fee
         endif
+        if context.params.tax_label
+            assign guest_order_summary = guest_order_summary | add_hash_key: "tax_label", context.params.tax_label
+        endif
         if context.params.tax_amount
             assign guest_order_summary = guest_order_summary | add_hash_key: "tax_amount", context.params.tax_amount
+        endif
+        if context.params.tax_included_in_price
+            assign guest_order_summary = guest_order_summary | add_hash_key: "tax_included_in_price", context.params.tax_included_in_price
         endif
         if context.params.total_amount
             assign guest_order_summary = guest_order_summary | add_hash_key: "total_amount", context.params.total_amount

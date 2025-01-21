@@ -579,8 +579,6 @@
                     const removeCartBtn = document.querySelectorAll(".cart-remove-btn");
 
                     if (cartSteppers.length > 0) {
-                        console.info('Cart steppers found for guest checkout:', cartSteppers);
-
                         // Attach event listener to each stepper
                         cartSteppers.forEach(cartStepperEventListener);
                         removeCartBtn.forEach(removeCartEventListener);

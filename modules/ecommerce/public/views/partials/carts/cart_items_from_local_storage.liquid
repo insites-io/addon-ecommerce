@@ -8,6 +8,7 @@
     let summary_subtotal = document.getElementById('summary_subtotal');
     let summary_delivery = document.getElementById('summary_delivery');
     let summary_processing_fee = document.getElementById('summary_processing_fee');
+    let summary_tax_label = document.getElementById('summary_tax_label');
     let summary_tax = document.getElementById('summary_tax');
     let summary_total = document.getElementById('summary_total');    
     let summary_subtotal_amount = 0;
@@ -15,6 +16,7 @@
     let summary_discount_amount = 0;
     let summary_processing_fee_amount = 0;
     let summary_tax_amount = 0;
+    let tax_included_in_price = 0;
     let summary_total_amount = 0;
 
     let cartItems = localStorage.getItem('carts');
@@ -36,9 +38,6 @@
     }
 
     let productUUIDs = cartItems.map(item => JSON.parse(item).product_uuid);
-
-    console.log('cartItems', cartItems);
-    console.log('productUUIDs', productUUIDs);
 
     if (cartItems.length > 0) {
         listCartItems(cartItems, productUUIDs);                       
@@ -101,7 +100,7 @@
                             is_variant = true;
                         }
                     }        
-                }                
+                }                              
 
                 if(selected_prop?.product_image?.url){
                     img = `<img  src="${ selected_prop?.product_image?.url }" alt="${ cart.product_name }" >`;
@@ -143,16 +142,31 @@
                 summary_delivery_amount += freight_amount;
 
                 //Tax
-                if(product.is_tax_included == true){
-                    tax = 0;
+                tax_amount = selected_prop.tax_amount;
+                if(selected_prop.is_fixed_tax_amount == true){
+                    tax = tax_amount * cart.quantity;
                 } else {
-                    if(selected_prop.is_fixed_tax_amount == true){
-                        tax = selected_prop.tax_amount * cart.quantity;
+                    if(selected_prop.is_tax_included == true){
+                        // tax = (Price x Tax Rate​) / (1 + Tax Rate​)
+                        tax_rate = tax_amount / 100;
+                        tax = ( price * tax_rate ) / ( 1 + tax_rate ) * cart.quantity;
                     } else {
-                        tax = price * selected_prop.tax_amount / 100 * cart.quantity
+                        tax = price * tax_amount / 100 * cart.quantity;
                     }
                 }
+
                 summary_tax_amount += tax;
+
+                if( selected_prop.is_tax_included == true ){                    
+                    //save the tax that is already included in the price of the product 
+                    //we will use this to subtract in the total amount
+                    tax_included_in_price += tax;                    
+                    tax_label = 'Includes Tax';
+                } else if( tax_included_in_price > 0 ) {
+                    tax_label = 'Includes Tax';
+                } else {
+                    tax_label = 'Tax';
+                }
 
                 let data = {
                     "cart": cart,
@@ -283,13 +297,14 @@
             summary_delivery_amount = 0
         }
         
-        temp_total = summary_subtotal_amount + summary_delivery_amount + summary_tax_amount - summary_discount_amount;
+        temp_total = summary_subtotal_amount + summary_delivery_amount + summary_tax_amount - tax_included_in_price - summary_discount_amount;
         summary_processing_fee_amount = temp_total * 0.017;       
         summary_total_amount = temp_total + summary_processing_fee_amount;
 
         summary_subtotal.textContent = `$${formatter.format(summary_subtotal_amount)}`;
         summary_delivery.textContent = `$${formatter.format(summary_delivery_amount)}`;
         summary_processing_fee.textContent = `$${formatter.format(summary_processing_fee_amount)}`;
+        summary_tax_label.textContent = tax_label;
         summary_tax.textContent = `$${formatter.format(summary_tax_amount)}`; 
         summary_total.textContent = `$${formatter.format(summary_total_amount)}`; 
 
@@ -305,6 +320,8 @@
             subtotalAmount: summary_subtotal_amount,
             deliveryAmount: summary_delivery_amount,
             processingFeeAmount: summary_processing_fee_amount,
+            taxLabel: tax_label,
+            taxIncludedInPrice: tax_included_in_price,
             taxAmount: summary_tax_amount,
             totalAmount: summary_total_amount
         };
@@ -333,8 +350,6 @@
             return item; // If it's already an object, return as-is
         });
 
-        console.log('cart', cart)
-
         // Create payload for the checkout session
         const payload = {
             guest_user: true,
@@ -342,13 +357,13 @@
             shipping_amount: summaryData.deliveryAmount,
             total_discount_amount: 0, // Temporary placeholder for future discount amount
             processing_fee: summaryData.processingFeeAmount,
+            tax_label: summaryData.taxLabel,
             tax_amount: summaryData.taxAmount,
+            tax_included_in_price: summaryData.taxIncludedInPrice,
             total_amount: summaryData.totalAmount,
             products: products,
             cart: cart
         };
-
-        console.log('Local storage payload for guest', payload);
 
         // Send request to save the session data
         const url = '/save-checkout-session.json';
@@ -364,7 +379,6 @@
     async function pushLocalCartToDB(data){        
         let response = await apiServices.processRequest("post", "/push-local-cart-to-db.json", data);
               
-        console.log('pushLocalCartToDB', response);
         if(response.state && response.data.items.id) {
             // Empty the carts in the local storage
             localStorage.setItem('carts', []); 

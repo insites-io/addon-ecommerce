@@ -238,7 +238,7 @@
     {% comment %} Tax {% endcomment %}
     <div class="grid-x grid-padding-x">
         <div class="large-6 medium-6 small-6 cell">
-            <p class="font-color-sub">Tax</p>
+            <p class="font-color-sub" id="summary_tax_label">{{ computed.tax_label | default: 'Tax' }}</p>
         </div>
         <div class="large-6 medium-6 small-6 cell text-right">
             {%- assign tax_amount = computed.tax_amount | advanced_format: '%.2f' | default: "0.00" -%}
