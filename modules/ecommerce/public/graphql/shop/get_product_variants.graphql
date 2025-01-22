@@ -33,8 +33,7 @@ query get_product_variants (
       properties
 
       size: property(name: "size")   
-      color: property(name: "color") 
-      #plant_name: property(name: "plant_name") 
+      color: property(name: "color")  
       
       ## Gallery
       gallery_1: related_records(
