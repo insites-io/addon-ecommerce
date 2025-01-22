@@ -10,7 +10,7 @@
     assign sub_total_shipping = order_amounts.total_shipping_amount
     assign sub_total_tax = order_amounts.total_tax_amount
     assign total_amount = order_amounts.total_amount
-    assign processing_fee = total_amount | minus: sub_total_amount 
+    assign processing_fee = total_amount | minus: sub_total_amount | minus: sub_total_discount | minus:sub_total_shipping
 %}
 
 {% parse_json computed %}
