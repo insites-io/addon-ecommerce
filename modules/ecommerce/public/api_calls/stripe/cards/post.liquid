@@ -6,7 +6,6 @@ trigger_condition: true
 request_type: POST
 callback: >
   {%- assign response_data = response.body | to_hash -%}
-  {%- log response_data, type: '==TEST create_card response_data' -%}
   {% if response_data.error %}
     {%- log response_data.error, type: 'API modules/ecommerce/create_card' -%}
   {% endif %}

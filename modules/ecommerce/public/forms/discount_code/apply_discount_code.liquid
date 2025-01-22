@@ -23,7 +23,6 @@ callback_actions: >
         "discount_code": "{{ form.properties.temp_discount_code }}"
     }
     {%- endparse_json -%}
-    {% log payload, type: "====payload in apply discount code====" %}
     {% include "modules/ecommerce/checkout/validate_discount_code" 
         payload: payload %}
 ---

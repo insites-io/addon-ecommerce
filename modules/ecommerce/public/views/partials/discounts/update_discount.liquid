@@ -23,8 +23,6 @@
         "discount_code_uuids": {{ new_discount_code_uuids }}
     }
     {% endparse_json %}
-
-    {% log args, type: '==TEST args' %}
     {% graphql update_cart_discount = 'modules/ecommerce/carts/update_cart_discount', args: args %}
 {% else %}
     {% comment %} check cart local storage {% endcomment %}
