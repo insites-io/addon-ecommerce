@@ -47,8 +47,7 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
 
     {%- capture head_key -%} {{ context.exports.layout_cache_key.cache_key | append: "-head" }} {%- endcapture -%}
     {%- cache head_key -%}
-    <!-- [Preload] -->
-    {%- comment -%}<script src="{{ 'scripts/vendor/foundation.min.js' | asset_url }}" defer></script>{%- endcomment -%}
+    <!-- [Preload] -->    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9" defer></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>

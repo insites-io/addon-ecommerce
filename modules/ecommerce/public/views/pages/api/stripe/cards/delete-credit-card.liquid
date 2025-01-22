@@ -29,9 +29,6 @@ authorization_policies:
 
 {% log response, type: 'delete_credit_card' %}
 
-{% comment %} {% parse_json data %}
-    {{ response | dig: "items" }}
-{% endparse_json %} {% endcomment %}
 
 {%- comment -%}Status code 400: API or GraphQL error{%- endcomment -%}
 {%- assign result = '{}' | parse_json -%}
