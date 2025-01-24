@@ -1335,3 +1335,9 @@ ins-filter .date-filter .fas  {
 .cart-item-cont .ins-input-stepper_input-wrap input {
     margin-bottom: 0px;
 }
+
+
+/* Stripe */
+#stripe-modal ins-button button.ins-button.size--normal.is-loading {
+    width: 100%;
+}
