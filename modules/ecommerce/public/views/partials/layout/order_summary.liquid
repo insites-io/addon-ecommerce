@@ -23,6 +23,14 @@
 {%- endif -%}
 
 
+{% comment %} No items in the Cart: Do not allow user to enter checkout pages {% endcomment %}
+{%- if carts == null or carts.size <= 0 -%}
+    {%- if context.params.slug == 'checkout' -%}
+        {% redirect_to '/products' %}
+    {%- endif -%}
+{%- endif -%}
+
+
 <div id="order-summary-main-wrap" class="show-for-medium">
     
     {% unless no_heading %}
