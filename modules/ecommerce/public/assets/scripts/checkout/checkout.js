@@ -214,6 +214,8 @@ let Checkout = (function () {
                         // Remove 'required' and 'validate' attributes from the input
                         inputElement.removeAttribute('required');
                         inputElement.removeAttribute('validate');
+                        inputElement.removeAttribute('has-error');
+                        inputElement.classList.remove('is-invalid');
 
                         let invalidEl = inputElement.querySelectorAll(".is-invalid");
                         // If invalid elements are found, remove the 'is-invalid' class
