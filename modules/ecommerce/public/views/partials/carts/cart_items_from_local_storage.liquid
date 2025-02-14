@@ -89,6 +89,10 @@
                 product = products.find(item => item.uuid === cart.product_uuid);
                 is_variant = false;
 
+                //Set null values to '' to prevent false comparisons.
+                cart.product_sku = cart.product_sku ?? "";
+                product.product_sku = product.product_sku ?? "";
+                
                 //Check if the cart item is a product or a variant of the product        
                 if( cart.product_sku == product.product_sku ){
                     selected_prop = product;

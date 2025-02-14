@@ -435,13 +435,16 @@
         !goToCartBtn.disabled ? window.location.href = '/shopping-cart' : '';
     }
 
-    /* Redirects the user to the shopping cart page if the button is not disabled. */
-    function goToShoppingCartPage() {
-        !goToCartBtn.disabled ? window.location.href = '/shopping-cart' : '';
-    }
-
     /* Enables the 'Go to Cart' button and sets its loading state to false. */
     function goToCartButtonEnabled() {
+
+        //if the user is on the checkout page and adds, removes, or updates an item using the cart drawer.
+        // - Reload the page if the user is Trade Customer
+        // - Go to /shopping-cart if the user is a guest to allow the session to take effect first.
+        if(page == 'checkout'){
+            user_uuid === '' ? (window.location.href = '/shopping-cart') : location.reload();
+        }
+
         goToCartBtn.disabled = false;
         goToCartBtn.loading = false;
         if(proceedToCheckoutBtns){
@@ -501,12 +504,9 @@
     }       
 
     function cartItemHtml(data){
-        const total_price = data.item_total_price || data.price;
-        const formattedTotalPrice = formatNumber(
-            parseFloat(
-                (total_price && typeof total_price === 'string' ? total_price.replace(/[^0-9.]/g, '') : total_price)
-            )
-        );
+        
+        const item_price = formatNumber(data.price);
+        const item_total_price = formatNumber(data.item_total_price || data.price);
 
         return ` <div id="cart-item-${data.id}" class="cart-item-wrap">
                 <div class="grid-x" >
@@ -516,11 +516,11 @@
                         <div class="spacer x-small"></div>
                         <p>
                             <span class="body-x-small-bold">Price:</span>
-                            <span class="body-x-small item-price">$${ formattedTotalPrice }</span>
+                            <span class="body-x-small item-price">$${ item_price }</span>
                         </p>
                     </div>
                     <div class="cell grid-y large-5 medium-5 small-5 text-right">
-                        <p class="cart-price compute-price">$${ formattedTotalPrice }</p>
+                        <p class="cart-price compute-price">$${ item_total_price }</p>
                         <div class="spacer x-small"></div>
                         <ins-input-stepper
                             class="cart-stepper" 
@@ -594,6 +594,31 @@
             }
         } else {
             emptyCartWrap.classList.remove('hide');
+            updateGuestSessions();
+        }
+    }
+
+    async function updateGuestSessions(){
+        // Update sessions: set values to zero
+        const payload = {
+            guest_user: true,
+            sub_total_amount: 0,
+            shipping_amount: 0, 
+            total_discount_amount: 0, 
+            processing_fee: 0,
+            tax_amount: 0,
+            tax_included_in_price: 0,
+            total_amount: 0
+        };
+
+        // Send request to save the session data
+        const url = '/save-checkout-session.json';
+        const response = await apiServices.processRequest('post', url, payload);
+
+        if (response.state && response.data) {
+            // Success logic can be added here if needed in the future
+        } else {
+            console.log("error", "An error occurred while saving the order summary.");
         }
     }
 
@@ -681,6 +706,11 @@
         prices.forEach(price => {
             subTotal += parseFloat(price.textContent.replace(/[^0-9.]/g, ''));
         });
+
+        // Redirect to /products page if the current page is 'checkout' and there is no item in the cart
+        if(page == 'checkout' && subTotal <= 0){
+            window.location.href = '/products';
+        }
 
         cartSubtotal.textContent = "$" + formatNumber(subTotal);
         cartDrawer.label = `Cart (${prices.length})`;
