@@ -27,7 +27,7 @@
                             placeholder="{{ params.brand | default: 'Select brand' }}" 
                             small>
                             {% for product_brand in product_brands %}
-                                <ins-button-select-option label="{{product_brand}}" value="{{product_brand}}" {% if params.brand == "product_brand" %}activated{% endif %}></ins-button-select-option>
+                                <ins-button-select-option label="{{product_brand}}" value="{{product_brand}}" {% if params.brand == product_brand %}activated{% endif %}></ins-button-select-option>
                             {% endfor %}
                         </ins-button-select >
 
@@ -43,9 +43,9 @@
                         
                         {%  liquid
                             if params.sort == 'price-ascending'
-                                assign sortText = 'Price: High-Low'
-                            elsif params.sort == 'price-descending'
                                 assign sortText = 'Price: Low-High'
+                            elsif params.sort == 'price-descending'
+                                assign sortText = 'Price: High-Low'
                             else 
                                 assign sortText = 'Newest'
                             endif
@@ -57,14 +57,14 @@
                             placeholder="{{ sortText }}" 
                             small>
                             <ins-button-select-option label="Newest" value="newest" {% if params.sort == "newest" %}activated{% endif %}></ins-button-select-option>
-                            <ins-button-select-option label="Price: High-Low" value="price-ascending" {% if params.sort == "price-ascending" %}activated{% endif %}></ins-button-select-option>
-                            <ins-button-select-option label="Price: Low-High" value="price-descending" {% if params.sort == "price-descending" %}activated{% endif %}></ins-button-select-option>
+                            <ins-button-select-option label="Price: High-Low" value="price-descending" {% if params.sort == "price-descending" %}activated{% endif %}></ins-button-select-option>
+                            <ins-button-select-option label="Price: Low-High" value="price-ascending" {% if params.sort == "price-ascending" %}activated{% endif %}></ins-button-select-option>
                         </ins-button-select>
                     </div>
                     <div class="align-middle align-right grid-x hide-for-small-only">
-                        <div><p class="button-default font-color-head">View:</p></div>
-                        <ins-button id="view-grid-btn" icon="icon-grid" color="white" size="normal" label="" class="icon-button active"></ins-button>
-                        <ins-button id="view-list-btn" icon="icon-list" color="white" size="normal" label="" class="icon-button"></ins-button>
+                        <div><p class="body-small bold font-color-head">View:</p></div>
+                        <ins-button id="view-grid-btn" icon="icon-grid" color="white" size="normal" label="" class="view-button active"></ins-button>
+                        <ins-button id="view-list-btn" icon="icon-list" color="white" size="normal" label="" class="view-button"></ins-button>
                     </div>
                 </div>
             </div>

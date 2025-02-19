@@ -118,23 +118,6 @@ let productDetail = (function () {
                         notPriceDisplay.innerText = "";
                     }
                 }
-
-                // let imageVariant = document.getElementById('image-variant');
-                // // let imageValue = document.getElementById('imageValue');
-                // let imageValue = document.querySelector('.variant-gallery');
-                // let mainGallery = document.querySelector('.main-gallery');
-                // if (imageVariant) {
-                //     // console.log(prodDetail, 'details');
-                //     var image = prodDetail.gallery_1[0].file.url;
-                //     // imageValue.src = image;
-                //     imageValue.setAttribute('thumbnail', image);
-                //     imageValue.setAttribute('image', image);
-                //     imageVariant.classList.remove('hidden-gallery');
-                //     mainGallery.classList.add('hidden-gallery');
-                // } else {
-                //     imageVariant.classList.add('hidden-gallery');
-                //     mainGallery.classList.remove('hidden-gallery');
-                // }
             },
             setProductDetailOutOfStock(prodDetail, value) {
                 let prodVarNotify = document.getElementById('prod-variant');

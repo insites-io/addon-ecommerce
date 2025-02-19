@@ -16,18 +16,14 @@ query get_orders (
       properties: [
         { name: "order_number", contains: $keyword }
         { name: "order_contact_uuid", value: $order_contact_uuid }
-      ],
-      updated_at: {
-        gte: $dateFrom
-        lte: $dateTo
-      }
+        { name: "date_time", range: {gte: $dateFrom, lte: $dateTo} }
+      ]
     },
     sort: { id: { order: DESC } }
   ) {            
     total_entries
     results {
-      id            
-      #properties      
+      id             
       uuid: property(name: "uuid")
       order_number: property(name: "order_number")
       date_time: property(name: "date_time")

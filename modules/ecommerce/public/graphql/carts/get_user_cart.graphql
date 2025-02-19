@@ -21,7 +21,6 @@ query get_user_cart (
       contact_uuid: property(name: "contact_uuid")
       items: property_array(name: "items")      
       discount_code_uuids: property_array(name: "discount_code_uuids")       
-      #properties
     },
     results @include(if: $show_discount_details){
       discounts: related_records(
@@ -38,7 +37,6 @@ query get_user_cart (
         product_uuids: property_array(name: "product_uuids")
         is_applicable_to_all_products: property_boolean(name: "is_applicable_to_all_products")
         minimum_cart_value: property_float(name: "minimum_cart_value")
-        #properties
       }
     }
   }

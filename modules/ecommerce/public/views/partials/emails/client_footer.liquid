@@ -20,14 +20,14 @@
 {% comment %} Location 1 address {% endcomment %}
 {%- if global.loc_1_address_1 != blank or
     global.loc_1_address_2 != blank or
-    global.loc_1_city != blank or
+    global.loc_1_suburb != blank or
     global.loc_1_state != blank or
     global.loc_1_postcode != blank or
     global.loc_1_country != blank -%}
   {%- assign global_loc_1_address = '{}' | parse_json -%}
   {%- assign global_loc_1_address = global_loc_1_address | add_hash_key: 'address', global.loc_1_address_1 -%}
   {%- assign global_loc_1_address = global_loc_1_address | add_hash_key: 'address2', global.loc_1_address_2 -%}
-  {%- assign global_loc_1_address = global_loc_1_address | add_hash_key: 'city', global.loc_1_city -%}
+  {%- assign global_loc_1_address = global_loc_1_address | add_hash_key: 'suburb', global.loc_1_suburb -%}
   {%- assign global_loc_1_address = global_loc_1_address | add_hash_key: 'state', global.loc_1_state -%}
   {%- assign global_loc_1_address = global_loc_1_address | add_hash_key: 'postcode', global.loc_1_postcode -%}
   {%- assign global_loc_1_address = global_loc_1_address | add_hash_key: 'country', global.loc_1_country -%}
@@ -47,8 +47,8 @@
 {%- if global_loc_1_address.address2 and global_loc_1_address.address2 != '' -%}
     {%- assign loc_1_address = loc_1_address | append: global_loc_1_address.address2 | strip | append : ", " -%}
 {%- endif -%}
-{%- if global_loc_1_address.city and global_loc_1_address.city != '' -%}
-    {%- assign loc_1_address = loc_1_address | append: global_loc_1_address.city | strip | append : " " -%}
+{%- if global_loc_1_address.suburb and global_loc_1_address.suburb != '' -%}
+    {%- assign loc_1_address = loc_1_address | append: global_loc_1_address.suburb | strip | append : " " -%}
 {%- endif -%}
 {%- if global_loc_1_address.state and global_loc_1_address.state != '' -%}
     {%- assign loc_1_address = loc_1_address | append: global_loc_1_address.state | strip | append : " " -%}
@@ -98,8 +98,8 @@
 {%- if global.po_1_address.address2 and global.po_1_address.address2 != '' -%}
     {%- assign po_1_address = po_1_address | append: global.po_1_address.address2 | strip | append : ", " -%}
 {%- endif -%}
-{%- if global.po_1_address.city and global.po_1_address.city != '' -%}
-    {%- assign po_1_address = po_1_address | append: global.po_1_address.city | strip | append : " " -%}
+{%- if global.po_1_address.suburb and global.po_1_address.suburb != '' -%}
+    {%- assign po_1_address = po_1_address | append: global.po_1_address.suburb | strip | append : " " -%}
 {%- endif -%}
 {%- if global.po_1_address.state and global.po_1_address.state != '' -%}
     {%- assign po_1_address = po_1_address | append: global.po_1_address.state | strip | append : " " -%}

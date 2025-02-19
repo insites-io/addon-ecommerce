@@ -17,7 +17,6 @@ query get_order_amounts (
     results {
       id
       order_uuid: property(name: "order_uuid")
-      #properties
       subtotal_amount: property_float(name: "subtotal_amount")      
       total_tax_amount: property_float(name: "total_tax_amount")      
       total_discount_amount: property_float(name: "total_discount_amount")

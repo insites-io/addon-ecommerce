@@ -32,7 +32,6 @@ query get_category_uuids (
       category_name:property(name: "category_name")
       slug:property(name: "slug")
       parent_category_uuids:property_array(name: "parent_category_uuids")
-      #properties
     }
   }
 }

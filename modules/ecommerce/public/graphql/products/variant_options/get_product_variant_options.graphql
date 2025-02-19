@@ -16,8 +16,7 @@ query get_product_variant_options (
   ) {
     total_entries
     results {
-      id 
-      #properties    
+      id    
       product_uuid: property(name: "product_uuid")
       product_option_label: property(name: "product_option_label")  
       product_option_values: property_array(name: "product_option_values") 

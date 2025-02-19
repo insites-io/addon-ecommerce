@@ -28,7 +28,6 @@ query get_products (
     current_page
     results {
       id         
-      #properties
       uuid: property(name: "uuid")
       slug: property(name: "slug")
       product_name: property(name: "product_name")

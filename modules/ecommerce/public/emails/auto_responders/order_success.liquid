@@ -55,7 +55,7 @@ layout: modules/insites_core/insites_internal_email_layout
       {% endif %}
 
       {% assign phone_number = phone_number| default: '-' %}
-      {% assign properties = properties | append: ',' | append: '"phone_number": "+' | append: phone_number | append: '"' %}
+      {% assign properties = properties | append: ',' | append: '"phone_number": "' | append: phone_number | append: '"' %}
       {% assign email = props.billing_contact_email | default: '-' %}
       {% assign properties = properties | append: ',' | append: '"email_address": "' | append: email | append: '"' %}
 
@@ -69,8 +69,8 @@ layout: modules/insites_core/insites_internal_email_layout
       {% if props.billing_address_3 and props.billing_address_3 != '' %}
           {% assign billing_address = billing_address | append: props.billing_address_3 | append: ", " %}
       {% endif %}
-      {% if props.billing_city and props.billing_city != '' %}
-          {% assign billing_address = billing_address | append: props.billing_city | append: ", " %}
+      {% if props.billing_suburb and props.billing_suburb != '' %}
+          {% assign billing_address = billing_address | append: props.billing_suburb | append: ", " %}
       {% endif %}
       {% if props.billing_state and props.billing_state != '' %}
           {% assign billing_address = billing_address | append: props.billing_state | append: " " %}
@@ -115,7 +115,7 @@ layout: modules/insites_core/insites_internal_email_layout
       {% endif %}
 
       {% assign phone_number = phone_number| default: '-' %}
-      {% assign properties = properties | append: ',' | append: '"phone_number": "+' | append: phone_number | append: '"' %}
+      {% assign properties = properties | append: ',' | append: '"phone_number": "' | append: phone_number | append: '"' %}
       {% assign email = props.shipping_contact_email | default: '-' %}
       {% assign properties = properties | append: ',' | append: '"email_address": "' | append: email | append: '"' %}
 
@@ -129,8 +129,8 @@ layout: modules/insites_core/insites_internal_email_layout
       {% if props.shipping_address_3 and props.shipping_address_3 != '' %}
           {% assign shipping_address = shipping_address | append: props.shipping_address_3 | append: ", " %}
       {% endif %}
-      {% if props.shipping_city and props.shipping_city != '' %}
-          {% assign shipping_address = shipping_address | append: props.shipping_city | append: ", " %}
+      {% if props.shipping_suburb and props.shipping_suburb != '' %}
+          {% assign shipping_address = shipping_address | append: props.shipping_suburb | append: ", " %}
       {% endif %}
       {% if props.shipping_state and props.shipping_state != '' %}
           {% assign shipping_address = shipping_address | append: props.shipping_state | append: " " %}
@@ -165,6 +165,8 @@ layout: modules/insites_core/insites_internal_email_layout
       {% assign properties = properties | append: '"subtotal": "' | append: subtotal_amount | append: '"' %}
       {% assign total_shipping_amount = props.total_shipping_amount | advanced_format: '%.2f' | pricify | default: '-' %}
       {% assign properties = properties | append: ','  | append: '"delivery_&_handling": "' | append: total_shipping_amount | append: '"' %}
+      {% assign processing_fee = form.properties.processing_fee | advanced_format: '%.2f' | pricify | default: '-' %}
+      {% assign properties = properties | append: ','  | append: '"processing_fee": "' | append: processing_fee | append: '"' %}
       {% assign total_tax_amount = props.total_tax_amount | advanced_format: '%.2f' | pricify | default: '-invalid' %}
       {% assign properties = properties | append: ','  | append: '"tax": "' | append: total_tax_amount | append: '"' %}
       {% assign total_amount = props.total_amount | advanced_format: '%.2f' | pricify | default: '-invalid' %}

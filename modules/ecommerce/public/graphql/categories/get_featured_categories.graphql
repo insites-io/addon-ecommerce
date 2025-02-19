@@ -30,10 +30,9 @@ query get_featured_categories (
     total_pages
     current_page
     results {     
-        #properties
-		uuid: property(name: "uuid")
-        slug: property(name: "slug")
-        category_name: property(name: "category_name")  
+		  uuid: property(name: "uuid")
+      slug: property(name: "slug")
+      category_name: property(name: "category_name")  
     }
   }
 }

@@ -11,7 +11,6 @@ mutation create_company(
   $notes: String,
   $tax_registered: Boolean,
   $tax_reference: String,
-  #$company_status: String,
   $home_phone_country_code: String,
   $home_phone_number: String,
   $mobile_phone_country_code: String,
@@ -20,7 +19,6 @@ mutation create_company(
   $work_phone_number: String,
   $facebook_link: String,
   $youtube_link: String,
-  #$google_plus_link: String,
   $twitter_link: String,
   $linkedin_link: String,
   $instagram_link: String,
@@ -48,13 +46,11 @@ mutation create_company(
         { name: "phone_2_number", value: $work_phone_number }
         { name: "facebook_link", value: $facebook_link }
         { name: "youtube_link", value: $youtube_link }
-        #{ name: "google_plus_link", value: $google_plus_link }
         { name: "twitter_link", value: $twitter_link }
         { name: "linkedin_link", value: $linkedin_link }
         { name: "instagram_link", value: $instagram_link }
         { name: "is_tax_registered", value_boolean: $tax_registered }
         { name: "tax_reference", value: $tax_reference }
-        #{ name: "company_status", value: $company_status }
       ],
       images: [{ 
         name: "company_avatar"

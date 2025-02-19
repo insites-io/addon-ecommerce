@@ -37,8 +37,8 @@ metadata:
         if context.params.billing_address_2
             session billing_address_2 = context.params.billing_address_2
         endif
-        if context.params.billing_city
-            session billing_city = context.params.billing_city
+        if context.params.billing_suburb
+            session billing_suburb = context.params.billing_suburb
         endif
         if context.params.billing_state
             session billing_state = context.params.billing_state
@@ -56,8 +56,8 @@ metadata:
         if context.params.shipping_address_2
             session shipping_address_2 = context.params.shipping_address_2
         endif
-        if context.params.billing_city
-            session billing_city = context.params.billing_city
+        if context.params.shipping_suburb
+            session shipping_suburb = context.params.shipping_suburb
         endif
         if context.params.shipping_state
             session shipping_state = context.params.shipping_state
@@ -84,8 +84,14 @@ metadata:
         if context.params.processing_fee
             assign guest_order_summary = guest_order_summary | add_hash_key: "processing_fee", context.params.processing_fee
         endif
+        if context.params.tax_label
+            assign guest_order_summary = guest_order_summary | add_hash_key: "tax_label", context.params.tax_label
+        endif
         if context.params.tax_amount
             assign guest_order_summary = guest_order_summary | add_hash_key: "tax_amount", context.params.tax_amount
+        endif
+        if context.params.tax_included_in_price
+            assign guest_order_summary = guest_order_summary | add_hash_key: "tax_included_in_price", context.params.tax_included_in_price
         endif
         if context.params.total_amount
             assign guest_order_summary = guest_order_summary | add_hash_key: "total_amount", context.params.total_amount
@@ -113,7 +119,7 @@ metadata:
                 if context.params.billing_same_with_shipping
                     session billing_address_1 = address.address_1
                     session billing_address_2 = address.address_2
-                    session billing_city = address.city
+                    session billing_suburb = address.suburb
                     session billing_state = address.state
                     session billing_postcode = address.postcode
                     session billing_country = address.country
@@ -121,7 +127,7 @@ metadata:
                 else
                     session shipping_address_1 = address.address_1
                     session shipping_address_2 = address.address_2
-                    session shipping_city = address.city
+                    session shipping_suburb = address.suburb
                     session shipping_state = address.state
                     session shipping_postcode = address.postcode
                     session shipping_country = address.country

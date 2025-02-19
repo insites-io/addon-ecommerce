@@ -77,17 +77,7 @@ fields:
                 error-message="{{ form.fields.last_name.validation.rules.presence.message }}"
                 placeholder="Last Name">
             </ins-input>
-            {% comment -%}
-            <ins-input 
-                id="mobile-phone"
-                label="Phone Number"
-                field="tel"
-                name="{{ form.fields.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_number.name }}" 
-                value="{{ form.fields.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_number.value }}" 
-                error-message="Please use a valid phone number"
-                placeholder="Phone Number">
-            </ins-input>
-            {% endcomment -%}
+
             <ins-input-tel
                 id="mobile-phone"
                 label="Mobile Phone" 

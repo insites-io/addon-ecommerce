@@ -12,10 +12,10 @@ fields:
         presence: 
           message: Address is required
     address_2:
-    city:
+    suburb:
       validation: 
         presence: 
-          message: City is required
+          message: suburb is required
     state:
       validation: 
         presence: 
@@ -85,13 +85,13 @@ fields:
         </div>
         <div class="large-6 medium-6 small-12 cell">
             <ins-input form-address-field 
-                id="search_city"
-                label="City"
-                name="{{ form.fields.properties.city.name }}" 
-                value="{{ form.fields.properties.city.value }}" 
-                {% if form.errors['properties.city'] %} has-error {% endif %}
-                error-message="{{ form.fields.properties.city.validation.rules.presence.message }}"
-                placeholder="City">
+                id="search_suburb"
+                label="Suburb"
+                name="{{ form.fields.properties.suburb.name }}" 
+                value="{{ form.fields.properties.suburb.value }}" 
+                {% if form.errors['properties.suburb'] %} has-error {% endif %}
+                error-message="{{ form.fields.properties.suburb.validation.rules.presence.message }}"
+                placeholder="Suburb">
             </ins-input>
         </div>
 

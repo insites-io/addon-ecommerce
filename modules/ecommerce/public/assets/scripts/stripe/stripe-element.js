@@ -34,7 +34,7 @@ let StripeElement = (() => {
         methods: {
             makeCardElement(token) {
                 if(cardOptionsList && token) {
-                    let grid = cardOptionsList.getAttribute('card-grid') || "large-6 medium-12 small-12";
+                    let grid = cardOptionsList.getAttribute('card-grid') || "large-6 medium-6 small-12";
                     let divEl = document.createElement("div");
                         divEl.className = `${grid} cell card-options`;
                     let insCardEl = document.createElement("ins-credit-card");
@@ -43,6 +43,7 @@ let StripeElement = (() => {
                         insCardEl.setAttribute('last-four', token.card.last4);
                         insCardEl.setAttribute('expiry-month', token.card.exp_month);
                         insCardEl.setAttribute('expiry-year', token.card.exp_year);
+                        insCardEl.setAttribute('compact', true);
                         insCardEl.value = token.card.id;
                     divEl.appendChild(insCardEl);
                     cardOptionsList.appendChild(divEl);
@@ -113,11 +114,18 @@ let StripeElement = (() => {
                     payByCardField.setAttribute('value', token.id);
             },
             checkCardCount() {
+                
                 let cards = cardFields.querySelectorAll('.card-options');
-                if (cards.length === 0)
-                    if(noCardNotif) noCardNotif.classList.remove('hide');                    
-                else
+                console.log('checkCardCount', cards);
+                console.log('cards.length', cards.length);
+                console.log('noCardNotif', noCardNotif);
+
+                if (cards.length === 0){
+                    if(noCardNotif) noCardNotif.classList.remove('hide');     
+                }            
+                else{
                     if(noCardNotif) noCardNotif.classList.add('hide');
+                }                
             }
         },
         events: {

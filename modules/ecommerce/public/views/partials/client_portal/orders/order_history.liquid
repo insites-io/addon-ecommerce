@@ -20,12 +20,10 @@
 {%- graphql orders = 'modules/ecommerce/orders/get_orders', args: filters -%}
 
 
-
-
 {%- if orders.items.total_entries > 0 -%}
     
     <div class="grid-x">
-        <div class="large-7 medium-12 small-12 cell order-filter-wrap" style="background2: yellow;">
+        <div class="large-7 medium-12 small-12 cell order-filter-wrap">
             <ins-filter 
                 id="order-filter"
                 label="Filter by:"
@@ -75,7 +73,7 @@
     let tableContent = {{ orders.items.results }};
     let tableHeaders = [
         { label: 'Order Number', type: "string" },
-        { label: 'Date Ordered', type: "date" },
+        { label: 'Date Ordered', type: "string" },
         { label: 'Total Amount', type: "currency" },
         { label: 'Order Status', type: "string", hasTag: true },
         { label: 'Shipping Status', type: "string", hasTag: true}
@@ -93,8 +91,10 @@
     }
 
     function mapData(tableData) {
-        return tableData.map(data => {                                
-            let dateOrdered = TableScript.methods.formatDate(TableScript.methods.toDateOnly(data.date_time), date_format);
+        return tableData.map(data => {                 
+            let toDateOnly = TableScript.methods.toDateOnly(data.date_time);                
+            let formatDate = TableScript.methods.formatDate(toDateOnly, date_format);
+            let dateOrdered = changeDateFormat(formatDate);
             let shipping_status = data.order_shipping_status || 'Processing';
             let order_status = TableScript.methods.toTitleCase(resolveStatus(data.order_status));
 
@@ -107,6 +107,14 @@
                 "Shipping Status": shipping_status
             }
         });
+    }
+    
+
+    function changeDateFormat(dateString) {
+        // Split the input date string
+        const [month, day, year] = dateString.split('/');
+        // Rearrange into DD/MM/YYYY
+        return `${day}/${month}/${year}`;
     }
 
 
@@ -133,9 +141,9 @@
         
         if (sortedKeyword && displayedData.length > 1) {
             //Sort
-            displayedData.sort(TableScript.methods.dynamicKeySort(sortedKeyword));
+            //displayedData.sort(TableScript.methods.dynamicKeySort(sortedKeyword));
             //Descending order
-            if(sortedKeyword == "id") displayedData.reverse();
+            //if(sortedKeyword == "id") displayedData.reverse();
         }
 
         orderListTable.tableData = mapData(displayedData);
@@ -151,6 +159,8 @@
     function filterData(searchKey, filterKey=["id"]){
 
         orderListTable.loadingScreen = true;
+        
+        let dateFrom, dateTo;
 
         if(filterKey.includes("order_status") && filterKey.includes("date_time")){
             searchKeyword = searchKey["Order Status"];
@@ -163,6 +173,11 @@
                 dateTo = new Date(searchKey.to);
             }
         }
+
+        if(dateFrom || dateTo){
+            dateFrom.setHours(0, 0, 0, 0);
+            dateTo.setHours(23, 59, 59, 999);
+        }        
 
         if (!searchKeyword) {
             processTableData();
@@ -203,7 +218,7 @@
         if (!filteredData.length) {
             orderListTable.loadingScreen = true;
             orderListTable.loaderTitle = '';
-            orderListTable.loaderMessage = 'No result found for "' + searchKeyword + '"';
+            orderListTable.loaderMessage = 'No results were found for the selected status and date.';
             orderListTable.loaderIcon = '';
         }
     }

@@ -2,9 +2,7 @@ query get_categories (
   $id: ID,
   $page: Int = 1,
   $size: Int = 50,
-  $parent_category_uuids: [String!]
-  # $slug: String = "",
-  # $parent_ids: [String!],
+  $parent_category_uuids: [String!],
   $sort_by: [RecordsSortInput!] = {
       properties: [
           { name: "category_name", order: ASC }
@@ -21,8 +19,6 @@ query get_categories (
       properties: [
         { name: "status", value: "enabled" }
         { name: "parent_category_uuids", value_array: $parent_category_uuids }
-        #{ name: "slug", value: $slug }
-        #{ name: "parent_ids", array_overlaps: $parent_ids }
       ] 
     }
     sort: $sort_by
@@ -32,7 +28,6 @@ query get_categories (
     current_page
     results {
       id             
-      #properties
 			uuid: property(name: "uuid")
       slug: property(name: "slug")
       category_name: property(name: "category_name")

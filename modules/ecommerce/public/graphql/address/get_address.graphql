@@ -22,12 +22,11 @@ query get_address(
     total_pages
     results{
       id
-      #properties
       uuid: property(name: "uuid")
       address_1: property(name: "address_1")
       address_2: property(name: "address_2") 
       address_3: property(name: "address_3") 
-      city: property(name: "city") 
+      suburb: property(name: "suburb") 
       state: property(name: "state") 
       postcode: property(name: "postcode") 
       country: property(name: "country")      

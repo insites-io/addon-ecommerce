@@ -2,7 +2,7 @@
     <div class="spacer xxxx-large"></div>
     <div class="product-carousel large-offset-1">
 
-        {% graphql products = "modules/ecommerce/products/get_products", is_featured: true | dig: 'items','results' %}        
+        {% graphql products = "modules/ecommerce/products/get_products", is_featured: true, size: 8 | dig: 'items','results' %}        
 
         <!-- desktop carousel -->
         <ins-carousel 
@@ -11,11 +11,11 @@
             layout="1"
             per-page="4"
             no-pagination=true
-            bind-to="newArrivalCardsDesktop">
+            bind-to="whatsHotCardsDesktop">
 
             <h2>What's Hot</h2>     
             <div class="spacer xx-large"></div>
-            <div id="newArrivalCardsDesktop" class="product-cards">
+            <div id="whatsHotCardsDesktop" class="product-cards">
                 {% for product in products %}
                     {% include "modules/ecommerce/products/product_card", product: product %}
                 {% endfor %}
@@ -30,7 +30,7 @@
             layout="1"
             per-page="3"
             no-pagination=true
-            bind-to="newArrivalCardsTablet">
+            bind-to="whatsHotCardsTablet">
 
             <div class="grid-container">
                 <div class="grid-x">
@@ -39,7 +39,7 @@
             </div>
                
             <div class="spacer xx-large"></div>
-            <div id="newArrivalCardsTablet" class="product-cards">
+            <div id="whatsHotCardsTablet" class="product-cards">
                 {% for product in products %}
                     {% include "modules/ecommerce/products/product_card", product: product %}
                 {% endfor %}
@@ -48,27 +48,25 @@
         <!-- tablet carousel -->
 
         <!-- mobile carousel -->
-        <ins-carousel 
-            id="whatsHotCarouselMobile"
-            class="whatsHotCarousel carouselMobile show-for-small-only"
-            layout="1"
-            per-page="1"
-            no-pagination=true
-            bind-to="newArrivalCardsMobile">
-            
-            <div class="grid-container">
-                <div class="grid-x">
-                    <h2>What's Hot</h2>    
-                </div>
-            </div>
+        <div class="wrapper">
+            <ins-carousel 
+                id="whatsHotCarouselMobile"
+                class="whatsHotCarousel carouselMobile show-for-small-only"
+                layout="1"
+                per-page="1"
+                no-pagination=true
+                bind-to="whatsHotCardsMobile">
+                
+                <h2>What's Hot</h2>
 
-            <div class="spacer xx-large"></div>
-            <div id="newArrivalCardsMobile" class="product-cards">
-                {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product %}
-                {% endfor %}
-            </div>
-        </ins-carousel>
+                <div class="spacer"></div>
+                <div id="whatsHotCardsMobile" class="product-cards">
+                    {% for product in products %}
+                        {% include "modules/ecommerce/products/product_card", product: product %}
+                    {% endfor %}
+                </div>
+            </ins-carousel>
+        </div>
         <!-- mobile carousel -->
 
     </div>
@@ -85,7 +83,7 @@ whatsHotCarousel.forEach(carousel => {
         var carouselCtrlBtns = document.querySelector(`#${carouselID} .ins-carousel_ctrl-btns`);  
         if(carouselCtrlBtns && showAllLink[carouselID] !== true){            
             var newLink = document.createElement('a');
-                newLink.href = "/";
+                newLink.href = "/products";
                 newLink.textContent = "Shop All";
                 newLink.className = "shop-all-link"; 
             carouselCtrlBtns.appendChild(newLink);  

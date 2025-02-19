@@ -57,6 +57,22 @@
             assign price = selected_prop.regular_price
         endif          
 
+        ## order_item_image
+        assign product_image = selected_prop.product_image.url
+        if product_image and product_image != ''
+            assign versions = '{}' | parse_json
+            assign segments = product_image | split: '/'
+            assign file_name = segments | last
+            assign extension = file_name | split: "." | last
+            assign path = product_image | split: "/property_uploads/" | last
+            assign order_item_image = '' | parse_json 
+            assign order_item_image = order_item_image | add_hash_key: 'path', path
+            assign order_item_image = order_item_image | add_hash_key: 'versions', versions
+            assign order_item_image = order_item_image | add_hash_key: 'extension', extension
+            assign order_item_image = order_item_image | add_hash_key: 'file_name', file_name
+        else 
+            assign order_item_image = '{}' | parse_json
+        endif
 
         assign temp_order_items = '' | parse_json
         assign properties = '' | parse_json
@@ -72,7 +88,7 @@
         assign properties = properties | add_hash_key: 'product_uuid', cart_item.product_uuid
         assign properties = properties | add_hash_key: 'sku', cart_item.product_sku
         assign properties = properties | add_hash_key: 'order_item_name', product_name
-        assign properties = properties | add_hash_key: 'order_item_image', selected_prop.product_image.url
+        assign properties = properties | add_hash_key: 'order_item_image', order_item_image
 
         assign temp_order_items = temp_order_items | add_hash_key: "table", "modules/insites_ecommerce/order_item"
         assign temp_order_items = temp_order_items | add_hash_key: "properties", properties

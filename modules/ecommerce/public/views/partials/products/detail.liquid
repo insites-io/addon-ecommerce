@@ -4,30 +4,39 @@
 
 
 {% liquid
+
     if product.is_product_variant_enabled
-        assign selected_prop = product.variant
+        assign selected_prop = product.variants[0]        
     else 
         assign selected_prop = product
     endif
 
     if selected_prop.is_on_sale == true 
         assign price = selected_prop.sale_price
+        assign price_strikethrough = selected_prop.regular_price
     else 
         assign price = selected_prop.regular_price
+        assign price_strikethrough = ''
     endif
 
+    assign variants = '[]'
     
 %}
 
+<ins-button label="Go Back" icon="icon-angle-left" size="large" class="inline button-large go-back" onclick=window.history.back();></ins-button>
+<div class="spacer"></div>
+
 <div class="product-detail grid-x grid-padding-x">
-    <div class="large-7 medium-12 small-12 cell">        
-        <div class="gallery">            
+    <div class="large-7 medium-12 small-12 cell">                
+        <div class="gallery">   
+
+            {% comment %} ON SALE {% endcomment %}
+            <div id="on-sale-tag" class="on-sale-tag {% unless selected_prop.is_on_sale == true %}hide{% endunless %}">ON SALE</div>
+
             {% comment %} Use gallery or product_image {% endcomment %}
-            {%- if product.gallery_1.size > 0 -%}                
-                <div class="main-gallery variant-gallery">
-                    {% if selected_prop.is_on_sale == true %}
-                        <div class="on-sale-tag">SALE</div>
-                    {% endif %}
+            {%- if product.gallery_1.size > 0 -%}           
+                <div class="main-gallery variant-gallery">                    
+                                        
                     <ins-gallery with-indicator slidable>
                         {%- for gallery in product.gallery_1 -%}
                          <ins-gallery-image
@@ -38,7 +47,7 @@
                     </ins-gallery>
                 </div>
                 
-                {%- for variant in product.variant -%}
+                {%- for variant in product.variants -%}
                     <div id="vid-{{ variant.id }}" class="hidden-gallery variant-gallery">
                         <ins-gallery with-indicator>
                             <ins-gallery-image
@@ -84,20 +93,17 @@
             </div>
             <div class="spacer x-large"></div>
             <div>                                                
-                {% if product.is_product_variant_enabled %}
-                    <p id="product-price" class="heading-4"></p>
-                    <p id="regular-product-price" class="strikethrough"></p> 
-                {% else %}
-                    <p id="product-price" class="heading-4">{{ price | pricify }}</p>
-                    <p id="regular-product-price" class="strikethrough">{{ product.regular_price | pricify }}</p> 
+                <p id="product-price" class="heading-4">{{ price | pricify: 'USD', no_cents_if_whole: false }}</p>
+                {% if price_strikethrough != '' %}
+                <p id="regular-product-price" class="strikethrough">{{ price_strikethrough | pricify: 'USD', no_cents_if_whole: false }}</p>
                 {% endif %}
-                              
             </div>
             {% if product.short_description %}
-                <div class="spacer x-large"></div>           
+                <div class="spacer x-large"></div>
                 <div>
                     {{ product.short_description }}
                 </div>
+                <div class="spacer x-large"></div>
             {% endif %}
         </div>
 
@@ -113,12 +119,12 @@
                 assign hideOutOfStock = ''
             endif
         %}
-        <div id="out-of-stock-wrap" class="wrap {{ hideOutOfStock }}">
-            <div class="spacer x-large"></div> 
+        <div id="out-of-stock-wrap" class="wrap {{ hideOutOfStock }}">            
             <div class="out-of-stock-notice">            
                 <p>We're currently out of stock on this product, but you can secure yours by placing a pre-order now!</p>
                 <p>We will notify you when your pre-order becomes available for delivery.</p>
             </div>
+            <div class="spacer x-large"></div>
         </div>
 
         {%- if product.is_product_variant_enabled -%} 
@@ -128,7 +134,7 @@
                     
                     {% comment %} Get variant info {% endcomment %}
                     {% assign variants = '' | split: ',' %}
-                    {%- for variant in product.variant -%}
+                    {%- for variant in product.variants -%}
                         {%  liquid 
                             ## Convert an array of strings into an array of objects
                             assign item_obj = '' | split: ',' 
@@ -160,7 +166,7 @@
                                         - Check if the value exists in the product variants, and render the option if found
                                     {% endcomment %}
                                     {%- assign value_exists = false -%}
-                                    {%- for variant_option in product.variant -%}
+                                    {%- for variant_option in product.variants -%}
                                         {%- if variant_option.options[0].product_option_value == value -%}
                                             {%- assign value_exists = true -%}
                                         {%- endif -%}
@@ -188,7 +194,7 @@
             "id": "{{ product.id }}",
             "product_uuid": "{{ product.uuid }}",
             "product_sku": "{{ selected_prop.sku }}",
-            "product_name": "{{ product.product_name }}",
+            "product_name": "{{ product.product_name | replace: "'", "`" }}",
             "price": "{{ price | default: 0 }}"
         }
         {% endparse_json %}
@@ -203,7 +209,7 @@
                 small>
             </ins-input-stepper>
             <div class="spacer x-large"></div> 
-            <ins-button class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid></ins-button>
+            <ins-button id="add-to-cart-btn-{{ add_to_cart_data.id }}"  class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid></ins-button>
         </div>
     
         <div class="spacer small"></div>        
@@ -230,7 +236,7 @@
 
 <script>
     const variants = {{ variants }};
-    console.log('variants', variants);
+
     //variantID <-- This is already set in cart_drawer.liquid
     //variantPrice <-- This is already set in cart_drawer.liquid
     //productSKU = document.getElementById("product-sku"); //this is already set in cart_drawer.liquid
@@ -239,19 +245,21 @@
     const ourOfStockWrap = document.getElementById("out-of-stock-wrap");
     let variantSelect = document.querySelectorAll(".variant-select");
 
-    //Extracts and processes the first product option to update the content
-    document.addEventListener("DOMContentLoaded", function() {
-        const productOption = JSON.parse(variants[0].product_options[0]);
-        options = [
-            {
-                product_option_label: productOption.product_option_label,
-                product_option_value: productOption.product_option_value
-            }
+    if (variants.length > 0){
+        //Extracts and processes the first product option to update the content
+        document.addEventListener("DOMContentLoaded", function() {
+                const productOption = JSON.parse(variants[0].product_options[0]);
+                options = [
+                    {
+                        product_option_label: productOption.product_option_label,
+                        product_option_value: productOption.product_option_value
+                    }
 
-        ]
-        // Call the 'updateContent' function with the 'options' array as an argument
-        updateContent(options);
-    });
+                ]
+                // Call the 'updateContent' function with the 'options' array as an argument
+                updateContent(options);
+            });
+    }
 
     variantSelect.forEach(el => {
         el.addEventListener('insValueChange', event => { 
@@ -279,12 +287,8 @@
 
     function updateContent(options){
         let selectedVariant = {};
-        variants.forEach(variant => {    
-            console.log('variant.options', variant.options);
-            console.log('options', options);
-            
+        variants.forEach(variant => {                
             if(arraysEqual(variant.options, options)){
-                console.log('same', variant.regular_price);
                 selectedVariant = variant;                
             } 
         });
@@ -302,14 +306,24 @@
             } else {
                 variantPrice = selectedVariant.regular_price;
                 productPrice.textContent = `$${selectedVariant.regular_price}`;
-                regularProductPrice.textContent = "";
+                if (regularProductPrice) {
+                    regularProductPrice.textContent = "";
+                }
+            
             }
             //Out of Stock Notice
-            console.log('stock_level', selectedVariant.stock_level);
             if(selectedVariant.stock_level < 1){
                 ourOfStockWrap.classList.remove("hide");
             } else {
                 ourOfStockWrap.classList.add("hide");
+            }
+            //Sale tag
+            if(onSaleTag){
+                if(selectedVariant.is_on_sale == true){
+                    onSaleTag.classList.remove("hide");
+                } else {
+                    onSaleTag.classList.add("hide");
+                }
             }
         } else {
             productSKU.textContent = "";
@@ -325,9 +339,6 @@
         // Stringify each object and sort arrays
         const arr1Sorted = arr1.map(obj => JSON.stringify(obj)).sort();
         const arr2Sorted = arr2.map(obj => JSON.stringify(obj)).sort();
-
-        //console.log('arr1Sorted', arr1Sorted);
-        //console.log('arr2Sorted', arr2Sorted);
 
         // Compare each stringified object
         return arr1Sorted.every((value, index) => value === arr2Sorted[index]);
@@ -345,6 +356,7 @@ let prodVarList = {{ raw_product_variants.items.results | json }};
     }
 </style>
 <script>
+    let onSaleTag = document.getElementById('on-sale-tag');
     let eventElement = document.getElementById('variant-list');
     let variantGalleries = document.querySelectorAll(`.variant-gallery`);
     if(eventElement) {

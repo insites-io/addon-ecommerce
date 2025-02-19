@@ -26,6 +26,7 @@
         {% assign parent_categories = all_categories | array_select: parent_category_uuids: '[]' %}
 
         {% session parent_categories = parent_categories %}
+        {% export parent_categories %}
 
         <ul>
             {% for category in parent_categories %}

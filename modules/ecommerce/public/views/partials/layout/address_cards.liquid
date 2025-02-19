@@ -11,8 +11,8 @@
         {%- if data.address_3 and data.address_3 != '' -%}
             {%- assign full_address = full_address | append: data.address_3 | strip | append : ", " -%}
         {%- endif -%}
-        {%- if data.city and data.city != '' -%}
-            {%- assign full_address = full_address | append: data.city | strip -%}
+        {%- if data.suburb and data.suburb != '' -%}
+            {%- assign full_address = full_address | append: data.suburb | strip -%}
         {%- endif -%}
         <div class="large-6 medium-6 small-12 cell">
         
@@ -34,7 +34,7 @@
                 data-address="{{ full_address }}"
                 data-address_1="{{ data.address_1 }}"
                 data-address_2="{{ data.address_2 }}"
-                data-city="{{ data.city }}"
+                data-suburb="{{ data.suburb }}"
                 data-state="{{ data.state }}"
                 data-postcode="{{ data.postcode }}"
                 data-country="{{ data.country }}">

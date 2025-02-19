@@ -16,6 +16,7 @@ query get_order_details (
   ){
     results {
 			
+      created_at
       id
       uuid: property(name: "uuid")      
       order_reference: property(name: "order_reference")
@@ -38,7 +39,7 @@ query get_order_details (
       billing_address_1: property(name: "billing_address_1") 
       billing_address_2: property(name: "billing_address_2") 
       billing_address_3: property(name: "billing_address_3") 
-      billing_city: property(name: "billing_city") 
+      billing_suburb: property(name: "billing_suburb") 
       billing_state: property(name: "billing_state") 
       billing_postcode: property(name: "billing_postcode") 
       billing_country: property(name: "billing_country")   
@@ -74,7 +75,7 @@ query get_order_details (
       shipping_address_1: property(name: "shipping_address_1") 
       shipping_address_2: property(name: "shipping_address_2") 
       shipping_address_3: property(name: "shipping_address_3") 
-      shipping_city: property(name: "shipping_city") 
+      shipping_suburb: property(name: "shipping_suburb") 
       shipping_state: property(name: "shipping_state") 
       shipping_postcode: property(name: "shipping_postcode") 
       shipping_country: property(name: "shipping_country")   

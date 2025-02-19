@@ -16,11 +16,5 @@ query get_orders_to_receive (
     }
   ) {          
     total_entries
-    # results {
-    #   id      
-    #   #properties
-    #   order_contact_uuid: property(name: "order_contact_uuid")
-    #   order_contact_email: property(name: "order_contact_email")
-    # }
   }
 }

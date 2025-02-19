@@ -21,7 +21,6 @@ query get_order_discounts (
       id 
       order_contact_email: property(name: "order_contact_email")      
       discount_code_uuids: property_array(name: "discount_code_uuids")  
-      #properties
     }
   }
 }

@@ -7,7 +7,6 @@ let StripeServices = (function () {
         },
         // delete stripe card
         deleteCreditCard: async function (payload) {
-            console.log(payload)
             let url = `/stripe/delete-credit-card.json`;
             return await apiServices.processRequest('post', url, payload)
         }

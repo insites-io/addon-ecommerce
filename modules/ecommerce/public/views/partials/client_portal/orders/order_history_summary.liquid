@@ -44,7 +44,6 @@
   
 
   function sortHandler(event){
-    console.log('sortHandler', event.detail);
     tableData.sort(TableScript.methods.dynamicKeySort("order_item_name"));
     if(event.detail.order == "desc"){
       tableData.reverse();
@@ -59,6 +58,7 @@
         let variants = product.variants;
         let product_img = data.order_item_image;
         let variation = "";
+        let sub_price = data.item_price * data.quantity;
 
         if(data.sku != product.sku){
           variants.forEach(variant => {
@@ -73,7 +73,7 @@
             "Item Code": data.sku,
             "Variation": variation,
             "Qty": data.quantity,
-            "Price": data.item_price
+            "Price": sub_price
         }
     });
   }

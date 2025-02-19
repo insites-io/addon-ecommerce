@@ -62,6 +62,7 @@
     "page": {{page_num}},
     "size": {{per_page}},
     "keyword": "{{keyword}}",
+    "brand": "{{brand}}",
     "min_price": "{{min_price}}",
     "max_price": "{{max_price}}",
     "category_uuids": {{category_uuid | default: '[]'}},
@@ -73,31 +74,21 @@
         "not_number": 0,
     {%- endif -%}
 
-    {%- comment %} Filter by: brand {% endcomment %}
-    {% if brand and brand != '' %}
-        "brand": "{{brand}}",
-    {%- endif -%}
-
     "sort":{{ sort_by | json }}
 }
 {%- endparse_json -%}
 
 {%- comment -%}
 Step: Call the search GraphQL with the parameters
-<!-- This GraphQL is optimized for the list, thus not including gallery and variant items -->
 {%- endcomment -%}
-{% if brand and brand != '' %}
-    {%- graphql products = 'modules/ecommerce/products/search_products_with_related_record', args: filters -%}
-{% else %}
-    {%- graphql products = 'modules/ecommerce/products/search_products', args: filters -%}
-{% endif %}
+{%- graphql products = 'modules/ecommerce/products/search_products', args: filters -%}
 
 
 {% comment %} Title Heading {% endcomment %}
 <div class="grid-x grid-padding-x">
     <div class="small-10 small-offset-1 cell text-center">
         {%- if keyword and keyword != blank -%}
-            <h1 class="heading-1"><span style="font-weight:400;">Search result for</span> <br>"{{ keyword }}"</h1>
+            <h1 class="heading-1 weight-normal">Search result for <br><b>"{{ keyword }}"</b></h1>
         {%- else -%}
             {%- if params.slug2 -%}
                 <h1 class="heading-1">{{ category_name }}</h1>
@@ -111,19 +102,27 @@ Step: Call the search GraphQL with the parameters
 
 
 
-<div class="product-list grid-x grid-padding-x  {% if total_cat_child == 0 %} align-center {% endif %}">
-    
-    {% comment %} Sidebar Categories {% endcomment %}
+<div class="product-list grid-x grid-padding-x  {% if total_cat_child == 0 %} align-center {% endif %}">    
     <div class="large-3 medium-12 small-12 cell">
-        {%- if context.device.device_type == "smartphone" -%}
-        <div class="spacer"></div>
-        <ins-button label="Categories" icon="icon-sliders" id="mobile-category-button" outlined></ins-button>
-        <div class="spacer small"></div>
-        {%- else -%}
-        <div class="sidebar-categories">        
+        
+        {% comment %} Drawer Categories for Mobile view {% endcomment %}
+        <div class="hide-for-large">
+            <div class="spacer"></div>
+            <ins-button label="Categories" icon="icon-sliders" id="mobile-category-button" outlined></ins-button>
+            <div class="spacer small"></div>
+            <ins-drawer 
+                custom-width="430px"
+                position="right"
+                bordered=false
+                id="mobile-filter-drawer">
+                <div class="wrap">{% comment %} copy #sidebar-categories html via javascript {% endcomment %}</div>
+            </ins-drawer>
+        </div>    
+            
+        {% comment %} Sidebar Categories for Desktop view {% endcomment %}
+        <div class="sidebar-categories show-for-large">        
             {%- include 'modules/ecommerce/products/sidebar_categories' -%}
-        </div>
-        {%- endif -%}
+        </div>        
     </div>
     
 
@@ -145,14 +144,14 @@ Step: Call the search GraphQL with the parameters
 
         <div class="spacer x-large"></div>
 
-        {% include "modules/ecommerce/layout/pagination",  data: products.items, per_page, label: 'Items' %}
+        {% include "modules/ecommerce/layout/pagination",  data: products.items, per_page, label: 'Products' %}
         
         {%- else -%}
 
         <div class="grid-x">
             <div class="small-12 cell text-center">
                 <div class="spacer xxxx-large"></div>
-                <p>No product found.</p>
+                <p>No results found.</p>
             </div>
         </div>
 

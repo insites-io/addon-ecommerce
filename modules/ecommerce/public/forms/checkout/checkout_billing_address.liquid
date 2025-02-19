@@ -8,35 +8,14 @@ flash_notice: "Success-UserAddress-{{ form.properties.submit_type }}"
 fields:
   properties:
     uuid:
-      #validation: 
-      #  presence: true
     related_uuid:
-      #validation: 
-      #  presence: true
     related_type: 
-      #property_options:
-      #  default: "contact"
     address_1:
-      #validation: 
-      #  presence: 
-      #    message: Address is required
     address_2:
-    city:
-      #validation: 
-      #  presence: 
-      #    message: City is required
+    suburb:
     state:
-      #validation: 
-      #  presence: 
-      #    message: State is required
     postcode:
-      #validation: 
-      #  presence: 
-      #    message: Postal code is required
-    country:
-      #validation: 
-      #  presence: 
-      #    message: Country is required    
+    country:  
     submit_type:
       property_options:
         virtual: true
@@ -81,7 +60,7 @@ callback_actions: |-
 
     {%- session billing_address_1 =context.session.shipping_address_1 -%}
     {%- session billing_address_2 = context.session.shipping_address_2 -%}
-    {%- session billing_city = context.session.shipping_city -%}
+    {%- session billing_suburb = context.session.shipping_suburb -%}
     {%- session billing_state = context.session.shipping_state -%}
     {%- session billing_postcode = context.session.shipping_postcode -%}
     {%- session billing_country = context.session.shipping_country -%}
@@ -97,7 +76,7 @@ callback_actions: |-
 
     {%- session billing_address_1 = prop.address_1 -%}
     {%- session billing_address_2 = prop.address_2 -%}
-    {%- session billing_city = prop.city -%}
+    {%- session billing_suburb = prop.suburb -%}
     {%- session billing_state = prop.state -%}
     {%- session billing_postcode = prop.postcode -%}
     {%- session billing_country = prop.country -%}
@@ -118,7 +97,6 @@ callback_actions: |-
 {% endif %}
 
 {% assign prop = form.fields.properties %}      
-{% log context.session., type: "==== context.session in checkout_billing====" %}
 {%- form 
   html-id: "billing-address-form"
   html-novalidate: true
@@ -148,7 +126,7 @@ callback_actions: |-
   <input type="hidden" id="hidden-shipping-mobile-number"value="{{ context.session.shipping_contact_phone_number }}" >
   <input type="hidden" id="hidden-shipping-address-1"value="{{ context.session.shipping_address_1 }}" >
   <input type="hidden" id="hidden-shipping-address-2"value="{{ context.session.shipping_address_2 }}" >
-  <input type="hidden" id="hidden-shipping-city"value="{{ context.session.shipping_city }}" >
+  <input type="hidden" id="hidden-shipping-suburb"value="{{ context.session.shipping_suburb }}" >
   <input type="hidden" id="hidden-shipping-state"value="{{ context.session.shipping_state }}" >
   <input type="hidden" id="hidden-shipping-postcode"value="{{ context.session.shipping_postcode }}" >
   <input type="hidden" id="hidden-shipping-country"value="{{ context.session.shipping_country }}" >
@@ -321,14 +299,14 @@ callback_actions: |-
             </ins-input>
           </div>
           <div class="large-6 medium-6 small-12 cell">
-            <ins-input data-billing-address-field 
-              label="City" 
-              id="billing_city" 
-              placeholder="City"
-              name="{{ prop.city.name }}"
-              value="{{ context.session.billing_city }}" 
-              {% if form.errors['properties.city'] %} has-error {% endif %}
-              error-message="{{ prop.city.validation.rules.presence.message }}">
+            <ins-input data-billing-address-field validate
+              label="Suburb*" 
+              id="billing_suburb" 
+              placeholder="Suburb"
+              name="{{ prop.suburb.name }}"
+              value="{{ context.session.billing_suburb }}" 
+              {% if form.errors['properties.suburb'] %} has-error {% endif %}
+              error-message="{{ prop.suburb.validation.rules.presence.message }}">
             </ins-input>
           </div>
           <div class="large-6 medium-6 small-12 cell">
@@ -344,9 +322,9 @@ callback_actions: |-
           </div>
           <div class="large-6 medium-6 small-12 cell">
             <ins-input data-billing-address-field required validate 
-              label="Zip / Postal Code*" 
+              label="Postcode*" 
               id="billing_postcode"
-              placeholder="Zip / Postal Code" 
+              placeholder="Postcode" 
               name="{{ prop.postcode.name }}"
               value="{{ context.session.billing_postcode }}"
               {% if form.errors['properties.postcode'] %} has-error {% endif %}
@@ -382,6 +360,7 @@ callback_actions: |-
           <ins-button solid type="button" label="Back" outlined></ins-button>
         </a>
       </div>
+      <div class="show-for-small-only spacer xxx-large"></div> 
       <div class="large-6 medium-6 small-12 cell text-right">        
         <ins-button solid 
           id="billing-submit-button" 

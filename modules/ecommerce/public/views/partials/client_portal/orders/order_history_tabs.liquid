@@ -1,4 +1,4 @@
-<div style="margin-top:-40px;">
+<div>
     <div class="spacer x-large show-for-small-only"></div>
     <a href="/order-history">
         <ins-button label="Go Back" icon="icon-arrow-back" class="inline"></ins-button>
@@ -56,7 +56,8 @@
       "product_uuid": "{{ item.product_uuid }}",
       "product_sku": "{{ item.sku }}",
       "product_name": "{{ item.product.product_name }}",
-      "price": "{{ price | default: 0 }}"
+      "price": "{{ price | default: 0 }}",
+      "quantity": "{{ item.quantity | default: 1 }}"
   }
   {% endparse_json %}
   {% assign reorder_items = reorder_items | array_add: reorder_data %}
@@ -78,6 +79,8 @@
 
       <div class="spacer x-small hide-for-large cell"></div>
 
+      {% comment %} Downloads {% endcomment %}
+      {% comment %} Uncomment the code below to enable 'Downloads' {% endcomment %}
       {% comment %}  
       <ins-dropdown 
         id="downloads-dropdown"     

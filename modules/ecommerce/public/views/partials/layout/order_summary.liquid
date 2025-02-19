@@ -23,14 +23,18 @@
 {%- endif -%}
 
 
-<div class="order-summary-wrapper">
+{% comment %} No items in the Cart: Do not allow user to enter checkout pages {% endcomment %}
+{%- if carts == null or carts.size <= 0 -%}
+    {%- if context.params.slug == 'checkout' -%}
+        {% redirect_to '/products' %}
+    {%- endif -%}
+{%- endif -%}
 
+
+<div id="order-summary-main-wrap" class="show-for-medium">
     
     {% unless no_heading %}
-        <h2 class="color-font-sub heading-2">
-            {%- if context.location.pathname == '/confirmation' -%}
-            Payment {% else %} Order {% endif %} Summary
-        </h2>
+        <h2 class="color-font-sub heading-2">Order Summary</h2>
         <div class="spacer x-large"></div>
     {% endunless %}
         
@@ -242,7 +246,7 @@
     {% comment %} Tax {% endcomment %}
     <div class="grid-x grid-padding-x">
         <div class="large-6 medium-6 small-6 cell">
-            <p class="font-color-sub">Tax</p>
+            <p class="font-color-sub" id="summary_tax_label">{{ computed.tax_label | default: 'Tax' }}</p>
         </div>
         <div class="large-6 medium-6 small-6 cell text-right">
             {%- assign tax_amount = computed.tax_amount | advanced_format: '%.2f' | default: "0.00" -%}
@@ -271,4 +275,55 @@
             <p id="summary_total" class="order-total">{{ total_amount }}</p>
         </div>
     </div>
+
+    {% if context.params.slug == 'shopping-cart' %}
+    <div class="spacer x-large"></div>
+    <div class="notes-wrap">
+        <p class="body-x-small bold">Notes</p>
+        <ul class="body-x-small">
+            <li>Shipping costs will be calculated during checkout.</li>
+            <li>Tax and processing fees may be adjusted based on the shipping cost.</li>
+        </ul>
+    </div>
+    {% endif %}
+
 </div>
+
+<div id="mobile-order-summary" class="show-for-small-only">
+    <div class="total">
+        <p class="color-ui-05 body-x-small">Total</p>
+        <p class="order-total">$3,318.30</p>
+    </div>
+    <ins-button type="button" id="view-order-summary-btn" label="VIEW ORDER SUMMARY"></ins-button>
+</div>
+
+<ins-drawer 
+  custom-width="430px" 
+  position="right" 
+  bordered=false
+  id="order-summary-drawer"
+  class="mobile-order-summary inline">
+    <div id="order-summary-drawer-content">       
+
+    </div>
+    {% if context.params.slug != 'checkout' %}
+    <div class="spacer x-large"></div>
+    <ins-button label="PROCEED TO CHECKOUT" solid color="blue" class="checkoutBtn proceed-to-checkout-btn full" onclick="document.location.href = '/checkout';"></ins-button>
+    {% endif %}
+</ins-drawer>
+
+<script>
+    let orderSummaryMainWrap = document.getElementById('order-summary-main-wrap');
+    let orderSummaryHtmlContent = orderSummaryMainWrap.innerHTML;
+    let viewOrderSummaryBtn = document.getElementById('view-order-summary-btn');
+    let orderSummaryDrawer = document.getElementById('order-summary-drawer');
+    let orderSummaryDrawerContent = document.getElementById('order-summary-drawer-content');    
+    
+    // Replace 'id' with 'data'
+    let modifiedHTML = orderSummaryHtmlContent.replace(/\bid="([^"]+)"/g, 'data="$1"');
+
+    viewOrderSummaryBtn.addEventListener('insClick', async event => {
+        orderSummaryDrawer.setDrawerState(true); 
+        orderSummaryDrawerContent.innerHTML = modifiedHTML;
+    });    
+</script>

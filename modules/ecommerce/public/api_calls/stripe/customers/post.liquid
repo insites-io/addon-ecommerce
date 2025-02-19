@@ -6,7 +6,6 @@ trigger_condition: true
 request_type: POST
 callback: >
   {%- assign response_data = response.body | to_hash -%}
-  {%- log response_data, type: '==TEST customers response_data' -%}
   {% if response_data.error %}
     {%- log response_data.error, type: 'post > create_customer' -%}
   {% endif %}
@@ -14,7 +13,6 @@ request_headers: >
   {% if data %}
     {% if data %}
     {% function stripe_settings = "modules/client/stripe/get_stripe_settings" %}
-    {%- log stripe_settings.sk_key, type: '==TEST stripe_settings.sk_key' -%}
     {
       "Content-Type": "application/x-www-form-urlencoded",
       "Authorization": "Bearer {{ stripe_settings.sk_key }}"

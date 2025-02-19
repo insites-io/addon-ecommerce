@@ -20,7 +20,6 @@ query get_discount_by_code (
     current_page
     results {
       id 
-      #properties
       uuid: property(name: "uuid")
       usage_count: property_int(name: "usage_count")
       usage_limit: property_int(name: "usage_limit")

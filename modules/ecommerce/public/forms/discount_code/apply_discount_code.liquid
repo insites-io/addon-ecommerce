@@ -12,6 +12,19 @@ fields:
         temp_discount_code:
             property_options:
                 virtual: true
+callback_actions: >
+    {%- parse_json payload -%}
+    {
+        "check_duplicates": true,
+        "form_update": true,
+        "form_delete": true,
+        "form_id": "{{ form.id }}",
+        "contact_uuid": "{{ form.properties.contact_uuid }}",
+        "discount_code": "{{ form.properties.temp_discount_code }}"
+    }
+    {%- endparse_json -%}
+    {% include "modules/ecommerce/checkout/validate_discount_code" 
+        payload: payload %}
 ---
 
 {% comment %} Get the user uuid {% endcomment %}

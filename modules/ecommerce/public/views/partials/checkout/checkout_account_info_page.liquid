@@ -31,9 +31,6 @@
                 id: context.current_user.id, 
                 input_company_name: company_name,
                 data %}
-        {%- else -%}
-            {% comment %} {% include_form 'modules/ecommerce/checkout_create_user',
-                input_company_name: company_name %} {% endcomment %}
         {%- endif -%}
     </div>
     <div class="large-4 large-offset-1 medium-12 small-12 cell">

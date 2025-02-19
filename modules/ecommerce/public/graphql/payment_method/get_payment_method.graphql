@@ -21,8 +21,7 @@ query get_payment_method (
     total_pages
     current_page
     results {
-      id
-      #properties       
+      id      
       card_brand: property(name: "card_brand")
       card_last_four_digits: property(name: "card_last_four_digits")
       card_expiry_month: property(name: "card_expiry_month")

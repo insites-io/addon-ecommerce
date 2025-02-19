@@ -38,8 +38,8 @@
                     {%- if order.billing_address_3 and order.billing_address_3 != '' -%}
                         {%- assign billing_address = billing_address | array_add: order.billing_address_3 -%}
                     {%- endif -%}
-                    {%- if order.billing_city and order.billing_city != '' -%}
-                        {%- assign billing_address = billing_address | array_add: order.billing_city -%}
+                    {%- if order.billing_suburb and order.billing_suburb != '' -%}
+                        {%- assign billing_address = billing_address | array_add: order.billing_suburb -%}
                     {%- endif -%}
                     {%- if order.billing_state and order.billing_state != '' -%}
                         {%- assign billing_address = billing_address | array_add: order.billing_state -%}
@@ -105,8 +105,8 @@
                     {%- if order.shipping_address_3 and order.shipping_address_3 != '' -%}
                         {%- assign shipping_address = shipping_address | array_add: order.shipping_address_3 -%}
                     {%- endif -%}
-                    {%- if order.shipping_city and order.shipping_city != '' -%}
-                        {%- assign shipping_address = shipping_address | array_add: order.shipping_city -%}
+                    {%- if order.shipping_suburb and order.shipping_suburb != '' -%}
+                        {%- assign shipping_address = shipping_address | array_add: order.shipping_suburb -%}
                     {%- endif -%}
                     {%- if order.shipping_state and order.shipping_state != '' -%}
                         {%- assign shipping_address = shipping_address | array_add: order.shipping_state -%}

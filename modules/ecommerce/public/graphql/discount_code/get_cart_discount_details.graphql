@@ -32,7 +32,6 @@ query get_cart_discount_details (
       id 
       created_at
       updated_at
-      # properties
       discounted_cart_ids: property_array(name: "discounted_cart_ids")
       cart_details: related_records(
         table: "modules/insites_ecommerce/cart"

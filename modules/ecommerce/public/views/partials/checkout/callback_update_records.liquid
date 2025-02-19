@@ -42,9 +42,11 @@
 {% assign user_cart = context.exports.user_cart %}
 
 
-{%- comment -%} Delete user cart {%- endcomment -%}
-{% graphql delete_cart = 'modules/ecommerce/carts/delete_cart', id: user_cart.id %}
-
+{%- comment -%} Delete the user cart if the status is not 'failed'. {%- endcomment -%}
+{% assign tmp_order_payment_status = order_payment_status | downcase %}
+{% unless tmp_order_payment_status contains 'failed' %}
+    {% graphql delete_cart = 'modules/ecommerce/carts/delete_cart', id: user_cart.id %}
+{% endunless %}
 
 
 {%- if status == 'success' -%}    

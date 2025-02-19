@@ -7,7 +7,7 @@
 {%- session shipping_address_1 = null -%}
 {%- session shipping_address_2 = null -%}
 {%- session shipping_address_2 = null -%}
-{%- session shipping_city = null -%}
+{%- session shipping_suburb = null -%}
 {%- session shipping_state = null -%}
 {%- session shipping_postcode = null -%}
 {%- session shipping_country = null -%}
@@ -33,7 +33,7 @@
 {%- session billing_address_1 = null -%}
 {%- session billing_address_2 = null -%}
 {%- session billing_address_3 = null -%}
-{%- session billing_city = null -%}
+{%- session billing_suburb = null -%}
 {%- session billing_state = null -%}
 {%- session billing_postcode = null -%}
 {%- session billing_country = null -%}
@@ -45,18 +45,7 @@
 
 
 {% comment %} Clear guest session data when available {% endcomment %}
-{% if context.session.guest_info %}
-    {%- session context.session.guest_info = null -%}
-{% endif %}
-
-{% if context.session.guest_cart %}
-    {%- session context.session.guest_cart = null -%}
-{% endif %}
-
-{% if context.session.guest_products %}
-    {%- session context.session.guest_products = null -%}
-{% endif %}
-
-{% if context.session.guest_order_summary %}
-    {%- session context.session.guest_order_summary = null -%}
-{% endif %}
+{%- session guest_info = null -%}
+{%- session guest_cart = null -%}
+{%- session guest_products = null -%}    
+{%- session guest_order_summary = null -%}

@@ -21,7 +21,6 @@ query get_settings (
       inventory_tracking: property_boolean(name: "inventory_tracking") 
       weight_unit: property(name: "weight_unit")      
       measurement_unit: property(name: "measurement_unit")
-      #properties
     }
   }
 }

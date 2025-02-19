@@ -86,8 +86,8 @@ metadata: {
                 user_cart, carts, products %}
             <div class="spacer x-large"></div>
 
-            <div id="proceed-to-checkout" class="text-right {% if carts == blank %}hide{% endif %}">
-                <ins-button id="proceed-to-checkout-btn" label="PROCEED TO CHECKOUT" solid color="blue" class="checkoutBtn" onclick="document.location.href = '/checkout';"></ins-button>
+            <div id="proceed-to-checkout" class="show-for-medium text-right {% if carts == blank %}hide{% endif %}">
+                <ins-button label="PROCEED TO CHECKOUT" solid color="blue" class="checkoutBtn proceed-to-checkout-btn" onclick="document.location.href = '/checkout';"></ins-button>
             </div>
 
             <div class="spacer x-large"></div>
@@ -98,12 +98,13 @@ metadata: {
                     assign cart_id = user_cart.id   
                 endif
 
+                ## NOTE: Comment out this code as we temporarily remove the discount code feature.
                 ## Include discount code form based on cart availability
-                if cart_id 
-                    include_form 'modules/ecommerce/apply_discount_code', id: cart_id 
-                else 
-                    include_form 'modules/ecommerce/apply_discount_code'
-                endif
+                ##if cart_id 
+                ##    include_form 'modules/ecommerce/apply_discount_code', id: cart_id 
+                ##else 
+                ##    include_form 'modules/ecommerce/apply_discount_code'
+                ##endif
             %}
         </div>
     </div>

@@ -14,7 +14,6 @@ query get_localisation (
     total_entries
     results {
       id            
-      #properties      
       date_format: property(name: "date_format")
       time_format: property(name: "time_format")
       is_daylight_savings_time: property_boolean(name: "is_daylight_savings_time") 

@@ -94,8 +94,8 @@ var AddressLookup = (function () {
                                     document.getElementById(`${name}_address_2`).value += item['long_name'] + " ";
 
                             } else {
-                                if(document.getElementById(`${name}_city`))
-                                    document.getElementById(`${name}_city`).value = item['long_name'] + " ";
+                                if(document.getElementById(`${name}_suburb`))
+                                    document.getElementById(`${name}_suburb`).value = item['long_name'] + " ";
                             }
                             break;
 
@@ -106,8 +106,8 @@ var AddressLookup = (function () {
 
                         case "administrative_area_level_2":
                             if (address.length <= 7){
-                                if(document.getElementById(`${name}_suburb`))
-                                    document.getElementById(`${name}_suburb`).value =  item['long_name'] + " ";
+                                if(document.getElementById(`${name}_state`))
+                                    document.getElementById(`${name}_state`).value =  item['long_name'] + " ";
                               } else {
                                 if(document.getElementById(`${name}_state`))
                                     document.getElementById(`${name}_state`).value =  item['long_name'] + " ";
@@ -159,7 +159,7 @@ var AddressLookup = (function () {
                         let searchAddressField = new google.maps.places.Autocomplete(lookupField);
 
                         // Set initial restrict to the listed countries
-                        //searchAddressField.setComponentRestrictions({ country: ["au"] });
+                        searchAddressField.setComponentRestrictions({ country: ["au"] });
 
                         // Fill address event
                         searchAddressField.addListener('place_changed', (event) => {

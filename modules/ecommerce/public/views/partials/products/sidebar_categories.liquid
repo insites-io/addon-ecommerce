@@ -30,29 +30,12 @@
     endif
 -%}
 
-{%- if device == 'mobile' -%}    
-<ins-drawer 
-    show-header="false" 
-    position="right"
-    id="mobile-filter-drawer">
-{%- endif -%}
-
-
-<div class="grid-x">
-    {%- if device == 'mobile' -%} 
-    <div class="small-12 cell">
-        <div class="text-right align-right">
-            <ins-button label="" icon="icon-close-1" id="mobile-filter-cls"></ins-button>
-        </div>
-    </div>
-    {%- endif -%}
 
     {%- comment -%} 
         Step 1: Loop on Top Categories
         Step 2: If current category in the loop has child, use 'ins-accordion'
         Setp 3: Else use only <a/> tag
     {%- endcomment -%}
-    <div class="small-12 cell">
         <div id="sidebar-categories" class="sub-category no-icons">
             <a href="/products" {% unless params.slug2 %}class="active"{% endunless %}>
                 <span class="ui-sidebar" >All Products</span>
@@ -93,10 +76,3 @@
             {%- endfor -%}
         </div>
         <div class="spacer x-large"></div>
-
-    </div>
-</div>
-{%- if device == 'mobile' -%}
-</ins-drawer>
-{%- endif -%}
-

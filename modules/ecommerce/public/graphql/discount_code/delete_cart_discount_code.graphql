@@ -4,7 +4,6 @@ mutation delete_cart_discount_code ($id: ID!) {
   ) {
     id
     deleted_at
-    # table: model_schema_name
     properties
   }
 }

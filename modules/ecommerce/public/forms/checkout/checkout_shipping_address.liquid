@@ -8,35 +8,16 @@ flash_notice: "Success-UserAddressShipping"
 fields:
   properties:
     uuid:
-      #validation: 
-      #  presence: true
     related_uuid:
-      #validation: 
-      #  presence: true
     related_type: 
       property_options:
         default: "contact"
     address_1:
-      #validation: 
-      #  presence: 
-      #    message: Address is required
     address_2:
-    city:
-      #validation: 
-      #  presence: 
-      #    message: City is required
+    suburb:
     state:
-      #validation: 
-      #  presence: 
-      #    message: State is required
     postcode:
-      #validation: 
-      #  presence: 
-      #    message: Postal code is required
-    country:
-      #validation: 
-      #  presence: 
-      #    message: Country is required     
+    country:     
     same_shipping:
       property_options:
         virtual: true 
@@ -72,7 +53,7 @@ callback_actions: |-
   {%- session same_shipping = prop.same_shipping -%}
   {%- session shipping_address_1 = prop.address_1 -%}
   {%- session shipping_address_2 = prop.address_2 -%}
-  {%- session shipping_city = prop.city -%}
+  {%- session shipping_suburb = prop.suburb -%}
   {%- session shipping_state = prop.state -%}
   {%- session shipping_postcode = prop.postcode -%}
   {%- session shipping_country = prop.country -%}
@@ -181,7 +162,7 @@ callback_actions: |-
       </div>
       <div class="large-6 medium-6 small-12 cell">
         <ins-input required validate shipping-details-field
-          label="Email Address**" 
+          label="Email Address*" 
           placeholder="Email Address*" 
           field="email"
           name="{{ prop.shipping_contact_email.name }}" 
@@ -189,7 +170,6 @@ callback_actions: |-
           value="{{ context.session.shipping_contact_email | default: ''}}"
           {% if form.errors['properties.shipping_contact_email'] %} has-error {% endif %}
           error-message="{{ prop.shipping_contact_email.validation.rules.presence.message }}"
-          tooltip="You will receive notifications to this email address if you have selected Yes to receive freight quotes"
           position="right">
         </ins-input>
       </div>
@@ -288,13 +268,13 @@ callback_actions: |-
           </div>
           <div class="large-6 medium-6 small-12 cell">
             <ins-input 
-              label="City" 
-              id="shipping_city" 
-              placeholder="City"
-              name="{{ prop.city.name }}"
-              value="{{ context.session.shipping_city }}" 
-              {% if form.errors['properties.city'] %} has-error {% endif %}
-              error-message="{{ prop.city.validation.rules.presence.message }}">
+              label="Suburb*" 
+              id="shipping_suburb" 
+              placeholder="Suburb"
+              name="{{ prop.suburb.name }}"
+              value="{{ context.session.shipping_suburb }}" 
+              {% if form.errors['properties.suburb'] %} has-error {% endif %}
+              error-message="{{ prop.suburb.validation.rules.presence.message }}">
             </ins-input>
           </div>
           <div class="large-6 medium-6 small-12 cell">
@@ -310,9 +290,9 @@ callback_actions: |-
           </div>
           <div class="large-6 medium-6 small-12 cell">
             <ins-input  required validate 
-              label="Zip / Postal Code*" 
+              label="Postcode*" 
               id="shipping_postcode"
-              placeholder="Zip / Postal Code" 
+              placeholder="Postcode" 
               name="{{ prop.postcode.name }}"
               value="{{ context.session.shipping_postcode }}"
               {% if form.errors['properties.postcode'] %} has-error {% endif %}
@@ -362,6 +342,7 @@ callback_actions: |-
           <ins-button solid type="button" label="Back" outlined></ins-button>
         </a>
       </div>
+      <div class="show-for-small-only spacer xxx-large"></div>    
       <div class="large-6 medium-6 small-12 cell text-right">        
         <ins-button solid 
           id="shipping-submit-button" 

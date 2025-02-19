@@ -75,7 +75,6 @@ metadata: {
         }
         {%- endparse_json -%}
         {%- graphql new_user = 'modules/ecommerce/user/create_user', args: new_user_data -%}
-        {% log new_user, type: "Guest user created" %}
 
         {%- assign user = new_user.user -%}
         {%- assign user_uuid = user.user_uuid -%}
@@ -94,7 +93,6 @@ metadata: {
         }
         {%- endparse_json -%}    
         {%- graphql update_contact = 'modules/ecommerce/system/trigger_api_call', name: 'modules/client/update_contact', data: crm_data | dig: 'items','response','body' | parse_json -%}
-        {% log update_contact, type: "Existing guest user updated" %}
 
     {% endif %}
 
@@ -131,7 +129,6 @@ metadata: {
         }
         {%- endparse_json -%}
         {%- include 'modules/ecommerce/stripe/credit_cards/create_credit_card', data: data -%}
-        {% log data, type: "Stripe card created for logged-in user with existing Stripe ID" %}
     {% else %}
         {% comment %} Create a new Stripe customer. {% endcomment %}
         {%- parse_json customer_data -%}
@@ -145,7 +142,6 @@ metadata: {
 
         {%- assign stripe_customer_response = create_stripe_customer.body | parse_json -%}
         {%- assign stripe_customer_id = stripe_customer_response.id -%}
-        {% log stripe_customer_id, type: "Logged-in user does not have a Stripe ID, new Stripe customer created" %}
 
         {% if email_exist == true %}
             {% comment %} Save the Stripe ID in CRM. {% endcomment %}
@@ -157,7 +153,6 @@ metadata: {
             }
             {%- endparse_json -%}    
             {%- graphql update_contact = 'modules/ecommerce/system/trigger_api_call', name: 'modules/client/update_contact', data: crm_data | dig: 'items','response','body' | parse_json -%}
-            {% log update_contact, type: "Logged-in user Stripe ID saved to CRM" %}
         {% else %}
             {% log "Error: Logged-in user has no CRM data" %}
         {% endif %}

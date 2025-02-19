@@ -1,7 +1,8 @@
 {%- if carts.size > 0 -%}
     <h2>Cart Items</h2>
-    <div class="spacer x-large"></div>
-    <div id="shopping-cart-list" class="shopping-cart grid-y">
+    <div class="spacer x-large"></div>    
+    <div id="shopping-cart-list">
+        <div class="wrap shopping-cart grid-y">
 
         {%- for item in carts -%}          
 
@@ -15,20 +16,22 @@
                     <div class="spacer x-large"></div>
                 {% endif %}
                 <div class="grid-x" >
-                    <div class="img-wrap" style="width:88px;">
+                    <div class="img-wrap">
                         {% if cart.selected_prop.product_image.url %}
                             <img  src="{{ cart.selected_prop.product_image.url }}" alt="{{ cart.product_name }}" >
                         {% else %}
                             {% include 'modules/website/layout/placeholder_image', size: 'medium' %}
                         {% endif %}
                     </div>
-                    <div class="flex-grow-1">
-                        <h6>
-                            {{ cart.product_name }} 
-                            {% if cart.selected_prop.stock_level < 1 %}
-                            <ins-tag label="Pre-Order" class='preorder-tag body-x-small' ></ins-tag>
-                            {% endif %}
-                        </h6> 
+                    <div class="text-wrap">
+                        <a href="/products/{{ cart.slug }}">
+                            <h6>
+                                {{ cart.product_name }} 
+                                {% if cart.selected_prop.stock_level < 1 %}
+                                <ins-tag label="Pre-Order" class='preorder-tag body-x-small' ></ins-tag>
+                                {% endif %}
+                            </h6> 
+                        </a>
                         <p class="body-small">SKU: {{ item.product_sku }}</p>
                         <div class="spacer small"></div>
                         {% comment %} Get variant info {% endcomment %}
@@ -90,13 +93,14 @@
             
         {%- endfor -%}
         
+        </div>
     </div>
     <ins-loader
         id="shopping-cart-loader"
+        class="hide"
         state-title="Processing"
         state-message="Please wait, we're processing your data."
-        state-icon="processing"
-        style="display: none;">
+        state-icon="processing">
     </ins-loader>
 {%- else -%}
 
@@ -117,10 +121,10 @@
         
         <ins-loader
             id="shopping-guest-cart-loader"
+            class="hide"
             state-title="Processing"
             state-message="Please wait, we're processing your data."
-            state-icon="processing"
-            style="display: none;">
+            state-icon="processing">
         </ins-loader>
 
     {%- endif -%}

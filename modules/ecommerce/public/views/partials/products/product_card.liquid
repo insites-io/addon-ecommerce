@@ -35,10 +35,18 @@
                 <div class="out-of-stock"></div>
             {% endif %}
             {% if selected_prop.is_on_sale == true %}
-                <div class="on-sale-tag">SALE</div>
+                <div class="sale-tag">SALE</div>
             {% endif %}
             {% if product.product_image.url %}
-                <img  src="{{ product.product_image.url }}" alt="{{ product.product_name }}" >
+                {% assign image_url = product.product_image.url %}
+                {% assign base_url = image_url | split: '/' %}
+                {% assign filename = base_url.last %}
+                
+                <!-- Manually encode only the filename part -->
+                {% assign encoded_filename = filename | replace: ' ', '%20' | replace: ';', '%3B' %}
+                
+                <!-- Rebuild the URL without encoding the base URL -->
+                <img src="{{ image_url | remove: filename }}{{ encoded_filename }}" alt="{{ product.product_name }}">
             {% else %}
                 {% include 'modules/website/layout/placeholder_image', size: 'medium' %}
             {% endif %}
@@ -68,10 +76,11 @@
                         "id": "{{ selected_prop.id }}",
                         "product_uuid": "{{ product.uuid }}",
                         "product_sku": "{{ selected_prop.sku }}",
-                        "product_name": "{{ product.product_name }}",
+                        "product_name": "{{ product.product_name | replace: "'", "`"}}",
                         "price": "{{ price | default: 0 }}"
                     }
                     {% endparse_json %}
+
                     <ins-button class="full add-to-cart-btn" label="Add to Cart" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
                     <div class="spacer x-small"></div>
                     <a href="/products/{{ product.slug }}">

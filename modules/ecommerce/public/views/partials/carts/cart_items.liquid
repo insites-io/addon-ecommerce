@@ -14,7 +14,6 @@
     {% comment %} Guest: Get cart items {% endcomment %}
     {% assign carts = context.session.guest_cart %}
     {% assign products = context.session.guest_products %}
-    {% assign user_cart = context.session.guest_discount %}
 {% else %}
     {% comment %} Get the user uuid {% endcomment %}
     {%- if user_uuid == '' or user_uuid == blank -%}

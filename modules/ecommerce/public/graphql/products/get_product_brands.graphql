@@ -3,19 +3,18 @@ query get_product_brands($page: Int = 1, $size: Int = 100) {
     page: $page
     per_page: $size
     filter: {
-      table: {value_in: ["modules/ins_ecommerce/product_custom_field"]}, 
-      properties: [{name: "brand", exists: true}]
+      table: {value_in: ["modules/insites_ecommerce/ecommerce_system_field"]}, 
+      properties: [{name: "system_field", value: "brand"}]
     }
     sort: {
-      properties: [{name: "brand", order: ASC}]
+      properties: [{name: "value", order: ASC}]
     }
   ) {
     total_entries
     total_pages
     current_page
     results {
-      id
-      brand: property(name: "brand")
+      brand: property(name: "value")
     }
   }
 }

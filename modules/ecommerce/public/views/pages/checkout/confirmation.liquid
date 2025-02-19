@@ -11,8 +11,7 @@ metadata: {
     "meta_title": "Checkout - Order Successful"       
 }
 authorization_policies:
-#    - modules/ecommerce/order_created_date_valid 
-#    - modules/ecommerce/customer_logged_in  ## commented out to allow 'guest customer' to view order confirmation
+    - modules/ecommerce/order_created_date_valid
 ---
 {% assign order_uuid = context.params.id %}
 {% if order_uuid != blank %}
@@ -71,8 +70,8 @@ authorization_policies:
     endif 
 %}
 
-{% comment %} context.current_user.id == order.user_id {% endcomment %}
-{%- if true -%}
+
+{%- if order -%}
 
     <div class="grid-x grid-padding-x">
         <div class="large-12 medium-12 small-12 cell text-center">
@@ -115,8 +114,8 @@ authorization_policies:
                         {%- if order.shipping_address_3 and order.shipping_address_3 != '' -%}
                             {%- assign shipping_address = shipping_address | append: order.shipping_address_3 | append : ", " -%}
                         {%- endif -%}
-                        {%- if order.shipping_city and order.shipping_city != '' -%}
-                            {%- assign shipping_address = shipping_address | append: order.shipping_city | append : ", " -%}
+                        {%- if order.shipping_suburb and order.shipping_suburb != '' -%}
+                            {%- assign shipping_address = shipping_address | append: order.shipping_suburb | append : ", " -%}
                         {%- endif -%}
                         {%- if order.shipping_state and order.shipping_state != '' -%}
                             {%- assign shipping_address = shipping_address | append: order.shipping_state | append : " " -%}
@@ -151,8 +150,8 @@ authorization_policies:
                         {%- if order.billing_address_3 and order.billing_address_3 != '' -%}
                             {%- assign billing_address = billing_address | append: order.billing_address_3 | append : ", " -%}
                         {%- endif -%}
-                        {%- if order.billing_city and order.billing_city != '' -%}
-                            {%- assign billing_address = billing_address | append: order.billing_city | append : ", " -%}
+                        {%- if order.billing_suburb and order.billing_suburb != '' -%}
+                            {%- assign billing_address = billing_address | append: order.billing_suburb | append : ", " -%}
                         {%- endif -%}
                         {%- if order.billing_state and order.billing_state != '' -%}
                             {%- assign billing_address = billing_address | append: order.billing_state | append : " " -%}

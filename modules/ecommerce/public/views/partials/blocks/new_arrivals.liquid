@@ -2,7 +2,7 @@
     <div class="spacer xxxx-large"></div>
     <div class="product-carousel large-offset-1">
 
-        {% graphql products = "modules/ecommerce/products/get_products" | dig: 'items','results' %}        
+        {% graphql products = "modules/ecommerce/products/get_products", size: 8 | dig: 'items','results' %}        
         
 
         <!-- desktop carousel -->
@@ -18,7 +18,7 @@
             <div class="spacer xx-large"></div>
             <div id="newArrivalCardsDesktop" class="product-cards">
                 {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product %}
+                    {% include "modules/ecommerce/products/product_card", product: product, all_categories: context.exports.all_categories %}
                 {% endfor %}
             </div>
             
@@ -50,27 +50,25 @@
         <!-- tablet carousel -->
 
         <!-- mobile carousel -->
-        <ins-carousel 
-            id="newArrivalsCarouselMobile"
-            class="newArrivalsCarousel carouselMobile show-for-small-only"
-            layout="1"
-            per-page="1"
-            no-pagination=true
-            bind-to="newArrivalCardsMobile">
+        <div class="wrapper">
+            <ins-carousel 
+                id="newArrivalsCarouselMobile"
+                class="newArrivalsCarousel carouselMobile show-for-small-only"
+                layout="1"
+                per-page="1"
+                no-pagination=true
+                bind-to="newArrivalCardsMobile">
+                
+                <h2>New Arrivals</h2>
 
-            <div class="grid-container">
-                <div class="grid-x">
-                    <h2>New Arrivals</h2>     
+                <div class="spacer"></div>
+                <div id="newArrivalCardsMobile" class="product-cards">
+                    {% for product in products %}
+                        {% include "modules/ecommerce/products/product_card", product: product %}
+                    {% endfor %}
                 </div>
-            </div>
-
-            <div class="spacer xx-large"></div>
-            <div id="newArrivalCardsMobile" class="product-cards">
-                {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product %}
-                {% endfor %}
-            </div>
-        </ins-carousel>
+            </ins-carousel>
+        </div>
         <!-- mobile carousel -->
 
     </div>
@@ -87,7 +85,7 @@ newArrivalsCarousel.forEach(carousel => {
         var carouselCtrlBtns = document.querySelector(`#${carouselID} .ins-carousel_ctrl-btns`);  
         if(carouselCtrlBtns && showAllLink[carouselID] !== true){            
             var newLink = document.createElement('a');
-                newLink.href = "/";
+                newLink.href = "/products";
                 newLink.textContent = "Shop All";
                 newLink.className = "shop-all-link"; 
             carouselCtrlBtns.appendChild(newLink);  

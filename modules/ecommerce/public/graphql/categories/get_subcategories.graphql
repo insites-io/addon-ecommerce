@@ -26,7 +26,6 @@ query get_subcategories (
     current_page
     results {
       id             
-      #properties
 			uuid: property(name: "uuid")
       slug: property(name: "slug")
       category_name: property(name: "category_name")

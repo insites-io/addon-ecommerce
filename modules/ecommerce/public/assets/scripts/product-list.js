@@ -51,7 +51,9 @@ let productList = (function () {
 
                 if(keywordInput){
                     keywordInput.addEventListener('insInput', productList.methods.keywordInputEvent);
-                    keywordInput.addEventListener('insIconClick', productList.methods.keywordInputEvent);
+                    keywordInput.addEventListener('insIconClick', function(event) {
+                        productList.methods.keywordInputEvent(event, 'iconClick');
+                    });
                 }
 
             },
@@ -81,9 +83,11 @@ let productList = (function () {
                     if(btnId == 'view-grid-btn'){
                         prodContainer.classList.add('medium-up-3');
                         prodContainer.classList.add('small-up-1');
+                        prodContainer.classList.remove('list-view'); 
                     } else {
                         prodContainer.classList.remove('medium-up-3');
                         prodContainer.classList.remove('small-up-1');
+                        prodContainer.classList.add('list-view'); 
                     }
                 }
             },
@@ -192,8 +196,8 @@ let productList = (function () {
                     mobileFilterDrawer.setDrawerState(false);
                 }
             },
-            keywordInputEvent(event){
-                if (event.detail.keyCode === 13){
+            keywordInputEvent(event, type){                
+                if (event.detail.keyCode === 13 || (type == "iconClick" && event.detail.value != "")){
                     productList.methods.clearFilterToList();
                     productFilter.keyword = event.detail.value;
                     window.location.href = productList.methods.buildURLLink();
@@ -256,7 +260,11 @@ let productList = (function () {
 
                 let mobileCategoryToggle = document.getElementById('mobile-category-button');
                 if(mobileCategoryToggle){
-                    console.log('mobile-category-button');
+                    let sidebarCategoriesHtml = document.getElementById('sidebar-categories').innerHTML;
+                    // Replace 'id' with 'data'
+                    let modifiedHTML = sidebarCategoriesHtml.replace(/\bid="([^"]+)"/g, 'data="$1"');
+                    let mobileFilterWrap = document.querySelector('#mobile-filter-drawer .wrap');                
+                    mobileFilterWrap.innerHTML = modifiedHTML;
                     mobileCategoryToggle.addEventListener('insClick', productList.methods.openMobileFilterDrawer);
                 }
                 let mobileFilterClose = document.getElementById('mobile-filter-cls');
