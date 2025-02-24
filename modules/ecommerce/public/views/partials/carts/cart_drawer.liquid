@@ -154,7 +154,7 @@
     </div>
     
     {% comment %} user_cart = blank if the user has a guest account {% endcomment %}
-    <div id="empty-cart-wrap" class="empty-cart-wrap {% if user_cart.items.size > 0 or user_cart == blank %}hide{% endif %}">
+    <div id="empty-cart-wrap" class="empty-cart-wrap {% if user_cart.items.size > 0 %}hide{% endif %}">
         <h3 class="text-center">Your cart is empty!</h3>
         <div class="spacer x-small"></div>
         <p class="text-center">Don't miss out on the best deals!</p>
