@@ -35,13 +35,16 @@
 
 {% endif %}
 
-
+{% comment %} 
+    Add class 'hide' to this ins-drawer component to prevent glitch in the UI, 
+    then remove the class 'hide' when the drawer has loaded.
+{% endcomment %}
 <ins-drawer 
   label="Cart ({{ user_cart.items.size | default: 0 }})" 
   custom-width="390px" 
   position="right" 
   id="cartDrawer"
-  class="cart-drawer">
+  class="cart-drawer hide">
 
     <div id="cart-items-wrap">
 
@@ -210,6 +213,11 @@
     let shoppingCartListEl = document.getElementById("shopping-cart-list");
     let shoppingCartLoaderEl = document.getElementById("shopping-cart-loader");
     let proceedToCheckoutBtns = document.querySelectorAll(".proceed-to-checkout-btn");
+
+    // Remove the 'hide' class from the cart drawer when it has loaded
+    cartDrawer.addEventListener('didLoad', () => {
+        cartDrawer.classList.remove('hide');
+    });
 
 
     /* Add to Cart */
