@@ -26,15 +26,18 @@
 %}      
 
 {% comment %} product_sku has changed, Remove this item in the cart {% endcomment %}
-{% if selected_prop == '' %}            
-    {% parse_json params %}
-    {
-        "product_uuid": "{{ item.product_uuid }}",
-        "product_sku": "{{ item.product_sku }}",
-        "contact_uuid": "{{ user_uuid }}"
-    }
-    {% endparse_json %}
-    {% include 'modules/ecommerce/carts/remove_to_cart', params %} 
+{% if selected_prop == '' %}          
+    {%if user_uuid %}
+        {% comment %} This is for logged in user only {% endcomment %}
+        {% parse_json params %}
+        {
+            "product_uuid": "{{ item.product_uuid }}",
+            "product_sku": "{{ item.product_sku }}",
+            "contact_uuid": "{{ user_uuid }}"
+        }
+        {% endparse_json %}
+        {% include 'modules/ecommerce/carts/remove_to_cart', params %} 
+    {% endif %}
 
     {% comment %} Skip the current iteration of the loop {% endcomment %}
     {% continue %}
@@ -49,7 +52,6 @@
         assign price = selected_prop.regular_price
         assign price_strikethrough = ''
     endif          
-
     
     assign item_total_price = price | times: item.quantity
 %}      

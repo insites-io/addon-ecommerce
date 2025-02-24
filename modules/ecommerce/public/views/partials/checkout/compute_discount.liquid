@@ -1,0 +1,53 @@
+{% for discount in discounts %}
+                
+     {% assign in_product_ids =  discount.product_uuids | array_any: item.product_uuid %}
+         
+     {% if discount.is_applicable_to_all_products or in_product_ids %}
+
+         {% if item_total_price >= discount.minimum_cart_value or discount.minimum_cart_value == blank %}
+
+             {% assign discount_type = discount.discount_type | downcase %}
+             {% assign discount_value = discount.discount_value %}                        
+
+             {% if discount_type == "fixed_amount" %}
+
+                 {% comment %} Fixed amount discount can only be used once {% endcomment %}
+                 {% assign is_discount_used = used_discounts | array_any: discount.discount_code %}
+
+                 {% if is_discount_used == false %}
+                     {% assign sub_total_discount = sub_total_discount | plus: discount_value %}
+                     {% assign used_discounts = used_discounts | array_add: discount.discount_code %}
+                     {% export used_discounts %}
+                 {% endif %}
+
+             {% elsif discount_type == "percentage" %}
+
+                 {% assign temp = item_total_price | times: discount_value | divided_by: 100 %}
+                 {% assign sub_total_discount = sub_total_discount | plus: temp %}   
+
+             {%- elsif discount_type contains "shipping" -%}                          
+             
+                 {%- liquid                
+                     assign shipping_discount = 0                             
+
+                     if discount_type contains "fix" and is_free_shipping == false
+                         assign shipping_discount = discount_value | times: item.quantity
+                     elsif discount_type contains "percent" and is_free_shipping == false
+                         assign shipping_discount = freight_amount | times: discount_value | divided_by: 100 | times: item.quantity
+                     elsif discount_type contains 'free shipping'
+                         assign shipping_discount = freight_amount | times: item.quantity
+                     endif
+                     
+                     if shipping_discount > sub_freight_amount
+                         assign shipping_discount = sub_freight_amount
+                     endif
+
+                     assign sub_total_discount = sub_total_discount | plus: shipping_discount
+                 -%}
+
+         {% endif %}             
+         {% endif %}
+     {% endif %}        
+ {% endfor %}
+
+ {% return sub_total_discount %}

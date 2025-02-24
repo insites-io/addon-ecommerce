@@ -40,7 +40,7 @@
     let productUUIDs = cartItems.map(item => JSON.parse(item).product_uuid);
 
     if (cartItems.length > 0) {
-        listCartItems(cartItems, productUUIDs);                       
+        listCartItems(cartItems, productUUIDs);                               
     } else {
         renderEmptyCartMessage();
     }
@@ -206,7 +206,7 @@
                 orderSummaryWrap.insertAdjacentHTML('afterbegin', orderSummaryHtml);                
             }
             
-            computeOrderSummary();
+            saveCheckoutSessionForGuest();
         }
     }
     
@@ -296,43 +296,6 @@
         maximumFractionDigits: 2,
     });
 
-    function computeOrderSummary() {
-        if (page_url == '/shopping-cart') {
-            summary_delivery_amount = 0
-        }
-        
-        temp_total = summary_subtotal_amount + summary_delivery_amount + summary_tax_amount - tax_included_in_price - summary_discount_amount;
-        summary_processing_fee_amount = temp_total * 0.017;       
-        summary_total_amount = temp_total + summary_processing_fee_amount;
-
-        summary_subtotal.textContent = `$${formatter.format(summary_subtotal_amount)}`;
-        summary_delivery.textContent = `$${formatter.format(summary_delivery_amount)}`;
-        summary_processing_fee.textContent = `$${formatter.format(summary_processing_fee_amount)}`;
-        summary_tax_label.textContent = tax_label;
-        summary_tax.textContent = `$${formatter.format(summary_tax_amount)}`; 
-        summary_total.textContent = `$${formatter.format(summary_total_amount)}`; 
-
-        if(proceedToCheckout){
-            if(summary_total_amount > 0){
-                proceedToCheckout.classList.remove('hide');
-            } else {
-                proceedToCheckout.classList.add('hide');
-            }
-        }
-
-        const summaryData = {
-            subtotalAmount: summary_subtotal_amount,
-            deliveryAmount: summary_delivery_amount,
-            processingFeeAmount: summary_processing_fee_amount,
-            taxLabel: tax_label,
-            taxIncludedInPrice: tax_included_in_price,
-            taxAmount: summary_tax_amount,
-            totalAmount: summary_total_amount
-        };
-
-        saveCheckoutSessionForGuest(summaryData); 
-    }
-
     
     // Push the cart from local storage into the database.
     if( is_new_user && is_new_user == true && user_uuid != ""){
@@ -344,37 +307,43 @@
      * It includes details like subtotal, shipping, processing fees, taxes, and total amount.
      * A success or error notification is triggered based on the response.
      */
-    async function saveCheckoutSessionForGuest(summaryData) {
-        // Convert cartData strings to objects
-        const cart = cartData.map(item => {
-            // Only parse if item is a string
-            if (typeof item === 'string') {
-                return JSON.parse(item);
+    async function saveCheckoutSessionForGuest() {
+        // Get cart items from localStorage and parse them
+        const localStorageCarts = localStorage.getItem('carts');
+        let cart = [];
+        
+        if (localStorageCarts) {
+            try {
+                // Parse the JSON string from localStorage
+                const cartArray = JSON.parse(localStorageCarts);
+                
+                // Convert each item to object if it's a string
+                cart = cartArray.map(item => {
+                    if (typeof item === 'string') {
+                        return JSON.parse(item);
+                    }
+                    return item;
+                });
+            } catch (e) {
+                console.error("Error parsing cart data:", e);
+                cart = [];
             }
-            return item; // If it's already an object, return as-is
-        });
+        }
 
         // Create payload for the checkout session
         const payload = {
             guest_user: true,
-            sub_total_amount: summaryData.subtotalAmount,
-            shipping_amount: summaryData.deliveryAmount,
-            total_discount_amount: 0, // Temporary placeholder for future discount amount
-            processing_fee: summaryData.processingFeeAmount,
-            tax_label: summaryData.taxLabel,
-            tax_amount: summaryData.taxAmount,
-            tax_included_in_price: summaryData.taxIncludedInPrice,
-            total_amount: summaryData.totalAmount,
             products: products,
-            cart: cart
+            cart: cart,
+            type: 'cart_items_from_local_storage'
         };
 
         // Send request to save the session data
         const url = '/save-checkout-session.json';
         const response = await apiServices.processRequest('post', url, payload);
 
-        if (response.state && response.data) {
-            // Success logic can be added here if needed in the future
+        if (response.state && response.data) {            
+            return true;
         } else {
             App.events.notyf("error", "An error occurred while saving the order summary.");
         }

@@ -1,11 +1,6 @@
 {% assign params = context.params %}
 {% function user_uuid = 'modules/ecommerce/user/get_user_uuid'  %}
 
-{% if user_uuid and user_uuid != '' %}
-    {% assign user_uuid = user_uuid %}
-{% else %}
-    {% assign user_uuid = '' %}
-{% endif %}
 
 {%- if is_ordered_items == true and order_uuid != '' -%}   
 
@@ -14,12 +9,26 @@
         order_uuid: order_uuid  | dig: 'items','results' %}
 
 {%- else -%}
-    {% comment %} Get Order Summary for item(s) in the Cart {% endcomment %}
-    {% include 'modules/ecommerce/carts/cart_items', user_uuid %}
-    {% assign cart_items = context.exports.cart_items %}
-    {% assign user_cart = cart_items.user_cart %}
-    {% assign carts = cart_items.carts %}
-    {% assign products = cart_items.products %}
+
+    {% comment %} Get Cart Items {% endcomment %}    
+    {% if user_uuid %}
+        {% comment %} Logged in user {% endcomment %}
+        {% include 'modules/ecommerce/carts/cart_items', user_uuid %}
+        {% assign cart_items = context.exports.cart_items %}
+        {% assign user_cart = cart_items.user_cart %}
+        {% assign carts = cart_items.carts %}
+        {% assign products = cart_items.products %}
+        {% assign discounts = user_cart.discounts %}
+    {% else %}
+        {% comment %} Guest user {% endcomment %}
+        {% assign carts = context.session.guest_cart %}
+        {% assign products = context.session.guest_products %}
+        {% if context.session.discount_uuids %}
+            {% graphql discounts = 'modules/ecommerce/discount/get_discount_by_uuids', 
+                uuids: context.session.discount_uuids | dig: 'items', 'results' %}
+        {% endif %}
+    {% endif %}
+    
 {%- endif -%}
 
 
@@ -94,7 +103,7 @@
         {% include 'modules/ecommerce/checkout/compute_completed_order_amounts', uuid: order_uuid %}
     {%- else -%}
         {%- include 'modules/ecommerce/checkout/compute_order_summary' 
-            order_id, user_uuid, user_cart, carts, products -%}
+            order_id, user_uuid, user_cart, carts, products, guest_discounts: discounts -%}
     {%- endif -%}
     {% assign computed = context.exports.computed %}
 
@@ -130,10 +139,10 @@
         </div>
     </div>     
     <div class="spacer x-small"></div>           
-    
+          
     
     {% comment %} Discounts {% endcomment %}
-    {% if user_cart.discounts.size > 0 %}
+    {% if discounts.size > 0 %}
         <div class="list-discount-codes">
             <div class="grid-x">
                 <div class="small-6 medium-6 large-8 cell">
@@ -152,7 +161,7 @@
             </div>
             <div class="spacer x-small"></div>
 
-            {%- for item in user_cart.discounts -%}
+            {%- for item in discounts -%}
                 {%- if order_id -%}
                     {%- assign code = item -%}
                 {%- else -%}
@@ -168,8 +177,6 @@
                     {% parse_json payload %}
                     {
                         "check_duplicates": false,
-                        "form_delete": {{ form_delete | default: false }},
-                        "form_update": {{ form_update | default: false }},
                         "contact_uuid": "{{ user_uuid }}",
                         "discount_code": "{{ item.discount_code }}"
                     }
@@ -292,7 +299,7 @@
 <div id="mobile-order-summary" class="show-for-small-only">
     <div class="total">
         <p class="color-ui-05 body-x-small">Total</p>
-        <p class="order-total">$3,318.30</p>
+        <p class="order-total">{{ total_amount }}</p>
     </div>
     <ins-button type="button" id="view-order-summary-btn" label="VIEW ORDER SUMMARY"></ins-button>
 </div>

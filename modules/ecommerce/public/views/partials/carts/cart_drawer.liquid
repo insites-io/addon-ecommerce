@@ -608,7 +608,8 @@
             processing_fee: 0,
             tax_amount: 0,
             tax_included_in_price: 0,
-            total_amount: 0
+            total_amount: 0,
+            type: 'cart_drawer'
         };
 
         // Send request to save the session data
@@ -665,7 +666,11 @@
 
     function reloadIfShoppingCartPage() {
         if (window.location.pathname === "/shopping-cart") {
-            location.reload();
+            if (saveCheckoutSessionForGuest()) {
+                setTimeout(() => {
+                    location.reload();
+                }, 1000); // add delay to allow the session to be saved
+            }
         }
     }
     function removeCartFromLocalStorage(data){
