@@ -206,7 +206,7 @@
                 orderSummaryWrap.insertAdjacentHTML('afterbegin', orderSummaryHtml);                
             }
             
-            saveCheckoutSessionForGuest();
+            saveCheckoutSessionForGuest(products);
         }
     }
     
@@ -300,54 +300,7 @@
     // Push the cart from local storage into the database.
     if( is_new_user && is_new_user == true && user_uuid != ""){
         pushLocalCartToDB({carts:cartItems, user_uuid: user_uuid});
-    }
-
-    /**
-     * Saves the checkout session data for a guest user by sending the payload to the server.
-     * It includes details like subtotal, shipping, processing fees, taxes, and total amount.
-     * A success or error notification is triggered based on the response.
-     */
-    async function saveCheckoutSessionForGuest() {
-        // Get cart items from localStorage and parse them
-        const localStorageCarts = localStorage.getItem('carts');
-        let cart = [];
-        
-        if (localStorageCarts) {
-            try {
-                // Parse the JSON string from localStorage
-                const cartArray = JSON.parse(localStorageCarts);
-                
-                // Convert each item to object if it's a string
-                cart = cartArray.map(item => {
-                    if (typeof item === 'string') {
-                        return JSON.parse(item);
-                    }
-                    return item;
-                });
-            } catch (e) {
-                console.error("Error parsing cart data:", e);
-                cart = [];
-            }
-        }
-
-        // Create payload for the checkout session
-        const payload = {
-            guest_user: true,
-            products: products,
-            cart: cart,
-            type: 'cart_items_from_local_storage'
-        };
-
-        // Send request to save the session data
-        const url = '/save-checkout-session.json';
-        const response = await apiServices.processRequest('post', url, payload);
-
-        if (response.state && response.data) {            
-            return true;
-        } else {
-            App.events.notyf("error", "An error occurred while saving the order summary.");
-        }
-    }
+    }    
 
     async function pushLocalCartToDB(data){        
         let response = await apiServices.processRequest("post", "/push-local-cart-to-db.json", data);

@@ -603,35 +603,10 @@
                 }, pollInterval);
             }
         } else {
-            emptyCartWrap.classList.remove('hide');
-            updateGuestSessions();
+            emptyCartWrap.classList.remove('hide');            
         }
     }
 
-    async function updateGuestSessions(){
-        // Update sessions: set values to zero
-        const payload = {
-            guest_user: true,
-            sub_total_amount: 0,
-            shipping_amount: 0, 
-            total_discount_amount: 0, 
-            processing_fee: 0,
-            tax_amount: 0,
-            tax_included_in_price: 0,
-            total_amount: 0,
-            type: 'cart_drawer'
-        };
-
-        // Send request to save the session data
-        const url = '/save-checkout-session.json';
-        const response = await apiServices.processRequest('post', url, payload);
-
-        if (response.state && response.data) {
-            // Success logic can be added here if needed in the future
-        } else {
-            console.log("error", "An error occurred while saving the order summary.");
-        }
-    }
 
     function getCartFromLocalStorage(){
         let carts = localStorage.getItem('carts');
@@ -676,13 +651,23 @@
 
     function reloadIfShoppingCartPage() {
         if (window.location.pathname === "/shopping-cart") {
-            if (saveCheckoutSessionForGuest()) {
-                setTimeout(() => {
-                    location.reload();
-                }, 1000); // add delay to allow the session to be saved
+            if( user_uuid == ""){
+                // Guest user
+                if (saveCheckoutSessionForGuest()) {
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000); // add delay to allow the session to be saved
+                }
+            } else {
+                // Logged in user
+                location.reload();
             }
+        } else if(user_uuid == "" ){
+            // Save session data for guest user
+            saveCheckoutSessionForGuest();
         }
     }
+
     function removeCartFromLocalStorage(data){
         let carts = getCartFromLocalStorage();
         if(carts){
@@ -694,7 +679,7 @@
                 }
             }
         }
-        localStorage.setItem('carts', JSON.stringify(carts));        
+        localStorage.setItem('carts', JSON.stringify(carts));
     }
 
     function formatNumber(num) {
@@ -751,6 +736,55 @@
             emptyCartWrap.classList.remove('hide');            
         }
     }        
+
+
+    /**
+     * Saves the checkout session data for a guest user by sending the payload to the server.
+     * It includes details like subtotal, shipping, processing fees, taxes, and total amount.
+     * A success or error notification is triggered based on the response.
+     */
+     async function saveCheckoutSessionForGuest(products) {
+        // Get cart items from localStorage and parse them
+        const localStorageCarts = localStorage.getItem('carts');
+        let cart = [];
+        
+        if (localStorageCarts) {
+            try {
+                // Parse the JSON string from localStorage
+                const cartArray = JSON.parse(localStorageCarts);
+                
+                // Convert each item to object if it's a string
+                cart = cartArray.map(item => {
+                    if (typeof item === 'string') {
+                        return JSON.parse(item);
+                    }
+                    return item;
+                });
+            } catch (e) {
+                console.error("Error parsing cart data:", e);
+                cart = [];
+            }
+        }
+
+        // Create payload for the checkout session
+        const payload = {
+            guest_user: true,
+            products: products,
+            cart: cart,
+            type: 'cart_drawer'
+        };
+
+        // Send request to save the session data
+        const url = '/save-checkout-session.json';
+        const response = await apiServices.processRequest('post', url, payload);
+
+        if (response.state && response.data) {            
+            return true;
+        } else {
+            App.events.notyf("error", "An error occurred while saving the order summary.");
+        }
+    }
+
 
     /* Close the cart drawer */
     let contShoppingBtn = document.getElementById("continue-shopping-btn");
