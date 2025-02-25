@@ -932,6 +932,22 @@ ins-card.overview .wrap{
 #order-table .pagination-wrap {
     padding: 16px;
 }
+@media screen and (max-width: 1023px) {
+    #order-table .ibt-table-wrap .pagination-wrap.full {
+        text-align: center;
+        display: block;
+    }
+    #order-table .pagination-wrap>.ibt-table-wrap__prev-next {
+        margin-top: 32px;
+        display: block;
+    }
+}
+@media screen and (max-width: 360px) {
+    #order-table .ibt-table-wrap .pagination-wrap .ibt-table-wrap__page {
+        margin-top: 25px;
+        display: block;
+    }
+}
 #order-tab ins-tab-item>div {
     padding: 40px;
 }
