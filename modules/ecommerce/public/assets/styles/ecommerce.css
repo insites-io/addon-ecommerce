@@ -1174,6 +1174,9 @@ ins-filter-item,
 ins-filter .filter__label {
     margin-right: 8px;
 }
+ins-filter-item {
+    margin-bottom: 8px;
+}
 ins-filter .filter__label {
     margin-bottom: 8px;
 }
@@ -1259,8 +1262,8 @@ ins-filter .date-filter .fas  {
     ins-filter .filter__btn-container {
         display: flex;
         flex-direction: column;
-        width: fit-content;
-        gap: 8px;
+        /* width: fit-content; */
+        /* gap: 8px; */
         align-items: baseline;
     }
 }
