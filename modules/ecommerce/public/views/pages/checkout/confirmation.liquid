@@ -89,19 +89,21 @@ authorization_policies:
 
             <div class="grid-x grid-padding-x">
 
-                {% comment %} Account Details {% endcomment %}
-                <div class="large-5 medium-12 small-12 cell">
-                    <h3 class="heading-3">Account Details</h3>
-                    <div class="spacer small"></div>
-                    <p class="font-cabin">{{ account_company_name | default: order.billing_company_name }}</p>
-                    <p class="font-cabin">{{ account_name | default: order.billing_account_name }}</p>
-                    <p class="font-cabin">{{ account_email | default: order.billing_contact_email  }}</p>
-                    <p class="font-cabin">{{ context.exports.formatted_account_mobile_phone | default: 'N/A' }}</p>
-                    <div class="spacer xx-large"></div>
-                </div>
+                {% if context.current_user %}
+                    {% comment %} Account Details {% endcomment %}
+                    <div class="large-5 medium-12 small-12 cell">
+                        <h3 class="heading-3">Account Details</h3>
+                        <div class="spacer small"></div>
+                        <p class="font-cabin">{{ account_company_name | default: order.billing_company_name }}</p>
+                        <p class="font-cabin">{{ account_name | default: order.billing_account_name }}</p>
+                        <p class="font-cabin">{{ account_email | default: order.billing_contact_email  }}</p>
+                        <p class="font-cabin">{{ context.exports.formatted_account_mobile_phone | default: 'N/A' }}</p>
+                        <div class="spacer xx-large"></div>
+                    </div>
+                {% endif %}
 
                 {% comment %} Shipping Details {% endcomment %}                
-                <div class="large-5 large-offset-1 medium-12 small-12 cell">
+                <div class="{% if context.current_user %}large-offset-1{% endif %} large-5 medium-12 small-12 cell">
                     <h3 class="heading-3">Shipping Details</h3>
                     <div class="spacer small"></div>
                         {%- assign shipping_address = "" -%}
@@ -137,7 +139,7 @@ authorization_policies:
                 </div>
 
                 {% comment %} Billing Details {% endcomment %}
-                <div class="large-5 medium-12 small-12 cell">
+                <div class="large-5 medium-12 small-12 cell {% unless context.current_user %}large-offset-1{% endunless %}">
                     <h3 class="heading-3">Billing Details</h3>
                     <div class="spacer small"></div>
                     {%- assign billing_address = "" -%}
@@ -167,8 +169,8 @@ authorization_policies:
                 </div>
 
                 {% comment %} Payment Details {% endcomment %}
-                {%- if context.current_user.id -%}
-                <div class="large-5 large-offset-1 medium-12 small-12 cell">
+                
+                <div class="{% if context.current_user %}large-offset-1{% endif %} large-5 medium-12 small-12 cell">
                     <h3 class="heading-3">Payment Details</h3>
                     <div class="spacer small"></div>
                     <p class="font-cabin">{{ order.payment.card_brand | upcase }} **** **** **** {{ order.payment.card_last_four_digits }}</p>
@@ -179,7 +181,7 @@ authorization_policies:
                     <p class="font-cabin">{{ month }} / {{ order.payment.card_expiry_year }}</p>
                     <div class="spacer xx-large"></div>
                 </div>
-                {%- endif -%}                                
+                                              
 
             </div>
         </div>
