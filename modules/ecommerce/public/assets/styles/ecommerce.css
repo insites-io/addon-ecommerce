@@ -174,6 +174,7 @@ ins-button.button-large button .btn__icon {
     text-transform: none;
     font-size: 14px !important;
     color: var(--font-color-head);
+    letter-spacing: 0 !important;
 }
 #mega-menu-btn  button.blue:not([disabled]):hover {
     background: none;
