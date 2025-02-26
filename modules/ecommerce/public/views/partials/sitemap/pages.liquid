@@ -1,3 +1,8 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Sitemap | Pages'
+}
+---
 {%- assign parent_slug = "/products" -%}
 {%- graphql product_list = 'modules/ecommerce/shop/get_product_list', 
     page: 1, size: 500, is_enabled: true, is_archived: false -%} 

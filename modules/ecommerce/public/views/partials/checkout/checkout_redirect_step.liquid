@@ -1,3 +1,8 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Checkout | Checkout Redirect Step'
+}
+---
 {%- assign latest_step = context.session.latest_step | default: 1 -%}
 {%- assign checkout_links = "checkout,checkout/shipping,checkout/billing,checkout/payment,confirmation" | split: ',' -%}
 {%- assign current_slug = context.page.slug -%}

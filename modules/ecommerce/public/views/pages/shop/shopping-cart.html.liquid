@@ -116,6 +116,11 @@ metadata: {
 
 
 {% comment %} This code must be below the <script> above {% endcomment %}
-{% if get_cart_local_storage == true %}    
-    {% include 'modules/ecommerce/carts/cart_items_from_local_storage' %}
+{% if get_cart_local_storage == true %}
+    <script>var is_new_user = {{ context.params.is_new_user | default: false }};</script>
+    {%- if context.environment == "staging" -%}
+        <script src="{{ 'modules/ecommerce/scripts/cart-items-from-local-storage.js' | asset_url }}"></script>
+    {%- else -%}
+        <script src="{{ 'modules/ecommerce/scripts/cart-items-from-local-storage.min.js' | asset_url }}"></script>
+    {%- endif -%}
 {%- endif -%}

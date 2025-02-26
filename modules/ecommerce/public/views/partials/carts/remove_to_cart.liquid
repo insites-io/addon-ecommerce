@@ -1,3 +1,8 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Carts | Remove to Cart'
+}
+---
 {%- comment -%} Check if the user already has a cart {%- endcomment -%}
 {%- graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
     contact_uuid: params.contact_uuid | dig: 'items','results' | first -%}

@@ -1,3 +1,8 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Checkout | Callback Create Address'
+}
+---
 {%- comment -%}Create address models{%- endcomment -%}
 {%- unless form.properties.skip_shipping_address or form.properties.shipping_address_id -%}
     {%- graphql create_address = "modules/ecommerce/user/create_address" 

@@ -1,4 +1,8 @@
-
+---
+metadata: {
+    partial_name: 'Ecommerce | Products | Detail'
+}
+---
 {%- graphql product = 'modules/ecommerce/products/get_product', 
     slug: context.params.slug2 | dig: 'items','results' | first -%}
 

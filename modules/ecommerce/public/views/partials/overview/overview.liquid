@@ -1,3 +1,8 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Overview | Overview'
+}
+---
 {% graphql orders = "modules/ecommerce/orders/get_orders_to_receive", 
     order_contact_uuid: context.session.user_uuid | dig: "items" %}
 

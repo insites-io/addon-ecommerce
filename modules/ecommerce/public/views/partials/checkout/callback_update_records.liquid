@@ -1,4 +1,8 @@
-
+---
+metadata: {
+    partial_name: 'Ecommerce | Checkout | Callback Update Records'
+}
+---
 {%- assign user_uuid = form.properties.order_contact_uuid -%}
 {%- assign date_time = "now" | date: "%Y-%m-%dT%H:%M:%SZ" -%}
 {%- capture payment_gateway_details -%}{{ payment_response }}{%- endcapture -%}

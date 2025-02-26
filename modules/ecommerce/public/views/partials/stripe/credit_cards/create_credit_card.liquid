@@ -1,4 +1,9 @@
-    {% comment %} Create Stripe card {% endcomment %}
+---
+metadata: {
+    partial_name: 'Ecommerce | Stripe | Create Credit Card'
+}
+---
+{% comment %} Create Stripe card {% endcomment %}
     {% graphql create_stripe_card = 'modules/ecommerce/system/trigger_api_call', name: "modules/ecommerce/create_card",
                 data: data | dig: 'items','response' %}
 

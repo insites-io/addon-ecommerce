@@ -1,3 +1,8 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Order Items | Create Order Items'
+}
+---
 {%- comment -%} Get user cart {%- endcomment -%}
 {% graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
         contact_uuid: user_uuid | dig: 'items','results' | first %}
