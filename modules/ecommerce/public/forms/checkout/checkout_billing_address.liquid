@@ -76,11 +76,6 @@ callback_actions: |-
 {%- assign addressIdUsed = context.session.shipping_address_id -%}
 {% endif %}
 
-{% comment %} {% session billing_same_with_shipping = null %}{% endcomment %}
-{% comment %} {% session billing_address_id = null %}  {% endcomment %}
-{% comment %} session={{ context.session }}<hr> {% endcomment %}
-
-
 {% assign prop = form.fields.properties %}      
 {%- form 
   html-id: "billing-address-form"
