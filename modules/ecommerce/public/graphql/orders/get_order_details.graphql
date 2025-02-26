@@ -55,8 +55,8 @@ query get_order_details (
         table: "modules/insites_ecommerce/payment"
         join_on_property: "uuid"
         foreign_property: "order_uuid"
-        sort: { updated_at: { order: DESC }}
       ) {
+        id
         card_brand: property(name: "card_brand")
         card_last_four_digits: property(name: "card_last_four_digits")
         card_expiry_month: property(name: "card_expiry_month")

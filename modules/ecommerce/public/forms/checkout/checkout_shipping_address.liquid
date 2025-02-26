@@ -18,7 +18,7 @@ fields:
     state:
     postcode:
     country:     
-    same_shipping:
+    shipping_same_with_account:
       property_options:
         virtual: true 
     shipping_instructions:
@@ -48,29 +48,23 @@ fields:
     
 callback_actions: |-    
 
-  {% assign prop = form.properties %}
-
-  {%- session same_shipping = prop.same_shipping -%}
-  {%- session shipping_address_1 = prop.address_1 -%}
-  {%- session shipping_address_2 = prop.address_2 -%}
-  {%- session shipping_suburb = prop.suburb -%}
-  {%- session shipping_state = prop.state -%}
-  {%- session shipping_postcode = prop.postcode -%}
-  {%- session shipping_country = prop.country -%}
-  {%- session shipping_instructions = prop.shipping_instructions -%}
-
-  {%- session shipping_company_name = prop.shipping_company_name -%}
-  {%- session shipping_contact_first_name = prop.shipping_contact_first_name -%}
-  {%- session shipping_contact_last_name = prop.shipping_contact_last_name -%}
-  {%- session shipping_contact_email = prop.shipping_contact_email -%}
-  {%- session shipping_contact_phone_number = prop.shipping_contact_phone_number -%}
-  {%- session shipping_contact_phone_country_code = prop.shipping_contact_phone_country_code -%}
-
   {%- session shipping_address_id = form.id -%}
   {%- session latest_step = 3 -%}
 
 ---
+{% comment %} 
+  Upon clicking the submit button:
+    - Checkout.events.shippingSubmit(event) will be triggered
+    - sessions will be saved under Checkout.events.saveSessionApi(true)
+      * If user select the existing address card from the list:    
+          - skip the form submission and redirect to /checkout/billing page
+      * Else
+          - this form will be submitted and will create new address record
+          - then it will be redirected to /checkout/billing page
+{% endcomment %}
+
 {% assign prop = form.fields.properties %}
+{% assign user_uuid = context.current_user.external_id %}
 
 {%- form 
   html-id: "shipping-address-form"
@@ -80,7 +74,7 @@ callback_actions: |-
 
   <input type="hidden" id="temp-address-uuid" name="temp_uuid" value="{{ '' | uuid }}">
   <input type="hidden" id="address-uuid" name="{{ prop.uuid.name }}" value="{{ '' | uuid }}">
-  <input type="hidden" id="address-related-uuid" name="{{ prop.related_uuid.name }}" value="{{ data.current_user.uuid }}">
+  <input type="hidden" id="address-related-uuid" name="{{ prop.related_uuid.name }}" value="{{ user_uuid }}">
 
   <input type="hidden" 
     id="hidden-shipping-phone" 
@@ -115,9 +109,9 @@ callback_actions: |-
 
     {% if context.current_user %}
     <ins-checkbox class="inline" 
-      {% if context.session.same_shipping == 'true' %} checked {% endif %}
-      name="{{ prop.same_shipping.name }}"
-      value="{{ context.session.same_shipping | default: false }}"
+      {% if context.session.shipping_same_with_account == 'true' %} checked {% endif %}
+      name="{{ prop.shipping_same_with_account.name }}"
+      value="{{ context.session.shipping_same_with_account | default: false }}"
       id="same-shipping" 
       label="My shipping details are the same as my account details.">
     </ins-checkbox>
@@ -125,7 +119,7 @@ callback_actions: |-
     {% endif %}
 
     {% comment %} Contact Person Fields {% endcomment %}
-    <div class="grid-x grid-padding-x shipping-contact-person {% if context.session.same_shipping == 'true' %} hide {% endif %}">
+    <div class="grid-x grid-padding-x shipping-contact-person {% if context.session.shipping_same_with_account == 'true' %} hide {% endif %}">
       <div class="large-12 medium-12 small-12 cell">
 
         <ins-input shipping-details-field 
@@ -194,12 +188,19 @@ callback_actions: |-
       <div class="spacer"></div>
       <div class="spacer xx-small"></div>
 
-      <p class="error-message hide">Shipping address is required.</p>
+      <ins-input validate
+        id="shipping_address_id" 
+        class="hidden-input"
+        value="{{ context.session.shipping_address_id | default: '' }}"
+        name="{{ prop.shipping_address_id.name }}"
+        error-message="Shipping address is required. Please select from the list below or add new address.">
+      </ins-input> 
+
       
-      {% if data.current_user.uuid.size > 1 %}      
+      {% if context.current_user %}      
 
         {%- graphql addresses = 'modules/ecommerce/address/get_address', 
-          user_uuid: data.current_user.uuid | dig: 'items','results' -%}
+          user_uuid: user_uuid | dig: 'items','results' -%}
             
         {%- comment -%}Address cards{%- endcomment -%}
         {%- include 'modules/ecommerce/layout/address_cards', 
@@ -239,10 +240,7 @@ callback_actions: |-
             <ins-input address-lookup label="Search Addresss" 
               id="shipping-address-search" name="shipping"
               placeholder="Search Addresss" icon="icon-map-pin">
-            </ins-input>
-            <input type="hidden" id="shipping_address_id"
-              value="{{ context.session.shipping_address_id | default: '' }}"
-              name="{{ prop.shipping_address_id.name }}" >
+            </ins-input>            
           </div>
           <div class="large-6 medium-6 small-12 cell">
             <ins-input required validate 
@@ -267,7 +265,7 @@ callback_actions: |-
             </ins-input>
           </div>
           <div class="large-6 medium-6 small-12 cell">
-            <ins-input 
+            <ins-input validate
               label="Suburb*" 
               id="shipping_suburb" 
               placeholder="Suburb"
@@ -330,7 +328,7 @@ callback_actions: |-
     </div>            
 
     {%- assign submitLabel = 'Proceed to Billing' -%}
-    {% if addresses.size <= 0 or data.current_user.uuid == blank %}
+    {% if addresses.size <= 0 or context.current_user == blank %}
       {%- assign submitLabel = 'Save and Proceed' -%}
     {% endif %}
 

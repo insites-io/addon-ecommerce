@@ -26,7 +26,7 @@ metadata: {
     {% if context.location.pathname == '/confirmation' %} complete {% endif %}
     id="checkout-nav">
 
-    {% if data.current_user.uuid %}
+    {% if context.current_user %}
     <ins-step data-step="1" 
         {% if currentStep == 1 %}active{% endif %}
         {% if latestStep < 1 %}disabled {% endif %}

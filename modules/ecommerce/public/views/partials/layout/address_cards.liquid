@@ -26,11 +26,9 @@ metadata: {
             {% assign selected_card = selected_card | plus: 0 %}
 
             <ins-checkbox-card data-equalizer-watch
-                name="{{ type }}-address-cards"    
-
-                {% if addresses.size == 1 %}
-                    selected
-                {% elsif data_id == selected_card %}
+                name="{{ type }}-address-cards"
+                    
+                {% if data_id == selected_card %}
                     selected
                 {% endif %}
 

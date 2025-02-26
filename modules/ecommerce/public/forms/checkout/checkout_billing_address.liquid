@@ -10,6 +10,7 @@ fields:
     uuid:
     related_uuid:
     related_type: 
+    address_label:
     address_1:
     address_2:
     suburb:
@@ -43,51 +44,30 @@ fields:
     billing_address_id:
       property_options:
         virtual: true
-
+default_payload: >
+  {
+    "properties_attributes": {
+        "related_type": "contact",
+        "address_label": "Billing"
+    }
+  }
 callback_actions: |-    
-
-  {% assign prop = form.properties %}
-  {% session billing_same_with_shipping = prop.billing_same_with_shipping %}
-  
-  {% if prop.billing_same_with_shipping == 'true' %}
-
-    {%- session billing_company_name = context.session.shipping_company_name -%}
-    {%- session billing_contact_first_name = context.session.shipping_contact_first_name -%}
-    {%- session billing_contact_last_name = context.session.shipping_contact_last_name -%}
-    {%- session billing_contact_email = context.session.shipping_contact_email -%}
-    {%- session billing_contact_phone_number = context.session.shipping_contact_phone_number -%}
-    {%- session billing_contact_phone_country_code = context.session.shipping_contact_phone_country_code -%}
-
-    {%- session billing_address_1 =context.session.shipping_address_1 -%}
-    {%- session billing_address_2 = context.session.shipping_address_2 -%}
-    {%- session billing_suburb = context.session.shipping_suburb -%}
-    {%- session billing_state = context.session.shipping_state -%}
-    {%- session billing_postcode = context.session.shipping_postcode -%}
-    {%- session billing_country = context.session.shipping_country -%}
-
-  {% else %}
-
-    {%- session billing_company_name = prop.billing_company_name -%}
-    {%- session billing_contact_first_name = prop.billing_contact_first_name -%}
-    {%- session billing_contact_last_name = prop.billing_contact_last_name -%}
-    {%- session billing_contact_email = prop.billing_contact_email -%}
-    {%- session billing_contact_phone_number = prop.billing_contact_phone_number -%}
-    {%- session billing_contact_phone_country_code = prop.billing_contact_phone_country_code -%}
-
-    {%- session billing_address_1 = prop.address_1 -%}
-    {%- session billing_address_2 = prop.address_2 -%}
-    {%- session billing_suburb = prop.suburb -%}
-    {%- session billing_state = prop.state -%}
-    {%- session billing_postcode = prop.postcode -%}
-    {%- session billing_country = prop.country -%}
-
-  {% endif %}
 
   {%- session billing_address_id = form.id -%}
   {%- session latest_step = 4 -%}
 
 ---
 
+{% comment %} 
+  This form will be check first by Checkout.events.billingSubmit()
+  If the billing is same with the shipping address:
+    - form submission will be skipped
+    - we will copy the shipping address to billing address then save it in sessions
+    - then redirect to checkout/payment
+  If not, then the form will be submitted and new billing address will be added/updated.
+{% endcomment %}
+
+{%  assign user_uuid = context.current_user.external_id %}
 {%- assign statusClass = "hide" -%}
 {%- assign addressIdUsed = context.session.billing_address_id | default: "" -%}
 
@@ -105,12 +85,13 @@ callback_actions: |-
 
   <input type="hidden" id="temp-address-uuid" name="temp_uuid" value="{{ '' | uuid }}">
   <input type="hidden" id="address-uuid" name="{{ prop.uuid.name }}" value="{{ '' | uuid }}">
-  <input type="hidden" id="address-related-uuid" name="{{ prop.related_uuid.name }}" value="{{ data.current_user.uuid }}">
+  <input type="hidden" id="address-related-uuid" name="{{ prop.related_uuid.name }}" value="{{ user_uuid }}">
 
   <input type="hidden" id="hidden-billing_company_name" value="{{ context.session.billing_company_name }}">
   <input type="hidden" id="hidden-billing_contact_first_name" value="{{ context.session.billing_contact_first_name }}">
   <input type="hidden" id="hidden-billing_contact_last_name"  value="{{ context.session.billing_contact_last_name }}">
   <input type="hidden" id="hidden-billing_contact_email"  value="{{ context.session.billing_contact_email }}">
+
   <input type="hidden" id="hidden-billing_contact_phone_number" 
     name="{{ prop.billing_contact_phone_number.name }}" 
     value="{{ context.session.billing_contact_phone_number }}">
@@ -132,10 +113,6 @@ callback_actions: |-
   <input type="hidden" id="hidden-shipping-country"value="{{ context.session.shipping_country }}" >
   <input type="hidden" id="hidden-current-user-id" value="{{ current_user.id }}" >
 
-  <input
-    type="hidden" 
-    id="hidden-selected-shipping" 
-    value="{{ context.session.shipping_address_id | default: '' }}" >
     
   <div id="billing-details">
     <h2 class="heading-1">Billing</h2>
@@ -170,7 +147,7 @@ callback_actions: |-
               placeholder="Company Name" 
               name="{{ prop.billing_company_name.name }}"
               value="{{ context.session.billing_company_name }}"
-              {% if form.errors['properties.address_1'] %} has-error {% endif %}
+              {% if form.errors['properties.billing_company_name'] %} has-error {% endif %}
               error-message="{{ prop.billing_company_name.validation.rules.presence.message }}">
             </ins-input>
           </div>
@@ -218,59 +195,15 @@ callback_actions: |-
             </ins-input-tel>
           </div>
         </div>
-      </div>
-      
-      {% if data.current_user.uuid.size > 1 %}      
+      </div>        
 
-        {%- graphql addresses = 'modules/ecommerce/address/get_address', 
-          user_uuid: data.current_user.uuid | dig: 'items','results' -%}
-            
-        {% if context.session.billing_same_with_shipping == 'true' %} 
-          {% assign hide_cards = 'hide' %}
-        {% endif %}
-
-        {%- comment -%}Address cards{%- endcomment -%}
-        {%- include 'modules/ecommerce/layout/address_cards', 
-          addresses: addresses,
-          selected_card: context.session.billing_address_id | default: "",
-          type: 'billing',
-          hide: hide_cards -%} 
-
-        <div class="spacer x-small"></div>
-        <div class="spacer xx-small"></div>     
-
-      {% endif %}   
-
-        {% comment %} Billing Address Fields {% endcomment %}
-        <div class="text-right" id="address-toggle">
-          {%  liquid
-              if context.session.billing_same_with_shipping == 'true' or data.current_user.uuid == blank
-                assign hideAddAddressBtn = 'hide'
-              endif
-          %}
-          <ins-button 
-            type="button" 
-            class="add-address-btn {{hideAddAddressBtn}}"
-            name="billing-address-fields" 
-            id="open-address" 
-            icon="icon-add" 
-            label="New Address" 
-            color="blue" 
-            size="small">
-          </ins-button>
-        </div>  
-        <div class="spacer"></div>
-
-        <div class="spacer x-small"></div>
-        <div class="spacer xx-small"></div>
-
-
-      <div id="billing-address-fields" class="address-fields  {% if data.current_user.uuid.size > 1 %} hide {% endif %}">
+      {% comment %} Search Address {% endcomment %}              
+      <div id="billing-address-fields" class="address-fields {% if context.session.billing_same_with_shipping == 'true' %} hide {% endif %}">
         <div class="grid-x grid-padding-x">                                                 
           <div class="large-12 medium-12 small-12 cell">
-            <ins-input address-lookup label="Search Addresss" 
+            <ins-input address-lookup label="Search Address" 
               id="billing-address-search" name="billing"
-              placeholder="Search Addresss" icon="icon-map-pin">
+              placeholder="Search Address" icon="icon-map-pin">
             </ins-input>
             <input type="hidden" data-billing-address-field id="billing_address_id"
               value="{{ addressIdUsed }}"
@@ -282,7 +215,7 @@ callback_actions: |-
               id="billing_address_1"
               placeholder="Address 1" 
               name="{{ prop.address_1.name }}"
-              value="{{ context.session.billing_adddres_1 }}"
+              value="{{ context.session.billing_address_1 }}"
               {% if form.errors['properties.address_1'] %} has-error {% endif %}
               error-message="{{ prop.address_1.validation.rules.presence.message }}">
             </ins-input>
@@ -293,7 +226,7 @@ callback_actions: |-
               id="billing_address_2" 
               placeholder="Address 2"
               name="{{ prop.address_2.name }}"
-              value="{{ context.session.billing_adddres_2 }}"
+              value="{{ context.session.billing_address_2 }}"
               {% if form.errors['properties.address_2'] %} has-error {% endif %}
               error-message="{{ prop.address_2.validation.rules.presence.message }}">
             </ins-input>

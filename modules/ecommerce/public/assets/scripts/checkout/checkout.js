@@ -316,8 +316,7 @@ let Checkout = (function () {
                     billingFirstNameEl.value = hiddenBillingShippingFirstNameEl.value;
                     billingLastNameEl.value = hiddenBillingShippingLastNameEl.value;
                     billingEmailEl.value = hiddenBillingShippingEmailEl.value;
-                    billingCompanyNameEl.value = hiddenBillingShippingCompanyNameEl.value;
-                    selectedCardId = hiddenSelectedShippingAddressId.value;
+                    billingCompanyNameEl.value = hiddenBillingShippingCompanyNameEl.value;                    
             
                     Checkout.methods.updatePhone(true, 'billing');
             
@@ -371,13 +370,13 @@ let Checkout = (function () {
                 // Toggle visibility for address-related fields
                 if (addressCards) addressCards.classList[visibilityAction]('hide');
                 if (billingContactFields) billingContactFields.classList[visibilityAction]('hide');
+                if (billingAddressFields) billingAddressFields.classList[visibilityAction]('hide');                
             
                 // Show or hide add address button based on billing flag and visibility action
                 const shouldShowAddAddressBtn = !(billingSamewithShippingFlag === true || billingSamewithShippingFlag === 'true');
 
                 if (shouldShowAddAddressBtn && !guestUserFlag) {
                     if (addAddressBtn[0]) addAddressBtn[0].classList.remove('hide');
-                    if (billingAddressFields) billingAddressFields.classList.add('hide');
                 } else {
                     if (addAddressBtn[0]) addAddressBtn[0].classList.add('hide');
                 }
@@ -435,12 +434,17 @@ let Checkout = (function () {
                 let form = event.srcElement;
                 let isValid = await App.validation.validateForm(form);
 
-                // Validate address based on the flags
-                isValid = Checkout.methods.validateAddress(isValid);
+                // Validate selection of address card based on the flags                                
+                isValid = Checkout.methods.validateAddress(isValid);                
 
                 if (isValid) {
                     if (!guestUserFlag && newAddressFlag) {
-                        form.submit();
+                        Checkout.events.saveSessionApi(true);
+
+                        //Add delay to allow the session to be saved
+                        setTimeout(() => {
+                            form.submit();
+                        }, 1000);
                     } else {
                         Checkout.events.saveSessionApi(true);
                     }
@@ -448,6 +452,38 @@ let Checkout = (function () {
                     App.events.notyf("error", "Please check missing fields");
                     shippingSubmitBtn.loading = false;
                 }
+                return false;
+            },
+            async billingSubmit(event){
+                event.preventDefault();
+                billingSubmitBtn.loading = true;  
+                
+                if(!billingSamewithShippingFlag){
+                    // Billing is not same with the shipping: Validate required fields
+                    var form = event.srcElement;
+                    var isValid = await App.validation.validateForm(form);
+                } else {
+                    isValid = true;
+                }
+
+                if (isValid) {
+                    // Save the session data
+                    Checkout.events.saveSessionApi();
+
+                    // Add delay to allow the session to be saved
+                    setTimeout(() => {
+                        if(billingSamewithShippingFlag){                            
+                            window.location.href = "/checkout/payment";
+                        } else {
+                            form.submit();
+                        }
+                    }, 1000);                        
+                } else {
+                    App.events.notyf("error", "Please check missing fields");
+                    billingSubmitBtn.loading = false;
+                }                
+                            
+                billingSubmitBtn.loading = false;
                 return false;
             },
             async saveSessionApi(shipping = false) {
@@ -473,7 +509,8 @@ let Checkout = (function () {
                 let payload = {};
                 if (shipping) {
                     payload = {
-                        same_shipping: `${shippingSamewithAccountFlag}`,
+                        type: 'shipping',
+                        shipping_same_with_account: shippingSamewithAccountFlag,
                         address_id: selectedCardId,
                         shipping_instructions: document.getElementById('shipping_instructions').value,
                         shipping_company_name: shippingCompanyNameEl.value,
@@ -488,8 +525,8 @@ let Checkout = (function () {
                 } else {
                     address = 'billing';
                     payload = {
+                        type: 'billing',
                         billing_same_with_shipping: `${billingSamewithShippingFlag}`,
-                        address_id: selectedCardId,
                         billing_company_name: billingCompanyNameEl.value,
                         billing_contact_first_name: billingFirstNameEl.value,
                         billing_contact_last_name: billingLastNameEl.value,
@@ -501,20 +538,19 @@ let Checkout = (function () {
                     };
                 }
 
-                if (guestUserFlag) {
-                    // Create guestPayload with address details
-                    const guestPayload = {
-                        [`${address}_address_1`]: document.getElementById(`${address}_address_1`).value,
-                        [`${address}_address_2`]: document.getElementById(`${address}_address_2`).value,
-                        [`${address}_suburb`]: document.getElementById(`${address}_suburb`).value,
-                        [`${address}_state`]: document.getElementById(`${address}_state`).value,
-                        [`${address}_postcode`]: document.getElementById(`${address}_postcode`).value,
-                        [`${address}_country`]: document.getElementById(`${address}_country`).value,
-                    };
                 
-                    // Merge AddressPayload into the main payload
-                    payload = { ...payload, ...guestPayload };
-                }
+                const addressPayload = {
+                    [`${address}_address_1`]: document.getElementById(`${address}_address_1`).value,
+                    [`${address}_address_2`]: document.getElementById(`${address}_address_2`).value,
+                    [`${address}_suburb`]: document.getElementById(`${address}_suburb`).value,
+                    [`${address}_state`]: document.getElementById(`${address}_state`).value,
+                    [`${address}_postcode`]: document.getElementById(`${address}_postcode`).value,
+                    [`${address}_country`]: document.getElementById(`${address}_country`).value,
+                };
+            
+                // Merge AddressPayload into the main payload
+                payload = { ...payload, ...addressPayload };
+                
                 
                 // Send request to save session data
                 const url = '/save-checkout-session.json';
@@ -603,6 +639,9 @@ let Checkout = (function () {
                 //Use the initial generated uuid
                 document.getElementById('address-uuid').value = document.getElementById('temp-address-uuid').value;
 
+                //Set the value of the shipping_address_id field to 'new'
+                document.getElementById('shipping_address_id').setValue('new');
+
                 let name = button.getAttribute('name');
                 //Hide New Address Button
                 document.getElementsByClassName('add-address-btn')[0]?.classList.add('hide');
@@ -685,32 +724,7 @@ let Checkout = (function () {
                     element.classList.remove('is-invalid');
                 });
                 console.info('Removed "is-invalid" class from all elements.');
-            },
-            async billingSubmit(event){
-                event.preventDefault();
-                billingSubmitBtn.loading = true;
-
-                let form = event.srcElement; 
-
-                let isValid = await App.validation.validateForm(form);
-      
-                // Validate address based on the flags
-                if (!billingSamewithShippingFlag || billingSamewithShippingFlag == 'false') {
-                    isValid = Checkout.methods.validateAddress(isValid);
-                }
-
-                if (isValid) {
-                    if (!guestUserFlag && newAddressFlag) {
-                        form.submit();
-                    } else {
-                        Checkout.events.saveSessionApi();
-                    }
-                } else {
-                    App.events.notyf("error", "Please check missing fields");
-                    billingSubmitBtn.loading = false;
-                }
-                return false;
-            },
+            },            
             //Check the status of Billing = Shipping
             billingShippingStatusCheck(addressCard){
                 // let sameShippingEl = document.getElementById("status-same-shipping");

@@ -1,0 +1,201 @@
+---
+slug: api/save-checkout-session
+format: json
+method: post
+searchable: false
+metadata:
+  status: "published"
+  page_type: "endpoint"
+  og:url: ""
+  og:type: ""
+  og:image: ""
+  og:title: "Save checkout session API"
+  og:description: "Save checkout session API"
+  og:site_name: ""
+  meta_title: "Save checkout session API"
+  page_title: "Save checkout session API"
+  meta_description: "Save checkout session API"
+  canonical_url: ""
+  search_engine_visibility: false
+  sitemap_enabled: false
+  sitemap_priority: "1.0"
+  sitemap_order: "9999"
+  sitemap_changefreq: "never"
+---
+
+{% liquid
+    assign response = "{}" | parse_json
+    assign address_id = context.params.address_id | default: null
+    assign user_uuid = context.current_user.external_id
+    assign guest_user = context.params.guest_user
+%}
+
+{% parse_json account_details %}
+{
+    "company_name": "{{ context.session.account_company_name }}",
+    "contact_first_name": "{{ context.current_user.first_name }}",
+    "contact_last_name": "{{ context.current_user.last_name }}",
+    "contact_email": "{{ context.current_user.email }}",
+    "contact_phone_number": "{{ context.session.account_mobile_number }}",
+    "contact_phone_country_code": "{{ context.session.account_mobile_country_code }}"
+}
+{% endparse_json %}
+
+{% parse_json param_shipping %}
+{
+    "company_name": "{{ context.params.shipping_company_name }}",
+    "contact_first_name": "{{ context.params.shipping_contact_first_name }}",
+    "contact_last_name": "{{ context.params.shipping_contact_last_name }}",
+    "contact_email": "{{ context.params.shipping_contact_email }}",
+    "contact_phone_number": "{{ context.params.shipping_contact_phone_number }}",
+    "contact_phone_country_code": "{{ context.params.shipping_contact_phone_country_code }}",
+
+    "address_1": "{{ context.params.shipping_address_1 }}",
+    "address_2": "{{ context.params.shipping_address_2 }}",
+    "suburb": "{{ context.params.shipping_suburb }}",
+    "state": "{{ context.params.shipping_state }}",
+    "postcode": "{{ context.params.shipping_postcode }}",
+    "country": "{{ context.params.shipping_country }}",
+
+    "instructions": "{{ context.params.shipping_instructions }}"    
+}
+{% endparse_json %}
+
+{% parse_json session_shipping %}
+{
+    "company_name": "{{ context.session.shipping_company_name }}",
+    "contact_first_name": "{{ context.session.shipping_contact_first_name }}",
+    "contact_last_name": "{{ context.session.shipping_contact_last_name }}",
+    "contact_email": "{{ context.session.shipping_contact_email }}",
+    "contact_phone_number": "{{ context.session.shipping_contact_phone_number }}",
+    "contact_phone_country_code": "{{ context.session.shipping_contact_phone_country_code }}",
+
+    "address_1": "{{ context.session.shipping_address_1 }}",
+    "address_2": "{{ context.session.shipping_address_2 }}",
+    "suburb": "{{ context.session.shipping_suburb }}",
+    "state": "{{ context.session.shipping_state }}",
+    "postcode": "{{ context.session.shipping_postcode }}",
+    "country": "{{ context.session.shipping_country }}",
+
+    "instructions": "{{ context.session.shipping_instructions }}"    
+}
+{% endparse_json %}
+
+{% parse_json param_billing %}
+{
+    "same_with_shipping": "{{ context.params.billing_same_with_shipping }}",
+
+    "company_name": "{{ context.params.billing_company_name }}",
+    "contact_first_name": "{{ context.params.billing_contact_first_name }}",
+    "contact_last_name": "{{ context.params.billing_contact_last_name }}",
+    "contact_email": "{{ context.params.billing_contact_email }}",
+    "contact_phone_number": "{{ context.params.billing_contact_phone_number }}",
+    "contact_phone_country_code": "{{ context.params.billing_contact_phone_country_code }}",    
+
+    "address_1": "{{ context.params.billing_address_1 }}",
+    "address_2": "{{ context.params.billing_address_2 }}",
+    "suburb": "{{ context.params.billing_suburb }}",
+    "state": "{{ context.params.billing_state }}",
+    "postcode": "{{ context.params.billing_postcode }}",
+    "country": "{{ context.params.billing_country }}" 
+}
+{% endparse_json %}
+
+
+{% if guest_user and guest_user == true %}
+        
+    {% liquid
+
+        # Assign order-cart-related session variables for guest
+        if context.params.cart
+            session guest_cart = context.params.cart
+        endif
+        if context.params.products
+          session guest_products = context.params.products
+        endif 
+    %}
+
+{% endif %}
+
+
+    {% comment %} Update Sessions for Shipping Details {% endcomment %}
+    {% if context.params.type == 'shipping' %}
+        {%  liquid
+                        
+            if address_id
+                session shipping_address_id = address_id
+            endif
+
+            session shipping_same_with_account = context.params.shipping_same_with_account
+
+            ## Select which contact details to use
+            if context.params.shipping_same_with_account == true or context.params.shipping_same_with_account == 'true'
+                assign data_contact_details = account_details
+            else
+                assign data_contact_details = param_shipping
+            endif
+
+            ## Shipping Contact Details
+            session shipping_company_name = data_contact_details.company_name
+            session shipping_contact_first_name = data_contact_details.contact_first_name
+            session shipping_contact_last_name = data_contact_details.contact_last_name
+            session shipping_contact_email = data_contact_details.contact_email
+            session shipping_contact_phone_number = data_contact_details.contact_phone_number
+            session shipping_contact_phone_country_code = data_contact_details.contact_phone_country_code
+
+            ## Shipping Address Details      
+            assign data = param_shipping      
+            session shipping_address_1 = data.address_1
+            session shipping_address_2 = data.address_2
+            session shipping_suburb = data.suburb
+            session shipping_state = data.state
+            session shipping_postcode = data.postcode
+            session shipping_country = data.country
+
+            session shipping_instructions = param_shipping.instructions  
+        %}
+    {% endif %}
+
+    {% comment %} Update Sessions for Billing Details {% endcomment %}
+    {% if context.params.type == 'billing' %}
+        {%  liquid
+
+            if context.params.billing_same_with_shipping == true or context.params.billing_same_with_shipping == 'true' 
+                assign data = session_shipping
+            else 
+                assign data = param_billing
+            endif
+
+            session billing_same_with_shipping = context.params.billing_same_with_shipping
+
+            session billing_company_name = data.company_name
+            session billing_contact_first_name = data.contact_first_name
+            session billing_contact_last_name = data.contact_last_name
+            session billing_contact_email = data.contact_email
+            session billing_contact_phone_number = data.contact_phone_number
+            session billing_contact_phone_country_code = data.contact_phone_country_code
+
+            session billing_address_1 = data.address_1
+            session billing_address_2 = data.address_2
+            session billing_suburb = data.suburb
+            session billing_state = data.state
+            session billing_postcode = data.postcode
+            session billing_country = data.country            
+        %}
+    {% endif %}
+
+
+{% liquid
+
+    # Assign the latest step if present
+    if context.params.latest_step
+        session latest_step = context.params.latest_step
+    endif
+
+    # Add response status
+    assign response = response | add_hash_key: 'status', 200
+    assign response = response | add_hash_key: 'data', context.session    
+
+%}
+
+{{ response }}

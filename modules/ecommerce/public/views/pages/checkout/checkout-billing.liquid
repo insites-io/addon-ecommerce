@@ -12,13 +12,11 @@ metadata: {
 }
 ---
 
-{%- graphql data = 'modules/ecommerce/account/get_current_user' -%}
-
 {% include 'modules/ecommerce/checkout/checkout_redirect_step' %}
 
 <div class="grid-x grid-padding-x">
     <div class="large-offset-2 medium-offset-1 small-offset-0 large-8 medium-10 small-12 cell">
-        {% include 'modules/ecommerce/layout/checkout_steps', clickable: true, data %}
+        {% include 'modules/ecommerce/layout/checkout_steps', clickable: true %}
     </div>
 </div>
 
@@ -26,10 +24,13 @@ metadata: {
 
 <div class="grid-x grid-padding-x">
     <div class="large-7 medium-12 small-12 cell">
-        {%- if context.session.billing_address_id == blank or context.session.shipping_address_id == context.session.billing_address_id  -%}
-        {%- include_form 'modules/ecommerce/checkout_billing_address', id: context.session.shipping_address_id, data -%}
+
+        {%- if context.session.billing_address_id == blank -%}
+            {% comment %} Add new address {% endcomment %}
+            {%- include_form 'modules/ecommerce/checkout_billing_address' -%}
         {%- else -%}
-        {%- include_form 'modules/ecommerce/checkout_billing_address', id: context.session.billing_address_id, data -%}
+            {% comment %} Edit existing address {% endcomment %}
+            {%- include_form 'modules/ecommerce/checkout_billing_address', id: context.session.billing_address_id -%}
         {%- endif -%}
         
     </div>

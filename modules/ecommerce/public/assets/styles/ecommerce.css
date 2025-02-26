@@ -115,6 +115,12 @@ ins-button.button-large button .btn__icon {
     font-size: 14px;
     text-align: right;
 }
+.hidden-input,
+ins-input.hidden-input input {
+    height: 0px !important;
+    padding: 0px !important;
+    border: 0px !important;
+}
 
 .ui-sidebar {
     font-family: var(--font-family-02);
