@@ -11,8 +11,9 @@ metadata: {
     "meta_title": "checkout"       
 }
 ---
+{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
 
-{%- if context.current_user -%}
+{%- if has_profile -%}
     {%- include 'modules/ecommerce/checkout/checkout_account_info_page' -%}
 {%- elsif context.params.guest -%}
     {%- session latest_step = 2 -%}
