@@ -3,7 +3,7 @@ metadata: {
     partial_name: 'Ecommerce | Client Portal | Order History'
 }
 ---
-<h1>Order History</h1>
+<h1 id="order-history-title">Order History</h1>
 <div class="spacer small"></div>
 <p>Check the status of your order and review your order history.</p>
 <div class="spacer x-large"></div>
@@ -127,6 +127,7 @@ metadata: {
         pageNumber = event.detail.pageNumber;
         pageSize = event.detail.pageSize;
         processTableData();
+        document.getElementById('order-history-title').scrollIntoView({ behavior: 'smooth' });
     }
 
 
