@@ -36,7 +36,9 @@ query get_order_items (
       is_fixed_tax_amount: property_boolean(name: "is_fixed_tax_amount")  
       tax_amount: property_float(name: "tax_amount")
       order_item_name: property(name: "order_item_name")
-      order_item_image: property(name: "order_item_image")      
+      order_item_image: property_upload(name: "order_item_image") {
+        url
+      }        
     },
     results @include(if: $is_product_info_needed){
       product: related_record(
