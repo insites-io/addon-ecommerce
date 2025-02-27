@@ -3,24 +3,26 @@ metadata: {
     partial_name: 'Ecommerce | Carts | Cart Drawer'
 }
 ---
-{% comment %} Get the user uuid {% endcomment %}
-{%  liquid
-    if context.session.user_uuid and context.session.user_uuid != ''
-        assign user_uuid = context.session.user_uuid
-    else
-        graphql user = 'modules/portal/account/get_current_user'
-        session user_uuid = user.current_user.external_id
-        assign user_uuid = user.current_user.external_id
-    endif
-%}
+{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
 
+{%- if has_profile -%}
+    {% comment %} Get the user uuid {% endcomment %}
+    {%  liquid
+        if context.session.user_uuid and context.session.user_uuid != ''
+            assign user_uuid = context.session.user_uuid
+        else
+            graphql user = 'modules/portal/account/get_current_user'
+            session user_uuid = user.current_user.external_id
+            assign user_uuid = user.current_user.external_id
+        endif
+    %}
 
-{% comment %} Get the user's cart(s) {% endcomment %}
-{% if user_uuid != '' %}
-    {% graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
-        contact_uuid: user_uuid | dig: 'items','results' | first %}
+    {% comment %} Get the user's cart(s) {% endcomment %}
+    {% if user_uuid != '' %}
+        {% graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
+            contact_uuid: user_uuid | dig: 'items','results' | first %}
+    {% endif %}
 {% endif %}
-
 
 {% if user_cart.items.size > 0 %}
 
