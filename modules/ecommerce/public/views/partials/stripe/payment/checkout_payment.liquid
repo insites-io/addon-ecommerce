@@ -18,7 +18,7 @@ metadata: {
     
     {%  liquid
         assign customer_email = context.current_user.email
-        graphql stripe_customer = 'modules/client/customers/get_user_stripe_id', email: customer_email | dig: 'items', 'results' | first
+        graphql stripe_customer = 'modules/portal/customers/get_user_stripe_id', email: customer_email | dig: 'items', 'results' | first
 
         if stripe_customer.id 
             assign stripe_customer_id = stripe_customer.profiles[0].stripe_id

@@ -18,7 +18,7 @@ metadata: {
   sitemap_changefreq: "never"
 }
 authorization_policies:
-  - modules/client/is_user_logged_in
+  - modules/portal/is_user_logged_in
 ---
 
 {%- assign payload = context.params.payload | parse_json -%}

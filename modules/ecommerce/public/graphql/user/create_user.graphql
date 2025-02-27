@@ -27,7 +27,7 @@ mutation user_create(
         	}
         },
         {
-          name: "modules/client/client", 
+          name: "modules/portal/client", 
         	values: {
             properties: [
               {name: "is_enabled", value_boolean: true},

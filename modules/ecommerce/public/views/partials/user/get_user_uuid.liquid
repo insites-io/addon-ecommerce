@@ -8,7 +8,7 @@ metadata: {
     if context.session.user_uuid and context.session.user_uuid != ''
         assign user_uuid = context.session.user_uuid
     else
-        graphql user = 'modules/client/account/get_current_user'
+        graphql user = 'modules/portal/account/get_current_user'
         session user_uuid = user.current_user.external_id
         assign user_uuid = user.current_user.external_id
     endif

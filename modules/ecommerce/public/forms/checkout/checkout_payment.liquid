@@ -187,14 +187,14 @@ callback_actions: >
     if context.session.user_uuid and context.session.user_uuid != ''
         assign user_uuid = context.session.user_uuid
     else
-        graphql user = 'modules/client/account/get_current_user'
+        graphql user = 'modules/portal/account/get_current_user'
         session user_uuid = user.current_user.external_id
         assign user_uuid = user.current_user.external_id
     endif
 %}
 
 
-{% function stripe_settings = "modules/client/stripe/get_stripe_settings" %}
+{% function stripe_settings = "modules/portal/stripe/get_stripe_settings" %}
 
 
 {% form 
@@ -234,7 +234,7 @@ callback_actions: >
                             Check first if the user crm_contact.properties.stripe_id has value,
                             - because it is possible that the user has card record in payment_method but no crm_contact.properties.stripe_id (during test: manual deletiong of stripe_id)
                         {% endcomment %}
-                        {%- graphql user_stripe = 'modules/client/customers/get_user_stripe_id', id: context.current_user.id | dig: 'items','results' | first -%}
+                        {%- graphql user_stripe = 'modules/portal/customers/get_user_stripe_id', id: context.current_user.id | dig: 'items','results' | first -%}
                         {%- assign stripe_id = user_stripe | dig: 'profiles' | first | dig: 'stripe_id' -%}
 
                         {% if stripe_id != '' and stripe_id != null %}

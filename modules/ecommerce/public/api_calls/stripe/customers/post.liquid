@@ -12,7 +12,7 @@ callback: >
 request_headers: >
   {% if data %}
     {% if data %}
-    {% function stripe_settings = "modules/client/stripe/get_stripe_settings" %}
+    {% function stripe_settings = "modules/portal/stripe/get_stripe_settings" %}
     {
       "Content-Type": "application/x-www-form-urlencoded",
       "Authorization": "Bearer {{ stripe_settings.sk_key }}"

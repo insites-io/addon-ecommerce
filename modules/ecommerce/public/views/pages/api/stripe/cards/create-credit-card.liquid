@@ -92,7 +92,7 @@ metadata: {
             "mobile_phone_country_code": "{{ context.session.billing_contact_phone_country_code }}"
         }
         {%- endparse_json -%}    
-        {%- graphql update_contact = 'modules/ecommerce/system/trigger_api_call', name: 'modules/client/update_contact', data: crm_data | dig: 'items','response','body' | parse_json -%}
+        {%- graphql update_contact = 'modules/ecommerce/system/trigger_api_call', name: 'modules/portal/update_contact', data: crm_data | dig: 'items','response','body' | parse_json -%}
 
     {% endif %}
 
@@ -117,7 +117,7 @@ metadata: {
     {% endcomment %}
 
     {% comment %} Check if the user already has a Stripe ID. {% endcomment %}
-    {%- graphql user_stripe = 'modules/client/customers/get_user_stripe_id', email: customer_email | dig: 'items','results' | first -%}
+    {%- graphql user_stripe = 'modules/portal/customers/get_user_stripe_id', email: customer_email | dig: 'items','results' | first -%}
     {%- assign stripe_id = user_stripe | dig: 'profiles' | first | dig: 'stripe_id' -%}
 
     {% if stripe_id and stripe_id != '' %}
@@ -152,7 +152,7 @@ metadata: {
                 "stripe_id": "{{ stripe_customer_id }}"
             }
             {%- endparse_json -%}    
-            {%- graphql update_contact = 'modules/ecommerce/system/trigger_api_call', name: 'modules/client/update_contact', data: crm_data | dig: 'items','response','body' | parse_json -%}
+            {%- graphql update_contact = 'modules/ecommerce/system/trigger_api_call', name: 'modules/portal/update_contact', data: crm_data | dig: 'items','response','body' | parse_json -%}
         {% else %}
             {% log "Error: Logged-in user has no CRM data" %}
         {% endif %}
