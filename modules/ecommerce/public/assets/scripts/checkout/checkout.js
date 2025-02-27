@@ -45,11 +45,13 @@ let guestUserFlag = false;
 const inputIds = [
     "shipping_address_1",
     "shipping_address_2",
+    "shipping_suburb",
     "shipping_state",
     "shipping_postcode",
     "shipping_country",
     "billing_address_1",
     "billing_address_2",
+    "billing_suburb",
     "billing_state",
     "billing_postcode",
     "billing_country"
