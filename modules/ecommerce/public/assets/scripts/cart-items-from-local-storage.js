@@ -180,7 +180,7 @@ async function listCartItems(carts, productUUIDs){
             }
                 
             if(shoppingCartItemsWrap) shoppingCartHtml += createShoppingCartHtml(data, i);  
-            if(page_url !=='/shopping-cart' && orderSummaryWrap) orderSummaryHtml += createOrderSummaryHtml(data, i); 
+            //if(page_url !=='/shopping-cart' && orderSummaryWrap) orderSummaryHtml += createOrderSummaryHtml(data, i); 
         };
 
             
