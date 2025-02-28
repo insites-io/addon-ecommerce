@@ -76,12 +76,8 @@ let StripeElement = (() => {
                         this.makeCardElement(result.token);
                         card.clear();
                         stripeCardModal.close();                        
-                        if(guestAddCardForm){
-                            guestAddCardForm.classList.add("hide");
-                        }
-                        if(submitButtons){
-                            submitButtons.classList.remove("hide");
-                        }
+                        //toggle guest card form
+                        StripeElement.events.toggeleGuestCard('add');
                     }
                 });
             },
@@ -160,9 +156,30 @@ let StripeElement = (() => {
                     selectedEl.parentNode.remove();
                     App.events.notyf('success', "Credit card has been removed.");
                     StripeElement.methods.checkCardCount();
+                    StripeElement.events.toggeleGuestCard('remove');
                 }
             },
-        },
+            toggeleGuestCard(state){
+                if( user_uuid == ''){
+                    if(state === 'remove'){
+                        if(guestAddCardForm){
+                            guestAddCardForm.classList.remove("hide");
+                        }
+                        if(submitButtons){
+                            submitButtons.classList.add("hide");
+                        }
+                    }
+                    else{
+                        if(guestAddCardForm){
+                            guestAddCardForm.classList.add("hide");
+                        }
+                        if(submitButtons){
+                            submitButtons.classList.remove("hide");
+                        }
+                    }
+                }
+            }
+        },        
         init: {
             dynamicCCEventListener(element, click = false) {
                 setTimeout(() => {

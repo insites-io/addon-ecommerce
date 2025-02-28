@@ -1395,3 +1395,16 @@ ins-filter .date-filter .fas  {
 #stripe-modal ins-button button.ins-button.size--normal.is-loading {
     width: 100%;
 }
+
+/* Credit Card */
+#credit-card-fields .ins-credit-card-compact-size{
+    margin-bottom: 0px !important;
+}
+.empty-card .ins-card-wrap{    
+    padding: 56px 24px;
+    align-items: center;
+    border-radius: 4px;
+    border: 1px solid var(-color-ui-04);
+    background: var(--color-ui-02);
+    box-shadow: none !important;
+}

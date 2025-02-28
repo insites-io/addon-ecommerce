@@ -206,7 +206,7 @@ callback_actions: >
     <!-- Payment Details -->
 
     <div id="payment-details" class="aa">
-        <h2 class="heading-1">Payment Method</h2>
+        <h2 class="heading-1">Payment Info</h2>
         <div class="spacer xxx-large"></div>
 
         <div class="grid-x grid-padding-x">
@@ -227,7 +227,7 @@ callback_actions: >
             <div id="credit-card-fields" required class="card-fields">
                 <div class="spacer x-large"></div>
                 <p class="error-message hide">Credit Card is required.</p>
-                <div id="card-options-list" class="grid-x grid-padding-x">
+                <div id="card-options-list" class="grid-x grid-padding-x grid-padding-y">
                     {%- if user_uuid -%}
 
                         {% comment %} 
@@ -255,8 +255,7 @@ callback_actions: >
                                         expiry-year="{{ card.card_expiry_year }}" full-year
                                         value="{{ card.payment_method_token }}"
                                         compact>
-                                    </ins-credit-card>                        
-                                    <div class="spacer small"></div>
+                                    </ins-credit-card>
                                 </div>
                             {%- endfor -%}
                         {%- endif -%}
@@ -270,8 +269,8 @@ callback_actions: >
             </div>
 
             {%- if context.current_user -%}
-                <ins-card steady id="no-card" class="empty-state text-center {% if cards.total_entries > 0 %}hide{% endif %}">
-                    No Cards Added
+                <ins-card steady id="no-card" class="empty-card {% if cards.total_entries > 0 %}hide{% endif %}">
+                    No card added.
                 </ins-card>
             {%- else -%}
                 <div id="guest-add-card-form">
@@ -282,13 +281,14 @@ callback_actions: >
         </div>
         {% comment %}END: Credit Cards {% endcomment %}
 
-        <div class="spacer xxx-large test"></div>
+        <div class="spacer"></div>
+        <div class="spacer xx-small"></div>
+
 
         {%- comment -%}Check if there's items to pay for{%- endcomment -%}
         {%- include 'modules/ecommerce/checkout/compute_order_summary' -%}
         <div class="grid-x grid-padding-x">
-            <div class="large-12 medium-12 small-12 cell">
-                <div class="spacer small"></div>                
+            <div class="large-12 medium-12 small-12 cell">                             
                             
                 {%- assign stripe_account_id = stripe_settings.account_id -%}
                 
@@ -325,6 +325,7 @@ callback_actions: >
 
 <!-- Stripe Element -->
 <script>
+    let user_uuid = '{{ context.current_user.external_id }}';
     let guestAddCardForm = document.getElementById("guest-add-card-form");
     let submitButtons = document.getElementById("submit-buttons");    
 </script>
