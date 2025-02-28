@@ -1389,6 +1389,41 @@ ins-filter .date-filter .fas  {
 
 
 /* Stripe */
-#stripe-modal ins-button button.ins-button.size--normal.is-loading {
-    width: 100%;
+@media only screen and (max-width: 425px) {
+    #stripe-modal ins-button button.ins-button.size--normal.is-loading {
+        width: 100%;
+    }
+}
+
+.ins-step_progress-bar {
+    top: calc(50% - 20px) !important;
+    background: var(--color-ui-04);
+}
+
+ins-button.add-credit-card button.ins-button>div,
+#add-card-btn button.ins-button >div {
+    text-align: left;
+}
+
+#shopping-cart-list ins-card.empty-state .ins-card-wrap  {
+    display: flex;
+    padding: 56px 24px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    align-self: stretch;
+    border-radius: 4px;
+    border: 1px solid var(--color-ui-04, #DFDFDF);
+    background: var(--color-ui-02, #F9FAFB);
+}
+
+#shopping-cart-list ins-card.empty-state .ins-card-wrap >span {
+    color: var(--font-color-body);
+    text-align: center;
+    font-family: var(--font-family-02);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px; 
 }
