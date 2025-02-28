@@ -21,12 +21,14 @@ metadata: {
 
 {% endcase %}
 
+{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
+
 <ins-steps
     {% if clickable %} clickable  with-validation {% endif %}
     {% if context.location.pathname == '/confirmation' %} complete {% endif %}
     id="checkout-nav">
 
-    {% if context.current_user %}
+    {% if has_profile %}
     <ins-step data-step="1" 
         {% if currentStep == 1 %}active{% endif %}
         {% if latestStep < 1 %}disabled {% endif %}

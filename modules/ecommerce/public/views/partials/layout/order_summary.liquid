@@ -5,7 +5,11 @@ metadata: {
 ---
 {% assign params = context.params %}
 {% function user_uuid = 'modules/ecommerce/user/get_user_uuid'  %}
-
+{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
+{%- unless has_profile -%}
+    {%- assign user_uuid = null -%}
+    bananana
+{%- endunless -%}
 
 {%- if is_ordered_items == true and order_uuid != '' -%}   
 
@@ -58,11 +62,13 @@ metadata: {
         <div class="spacer x-large"></div>
     {% endunless %}
         
-    <div id="order-summary-cart-wrap" class="order-summary">   
+    <div id="order-summary-cart-wrap" class="order-summary">  
+        user_uuid = {{ user_uuid }} 
         {% comment %}
             - This is only for logged-in users
         {% endcomment %}
         {%- if show_product and user_uuid != '' -%}   
+            asdsadasds
 
             {%- for item in carts -%}
 

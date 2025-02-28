@@ -109,7 +109,8 @@ metadata: {
     </ins-loader>
 {%- else -%}
 
-    {% if context.current_user %}
+    {% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
+    {% if has_profile %}
 
         <div id="shopping-cart-list" class="shopping-cart grid-x grid-padding-x grid-padding-y">
             <div class="small-12 cell">
