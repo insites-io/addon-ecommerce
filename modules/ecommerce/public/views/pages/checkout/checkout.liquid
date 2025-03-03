@@ -11,6 +11,8 @@ metadata: {
     "meta_title": "checkout"       
 }
 ---
+{%- include "modules/insites_cms/globals" -%}
+{%- assign global = context.exports.global -%}
 {% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
 
 {%- if has_profile -%}

@@ -7,9 +7,6 @@ metadata: {
     Checkout landing page: User not yet logged in
 {%- endcomment -%}
 
-{%- include "modules/insites_cms/globals" -%}
-{%- assign global = context.exports.global -%}
-
 {%- assign company_name = global.company_name | strip | default: "us" -%}
 
 <div class="grid-x grid-padding-x">
