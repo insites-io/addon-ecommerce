@@ -47,8 +47,12 @@ Step 2: (optional) Create address models
         user_id: user_id,
         form: form %}
     {% assign guest_user = false %}
+    {% assign products = context.exports.cart_items.products  %}
+    {% assign cart = context.exports.cart_items.carts  %}
 {% else %}
     {% assign guest_user = true %}
+    {% assign products = context.exports.guest_cart_items.products  %}
+    {% assign cart = context.exports.guest_cart_items.carts  %}
 {%- endif -%}
 
 
@@ -84,8 +88,8 @@ Step 4: Trigger autoresponder, workflow email & API
     "payment_response": {{ payment_response | default: '[]' }},
     "customer_info": {{ context.current_user | default: customer_info }},
     "cart_ids": {{ context.exports.order.cart_ids | default: 0 }},
-    "cart": {{ context.exports.cart_items.carts | default: '[]' }},
-    "products": {{ context.exports.cart_items.products | default: '[]' }},
+    "cart": {{ cart | default: '[]' }},
+    "products": {{ products | default: '[]' }},
     "order_info": {{ context.exports.updated_order.items | default: '' }},
     "total_discounted_amount": {{ context.exports.order.total_discount_amount | default: 0 }}, 
     "form": {{ form | default: '' }},
