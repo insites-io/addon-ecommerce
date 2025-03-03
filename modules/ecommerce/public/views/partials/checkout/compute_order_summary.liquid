@@ -44,6 +44,14 @@ metadata: {
         graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: carts.size | dig: 'items','results'
     %}    
 
+    {% parse_json guest_cart_items %}
+    {
+        "carts": {{ carts | default: '[]' }},
+        "products": {{ products | default: '[]' }}
+    }
+    {% endparse_json %}
+
+    {% export guest_cart_items %}
 {% else %}
 
     {% comment %} Logged in user {% endcomment %}
