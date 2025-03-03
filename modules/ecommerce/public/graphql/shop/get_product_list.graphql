@@ -3,8 +3,6 @@ query get_product_list (
   $page: Int = 1,
   $size: Int = 10,
   $keyword: String,
-  $is_enabled: Boolean,
-  $is_archived: Boolean,
   $category: [String!],
   $max_price: String,
   $min_price: String = "0",
@@ -20,8 +18,10 @@ query get_product_list (
       deleted_at: { exists: false }
       table: { value: "modules/insites_ecommerce/product" }
       properties: [
-        { name: "is_enabled", value_boolean: $is_enabled }
-        { name: "is_archived", value_boolean: $is_archived }
+        { name: "status", 
+          #value: "enabled" 
+          not_value_in: ["archived","disabled"]
+        }
         { name: "name", contains: $keyword }
         { name: "categories", array_contains: $category }
       ] 

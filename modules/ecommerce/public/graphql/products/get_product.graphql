@@ -12,7 +12,10 @@ query get_product (
       deleted_at: { exists: false }
       table: { value: "modules/insites_ecommerce/product" }
       properties: [
-        { name: "status", value: "enabled" }
+        { name: "status", 
+          #value: "enabled" 
+          not_value_in: ["archived","disabled"]
+        }
         { name: "slug", value: $slug }
       ] 
     }
