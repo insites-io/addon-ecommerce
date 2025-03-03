@@ -315,6 +315,7 @@ ins-carousel .product-cards>div {
 .product-cards img, 
 .product-cards .placeholder-img  {
     min-height: 300px;
+    width: 100%;
     object-fit: cover;
     border-radius: 4px;
 }
