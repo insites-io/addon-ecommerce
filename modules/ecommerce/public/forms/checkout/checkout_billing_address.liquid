@@ -67,7 +67,12 @@ callback_actions: |-
   If not, then the form will be submitted and new billing address will be added/updated.
 {% endcomment %}
 
-{%  assign user_uuid = context.current_user.external_id %}
+{% assign user_uuid = context.current_user.external_id %}
+{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
+{%- unless has_profile -%}
+  {%- assign user_uuid = null -%}
+{%- endunless -%}
+
 {%- assign statusClass = "hide" -%}
 {%- assign addressIdUsed = context.session.billing_address_id | default: "" -%}
 

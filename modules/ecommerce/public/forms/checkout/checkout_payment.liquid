@@ -91,11 +91,15 @@ default_payload: >
     {%- comment -%} Get currency from eCommerce settings {%- endcomment -%}
     {%- graphql settings = "modules/ecommerce/system/get_settings" | dig: 'items' | dig: 'results' | first -%}
 
+    {%- function has_profile = "modules/website/layout/check_if_user_has_profile" -%}
+
     {% comment %} Get current_user details {% endcomment %}
-    {% graphql order_contact_uuid = 'modules/ecommerce/account/get_current_user' | dig: 'current_user','uuid' %}
-    {% assign order_contact_first_name =  context.current_user.first_name %}
-    {% assign order_contact_last_name = context.current_user.last_name %}
-    {% assign order_contact_email = context.current_user.email %}
+    {%- if has_profile -%}
+        {% graphql order_contact_uuid = 'modules/ecommerce/account/get_current_user' | dig: 'current_user','uuid' %}
+        {% assign order_contact_first_name =  context.current_user.first_name %}
+        {% assign order_contact_last_name = context.current_user.last_name %}
+        {% assign order_contact_email = context.current_user.email %}
+    {% endif %}
     
     {%- comment -%} Compute order values {%- endcomment -%}
     {% include 'modules/ecommerce/checkout/compute_order_summary' %}
@@ -174,6 +178,11 @@ callback_actions: >
     {%- endcomment -%}
     
     {%- assign user_id = context.current_user.id | default: "" -%}
+    {%- function has_profile = "modules/website/layout/check_if_user_has_profile" -%}
+    {%- unless has_profile -%}
+        {%- assign user_id = "" -%}
+    {%- endunless -%}
+
     {% export user_id %}
     {%- include 'modules/ecommerce/checkout/callback_init', 
         form: form
@@ -182,16 +191,19 @@ callback_actions: >
 
     {%- session latest_step = 5 -%}
 ---
-{% comment %} Get the user uuid {% endcomment %}
-{%  liquid
-    if context.session.user_uuid and context.session.user_uuid != ''
-        assign user_uuid = context.session.user_uuid
-    else
-        graphql user = 'modules/portal/account/get_current_user'
-        session user_uuid = user.current_user.external_id
-        assign user_uuid = user.current_user.external_id
-    endif
-%}
+{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
+{%- if has_profile -%}
+    {% comment %} Get the user uuid {% endcomment %}
+    {%  liquid
+        if context.session.user_uuid and context.session.user_uuid != ''
+            assign user_uuid = context.session.user_uuid
+        else
+            graphql user = 'modules/portal/account/get_current_user'
+            session user_uuid = user.current_user.external_id
+            assign user_uuid = user.current_user.external_id
+        endif
+    %}
+{%- endif -%}
 
 
 {% function stripe_settings = "modules/portal/stripe/get_stripe_settings" %}
@@ -214,7 +226,7 @@ callback_actions: >
                 <h2 class="heading-2">Credit Card</h2>
             </div>
             <div class="large-6 medium-6 small-12 cell text-right">
-                {% if context.current_user %}
+                {% if has_profile %}
                 <div class="spacer x-small"></div>
                 <ins-button type="button" id="add-card-btn" size="small" icon="icon-plus" label="Add Card">
                 </ins-button>
@@ -268,7 +280,7 @@ callback_actions: >
                     value="{{ selected_card }}"></ins-input>
             </div>
 
-            {%- if context.current_user -%}
+            {%- if has_profile -%}
                 <ins-card steady id="no-card" class="empty-card {% if cards.total_entries > 0 %}hide{% endif %}">
                     No card added.
                 </ins-card>
@@ -299,7 +311,7 @@ callback_actions: >
                 {%- else -%}
                     {% comment %} context.exports.order.total_amount > 0 {% endcomment %}
                     {%- if true -%}
-                        <div id="submit-buttons" class="grid-x grid-padding-x {% unless context.current_user %} hide {% endunless %}">  
+                        <div id="submit-buttons" class="grid-x grid-padding-x {% unless has_profile %} hide {% endunless %}">  
                             <div class="large-6 medium-6 small-12 cell">
                                 <a href="/checkout/billing">
                                     <ins-button solid type="button" label="Back" outlined></ins-button>

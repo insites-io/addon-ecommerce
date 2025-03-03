@@ -34,6 +34,7 @@ metadata: {
         {% export parent_categories %}
 
         <ul>
+            <li><a href="/products">All</a></li>
             {% for category in parent_categories %}
             <li><a href="/products/{{category.slug}}">{{category.category_name}}</a></li>
             {% endfor %}

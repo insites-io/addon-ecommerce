@@ -65,6 +65,10 @@ callback_actions: |-
 
 {% assign prop = form.fields.properties %}
 {% assign user_uuid = context.current_user.external_id %}
+{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
+{%- unless has_profile -%}
+    {%- assign user_uuid = null -%}
+{%- endunless -%}
 
 {%- form 
   html-id: "shipping-address-form"
@@ -107,7 +111,7 @@ callback_actions: |-
     <h2 class="heading-2">Shipping Contact</h2>
     <div class="spacer x-large"></div>
 
-    {% if context.current_user %}
+    {% if user_uuid != blank %}
     <ins-checkbox class="inline" 
       {% if context.session.shipping_same_with_account == 'true' %} checked {% endif %}
       name="{{ prop.shipping_same_with_account.name }}"
@@ -187,6 +191,8 @@ callback_actions: |-
 
       <div class="spacer"></div>
       <div class="spacer xx-small"></div>
+      
+      {% if has_profile %}      
 
       {% liquid 
          if context.current_user
@@ -202,9 +208,6 @@ callback_actions: |-
         name="{{ prop.shipping_address_id.name }}"
         error-message="Shipping address is required. Please select from the list below or add new address.">
       </ins-input> 
-
-      
-      {% if context.current_user %}      
 
         {%- graphql addresses = 'modules/ecommerce/address/get_address', 
           user_uuid: user_uuid | dig: 'items','results' -%}
@@ -335,7 +338,7 @@ callback_actions: |-
     </div>            
 
     {%- assign submitLabel = 'Proceed to Billing' -%}
-    {% if addresses.size <= 0 or context.current_user == blank %}
+    {% if addresses.size <= 0 or user_uuid == blank %}
       {%- assign submitLabel = 'Save and Proceed' -%}
     {% endif %}
 

@@ -25,9 +25,10 @@ authorization_policies:
     assign account_phone_data = "{}" | parse_json
 
     # Fetch current user data
+    function has_profile = "modules/website/layout/check_if_user_has_profile"
     graphql current_user = 'modules/ecommerce/account/get_current_user' | dig: 'current_user'
 
-    if current_user
+    if has_profile
         assign account_contact = current_user | dig: 'crm_contact' | first
 
         # Assign account details
@@ -89,7 +90,7 @@ authorization_policies:
 
             <div class="grid-x grid-padding-x">
 
-                {% if context.current_user %}
+                {% if has_profile %}
                     {% comment %} Account Details {% endcomment %}
                     <div class="large-5 medium-12 small-12 cell">
                         <h3 class="heading-3">Account Details</h3>
@@ -103,7 +104,7 @@ authorization_policies:
                 {% endif %}
 
                 {% comment %} Shipping Details {% endcomment %}                
-                <div class="{% if context.current_user %}large-offset-1{% endif %} large-5 medium-12 small-12 cell">
+                <div class="{% if has_profile %}large-offset-1{% endif %} large-5 medium-12 small-12 cell">
                     <h3 class="heading-3">Shipping Details</h3>
                     <div class="spacer small"></div>
                         {%- assign shipping_address = "" -%}
@@ -139,7 +140,7 @@ authorization_policies:
                 </div>
 
                 {% comment %} Billing Details {% endcomment %}
-                <div class="large-5 medium-12 small-12 cell {% unless context.current_user %}large-offset-1{% endunless %}">
+                <div class="large-5 medium-12 small-12 cell {% unless has_profile %}large-offset-1{% endunless %}">
                     <h3 class="heading-3">Billing Details</h3>
                     <div class="spacer small"></div>
                     {%- assign billing_address = "" -%}
@@ -170,7 +171,7 @@ authorization_policies:
 
                 {% comment %} Payment Details {% endcomment %}
                 
-                <div class="{% if context.current_user %}large-offset-1{% endif %} large-5 medium-12 small-12 cell">
+                <div class="{% if has_profile %}large-offset-1{% endif %} large-5 medium-12 small-12 cell">
                     <h3 class="heading-3">Payment Details</h3>
                     <div class="spacer small"></div>
                     <p class="font-cabin">{{ order.payment.card_brand | upcase }} **** **** **** {{ order.payment.card_last_four_digits }}</p>

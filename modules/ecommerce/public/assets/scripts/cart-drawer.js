@@ -203,8 +203,6 @@ async function addToCart(data, type, all_items, reorder_iteration){
             if(response.state) {
                 goToCartButtonEnabled();
                 if (page == 'shopping-cart') {
-                    shoppingCartListEl.style.display = 'flex';
-                    shoppingCartLoaderEl.classList.add("hide");
                     location.reload();
                 } 
 

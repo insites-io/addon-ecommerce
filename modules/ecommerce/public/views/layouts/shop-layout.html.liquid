@@ -135,14 +135,15 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
     </div>    
     
     {% include 'modules/website/layout/header_mobile_default' %}
-    
+
     {%- capture foot_key -%} {{ context.exports.layout_cache_key.cache_key | append: "-footer_section"}} {%- endcapture -%}
     {%- cache foot_key -%}
     {% include 'modules/website/layout/footer' %}
     {%- endcache -%}
 
     {% include 'modules/ecommerce/carts/cart_drawer' %}
-
+    
+    <script src="{{ 'modules/ecommerce/scripts/mega_menu_close.js' | asset_url }}"></script>
     <script>
         //Trigger a click event on a child <a> element when clicking anywhere inside an element '.product-cards .cell' 
         //(except for ins-buttonn element and its children)

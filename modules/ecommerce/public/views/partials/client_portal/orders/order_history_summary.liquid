@@ -61,7 +61,11 @@ metadata: {
         
         let product = data.product;
         let variants = product.variants;
+<<<<<<< HEAD
         let product_img = data.order_item_image.url;
+=======
+        let product_img = data.product.product_image.url || null;
+>>>>>>> bugfix/design-qa/24060464
         let variation = "";
         let sub_price = data.item_price * data.quantity;
 
