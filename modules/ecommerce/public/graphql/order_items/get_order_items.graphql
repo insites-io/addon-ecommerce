@@ -22,6 +22,9 @@ query get_order_items (
         lte: $dateTo
       }
     }
+    sort: {
+      created_at: { order: DESC}
+    }
   ) {
     total_entries  
     total_pages

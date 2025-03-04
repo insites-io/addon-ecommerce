@@ -10,20 +10,6 @@ metadata: {
     "page_title": "Products",
     "meta_title": "Products"       
 }
-dynamic_cache:
-  layout: false
-  key: |-
-    {%- parse_json models -%}
-    [
-      "modules/insites_cms/global",
-      "modules/website/menu",
-      "modules/insites_ecommerce/category",
-      "modules/insites_ecommerce/product",
-      "modules/insites_ecommerce/cart"
-    ]
-    {%- endparse_json -%}   
-    {%- include "modules/website/generate_cache_key", models: models -%}
-    {{ context.current_user.id }} 
 ---
 
 {% comment -%} 

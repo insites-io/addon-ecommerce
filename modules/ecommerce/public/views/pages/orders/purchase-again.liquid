@@ -11,21 +11,6 @@ metadata: {
     "meta_title": "Purchase Again",
     "heading": "Purchase Again"      
 }
-dynamic_cache:
-  layout: true
-  key: |-
-    {%- parse_json models -%}
-    [
-      "modules/insites_cms/global",
-      "modules/insites_core/localisation",
-      "modules/insites_ecommerce/category",
-      "modules/insites_ecommerce/order",
-      "modules/insites_ecommerce/order_item",
-      "modules/insites_ecommerce/product"
-    ]
-    {%- endparse_json -%}
-    {%- include "modules/website/cache/generate_cache_key", models: models -%}
-    {{context.current_user.id}}
 authorization_policies:
   - modules/portal/is_user_logged_in 
 ---
@@ -123,34 +108,33 @@ authorization_policies:
 %}
 
     
-<div class="grid-x align-bottom no-margin">
-    <ins-filter 
-        id="purchased-filter"
-        class="cell large-8 medium-12 small-12"
-        label="Filter by:"
-        with-date-filter 
-        date-from="{{dateFrom}}"
-        date-to="{{dateTo}}"
-        date-title="Date">
+<div class="grid-x no-margin">
+    <div class="cell large-8 medium-12 small-12">
+        <ins-filter 
+            id="purchased-filter"        
+            label="Filter by:"
+            with-date-filter 
+            date-from="{{dateFrom}}"
+            date-to="{{dateTo}}"
+            date-title="Date">
 
-        <ins-filter-item
-            selected="{{category_filter}}"
-            name="Category"                
-            options='{{ categories }}'>
-        </ins-filter-item>
-    </ins-filter>
-
-    <div class="spacer hide-for-large cell"></div>
-
-    <ins-input
-        id="search-by-name"
-        class="cell large-4 medium-12 small-12"
-        placeholder="Search by name"
-        label=""
-        field="search"
-        value="{{ product_name }}"
-        icon="icon-search-1">
-    </ins-input>
+            <ins-filter-item
+                selected="{{category_filter}}"
+                name="Category"                
+                options='{{ categories }}'>
+            </ins-filter-item>
+        </ins-filter>
+    </div>
+    <div class="cell large-4 medium-12 small-12">    
+        <ins-input
+            id="search-by-name"        
+            placeholder="Search by name"
+            label=""
+            field="search"
+            value="{{ product_name }}"
+            icon="icon-search-1">
+        </ins-input>
+    </div>
 </div>
 
 
@@ -172,7 +156,8 @@ authorization_policies:
             ## A user may have ordered a product multiple times; display each product only once.
             assign is_displayed_product = displayed_products | array_any: product.uuid
             if is_displayed_product == true                 
-                continue
+                #continue
+                #Display all items for now, including duplicate products.
             else 
                 assign displayed_products = displayed_products | array_add: product.uuid
             endif
@@ -272,10 +257,15 @@ authorization_policies:
 {%- endif -%}
 
 {% comment %} Pagination {% endcomment %}
+{%  liquid 
+    assign float_denominator = per_page | times: 1.0
+    assign total_pages = ordered_items.total_entries |  divided_by: float_denominator
+%}
 {% parse_json data  %}
 {
-    "total_entries": {{ total_items }},
-    "current_page": {{ page_num }}
+    "total_entries": {{ ordered_items.total_entries }},
+    "current_page": {{ page_num }},
+    "total_pages": {{ total_pages }}
 }
 {% endparse_json %}
 {% include "modules/ecommerce/layout/pagination", data: data, per_page, label: 'Items' %}

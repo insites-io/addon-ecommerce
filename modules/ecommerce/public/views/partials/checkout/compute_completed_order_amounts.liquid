@@ -15,7 +15,9 @@ metadata: {
     assign sub_total_shipping = order_amounts.total_shipping_amount
     assign sub_total_tax = order_amounts.total_tax_amount
     assign total_amount = order_amounts.total_amount
-    assign processing_fee = total_amount | minus: sub_total_amount | minus: sub_total_discount | minus:sub_total_shipping
+
+    ## processing_fee = (total_amount * 0.017) / 1.017
+    assign processing_fee = total_amount | times: 0.017 | divided_by: 1.017
 %}
 
 {% parse_json computed %}

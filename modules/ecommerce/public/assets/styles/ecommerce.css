@@ -315,6 +315,7 @@ ins-carousel .product-cards>div {
 .product-cards img, 
 .product-cards .placeholder-img  {
     min-height: 300px;
+    width: 100%;
     object-fit: cover;
     border-radius: 4px;
 }
@@ -1054,8 +1055,17 @@ ins-card.overview .wrap{
 }
 .order-filter-wrap {
     position: relative;
-    bottom: -41px;
+    bottom: -46px;
     z-index: 100;
+}
+#order-table .ins-searchbar-container {
+    min-width: 300px;
+    max-width: 300px;
+}
+@media (max-width: 768px) {
+    #order-table .ins-searchbar-container {
+        min-width: auto;
+    }
 }
 @media only screen and (max-width: 1023px) {
     .order-filter-wrap {
@@ -1212,9 +1222,6 @@ ins-filter-item,
 ins-filter .filter__label {
     margin-right: 8px;
 }
-ins-filter-item {
-    margin-bottom: 8px;
-}
 ins-filter .filter__label {
     margin-bottom: 8px;
 }
@@ -1258,19 +1265,12 @@ ins-filter-item .filter-item__button,
 ins-filter .date-filter {
     border-radius: 2px;
     background: var(--color-ui-03);
-    display: flex;
-    gap: 4px;
     padding: 8px 12px;
     justify-content: center;
     align-items: center;    
 }
 ins-filter-item .filter-item__button--option{
-    display: flex;
-    gap: 16px;
     align-items: center;
-}
-ins-filter-item .filter-item__button--option .fas {
-    margin-left: 0px;
 }
 ins-filter .date-filter .fas {
     margin-left: 16px;
@@ -1285,24 +1285,21 @@ ins-filter .date-filter .fas  {
     font-weight: 400;
     line-height: normal;
 }
+#purchased-filter .filter {
+    margin-top: 3px;
+    margin-bottom: -3px;
+}
+.filter-item__button,
+.ins-filter-datepicker-wrap {
+    line-height: 0px; /* remove extra height */
+}
+#purchased-filter ins-filter-item .filter-item,
+#purchased-filter .ins-filter-datepicker-wrap {
+    margin-bottom: 16px;    
+}
 @media only screen and (max-width: 768px) {
     ins-filter .filter {
         margin-bottom: 0px;
-    }
-}
-@media only screen and (max-width: 1133px) {
-    ins-filter .filter {
-        display: flex;
-        flex-direction: column;        
-    }
-}
-@media only screen and (max-width: 1274px) {
-    ins-filter .filter__btn-container {
-        display: flex;
-        flex-direction: column;
-        /* width: fit-content; */
-        /* gap: 8px; */
-        align-items: baseline;
     }
 }
 

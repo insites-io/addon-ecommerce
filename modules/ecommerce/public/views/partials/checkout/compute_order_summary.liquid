@@ -142,15 +142,13 @@ metadata: {
     {% endfor %}
 {% endif %}
 
-
-{% assign temp_total = sub_total_amount | minus: sub_total_discount | plus: sub_total_tax | minus: sub_total_tax_included %}
-
 {% if page_slug == 'shopping-cart' %}
     {% assign sub_total_shipping = 0 %}
 {% endif %}
 
-{% assign processing_fee = temp_total | plus: sub_total_shipping | times: 0.017 %}
-{% assign total_amount = temp_total | plus: sub_total_shipping | plus: processing_fee %}
+{% assign temp_total = sub_total_amount | plus: sub_total_shipping | minus: sub_total_discount | plus: sub_total_tax | minus: sub_total_tax_included %}
+{% assign processing_fee = temp_total | times: 0.017 %}
+{% assign total_amount = temp_total | plus: processing_fee %}
 
 {% comment %} tax_included_in_price represents the sum of taxes that are already included in the product price {% endcomment %}
 {% parse_json computed %}
