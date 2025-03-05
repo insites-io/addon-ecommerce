@@ -18,6 +18,7 @@ let tax_included_in_price = 0;
 let summary_total_amount = 0;
 
 let cartItems = localStorage.getItem('carts');
+console.log("cartItems - ", cartItems);
 let products = [];
 let cartData = [];
 
@@ -71,6 +72,7 @@ function renderEmptyCartMessage() {
 async function listCartItems(carts, productUUIDs){
     let url = `/get-cart-products.json?product_uuids=`+ productUUIDs;
     let response = await apiServices.processRequest("get", url); 
+    console.log("listCartItems -", response);
 
     if(response.state && response.data) {
         products = response.data
@@ -178,9 +180,9 @@ async function listCartItems(carts, productUUIDs){
                 "item_total_price": item_total_price,
                 "summary_subtotal_amount": summary_subtotal_amount
             }
-                
+            console.log("shoppingCartItemsWrap", shoppingCartItemsWrap);
             if(shoppingCartItemsWrap) shoppingCartHtml += createShoppingCartHtml(data, i);  
-            //if(page_url !=='/shopping-cart' && orderSummaryWrap) orderSummaryHtml += createOrderSummaryHtml(data, i); 
+            if(page_url !=='/shopping-cart' && orderSummaryWrap) orderSummaryHtml += createOrderSummaryHtml(data, i); 
         };
 
             
@@ -215,6 +217,7 @@ var placeholderImage = `<div class="placeholder-img vertical-align-middle">
 
 //This template is for /shopping-cart page
 function createShoppingCartHtml(data, i){   
+    console.log("createShoppingCartHtml");
     let content = `<div id="cart-item-${data.selected_prop.id}" class="cart-item-wrap cell">`;
 
     if( i > 0 ) content = content + `<hr><div class="spacer x-large"></div>`;                                    
@@ -303,3 +306,5 @@ async function pushLocalCartToDB(data){
         localStorage.setItem('carts', []); 
     }
 } 
+
+console.log("TADAHHH!!!");

@@ -341,6 +341,6 @@ callback_actions: >
     let submitButtons = document.getElementById("submit-buttons");    
 </script>
 {%- include 'modules/ecommerce/forms/stripe_element',
-    cc_field_id: "checkout-credit-card",
+    cc_field_id: "stripe-card",
     public_key: stripe_settings.pk_key -%}
 <!-- END Stripe Element -->

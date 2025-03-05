@@ -6,9 +6,6 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
 {%- include "modules/insites_cms/globals" -%}
 {%- assign global = context.exports.global -%}
 
-{%- comment -%} Used by the fragment cache in the layout {%- endcomment -%}
-{%- include "modules/website/cache/layout_fragment_cache_key" -%}
-
 <!doctype html>
 <html class="no-js" lang="en">
     
@@ -84,10 +81,7 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
 
     {% include 'modules/website/layout/header_mobile_default' %}
 
-    {%- capture foot_key -%} {{ context.exports.layout_cache_key.cache_key | append: "-footer_section"}} {%- endcapture -%}
-    {%- cache foot_key -%}
     {% include 'modules/website/layout/footer' %}
-    {%- endcache -%}
 
     {% include 'modules/website/layout/foot' %}
 

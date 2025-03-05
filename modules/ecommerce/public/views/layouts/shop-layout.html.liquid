@@ -6,8 +6,6 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
 {%- include "modules/insites_cms/globals" -%}
 {%- assign global = context.exports.global -%}
 
-{%- comment -%} Used by the fragment cache in the layout {%- endcomment -%}
-{%- include "modules/website/cache/layout_fragment_cache_key" -%}
 
 <!doctype html>
 <html class="no-js" lang="en">
@@ -45,8 +43,6 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
     {%- endcomment -%}
 
 
-    {%- capture head_key -%} {{ context.exports.layout_cache_key.cache_key | append: "-head" }} {%- endcapture -%}
-    {%- cache head_key -%}
     <!-- [Preload] -->    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9" defer></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
@@ -61,7 +57,6 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
     <link rel="stylesheet" href="https://components.insites.io/latest/css/insites-font-icons.css">
     <!-- [Project Assets] -->
     {% include 'modules/website/layout/technical_head' %}
-    {%- endcache -%}
     
 </head>
 <body>
@@ -136,10 +131,7 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
     
     {% include 'modules/website/layout/header_mobile_default' %}
 
-    {%- capture foot_key -%} {{ context.exports.layout_cache_key.cache_key | append: "-footer_section"}} {%- endcapture -%}
-    {%- cache foot_key -%}
     {% include 'modules/website/layout/footer' %}
-    {%- endcache -%}
 
     {% include 'modules/ecommerce/carts/cart_drawer' %}
     

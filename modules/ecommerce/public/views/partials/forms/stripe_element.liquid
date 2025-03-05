@@ -67,7 +67,7 @@ metadata: {
 <input type="hidden" id="card_last_name" value="{{ last_name }}" >
 
 <script>
-    let payByCardField = document.getElementById('{{ email }}');
+    let payByCardField = document.getElementById('{{ cc_field_id }}');
     let email = "{{ email }}";
     let emailField = document.getElementById('card_email');
     let stripeFirstName = document.getElementById('card_first_name');

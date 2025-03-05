@@ -10,8 +10,9 @@ metadata: {
     assign customer_name = prop.billing_contact_first_name | append: ' ' | append: prop.billing_contact_last_name
     assign charge_to_this_card = false
 -%}
+{%- function has_profile = "modules/website/layout/check_if_user_has_profile" -%}
 
-{% if context.current_user %}
+{% if has_profile %}
     {%- comment -%} 
         - STEP 1: Fetch user details and stripe customer information for logged-in users
     {%- endcomment -%}

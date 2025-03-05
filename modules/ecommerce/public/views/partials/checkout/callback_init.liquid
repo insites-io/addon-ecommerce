@@ -22,6 +22,7 @@ metadata: {
 {%- else -%}
         {% comment %} If new / other payment gateways are supported, insert process here: {% endcomment %}
 {%- endif -%}
+{% log payment_response, type: "payment_response" %}
 
     {%- comment -%}
     Capture gateway reposnse and set status
