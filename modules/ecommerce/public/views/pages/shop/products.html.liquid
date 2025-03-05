@@ -27,9 +27,9 @@ URL Structures:
         {%- assign slug_type = 'product' -%}
         {% comment %} Check if slug2 is a product {% endcomment %}
         {%- graphql product_exist = 'modules/ecommerce/products/is_product_exist', slug: context.params.slug2 | dig: 'items','total_entries' -%}
-        {%- unless product_exist == 1 -%}
+        {%- if product_exist == 0 -%}
             {% redirect_to '/404' %}
-        {%- endunless -%}    
+        {%- endif -%}    
     {%- endunless -%}
 {%- endif -%}    
 
