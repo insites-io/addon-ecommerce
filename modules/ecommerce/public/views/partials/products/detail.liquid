@@ -9,10 +9,26 @@ metadata: {
 
 {% liquid
 
+    ## Galleries
+    assign galleries = '' | split: ','
+    if product.gallery_1.size > 0
+        for gallery in product.gallery_1
+            assign galleries = galleries | array_add: gallery.file.url
+        endfor
+    elsif product.product_image.url
+        assign galleries = galleries | array_add: product.product_image.url      
+    endif
+
+
     if product.is_product_variant_enabled
-        assign selected_prop = product.variants[0]        
+        assign selected_prop = product.variants[0]  
+        
+        ## Variant Galleries        
+        for variant in product.variants
+            assign galleries = galleries | array_add: variant.product_image.url
+        endfor
     else 
-        assign selected_prop = product
+        assign selected_prop = product        
     endif
 
     if selected_prop.is_on_sale == true 
@@ -38,42 +54,21 @@ metadata: {
             <div id="on-sale-tag" class="on-sale-tag {% unless selected_prop.is_on_sale == true %}hide{% endunless %}">ON SALE</div>
 
             {% comment %} Use gallery or product_image {% endcomment %}
-            {%- if product.gallery_1.size > 0 -%}           
+            {%- if galleries.size > 0 -%}           
                 <div class="main-gallery variant-gallery">                    
                                         
                     <ins-gallery with-indicator slidable>
-                        {%- for gallery in product.gallery_1 -%}
+                        {%- for gallery in galleries -%}
                          <ins-gallery-image
-                            thumbnail="{{ gallery.file.url }}"
-                            image="{{ gallery.file.url }}">
+                            thumbnail="{{ gallery }}"
+                            image="{{ gallery }}">
                         </ins-gallery-image>
                         {%- endfor -%}
                     </ins-gallery>
                 </div>
-                
-                {%- for variant in product.variants -%}
-                    <div id="vid-{{ variant.id }}" class="hidden-gallery variant-gallery">
-                        <ins-gallery with-indicator>
-                            <ins-gallery-image
-                                thumbnail="{{ variant.product_image.url | replace: ' ', '%20' }}"
-                                image="{{ variant.product_image.url | replace: ' ', '%20' }}">
-                            </ins-gallery-image>
-                        </ins-gallery>
-                    </div>
-                {%- endfor -%}
+                                
             {%- else -%}
-                {%- if product.product_image.url -%}
-                    <div class="main-gallery variant-gallery">
-                        <ins-gallery with-indicator>
-                            <ins-gallery-image
-                                thumbnail="{{ product.product_image.url | replace: ' ', '%20' }}"
-                                image="{{ product.product_image.url | replace: ' ', '%20' }}">
-                            </ins-gallery-image>
-                        </ins-gallery>                       
-                    </div>                    
-                {%- else -%}
-                    {%- include 'modules/website/layout/placeholder_image', size: 'large' -%}
-                {%- endif -%}
+                {%- include 'modules/website/layout/placeholder_image', size: 'large' -%}
             {%- endif -%}
         </div>
         <div class="spacer xx-large"></div>
