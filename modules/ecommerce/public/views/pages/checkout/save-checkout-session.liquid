@@ -113,6 +113,9 @@ metadata:
         if context.params.products
           session guest_products = context.params.products
         endif 
+        if context.params.discount_uuids
+            session discount_uuids = context.params.discount_uuids
+        endif
     %}
 
 {% endif %}

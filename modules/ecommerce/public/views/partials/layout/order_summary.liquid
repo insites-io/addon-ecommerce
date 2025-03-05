@@ -62,11 +62,8 @@ metadata: {
     {% endunless %}
         
     <div id="order-summary-cart-wrap" class="order-summary">  
-        {% comment %}
-            - This is only for logged-in users
-        {% endcomment %}
-        {%- if show_product and user_uuid != blank -%}   
 
+        {%- if show_product -%}   
             {%- for item in carts -%}
 
                 {%- if params.slug == 'confirmation' and params.id != '' -%}
@@ -105,7 +102,7 @@ metadata: {
         {%- endif -%}
     </div>
 
-    {%- if show_product and carts.size > 0 and user_uuid != blank -%}
+    {%- if show_product and carts.size > 0 -%}
         <div class="spacer"></div>
         <hr>
         <div class="spacer"></div>
@@ -338,7 +335,13 @@ metadata: {
     let orderSummaryHtmlContent = orderSummaryMainWrap.innerHTML;
     let viewOrderSummaryBtn = document.getElementById('view-order-summary-btn');
     let orderSummaryDrawer = document.getElementById('order-summary-drawer');
-    let orderSummaryDrawerContent = document.getElementById('order-summary-drawer-content');    
+    let orderSummaryDrawerContent = document.getElementById('order-summary-drawer-content');  
+    
+    // For Guest account: Compare the POS sessions with the localStorage
+    {% unless has_profile %}
+    let session_carts = {{ carts | default: '[]' }};
+    let session_discount_uuids = {{ context.session.discount_uuids |  default: '[]' }};
+    {% endunless %}
     
     // Replace 'id' with 'data'
     let modifiedHTML = orderSummaryHtmlContent.replace(/\bid="([^"]+)"/g, 'data="$1"');
