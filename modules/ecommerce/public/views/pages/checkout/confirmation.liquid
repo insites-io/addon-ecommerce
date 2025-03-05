@@ -169,19 +169,20 @@ authorization_policies:
                     <div class="spacer xx-large"></div>
                 </div>
 
-                {% comment %} Payment Details {% endcomment %}
-                
-                <div class="{% if has_profile %}large-offset-1{% endif %} large-5 medium-12 small-12 cell">
-                    <h3 class="heading-3">Payment Details</h3>
-                    <div class="spacer small"></div>
-                    <p class="font-cabin">{{ order.payment.card_brand | upcase }} **** **** **** {{ order.payment.card_last_four_digits }}</p>
-                    {%- assign month = order.payment.card_expiry_month -%}
-                    {%- if order.payment.card_expiry_month.size < 2 -%}
-                        {%- assign month = "0" | append: order.payment.card_expiry_month -%}
-                    {%- endif -%}
-                    <p class="font-cabin">{{ month }} / {{ order.payment.card_expiry_year }}</p>
-                    <div class="spacer xx-large"></div>
-                </div>
+                {% if has_profile %}
+                    {% comment %} Payment Details {% endcomment %}                
+                    <div class="{% if has_profile %}large-offset-1{% endif %} large-5 medium-12 small-12 cell">
+                        <h3 class="heading-3">Payment Details</h3>
+                        <div class="spacer small"></div>
+                        <p class="font-cabin">{{ order.payment.card_brand | upcase }} **** **** **** {{ order.payment.card_last_four_digits }}</p>
+                        {%- assign month = order.payment.card_expiry_month -%}
+                        {%- if order.payment.card_expiry_month.size < 2 -%}
+                            {%- assign month = "0" | append: order.payment.card_expiry_month -%}
+                        {%- endif -%}
+                        <p class="font-cabin">{{ month }} / {{ order.payment.card_expiry_year }}</p>
+                        <div class="spacer xx-large"></div>
+                    </div>
+                {% endif %}
                                               
 
             </div>
