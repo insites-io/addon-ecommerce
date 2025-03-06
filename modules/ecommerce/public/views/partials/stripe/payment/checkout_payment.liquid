@@ -31,11 +31,12 @@ metadata: {
     {%- comment -%} 
         - STEP 2: Prepare Stripe Charge API request with relevant details
     {%- endcomment -%}
+    {% assign stripe_amount = prop.total_amount | times: 100 %}
     {% parse_json create_charge %}
     {
         "idempotency_key": "{{ '' | uuid }}",
         "currency": "{{ currency }}",
-        "amount": "{{ prop.total_amount | advanced_format: '%.0f' }}",
+        "amount": "{{ stripe_amount | advanced_format: '%.0f' }}",
         "customer": "{{ stripe_customer_id }}",
         {%- if charge_to_this_card -%}
             "source": "{{ charge_to_this_card }}",
@@ -82,11 +83,12 @@ metadata: {
     {%- comment -%} 
         - STEP 1: Prepare Stripe Payment Intent API request for guest users
     {%- endcomment -%}
+    {% assign stripe_amount = prop.total_amount | times: 100 %}
     {% parse_json payment_intent %}
     {
         "idempotency_key": "{{ '' | uuid }}",
         "currency": "{{ currency }}",
-        "amount": "{{ prop.total_amount | advanced_format: '%.0f' }}",
+        "amount": "{{ stripe_amount | advanced_format: '%.0f' }}",
         "description": "Insites Order ID: {{ form.id }} (Insites Customer UUID: {{ user_uuid }})",
         "metadata": {
             "Insites Order ID": "{{ form.id }}",

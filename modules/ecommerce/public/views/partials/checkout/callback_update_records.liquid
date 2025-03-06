@@ -6,7 +6,7 @@ metadata: {
 {%- assign user_uuid = form.properties.order_contact_uuid -%}
 {%- assign date_time = "now" | date: "%Y-%m-%dT%H:%M:%SZ" -%}
 {%- capture payment_gateway_details -%}{{ payment_response }}{%- endcapture -%}
-{%- assign amount = payment_response.amount | divided_by: 100 -%}
+{%- assign amount = payment_response.amount | divided_by: 100.00 -%}
 
 
 {%- parse_json card -%}
@@ -20,6 +20,7 @@ metadata: {
 
 
 {%- comment -%}Step 2.0: Create payment data{%- endcomment -%}
+{%- comment -%}
 {% assign uuid = '' | uuid %}
 {% graphql create_payment = "modules/ecommerce/payment/create_payment", 
     uuid: uuid,
@@ -36,9 +37,37 @@ metadata: {
     card_expiry_year: card.exp_year,
     currency: currency,
     amount: amount %}
-    
-{% log create_payment, type: "Payment Created" %}
 
+{%- endcomment -%}
+
+{% parse_json computed %}
+{
+    "total_amount": {{ amount }}
+}
+{% endparse_json %}
+{% parse_json data %}
+{
+    "order_id": "{{ order_id }}",
+    "order_uuid": "{{ order_uuid }}",
+    "payment_source": "Payment Gateway",
+    "payment_status": "{{ order_payment_status }}",
+    "payment_gateway_name": "{{ gateway | titleize }}",
+    "date_time": "{{ 'now' | date: '%Y-%m-%dT%H:%M:%SZ' }}",
+    "last_updated_by_id": "{{ context.current_user.id }}",
+    "is_enabled": true,
+    "card_last4": "{{ card.last4 }}",
+    "card_brand": "{{ card.brand }}",
+    "card_exp_month": "{{ card.exp_month }}",
+    "card_exp_year": "{{ card.exp_year }}",
+    "currency": "{{ currency }}",
+    "order_value": {{ amount }},
+    "amount": {{ amount }},
+    "amount_due": {{ amount }}
+}
+{% endparse_json %}
+{% assign data = data | add_hash_key: "payment_gateway_details", payment_gateway_details %}
+{% assign data = data | add_hash_key: "computed", computed %}
+{%- graphql add_payment = 'modules/website/trigger_api_call', name: "modules/portal/add_payment", data: data | dig: 'items','response','body' | parse_json -%}   
 
 
 {% comment %} Create Order Items {% endcomment %}
