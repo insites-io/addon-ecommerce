@@ -77,11 +77,12 @@ metadata: {
         * Display the variant image if available; otherwise, use the main product image.
     {% endcomment %}
     <div style="font-family: inherit; font-size: 16px; display: flex; padding: 0 24px 24px 40px;">
-        <div style="display: flex;">
-            <img src="{{ product_image.url }}" alt="{{ product_image }}" style="width: 115px; height:112px; padding-right: 24px">
+        
+        <div style="width:50%; max-width: 238px; padding-right:24px;">
+            <img src="{{ product_image.url }}" alt="{{ product_image }}" style="width: 100%; height:auto;">
         </div>
 
-        <div style="margin-left: 16px;">
+        <div style="flex: 1;">
             <p style="font-weight: bold; color: #0d0d0d; margin-bottom: 5px;">{{ matched_product.product_name }}</p>
             <p style="margin-bottom: 5px;">SKU {{ product_sku }}</p>
 
