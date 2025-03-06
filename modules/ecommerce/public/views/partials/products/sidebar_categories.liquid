@@ -48,9 +48,17 @@ metadata: {
             {%- for topCat in top_categories -%}                                        
                 {%- assign withChild = parent_with_child | array_any: topCat.uuid -%}                    
                 {%- if withChild -%}        
+                    {%  liquid 
+                        if topCat.slug == params.slug2
+                            assign is_active = 'active'
+                        else 
+                            assign is_active = ''
+                        endif
+                    %}                    
                     <ins-accordion menu>
                         <ins-accordion-item id="sub-{{topCat.id}}"
-                            class="ui-sidebar {% if topCat.slug == params.slug2 %}active{%- endif -%}"
+                            {{ is_active }}
+                            class="ui-sidebar {{ is_active }}"
                             heading="{{topCat.category_name}}" 
                             link="/products/{{topCat.slug}}?{{paramPerPage}}"
                             link-target="_self" 

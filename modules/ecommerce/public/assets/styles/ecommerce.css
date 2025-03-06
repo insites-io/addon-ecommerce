@@ -496,6 +496,7 @@ ins-carousel .product-cards .placeholder-img {
 #mobile-filter-drawer .open .ins-accordion-item_header>.inner-head a,
 #mobile-filter-drawer  .icon-minus{
     color: var(--color-main);
+    font-family: var(--font-family-02);
 }
 #mobile-filter-drawer .ins-drawer-wrap .ins-content.left {
     left: -100%;
@@ -572,6 +573,9 @@ ins-carousel .product-cards .placeholder-img {
 #sidebar-categories .ins-accordion-item.open>.ins-accordion-item_header>.inner-head a:hover {
     color: var(--color-main);
     text-decoration: none;
+}
+#sidebar-categories .ins-accordion-item_header>.inner-head a {
+    display: inline;
 }
 #sidebar-categories>a,
 #sidebar-categories>.inner-head {

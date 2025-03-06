@@ -17,23 +17,30 @@ let summary_tax_amount = 0;
 let tax_included_in_price = 0;
 let summary_total_amount = 0;
 
-let cartItems = localStorage.getItem('carts');
-console.log("cartItems - ", cartItems);
+let cartItems = parseArray(localStorage.getItem('carts'));
+let local_discount_uuids = parseArray(localStorage.getItem('discount_uuids'));
 let products = [];
 let cartData = [];
 
 let page_url = window.location.pathname;
+let segments = page_url.split('/').filter(Boolean); // Remove empty elements
+let slug = segments[0];
 
-// Check if cartItems is not null and not an empty string
-if (cartItems) {
-    try {
-        cartItems = JSON.parse(cartItems);
-    } catch (e) {
-        console.error("Error parsing JSON from localStorage:", e);
-        cartItems = []; 
+
+// Parse an Array of strings into an Array of objects
+function parseArray(data) {
+    let parsed_data;
+    if (data) {
+        try {
+            parsed_data = JSON.parse(data);
+        } catch (e) {
+            console.error("Error parsing JSON from localStorage:", e);
+            parsed_data = [];
+        }
+    } else {
+        parsed_data = [];
     }
-} else {
-    cartItems = []; 
+    return parsed_data;
 }
 
 let productUUIDs = cartItems.map(item => JSON.parse(item).product_uuid);
@@ -198,7 +205,6 @@ async function listCartItems(carts, productUUIDs){
 
         // for checkout pages - Order Summary
         if(page_url !=='/shopping-cart' && orderSummaryWrap) {                
-            orderSummaryHtml +=  `<hr><div class="spacer"></div>`;
             orderSummaryWrap.insertAdjacentHTML('afterbegin', orderSummaryHtml);                
         }
             
@@ -307,4 +313,25 @@ async function pushLocalCartToDB(data){
     }
 } 
 
-console.log("TADAHHH!!!");
+
+if(slug == 'checkout'){
+    compareSessionsAndLocal();
+}
+
+// Compare the POS sessions with the local storage
+async function compareSessionsAndLocal() {
+    if (cartItems.length != session_carts.length || local_discount_uuids.length != session_discount_uuids.length){
+        const payload = {
+            guest_user: true,
+            cart: cartItems,
+            discount_uuids: local_discount_uuids,
+            type: 'cart-items-from-local-storage'
+        };
+        const url = '/save-checkout-session.json';
+        const response = await apiServices.processRequest('post', url, payload);
+        console.log('compare', response);
+        setTimeout(() => {
+            window.location.href = '/shopping-cart'
+        }, 1000); // add delay to allow the session to be saved
+    }
+}
