@@ -20,31 +20,6 @@ metadata: {
 
 
 {%- comment -%}Step 2.0: Create payment data{%- endcomment -%}
-{%- comment -%}
-{% assign uuid = '' | uuid %}
-{% graphql create_payment = "modules/ecommerce/payment/create_payment", 
-    uuid: uuid,
-    order_uuid: order_uuid,
-    source: "Payment Gateway",
-    status: order_payment_status,
-    payment_gateway_name: gateway,
-    payment_gateway_details: payment_gateway_details,
-    notes: "",
-    date_time: date_time,
-    card_last_four_digits: card.last4,
-    card_brand: card.brand,
-    card_expiry_month: card.exp_month,
-    card_expiry_year: card.exp_year,
-    currency: currency,
-    amount: amount %}
-
-{%- endcomment -%}
-
-{% parse_json computed %}
-{
-    "total_amount": {{ amount }}
-}
-{% endparse_json %}
 {% parse_json data %}
 {
     "order_id": "{{ order_id }}",
