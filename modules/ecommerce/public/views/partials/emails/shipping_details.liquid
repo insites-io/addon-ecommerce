@@ -1,0 +1,193 @@
+{%  assign props = data.properties %}
+
+
+{% comment %} Company Name {% endcomment %}
+<table role="module" border="0" cellpadding="0" cellspacing="0" width="100%">
+     <tbody>
+          <tr>
+          <td height="100%" valign="top" role="module-content" align="left">
+               
+               <table style="width:100%;letter-spacing:normal" cellpadding="0" cellspacing="0" border="0" bgcolor="#FDFDFD">
+               <tbody><tr>
+               <td style="padding:32px 0px 0px" align="left" valign="middle}.font-article">
+               </td>
+               </tr>
+               <tr>
+               <td align="left" bgcolor="#FDFDFD" style="width:100%;padding:0px 40px" valign="middle}.font-article">
+                    <p style="color:#0d0d0d;font-size:14px;line-height:22px;font-weight:600;font-family:inherit;margin:0px;padding:0">Company Name</p>
+               </td>
+               </tr>
+               <tr>
+               <td style="padding:8px 0px 0px" align="left" valign="middle}.font-article">
+               </td>
+               </tr>
+               <tr>
+               <td align="left" bgcolor="#FDFDFD" style="width:100%;padding:0px 40px" valign="middle}.font-article">
+                    <p style="color:#525252;font-size:14px;line-height:22px;font-family:inherit;margin:0px;padding:0">{{ props.company_name }}</p>
+               </td>
+               </tr>
+               </tbody></table>
+          </td>
+          </tr>
+     </tbody>
+</table>
+
+
+{% comment %} Name {% endcomment %}
+<table role="module" border="0" cellpadding="0" cellspacing="0" width="100%">
+     <tbody>
+          <tr>
+          <td height="100%" valign="top" role="module-content" align="left">
+               
+               <table style="width:100%;letter-spacing:normal" cellpadding="0" cellspacing="0" border="0" bgcolor="#FDFDFD">
+               <tbody><tr>
+               <td style="padding:16px 0px 0px" align="left" valign="middle}.font-article">
+               </td>
+               </tr>
+               <tr>
+               <td align="left" bgcolor="#FDFDFD" style="width:100%;padding:0px 40px" valign="middle}.font-article">
+                    <p style="color:#0d0d0d;font-size:14px;line-height:22px;font-weight:600;font-family:inherit;margin:0px;padding:0">Name</p>
+               </td>
+               </tr>
+               <tr>
+               <td style="padding:8px 0px 0px" align="left" valign="middle}.font-article">
+               </td>
+               </tr>
+               <tr>
+               <td align="left" bgcolor="#FDFDFD" style="width:100%;padding:0px 40px" valign="middle}.font-article">
+                    <p style="color:#525252;font-size:14px;line-height:22px;font-family:inherit;margin:0px;padding:0">{{ props.name }}</p>
+               </td>
+               </tr>
+               </tbody></table>
+          </td>
+          </tr>
+     </tbody>
+</table>
+
+
+{% comment %} Phone Number {% endcomment %}
+<table role="module" border="0" cellpadding="0" cellspacing="0" width="100%">
+     <tbody>
+          <tr>
+          <td height="100%" valign="top" role="module-content" align="left">
+               
+               <table style="width:100%;letter-spacing:normal" cellpadding="0" cellspacing="0" border="0" bgcolor="#FDFDFD">
+               <tbody><tr>
+               <td style="padding:16px 0px 0px" align="left" valign="middle}.font-article">
+               </td>
+               </tr>
+               <tr>
+               <td align="left" bgcolor="#FDFDFD" style="width:100%;padding:0px 40px" valign="middle}.font-article">
+                    <p style="color:#0d0d0d;font-size:14px;line-height:22px;font-weight:600;font-family:inherit;margin:0px;padding:0">Phone Number</p>
+               </td>
+               </tr>
+               <tr>
+               <td style="padding:8px 0px 0px" align="left" valign="middle}.font-article">
+               </td>
+               </tr>
+               <tr>
+               <td align="left" bgcolor="#FDFDFD" style="width:100%;padding:0px 40px" valign="middle}.font-article">
+                    <p style="color:#525252;font-size:14px;line-height:22px;font-family:inherit;margin:0px;padding:0">{{ props.phone_number }}</p>
+               </td>
+               </tr>
+               </tbody></table>
+          </td>
+          </tr>
+     </tbody>
+</table>
+
+
+{% comment %} Email Address {% endcomment %}
+<table role="module" border="0" cellpadding="0" cellspacing="0" width="100%">
+     <tbody>
+         <tr>
+         <td height="100%" valign="top" role="module-content" align="left">
+             
+             <table style="width:100%;letter-spacing:normal" cellpadding="0" cellspacing="0" border="0" bgcolor="#FDFDFD">
+             <tbody><tr>
+                 <td style="padding:16px 0px 0px" align="left" valign="middle}.font-article">
+                 </td>
+             </tr>
+             <tr>
+                 <td align="left" bgcolor="#FDFDFD" style="width:100%;padding:0px 40px" valign="middle}.font-article">
+                     <p style="color:#0d0d0d;font-size:14px;line-height:22px;font-weight:600;font-family:inherit;margin:0px;padding:0">Email Address</p>
+                 </td>
+             </tr>
+             <tr>
+                 <td style="padding:8px 0px 0px" align="left" valign="middle}.font-article">
+                 </td>
+             </tr>
+             <tr>
+                 <td align="left" bgcolor="#FDFDFD" style="width:100%;padding:0px 40px" valign="middle}.font-article">
+                     <p style="color:#525252;font-size:14px;line-height:22px;font-family:inherit;margin:0px;padding:0"><a href="mailto:{{- props.email_address -}}" target="_blank">{{ props.email_address }}</a></p>
+                 </td>
+             </tr>
+             </tbody></table>
+         </td>
+         </tr>
+     </tbody>
+</table>
+
+
+{% comment %} Shipping Address {% endcomment %}
+<table role="module" border="0" cellpadding="0" cellspacing="0" width="100%">
+     <tbody>
+          <tr>
+          <td height="100%" valign="top" role="module-content" align="left">
+               
+               <table style="width:100%;letter-spacing:normal" cellpadding="0" cellspacing="0" border="0" bgcolor="#FDFDFD">
+               <tbody><tr>
+               <td style="padding:16px 0px 0px" align="left" valign="middle}.font-article">
+               </td>
+               </tr>
+               <tr>
+               <td align="left" bgcolor="#FDFDFD" style="width:100%;padding:0px 40px" valign="middle}.font-article">
+                    <p style="color:#0d0d0d;font-size:14px;line-height:22px;font-weight:600;font-family:inherit;margin:0px;padding:0">Shipping Address</p>
+               </td>
+               </tr>
+               <tr>
+               <td style="padding:8px 0px 0px" align="left" valign="middle}.font-article">
+               </td>
+               </tr>
+               <tr>
+               <td align="left" bgcolor="#FDFDFD" style="width:100%;padding:0px 40px" valign="middle}.font-article">
+                    <p style="color:#525252;font-size:14px;line-height:22px;font-family:inherit;margin:0px;padding:0">{{ props.shipping_address }}</p>
+               </td>
+               </tr>
+               </tbody></table>
+          </td>
+          </tr>
+     </tbody>
+</table>
+
+
+{% comment %} Shipping Instructions {% endcomment %}
+<table role="module" border="0" cellpadding="0" cellspacing="0" width="100%">
+     <tbody>
+          <tr>
+          <td height="100%" valign="top" role="module-content" align="left">
+               
+               <table style="width:100%;letter-spacing:normal" cellpadding="0" cellspacing="0" border="0" bgcolor="#FDFDFD">
+               <tbody><tr>
+               <td style="padding:16px 0px 0px" align="left" valign="middle}.font-article">
+               </td>
+               </tr>
+               <tr>
+               <td align="left" bgcolor="#FDFDFD" style="width:100%;padding:0px 40px" valign="middle}.font-article">
+                    <p style="color:#0d0d0d;font-size:14px;line-height:22px;font-weight:600;font-family:inherit;margin:0px;padding:0">Shipping Instructions</p>
+               </td>
+               </tr>
+               <tr>
+               <td style="padding:8px 0px 0px" align="left" valign="middle}.font-article">
+               </td>
+               </tr>
+               <tr>
+               <td align="left" bgcolor="#FDFDFD" style="width:100%;padding:0px 40px" valign="middle}.font-article">
+                    <p style="color:#525252;font-size:14px;line-height:22px;font-family:inherit;margin:0px;padding:0">{{ props.shipping_instructions }}</p>
+               </td>
+               </tr>
+               </tbody></table>
+          </td>
+          </tr>
+     </tbody>
+</table>

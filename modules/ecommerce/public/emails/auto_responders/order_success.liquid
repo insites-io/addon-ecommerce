@@ -16,6 +16,8 @@ layout: modules/insites_core/insites_internal_email_layout
 {% include "modules/insites_cms/globals" %}
 {% assign global = context.exports.global %}
 
+{% log data, type: "==test order_success data" %}
+
 {% assign user = data.customer_info %}
 {% assign form = data.form %}
 {% assign order = data.order_info %}
@@ -178,9 +180,6 @@ layout: modules/insites_core/insites_internal_email_layout
   }
 {% endparse_json %}
 
-{% function billing_details = 'modules/ecommerce/emails/content_data', form_data: billing_data -%}
-{% function shipping_details = 'modules/ecommerce/emails/content_data', form_data: shipping_data -%}
-{% function order_details = 'modules/ecommerce/emails/content_data', form_data: order_details -%}
 
 {% comment %} <!-------------------------------- HTML --------------------------------> {% endcomment %}
 
@@ -252,9 +251,9 @@ data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10
 </table>
 
 {% comment %} <!-- Spacer --> {% endcomment %}
-{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 48 %}
 <hr style="margin-left: 40px;margin-right: 40px;border-top: 1px solid #DFDFDF;">
-{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 48 %}
 
 {% comment %} <!-- Order Number --> {% endcomment %}
 <table class="module" role="module" data-type="text" border="0" cellpadding="0"
@@ -283,11 +282,11 @@ cellspacing="0" width="100%" style="table-layout: fixed;"
 data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10-22">
     <tbody>
         <tr>
-        <td style="padding:0px 40px 0px 40px; line-height:40px; text-align:inherit;"
+        <td style="padding:0px 40px 0px 40px; text-align:inherit;"
             height="100%" valign="top" bgcolor="" role="module-content">
             <div>
             <div style="font-family: inherit; text-align: left"><span
-                style="font-size: 16px; color: #0d0d0d"><strong>Billing Details</strong></span></div>
+                style="font-size: 16px; line-height: 26px; color: #0d0d0d"><strong>Billing Details</strong></span></div>
             <div></div>
             </div>
         </td>
@@ -295,7 +294,7 @@ data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10
     </tbody>
 </table>
 
-{{ billing_details | html_safe }}
+{% include 'modules/ecommerce/emails/billing_details', data: billing_data -%}
 
 {% comment %} <!-- Spacer --> {% endcomment %}
 {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 32 %}
@@ -306,11 +305,11 @@ cellspacing="0" width="100%" style="table-layout: fixed;"
 data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10-22">
     <tbody>
         <tr>
-        <td style="padding:0px 40px 0px 40px; line-height:40px; text-align:inherit;"
+        <td style="padding:0px 40px 0px 40px; text-align:inherit;"
             height="100%" valign="top" bgcolor="" role="module-content">
             <div>
             <div style="font-family: inherit; text-align: left"><span
-                style="font-size: 16px; color: #0d0d0d"><strong>Shipping Details</strong></span></div>
+                style="font-size: 16px; line-height: 26px; color: #0d0d0d"><strong>Shipping Details</strong></span></div>
             <div></div>
             </div>
         </td>
@@ -318,7 +317,7 @@ data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10
     </tbody>
 </table>
 
-{{ shipping_details | html_safe }}
+{% include 'modules/ecommerce/emails/shipping_details', data: shipping_data -%}
 
 {% comment %} <!-- Spacer --> {% endcomment %}
 {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
@@ -331,10 +330,10 @@ data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10
 {% comment %} <!-- Spacer --> {% endcomment %}
 {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 24 %}
 <hr style="margin-left: 40px;margin-right: 40px;border-top: 1px solid #DFDFDF;">
-{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 24 %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 32 %}
 
 {% comment %} <!-- Order Details --> {% endcomment %}
-{{ order_details | html_safe }}
+{% include 'modules/ecommerce/emails/order_details', data: order_details -%}
 
 {% if guest_user == false %}
     {% comment %} <!-- Spacer --> {% endcomment %}
