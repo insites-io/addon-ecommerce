@@ -113,9 +113,9 @@ default_payload: >
         {% assign order_contact_last_name = context.session.billing_contact_last_name %}
         {% assign order_contact_email = context.session.billing_contact_email %}
     {% endif %}
+    {%- log context, type: "def fapyload" %}
 
     {% assign computed = context.exports.computed %}
-
     {
         "properties_attributes": {
             "shipping_company_name": "{{context.session.shipping_company_name | default: ''}}",
@@ -206,7 +206,6 @@ callback_actions: >
         endif
     %}
 {%- endif -%}
-
 
 {% function stripe_settings = "modules/portal/stripe/get_stripe_settings" %}
 
@@ -336,7 +335,7 @@ callback_actions: >
 
 <!-- Stripe Element -->
 <script>
-    let user_uuid = '{{ context.current_user.external_id }}';
+    //let user_uuid = '{{ context.current_user.external_id }}';
     let guestAddCardForm = document.getElementById("guest-add-card-form");
     let submitButtons = document.getElementById("submit-buttons");    
 </script>

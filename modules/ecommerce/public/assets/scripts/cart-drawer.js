@@ -351,6 +351,7 @@ function cartItemHtml(data){
         </div>`;    
 }
 
+
 /* Guest user - Get cart from local storage */
 if (user_uuid === "") {
     const carts = getCartFromLocalStorage();
