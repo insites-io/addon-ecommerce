@@ -18,7 +18,15 @@ let tax_included_in_price = 0;
 let summary_total_amount = 0;
 
 let cartItems = parseArray(localStorage.getItem('carts'));
-let local_discount_uuids = parseArray(localStorage.getItem('discount_uuids'));
+
+// Check if local_discount_uuids is already declared
+if (typeof local_discount_uuids === 'undefined') {
+    let local_discount_uuids = parseArray(localStorage.getItem('discount_uuids'));
+} else {
+    // If it's already declared, just update its value
+    local_discount_uuids = parseArray(localStorage.getItem('discount_uuids'));
+}
+
 let products = [];
 let cartData = [];
 
