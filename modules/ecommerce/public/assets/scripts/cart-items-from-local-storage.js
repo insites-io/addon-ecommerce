@@ -195,7 +195,7 @@ async function listCartItems(carts, productUUIDs){
                 "summary_subtotal_amount": summary_subtotal_amount
             }
             if(shoppingCartItemsWrap) shoppingCartHtml += createShoppingCartHtml(data, i);  
-            if(page_url !=='/shopping-cart' && orderSummaryWrap) orderSummaryHtml += createOrderSummaryHtml(data, i); 
+            //if(page_url !=='/shopping-cart' && orderSummaryWrap) orderSummaryHtml += createOrderSummaryHtml(data, i); 
         };
 
             
@@ -281,6 +281,7 @@ function createShoppingCartHtml(data, i){
     return content;
 }
 
+/*
 function createOrderSummaryHtml(data){
     let content = `<div class="grid-x grid-padding-x body-large">
                 <div class="product-name large-6 medium-8 small-6 cell">
@@ -297,6 +298,7 @@ function createOrderSummaryHtml(data){
         
     return content;
 }
+*/
 
 let formatter = new Intl.NumberFormat('en-US', {
     style: 'decimal',
@@ -305,10 +307,13 @@ let formatter = new Intl.NumberFormat('en-US', {
 });
    
 // Push the cart from local storage into the database.
+/*
 if( is_new_user && is_new_user == true && user_uuid != ""){
     pushLocalCartToDB({carts:cartItems, user_uuid: user_uuid});
 }    
+*/
 
+/*
 async function pushLocalCartToDB(data){        
     let response = await apiServices.processRequest("post", "/push-local-cart-to-db.json", data);
               
@@ -317,6 +322,7 @@ async function pushLocalCartToDB(data){
         localStorage.setItem('carts', []); 
     }
 } 
+*/
 
 
 if(slug == 'checkout'){
