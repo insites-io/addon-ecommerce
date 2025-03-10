@@ -49,9 +49,9 @@ authorization_policies:
                 assign account_company_name = company.company_name
             endif
         endif
-    else 
-        include 'modules/ecommerce/checkout/clear_local_storage' 
+    else         
         include 'modules/ecommerce/checkout/clear_session'
+        include 'modules/ecommerce/checkout/clear_local_storage'
         
         # Guest: Fetch billing contact number
         if order.billing_contact_phone_number 
