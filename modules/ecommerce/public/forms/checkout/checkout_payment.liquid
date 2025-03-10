@@ -178,14 +178,7 @@ callback_actions: >
         - Create / Update records
         - Trigger Email & API callback via GraphQL    
     {%- endcomment -%}
-    
-    {%- assign user_id = context.current_user.id | default: "" -%}
-    {%- function has_profile = "modules/website/layout/check_if_user_has_profile" -%}
-    {%- unless has_profile -%}
-        {%- assign user_id = "" -%}
-    {%- endunless -%}
 
-    {% export user_id %}
     {%- include 'modules/ecommerce/checkout/callback_init', 
         form: form
         context: context -%}

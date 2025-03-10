@@ -28,7 +28,6 @@ metadata: {
     Capture gateway reposnse and set status
     {%- endcomment -%}
     {%- assign status = payment_response.status | downcase -%}
-    {%- assign user_id = context.exports.user_id | downcase -%}
     {%- assign order_uuid = form.properties.uuid | downcase -%}
     {%- if status == 'succeeded' -%}
         {%- assign status = 'success' -%}
@@ -44,9 +43,7 @@ metadata: {
 Step 2: (optional) Create address models
 {%- endcomment -%}
 {%- if context.current_user.id -%}
-    {% include 'modules/ecommerce/checkout/callback_create_address', 
-        user_id: user_id,
-        form: form %}
+    {% include 'modules/ecommerce/checkout/callback_create_address', form: form %}
     {% assign guest_user = false %}
     {% assign products = context.exports.cart_items.products  %}
     {% assign cart = context.exports.cart_items.carts  %}
@@ -65,7 +62,6 @@ Step 3: Update inventory, cart and order models.
     status: status,
     order_status: order_status,
     order_payment_status: order_payment_status,
-    user_id: user_id,
     order_uuid: order_uuid,
     form: form,
     gateway: gateway,
