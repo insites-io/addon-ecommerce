@@ -96,6 +96,10 @@ function addToCartPreProcess(event, type){
             computeSubTotal();
         }
     }
+    else if(type.toLowerCase() == 'buy now'){
+        //The item is already added in the cart, go to /shopping-cart
+        window.location.href = "/shopping-cart";
+    }
 }
     
 /* Increment / Decrement Cart in Drawer */
