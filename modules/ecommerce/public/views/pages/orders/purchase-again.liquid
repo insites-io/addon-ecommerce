@@ -34,8 +34,6 @@ authorization_policies:
 {% assign total_items = 0 %}
 
 
-
-
 {% comment %} Get categories {% endcomment %}
 {% graphql all_categories = 'modules/ecommerce/categories/get_categories' | dig: 'items','results'  %}
 {% assign categories = all_categories | map: 'category_name' | array_prepend: 'All' %}
@@ -48,8 +46,6 @@ authorization_policies:
 {% if category_filter != '' %}
     {% assign category_uuid_filter = all_categories | array_detect: category_name: category_filter | dig: 'uuid' %}
 {% endif %}
-
-
 
 
 {% comment %} Get all order_uuids {% endcomment %}
@@ -136,7 +132,6 @@ authorization_policies:
         </ins-input>
     </div>
 </div>
-
 
 
 <div class="spacer x-large"></div>

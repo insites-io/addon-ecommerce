@@ -337,9 +337,24 @@ ins-carousel .product-cards .placeholder-img {
 }
 
 /* Purchase Again */
+.purchase-again .grid-x {
+    flex-wrap: nowrap;
+}
+.purchase-again .grid-x .buttons{
+    min-width: 151px;
+}
 .purchase-again .img-wrap {
     width: 250px;
+    min-width: 250px;
     height: 184px;
+}
+@media screen and (max-width: 1023px) {
+    .purchase-again .grid-x {
+        flex-wrap: wrap;
+    }
+    .purchase-again .img-wrap {
+        min-width: initial;
+    }
 }
 .purchase-again .img-wrap img,
 .purchase-again .placeholder-img{
