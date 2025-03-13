@@ -268,7 +268,7 @@ authorization_policies:
     "total_pages": {{ total_pages }}
 }
 {% endparse_json %}
-{% include "modules/ecommerce/layout/pagination", data: data, per_page, label: 'Items' %}
+{% include "modules/ecommerce/layout/pagination", data: data, per_page: per_page, label: 'Items' %}
 
 
 <script>
