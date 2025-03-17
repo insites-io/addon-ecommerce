@@ -103,12 +103,31 @@ metadata: {
         createUrlParams(filters);        
     }
 
+    // Debounce function
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Wrap createUrlParams with debounce
+    const debouncedCreateUrlParams = debounce((params) => {
+        window.location.href = '?' + params;
+    }, 300); 
+
     if (typeof createUrlParams !== "function") {
         function createUrlParams() {
+            console.log("createUrlParams");
             let params = Object.entries(filters)
             .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
             .join("&"); 
-            window.location.href = '?' + params;
+            debouncedCreateUrlParams(params);
         }
     }
 </script>        

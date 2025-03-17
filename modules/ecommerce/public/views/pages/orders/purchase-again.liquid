@@ -297,7 +297,8 @@ all_ordered_items total={{all_ordered_items.size}}, unique_ordered_items total={
 <script>
     let baseUrl = "/products?";
     let purchasedFilter = document.getElementById("purchased-filter");
-    let searchByName = document.getElementById("search-by-name");       
+    let searchByName = document.getElementById("search-by-name");     
+    let paramName = "{{ context.params.name |  default: '' }}";
     var filters = {
         "category": "All",
         "date": "All",
@@ -309,10 +310,13 @@ all_ordered_items total={{all_ordered_items.size}}, unique_ordered_items total={
     };
 
     purchasedFilter.addEventListener('insFilterApply', filterHandler);
-    searchByName.addEventListener('insBlur', searchByNameHandler);
-    searchByName.addEventListener('insInput', inputHandler);    
+    searchByName.addEventListener('insBlur', searchByIcon);
+    searchByName.addEventListener('insInput', searchNameByEnter); 
+    searchByName.addEventListener('insValueChange', clearSearchByNameHandler);   
     
+    // Filter by category and date
     function filterHandler(e){
+        console.log("filterHandler");
         filters.category = e.detail.Category;
         if(e.detail.Date.from && e.detail.Date.to){
             filters.date = "";
@@ -325,18 +329,33 @@ all_ordered_items total={{all_ordered_items.size}}, unique_ordered_items total={
         filters.page = 1;
         createUrlParams(filters);
     }
-    function inputHandler(e){
+
+    // Submit the search input when pressing Enter
+    function searchNameByEnter(e){
         if (e.detail.keyCode === 13){
+            console.log("searchNameByEnter ========", e.detail);
             filters.name = e.detail.value;
             filters.page = 1;
             createUrlParams(filters);
         }
     }
-    function searchByNameHandler(e){
-        filters.name = e.detail.value;
-        filters.page = 1;
-        createUrlParams(filters);
+    function searchByIcon(e){
+        console.log("searchByIcon ==========", e.detail.value);
+        if(e.detail.value != paramName){
+            filters.name = e.detail.value;
+            filters.page = 1;
+            createUrlParams(filters);
+        }
     }    
+    // Clear search_by_name when 'x' button is clicked
+    function clearSearchByNameHandler(e){        
+        if(e.detail == '' && paramName != ''){
+            console.log("detail reset");
+            filters.name = '';
+            filters.page = 1;
+            createUrlParams(filters);
+        }
+    }
 
-    //pagination functions were included in partial /layout/pagination
+    //function createUrlParams is included in modules/ecommerce/layout/pagination
 </script>
