@@ -8,6 +8,7 @@ metadata: {
 {%- capture payment_gateway_details -%}{{ payment_response }}{%- endcapture -%}
 {%- assign amount = payment_response.amount | divided_by: 100.00 -%}
 
+{%- log payment_response, type: "Payment Response --><>" -%}
 
 {%- parse_json card -%}
 {
@@ -18,7 +19,11 @@ metadata: {
 }
 {%- endparse_json -%}
 
-
+{% parse_json temp_computed %}
+{
+    "total_amount": {{ amount }}
+}
+{% endparse_json %}
 {%- comment -%}Step 2.0: Create payment data{%- endcomment -%}
 {% parse_json data %}
 {
@@ -41,7 +46,7 @@ metadata: {
 }
 {% endparse_json %}
 {% assign data = data | add_hash_key: "payment_gateway_details", payment_gateway_details %}
-{% assign data = data | add_hash_key: "computed", computed %}
+{% assign data = data | add_hash_key: "computed", temp_computed %}
 {%- graphql add_payment = 'modules/website/trigger_api_call', name: "modules/portal/add_payment", data: data | dig: 'items','response','body' | parse_json -%}   
 
 
@@ -75,9 +80,9 @@ metadata: {
     "billing_company_name": "{{ form.properties.billing_company_name }}"
 }
 {%- endparse_json -%}
-{%-  graphql updated_order = 'modules/website/trigger_api_call', name: "modules/portal/update_order", data: order_update_data | dig: 'items','response','body' | parse_json -%}
+{%- graphql updated_order = 'modules/website/trigger_api_call', name: "modules/portal/update_order", data: order_update_data | dig: 'items','response','body' | parse_json -%}
 
-{% log updated_order.items.id, type: "Order Updated" %}
+{% log updated_order, type: "Order Updated -->" %}
 
 
 
@@ -121,5 +126,6 @@ metadata: {
     {%- endif -%}
 {%- endif -%}
 
+{%- log updated_order, type: "===========updated_order================" -%}
 
 {% export updated_order %}

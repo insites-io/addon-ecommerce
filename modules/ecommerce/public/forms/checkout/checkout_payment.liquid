@@ -113,7 +113,6 @@ default_payload: >
         {% assign order_contact_last_name = context.session.billing_contact_last_name %}
         {% assign order_contact_email = context.session.billing_contact_email %}
     {% endif %}
-    {%- log context, type: "def fapyload" %}
 
     {% assign computed = context.exports.computed %}
     {
