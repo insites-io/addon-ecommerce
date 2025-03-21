@@ -72,12 +72,14 @@ metadata: {
 {%- comment -%}Step 2.3: Update order status fields{%- endcomment -%}
 {%- parse_json order_update_data -%}
 {
-    "id": "{{ form.id }}",
-    "date_time": "{{ date_time }}",
-    "order_payment_status": "{{ order_payment_status }}",
-    "order_status": "{{ order_status }}",
-    "shipping_company_name": "{{ form.properties.shipping_company_name }}",
-    "billing_company_name": "{{ form.properties.billing_company_name }}"
+    "payload":{
+        "id": "{{ form.id }}",
+        "date_time": "{{ date_time }}",
+        "order_payment_status": "{{ order_payment_status }}",
+        "order_status": "{{ order_status }}",
+        "shipping_company_name": "{{ form.properties.shipping_company_name }}",
+        "billing_company_name": "{{ form.properties.billing_company_name }}"
+    }
 }
 {%- endparse_json -%}
 {%- graphql updated_order = 'modules/website/trigger_api_call', name: "modules/portal/update_order", data: order_update_data | dig: 'items','response','body' | parse_json -%}
