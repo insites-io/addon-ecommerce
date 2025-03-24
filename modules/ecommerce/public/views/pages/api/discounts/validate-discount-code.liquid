@@ -13,7 +13,6 @@ metadata: {
 ---
 {%- assign payload = context.params.payload | parse_json -%}
 {%- assign status = 200 -%}
-
 {% function validate_code = "modules/ecommerce/checkout/validate_discount_code"
     payload: payload %}
 

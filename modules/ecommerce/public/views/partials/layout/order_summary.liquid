@@ -155,7 +155,7 @@ metadata: {
         </div>
     </div>     
     <div class="spacer x-small"></div>           
-
+    
     {% comment %} Discounts {% endcomment %}
     {% if discounts.size > 0 or computed.total_discount_amount > 0 %}
         <div class="list-discount-codes">
@@ -196,7 +196,6 @@ metadata: {
                         "discount_code": "{{ item.discount_code }}"
                     }
                     {% endparse_json %}
-                    
                     {% function validate_code = "modules/ecommerce/checkout/validate_discount_code"
                         payload: payload %}
                     {% comment %} End Function {% endcomment %}
@@ -384,7 +383,7 @@ metadata: {
             <li>Tax and processing fees may be adjusted based on the shipping cost.</li>
         </ul>
     </div>
-    {% endif %}
+    {% endif %}    
 
 </div>
 

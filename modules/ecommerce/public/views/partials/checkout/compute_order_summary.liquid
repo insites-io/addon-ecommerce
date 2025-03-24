@@ -29,7 +29,6 @@ metadata: {
     assign used_discounts = '' | split: ','
 %}
 
-
 {% if user_id == null %}
     {% comment %} Guest user {% endcomment %}
     
@@ -73,7 +72,6 @@ metadata: {
     {% assign discounts = user_cart.discounts %}
     
 {% endif %}
-
 
 {% if carts.size > 0 %}
 
@@ -129,7 +127,7 @@ metadata: {
                 assign tax_label = 'Tax'
             endif
         %}
-        
+
         {% comment %} Discounts {% endcomment %}
         {% function sub_total_discount = 'modules/ecommerce/checkout/compute_discount', 
             discounts: discounts, 

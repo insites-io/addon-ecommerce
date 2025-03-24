@@ -3,11 +3,14 @@ metadata: {
     partial_name: 'Ecommerce | Checkout | Compute Discount'
 }
 ---
+{%- log item, type: "Ecommerce | Checkout | Compute Discount" -%}
+
+{%- log discounts, type: "Discounts" -%}   
 {% for discount in discounts %}
                 
-     {% assign in_product_ids =  discount.product_uuids | array_any: item.product_uuid %}
-         
-     {% if discount.is_applicable_to_all_products or in_product_ids %}
+    {% assign in_product_ids =  discount.product_uuids | array_any: item.product_uuid %}
+    {%- log item, type: "<------- ArRAY ANY 01" -%}   
+    {% if discount.is_applicable_to_all_products or in_product_ids %}
 
          {% if item_total_price >= discount.minimum_cart_value or discount.minimum_cart_value == blank %}
 
@@ -16,10 +19,15 @@ metadata: {
 
              {% if discount_type == "fixed_amount" %}
 
+                {%- log used_discounts , type: "<------- used_discounts " -%}  
+                {%- log discount , type: "<------- discount for checking " -%} 
+
                  {% comment %} Fixed amount discount can only be used once {% endcomment %}
                  {% assign is_discount_used = used_discounts | array_any: discount.discount_code %}
+                 {%- log discount, type: "<------- ArRAY ANY 02" -%}   
+                 {%- log is_discount_used, type: "<------- Compute Discount - is_discount_used" -%}
 
-                 {% if is_discount_used == false %}
+                 {% if is_discount_used == false or is_discount_used == blank %}
                      {% assign sub_total_discount = sub_total_discount | plus: discount_value %}
                      {% assign used_discounts = used_discounts | array_add: discount.discount_code %}
                      {% export used_discounts %}
@@ -50,7 +58,7 @@ metadata: {
                      assign sub_total_discount = sub_total_discount | plus: shipping_discount
                  -%}
 
-         {% endif %}             
+            {% endif %}             
          {% endif %}
      {% endif %}        
  {% endfor %}

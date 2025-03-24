@@ -91,7 +91,6 @@ payload: {
             {% comment %} Do nothing. This is for guest user. {% endcomment %}
         {%- endif -%}
 
-
         {% comment %}Step 4: If discount code is still valid, continue other validation checks {% endcomment %}
         {%- if is_valid == blank or is_valid == "" or is_valid == true  -%}
 
@@ -106,20 +105,19 @@ payload: {
                 {% comment %} Get user cart {% endcomment %}
                 {%- if contact_uuid != '' and contact_uuid != blank -%}
                     {% comment %} Logged in user {% endcomment %}
-                    {% graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
+                    {% graphql user_cart_test = 'modules/ecommerce/carts/get_user_cart', 
                         contact_uuid: contact_uuid | dig: 'items','results' | first | dig: 'items' %}
                 {% else %}
                     {% comment %} cart local storage {% endcomment %}
-                     {%  assign user_cart = local_cart %}
+                     {% assign user_cart_test = local_cart %}
                 {% endif %}
 
-
                 {% comment %} Get cart product_uuids {% endcomment %}
-                {% if user_cart.size > 0 %}                        
+                {% if user_cart_test.size > 0 %}                        
                     {%  liquid
                         ## Convert an array of strings into an array of objects
                         assign item_obj = '' | split: ',' 
-                        for item in user_cart
+                        for item in user_cart_test
                             assign item_json = item | parse_json
                             assign item_obj = item_obj | array_add: item_json
                         endfor
@@ -128,7 +126,6 @@ payload: {
                     %}
                 {% endif %}                                       
 
-                
                 {% comment %} Get cart category_uuids {% endcomment %}
                 {% if cart_product_uuids and discount.applicable_to == 'categories' %}
                     {%  liquid                                            
@@ -150,7 +147,6 @@ payload: {
                 {% endif %}
 
             {% endif %}
-          
 
             {%- if is_valid == true -%}
                 {% comment %} Step 4-A: If valid, save discount code {% endcomment %}
