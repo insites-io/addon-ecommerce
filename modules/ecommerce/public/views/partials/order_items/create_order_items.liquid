@@ -34,6 +34,8 @@ metadata: {
     assign order_items = '' | split: ','
 
     for cart_item in cart_items
+
+        log cart_item, type: "Cart item before proceeding"
         assign product = products | array_detect: uuid: cart_item.product_uuid
         assign product_name = product.product_name
 
@@ -53,7 +55,8 @@ metadata: {
                     assign selected_prop = variant
                 endif
             endfor
-        endif             
+        endif            
+        log selected_prop, type: "selected_propselected_prop" 
 
         if selected_prop.is_on_sale == true 
             assign price = selected_prop.sale_price
@@ -82,25 +85,45 @@ metadata: {
         assign properties = '' | parse_json
         assign uuid = '' | uuid
 
+        assign properties = properties | add_hash_key: 'product_uuid', cart_item.product_uuid
         assign properties = properties | add_hash_key: 'uuid', uuid
-        assign properties = properties | add_hash_key: 'quantity', cart_item.quantity
+        assign properties = properties | add_hash_key: 'order_uuid', order_uuid
+        assign temp_cart_item_quantity = cart_item.quantity | plus: 0
+        assign properties = properties | add_hash_key: 'quantity', temp_cart_item_quantity
         assign properties = properties | add_hash_key: 'unit_price', price
         assign properties = properties | add_hash_key: 'item_price', price
-        assign properties = properties | add_hash_key: 'order_uuid', order_uuid
-        assign properties = properties | add_hash_key: 'is_fixed_tax_amount', selected_prop.is_fixed_tax_amount
-        assign properties = properties | add_hash_key: 'tax_amount', selected_prop.tax_amount                
-        assign properties = properties | add_hash_key: 'product_uuid', cart_item.product_uuid
-        assign properties = properties | add_hash_key: 'sku', cart_item.product_sku
+        assign temp_tax_amount = selected_prop.tax_amount | default: 0.0
+        assign properties = properties | add_hash_key: 'tax_amount', temp_tax_amount
         assign properties = properties | add_hash_key: 'order_item_name', product_name
-        assign properties = properties | add_hash_key: 'order_item_image', order_item_image
+        assign properties = properties | add_hash_key: 'sku', cart_item.product_sku
+        assign properties = properties | add_hash_key: 'is_fixed_tax_amount', selected_prop.is_fixed_tax_amount
 
-        assign temp_order_items = temp_order_items | add_hash_key: "table", "modules/insites_ecommerce/order_item"
-        assign temp_order_items = temp_order_items | add_hash_key: "properties", properties
-        assign order_items = order_items | array_add: temp_order_items
+        assign line_item_total = price | times: cart_item.quantity | times: 1.00
+        assign properties = properties | add_hash_key: 'line_item_total', line_item_total
+        
+        
+        comment
+            assign tempdata = 0.0
+            assign properties = properties | add_hash_key: 'line_item_tax', tempdata
+            assign properties = properties | add_hash_key: 'order_item_image', order_item_image
+            assign temp_order_items = temp_order_items | add_hash_key: "table", "modules/insites_ecommerce/order_item"
+            assign temp_order_items = temp_order_items | add_hash_key: "properties", properties
+        endcomment
+
+        assign order_items = order_items | array_add: properties
     endfor
+
+    assign order_items_payload = '{}' | parse_json
+    assign order_items_payload = order_items_payload | add_hash_key: 'payload', order_items
+
+    log order_items_payload, type: "Products add to the orders"
 
 %}
 
+{% graphql create_order_item = 'modules/ecommerce/system/trigger_api_call', name: "modules/ecommerce/add_order_items", data: order_items_payload %}
+{% log create_order_item, type: "cREATE order ITEM Response" %}
+{%- comment %}
 {% graphql create_order_item = 'modules/ecommerce/order_items/create_order_items', items: order_items %}
+{%- endcomment %}
 
 {% export user_cart %}
