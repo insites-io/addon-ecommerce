@@ -110,7 +110,7 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
     {% comment %} Get cart from local storage {% endcomment %}
     {% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
    
-    {%- if has_profile == false or context.params.is_new_user == 'true'  -%}
+    {%- if has_profile == false and context.params.slug2 -%}
         <script>var is_new_user = {{ context.params.is_new_user | default: false }};</script>
         {%- if context.environment == "staging" -%}
             <script src="{{ 'modules/ecommerce/scripts/cart-items-from-local-storage.js' | asset_url }}"></script>
