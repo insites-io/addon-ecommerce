@@ -88,7 +88,7 @@ metadata: {
                 user_cart, carts, products %}
             <div class="spacer x-large"></div>
 
-            <div id="proceed-to-checkout" class="show-for-medium text-right {% if context.exports.computed.total_amount <= 0 %}hide{% endif %}">
+            <div id="proceed-to-checkout" class="show-for-medium text-right {% if context.exports.computed.sub_total_amount <= 0 %}hide{% endif %}">
                 <ins-button label="PROCEED TO CHECKOUT" solid color="blue" class="checkoutBtn proceed-to-checkout-btn" onclick="document.location.href = '/checkout';"></ins-button>
             </div>
 
