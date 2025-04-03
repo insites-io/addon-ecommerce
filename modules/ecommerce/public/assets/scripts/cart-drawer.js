@@ -98,7 +98,7 @@ function addToCartPreProcess(event, type){
             computeSubTotal();
         }
     }
-    else if(type.toLowerCase() == 'buy now'){
+    else if(type.toLowerCase() == 'buy now' || type.toLowerCase() == 'pre-order'){
         //The item is already added in the cart, go to /shopping-cart
         window.location.href = "/shopping-cart";
     }
