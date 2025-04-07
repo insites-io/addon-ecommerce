@@ -29,8 +29,12 @@ metadata: {
 
 
 {% comment %} Get products info {% endcomment %}
-{% graphql ordered_items = 'modules/ecommerce/order_items/get_order_items', 
-        order_uuid: order.uuid, is_product_info_needed: true  | dig: 'items','results' %}
+{% if order.uuid %} 
+  {% graphql ordered_items = 'modules/ecommerce/order_items/get_order_items', 
+          order_uuid: order.uuid, is_product_info_needed: true  | dig: 'items','results' %}
+{% else %}          
+  {% redirect_to '/404' %}
+{% endif %}
 
 
 {% assign reorder_items = '' | split: ',' %}

@@ -3,14 +3,17 @@ metadata: {
     partial_name: 'Ecommerce | Layout | Pagination'
 }
 ---
-{% if data.total_entries > 0 %}
 
+{% comment %} Ensure that the variable is an integer {% endcomment %}
+{% assign per_page = per_page | times: 1 %}
+
+{% if data.total_entries > 0 %}
         <div class="paginations grid-x align-right align-middle">
             <span class="per__page form-label">{{label | default: 'Items'}} per page:</span>            
             <ins-select id="pagination" class="form-placeholder"
                 placeholder="Select Size" 
                 drop-up small>
-                <ins-select-option label="{{ per_page }}" value="{{ per_page }}" default></ins-select-option>
+                <ins-select-option label="10" value="10" {% if per_page == 10 %}default{% endif %}></ins-select-option>            
                 <ins-select-option label="15" value="15"  {% if per_page == 15 %}default{% endif %}></ins-select-option>
                 <ins-select-option label="30" value="30"  {% if per_page == 30 %}default{% endif %}></ins-select-option>
             </ins-select>
@@ -100,12 +103,31 @@ metadata: {
         createUrlParams(filters);        
     }
 
+    // Debounce function
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Wrap createUrlParams with debounce
+    const debouncedCreateUrlParams = debounce((params) => {
+        window.location.href = '?' + params;
+    }, 300); 
+
     if (typeof createUrlParams !== "function") {
         function createUrlParams() {
+            console.log("createUrlParams");
             let params = Object.entries(filters)
             .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
             .join("&"); 
-            window.location.href = '?' + params;
+            debouncedCreateUrlParams(params);
         }
     }
 </script>        
