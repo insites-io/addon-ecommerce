@@ -107,7 +107,6 @@ authorization_policies:
         assign unique_product_uuids = unique_product_uuids | array_add: item.product_uuid | array_uniq
     endfor
 %}
-all_ordered_items total={{all_ordered_items.size}}, unique_ordered_items total={{unique_ordered_items.size}}<br><br>
 
 
 {% comment %} Get localisation format {% endcomment %}
