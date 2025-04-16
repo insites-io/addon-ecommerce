@@ -49,7 +49,6 @@ metadata: {
 {% assign data = data | add_hash_key: "computed", temp_computed %}
 {%- graphql add_payment = 'modules/website/trigger_api_call', name: "modules/portal/add_payment", data: data | dig: 'items','response','body' | parse_json -%}   
 
-
 {% comment %} Create Order Items {% endcomment %}
 {%- include 'modules/ecommerce/order_items/create_order_items', user_uuid, order_uuid, guest_user -%}
 {% assign user_cart = context.exports.user_cart %}
@@ -68,7 +67,6 @@ metadata: {
         
 {%- endif -%}
 
-
 {%- comment -%}Step 2.3: Update order status fields{%- endcomment -%}
 {%- parse_json order_update_data -%}
 {
@@ -83,10 +81,6 @@ metadata: {
 }
 {%- endparse_json -%}
 {%- graphql updated_order = 'modules/website/trigger_api_call', name: "modules/portal/update_order", data: order_update_data | dig: 'items','response','body' | parse_json -%}
-
-{% log updated_order, type: "Order Updated -->" %}
-
-
 
 {%- comment -%}Step 2.4: Update inventory{%- endcomment -%}
 {%- if status == 'success' -%}

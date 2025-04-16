@@ -7,7 +7,6 @@ metadata: {
 {% graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
         contact_uuid: user_uuid | dig: 'items','results' | first %}
 
-
 {%  liquid    
     ## Get cart
     if guest_user == false
@@ -101,7 +100,6 @@ metadata: {
 %}
 
 {% graphql create_order_item = 'modules/ecommerce/system/trigger_api_call', name: "modules/ecommerce/add_order_items", data: order_items_payload %}
-{% log create_order_item, type: "cREATE order ITEM Response" %}
 {%- comment %}
 {% graphql create_order_item = 'modules/ecommerce/order_items/create_order_items', items: order_items %}
 {%- endcomment %}
