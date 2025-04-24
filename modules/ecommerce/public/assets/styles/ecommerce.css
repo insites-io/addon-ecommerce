@@ -425,6 +425,9 @@ ins-carousel .product-cards .placeholder-img {
     border: 1px dashed var(--warning);
     background: rgba(236, 156, 0, 0.10);
 }
+.product-details-column-2 {
+    row-gap: 40px;
+}
 
 /* Sale */
 .sale-tag,

@@ -5,12 +5,11 @@ metadata: {
 ---
 {%- graphql product = 'modules/ecommerce/products/get_product', 
     slug: context.params.slug2 | dig: 'items','results' | first -%}
-
-
+    
 {% liquid
 
     ## Galleries
-    assign galleries = '' | split: ','
+    assign galleries = '' | split: ','    
     if product.gallery_1.size > 0
         for gallery in product.gallery_1
             assign galleries = galleries | array_add: gallery.file.url
@@ -22,10 +21,14 @@ metadata: {
 
     if product.is_product_variant_enabled
         assign selected_prop = product.variants[0]  
+        assign gallery_indexes = '{}' | parse_json 
+        assign index = 0
         
         ## Variant Galleries        
         for variant in product.variants
             assign galleries = galleries | array_add: variant.product_image.url
+            assign gallery_indexes = gallery_indexes | add_hash_key: variant.id, index
+            assign index = index | plus: 1
         endfor
     else 
         assign selected_prop = product        
@@ -43,6 +46,7 @@ metadata: {
     
 %}
 
+
 <ins-button label="Go Back" icon="icon-angle-left" size="large" class="inline button-large go-back" onclick=window.history.back();></ins-button>
 <div class="spacer"></div>
 
@@ -54,10 +58,9 @@ metadata: {
             <div id="on-sale-tag" class="on-sale-tag {% unless selected_prop.is_on_sale == true %}hide{% endunless %}">ON SALE</div>
 
             {% comment %} Use gallery or product_image {% endcomment %}
-            {%- if galleries.size > 0 -%}           
-                <div class="main-gallery variant-gallery">                    
-                                        
-                    <ins-gallery with-indicator slidable>
+            {%- if galleries.size > 0 -%}                  
+                <div class="main-gallery variant-gallery">                       
+                    <ins-gallery with-indicator slidable id="product-galleries">
                         {%- for gallery in galleries -%}
                          <ins-gallery-image
                             thumbnail="{{ gallery }}"
@@ -85,71 +88,73 @@ metadata: {
 
     <div class="large-4 medium-12 small-12 large-offset-1 cell">
         <div class="hide-for-large spacer xxx-large"></div>
-        <div class="grid-y grid-padding-y">
+
+        <div class="grid-y grid-padding-y product-details-column-2">
+            {% comment %} Text heading {% endcomment %}
             <div>
                 <h1 class="heading-1">{{ product.product_name }}</h1>                
                 <p class="body-paragraph">SKU: <span id="product-sku">{% if product.is_product_variant_enabled != true %}{{ product.sku }}{% endif %}</p>
             </div>
-            <div class="spacer x-large"></div>
+            
+            {% comment %} Price {% endcomment %}
             <div>                                                
                 <p id="product-price" class="heading-4">{{ price | pricify: 'USD', no_cents_if_whole: false }}</p>
                 {% if price_strikethrough != '' %}
                 <p id="regular-product-price" class="strikethrough">{{ price_strikethrough | pricify: 'USD', no_cents_if_whole: false }}</p>
                 {% endif %}
             </div>
+
+            {% comment %} Description {% endcomment %}
             {% if product.short_description %}
-                <div class="spacer x-large"></div>
-                <div>
-                    {{ product.short_description }}
-                </div>
-                <div class="spacer x-large"></div>
-            {% endif %}
-        </div>
-
-        {%  liquid 
-            assign btnLabel = 'Pre-Order'
-            if product.is_product_variant_enabled 
-                assign hideOutOfStock = 'hide'
-                assign btnLabel = 'Buy Now'
-            elsif product.stock_level > 0
-                assign hideOutOfStock = 'hide'
-                assign btnLabel = 'Buy Now'
-            else
-                assign hideOutOfStock = ''
-            endif
-        %}
-        <div id="out-of-stock-wrap" class="wrap {{ hideOutOfStock }}">            
-            <div class="out-of-stock-notice">            
-                <p>We're currently out of stock on this product, but you can secure yours by placing a pre-order now!</p>
-                <p>We will notify you when your pre-order becomes available for delivery.</p>
+            <div>
+                {{ product.short_description }}
             </div>
-            <div class="spacer x-large"></div>
-        </div>
+            {% endif %}
+        
+            {% comment %} Out of Stock {% endcomment %}
+            {%  liquid 
+                assign btnLabel = 'Pre-Order'
+                if product.is_product_variant_enabled 
+                    assign hideOutOfStock = 'hide'
+                    assign btnLabel = 'Buy Now'
+                elsif product.stock_level > 0
+                    assign hideOutOfStock = 'hide'
+                    assign btnLabel = 'Buy Now'
+                else
+                    assign hideOutOfStock = ''
+                endif
+            %}
+            <div id="out-of-stock-wrap" class="wrap {{ hideOutOfStock }}">  
+                <div class="out-of-stock-notice">            
+                    <p>We're currently out of stock on this product, but you can secure yours by placing a pre-order now!</p>
+                    <p>We will notify you when your pre-order becomes available for delivery.</p>
+                </div>
+            </div>
 
-        {%- if product.is_product_variant_enabled -%} 
-            <div class="grid-y">
-                <div class="spacer x-large"></div> 
-                <div class="small-12 cell">
-                    
-                    {% comment %} Get variant info {% endcomment %}
-                    {% assign variants = '' | split: ',' %}
-                    {%- for variant in product.variants -%}
-                        {%  liquid 
-                            ## Convert an array of strings into an array of objects
-                            assign item_obj = '' | split: ',' 
-                            for item in variant.product_options
-                                assign item_json = item | parse_json
-                                assign item_obj = item_obj | array_add: item_json
-                            endfor
-                            assign variant = variant | add_hash_key: 'options', item_obj
-                            assign variants = variants | array_add:variant
-                        %}
-                    {%- endfor -%}
-            
-  
-                    {% comment %} Get variant options {% endcomment %}
-                    {% graphql variant_options = 'modules/ecommerce/products/variant_options/get_product_variant_options', 
-                            product_uuid: product.uuid | dig: 'items','results' %}
+            {% comment %} Variants {% endcomment %}
+            {%- if product.is_product_variant_enabled -%} 
+                <div class="grid-y">
+                    <div class="small-12 cell">
+                        
+                        {% comment %} Get variant info {% endcomment %}
+                        {% assign variants = '' | split: ',' %}
+                        {%- for variant in product.variants -%}
+                            {%  liquid 
+                                ## Convert an array of strings into an array of objects
+                                assign item_obj = '' | split: ',' 
+                                for item in variant.product_options
+                                    assign item_json = item | parse_json
+                                    assign item_obj = item_obj | array_add: item_json
+                                endfor
+                                assign variant = variant | add_hash_key: 'options', item_obj
+                                assign variants = variants | array_add:variant
+                            %}
+                        {%- endfor -%}
+                
+    
+                        {% comment %} Get variant options {% endcomment %}
+                        {% graphql variant_options = 'modules/ecommerce/products/variant_options/get_product_variant_options', 
+                                product_uuid: product.uuid | dig: 'items','results' %}
 
                         {%- for option in variant_options -%}
                             <ins-select 
@@ -181,38 +186,43 @@ metadata: {
                                 {%- endfor -%}
                         
                             </ins-select>
+                            {% unless forloop.last %}
                             <div class="spacer"></div>
+                            {% endunless %}
                         {%- endfor -%}
+                    </div>
                 </div>
-            </div>
-        {%- endif -%} 
-
+            {%- endif -%} 
             
-        {% parse_json add_to_cart_data %}
-        {
-            "id": "{{ product.id }}",
-            "product_uuid": "{{ product.uuid }}",
-            "product_sku": "{{ selected_prop.sku }}",
-            "product_name": "{{ product.product_name | replace: "'", "`" }}",
-            "price": "{{ price | default: 0 }}"
-        }
-        {% endparse_json %}
-
-        <div class="grid-y">                                                    
-            <p class="form-label">Quantity</p>
-            <ins-input-stepper
-                id="cart-quantity" 
-                value="1" 
-                step="1" min="1" 
-                max="100" 
-                small>
-            </ins-input-stepper>
-            <div class="spacer x-large"></div> 
-            <ins-button id="add-to-cart-btn-{{ add_to_cart_data.id }}"  class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid></ins-button>
-        </div>
+            {% comment %} Quantity {% endcomment %}
+            <div>                                                    
+                <p class="form-label">Quantity</p>
+                <ins-input-stepper
+                    id="cart-quantity" 
+                    value="1" 
+                    step="1" min="1" 
+                    max="100" 
+                    small>
+                </ins-input-stepper>                
+            </div>
     
-        <div class="spacer small"></div>        
-        <ins-button class="full add-to-cart-btn" label="Add to Cart" data='{{ add_to_cart_data }}' outlined></ins-button>
+            {% comment %} Buttons {% endcomment %}
+            {% parse_json add_to_cart_data %}
+            {
+                "id": "{{ product.id }}",
+                "product_uuid": "{{ product.uuid }}",
+                "product_sku": "{{ selected_prop.sku }}",
+                "product_name": "{{ product.product_name | replace: "'", "`" }}",
+                "price": "{{ price | default: 0 }}"
+            }
+            {% endparse_json %}
+            <div>
+                <ins-button id="add-to-cart-btn-{{ add_to_cart_data.id }}"  class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid></ins-button>
+                <div class="spacer small"></div>
+                <ins-button class="full add-to-cart-btn" label="Add to Cart" data='{{ add_to_cart_data }}' outlined></ins-button>
+            </div>
+            
+        </div>
         
     </div>
 
@@ -234,20 +244,23 @@ metadata: {
 </div>
 
 <script>
-    const variants = {{ variants }};
+    let variants = {{ variants }};
+    let galleryIndexes = {{ gallery_indexes | default: '[]' }};
+    let onSaleTag = document.getElementById('on-sale-tag');
+    let productGalleries = document.getElementById('product-galleries');    
 
     //variantID <-- This is already set in cart_drawer.liquid
     //variantPrice <-- This is already set in cart_drawer.liquid
     //productSKU = document.getElementById("product-sku"); //this is already set in cart_drawer.liquid
-    const productPrice = document.getElementById("product-price");
-    const regularProductPrice = document.getElementById("regular-product-price");
-    const ourOfStockWrap = document.getElementById("out-of-stock-wrap");
+    let productPrice = document.getElementById("product-price");
+    let regularProductPrice = document.getElementById("regular-product-price");
+    let ourOfStockWrap = document.getElementById("out-of-stock-wrap");
     let variantSelect = document.querySelectorAll(".variant-select");
 
     if (variants.length > 0){
         //Extracts and processes the first product option to update the content
         document.addEventListener("DOMContentLoaded", function() {
-                const productOption = JSON.parse(variants[0].product_options[0]);
+                let productOption = JSON.parse(variants[0].product_options[0]);
                 options = [
                     {
                         product_option_label: productOption.product_option_label,
@@ -267,10 +280,10 @@ metadata: {
     });
 
     function getSelectedVariant(){
-        const options = [];
+        let options = [];
         for (let i = 0; i < variantSelect.length; i++) {               
-            const el = variantSelect[i];   
-            const label =  el.getAttribute("label-key");   
+            let el = variantSelect[i];   
+            let label =  el.getAttribute("label-key");              
 
             el.getValue().then(result => {                
                 options.push({product_option_label: label, product_option_value: result});
@@ -291,6 +304,10 @@ metadata: {
                 selectedVariant = variant;                
             } 
         });
+
+
+        //Update active view in galleries based on selected variant
+        productGalleries.activate(galleryIndexes[selectedVariant.id]); 
 
         if(selectedVariant.id){
             //ID
@@ -336,37 +353,10 @@ metadata: {
         if (arr1.length !== arr2.length) return false;
 
         // Stringify each object and sort arrays
-        const arr1Sorted = arr1.map(obj => JSON.stringify(obj)).sort();
-        const arr2Sorted = arr2.map(obj => JSON.stringify(obj)).sort();
+        let arr1Sorted = arr1.map(obj => JSON.stringify(obj)).sort();
+        let arr2Sorted = arr2.map(obj => JSON.stringify(obj)).sort();
 
         // Compare each stringified object
         return arr1Sorted.every((value, index) => value === arr2Sorted[index]);
-    }
-</script>
-
-{%- if product.is_variant_enabled -%}
-<script>
-let prodVarList = {{ raw_product_variants.items.results | json }}; 
-</script>
-{%- endif -%}
-<style>
-    .hidden-gallery {
-        display: none;
-    }
-</style>
-<script>
-    let onSaleTag = document.getElementById('on-sale-tag');
-    let eventElement = document.getElementById('variant-list');
-    let variantGalleries = document.querySelectorAll(`.variant-gallery`);
-    if(eventElement) {
-        eventElement.addEventListener('insSelectOptionClicked', function(event){
-            let variantID = event.detail.value;
-            let variantGallery = document.querySelector(`#vid-${variantID}`);
-
-            for (const gallery of variantGalleries){
-                gallery.classList.add('hidden-gallery');
-            }
-            variantGallery.classList.remove('hidden-gallery');
-        });
     }
 </script>

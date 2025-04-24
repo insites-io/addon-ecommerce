@@ -52,10 +52,10 @@ metadata: {
     assign param_slug2 = params.slug2 | strip
 
     if param_cat != ''
-        assign category_uuid = all_categories | array_detect: slug: param_cat | dig: 'uuid' | split: ','
+        assign category_uuids = all_categories | array_detect: slug: param_cat | dig: 'uuid' | split: ','
         assign category_name = all_categories | array_detect: slug: param_cat | dig: 'category_name'
     elsif param_slug2 != '' 
-        assign category_uuid = all_categories | array_detect: slug: param_slug2 | dig: 'uuid' | split: ','
+        assign category_uuids = all_categories | array_detect: slug: param_slug2 | dig: 'uuid' | split: ','
         assign category_name = all_categories | array_detect: slug: param_slug2 | dig: 'category_name'
     endif
 %}
@@ -67,10 +67,11 @@ metadata: {
     "page": {{page_num}},
     "size": {{per_page}},
     "keyword": "{{keyword}}",
-    "brand": "{{brand}}",
-    "min_price": "{{min_price}}",
-    "max_price": "{{max_price}}",
-    "category_uuids": {{category_uuid | default: '[]'}},
+    "brand": "{{brand}}",    
+
+    {%- if category_uuids.size > 0 -%}
+        "category_uuids": {{ category_uuids }},
+    {%- endif -%}
 
     {%- comment %} Filter by: show {% endcomment %}
     {%- if show == "sale" -%}
