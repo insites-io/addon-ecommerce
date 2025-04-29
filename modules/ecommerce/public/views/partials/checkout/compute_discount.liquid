@@ -30,16 +30,18 @@ metadata: {
                  {% assign temp = item_total_price | times: discount_value | divided_by: 100 %}
                  {% assign sub_total_discount = sub_total_discount | plus: temp %}   
 
-             {%- elsif discount_type contains "shipping" -%}                          
-             
+             {%- elsif discount_type contains "shipping" -%}
+
                  {%- liquid                
-                     assign shipping_discount = 0                             
+                     assign shipping_discount = 0       
+                     
+                     log discount_type, type: "Discount Type is"
 
                      if discount_type contains "fix" and is_free_shipping == false
                          assign shipping_discount = discount_value | times: item.quantity
                      elsif discount_type contains "percent" and is_free_shipping == false
                          assign shipping_discount = freight_amount | times: discount_value | divided_by: 100 | times: item.quantity
-                     elsif discount_type contains 'free shipping'
+                     elsif discount_type contains 'free_shipping'
                          assign shipping_discount = freight_amount | times: item.quantity
                      endif
                      

@@ -165,7 +165,7 @@ metadata: {
                 </div>
                 <div class="small-6 medium-6 large-4 cell text-right">
                     {%- if computed.total_discount_amount > 0 -%}
-                        {%- assign total_discount_amount = computed.total_discount_amount | advanced_format: '%.2f' | default: "0.00" -%}
+                        {%- assign total_discount_amount = computed.total_discount_amount | advanced_format: '%.2f' | default: 0 -%}
                         {%- assign total_discount_amount = total_discount_amount | pricify -%}
                         {%- unless total_discount_amount contains '.' -%}
                             {%- assign total_discount_amount = total_discount_amount | append: '.00' -%}
