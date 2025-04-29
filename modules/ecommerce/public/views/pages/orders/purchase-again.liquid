@@ -22,8 +22,7 @@ authorization_policies:
 
 
 
-{% function user_uuid = 'modules/ecommerce/user/get_user_uuid' %}
-
+{% assign user_uuid = context.current_user.external_id %}
 {% assign params = context.params %}
 {% assign page_num = params.page | default: 1 %}
 {% assign per_page = params.per_page | default: 10 %}
