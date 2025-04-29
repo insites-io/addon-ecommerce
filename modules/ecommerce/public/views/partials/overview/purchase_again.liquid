@@ -3,7 +3,7 @@ metadata: {
     partial_name: 'Ecommerce | Overview | Purchase Again'
 }
 ---
-{% function user_uuid = 'modules/ecommerce/user/get_user_uuid' %}
+{% assign user_uuid = context.current_user.external_id %}
 
 {% comment %} Get all order_uuids {% endcomment %}
 {%- parse_json order_filters -%}

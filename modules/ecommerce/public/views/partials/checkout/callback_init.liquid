@@ -99,10 +99,6 @@ Step 4: Trigger autoresponder, workflow email & API
     status: status,
     data: data %}
 
-{%- comment -%}Step 4.2: Trigger API Call{%- endcomment -%}
-{% include 'modules/ecommerce/checkout/callback_api_call', 
-    status: status,
-    data: data %}
 
 {% comment %} ? Clear Session Discount Every Purchase {% endcomment %}
 {% session discount_uuids = "[]" %}

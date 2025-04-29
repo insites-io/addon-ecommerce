@@ -23,9 +23,3 @@ metadata: {
 {%- else -%}
     {%- include 'modules/ecommerce/checkout/landing_page' -%}
 {%- endif -%}
-
-{%- if context.environment == "staging" -%}
-    <script src="{{ 'modules/portal/scripts/login-scripts.js' | asset_url }}"></script>
-{%- else -%}
-    <script src="{{ 'modules/portal/scripts/login-scripts.min.js' | asset_url }}"></script>
-{%- endif -%}

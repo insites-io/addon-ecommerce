@@ -17,7 +17,6 @@ let productList = (function () {
         methods: {
             initBaseURL(){
                 pageBaseUrl = "/products";
-                //pageBaseUrl = window.location.pathname;
             },
             initFilterValues(){
                 //Get all params and set params value
@@ -35,20 +34,7 @@ let productList = (function () {
                 }
                 productList.methods.putFilterValues();
             },
-            initSubCategoryFilter(){
-                //Add click event on sub-category when subcategory are present
-                let subElem = subCatContElem.getElementsByClassName("sub-cat");
-                for (var i = 0; i < subElem.length; i++) {
-                    subElem[i].addEventListener('click', productList.methods.changeSubCategory, false);
-                }
-            },
             initSearchInterface(){
-
-                let catSelect = document.getElementById('categorySelect');
-                if(catSelect){
-                    catSelect.addEventListener('insValueChange', productList.methods.categoryValueSelected);
-                }
-
                 if(keywordInput){
                     keywordInput.addEventListener('insInput', productList.methods.keywordInputEvent);
                     keywordInput.addEventListener('insIconClick', function(event) {
@@ -56,10 +42,6 @@ let productList = (function () {
                     });
                 }
 
-            },
-            categoryValueSelected(event){
-                //just place selected category of search
-                selectCatergory = event.detail;                
             },
             putFilterValues(){
                 if(productFilter.keyword != ""){
@@ -109,34 +91,13 @@ let productList = (function () {
                 //Function to update sort of products
                 let tmpVal = event.detail;
                 productFilter.sort = tmpVal;
-
                 window.location.href = productList.methods.buildURLLink();
-            },            
-            changeSubCategory(event){
-                //When a sub category is clicked
-                let subElem = subCatContElem.getElementsByClassName("sub-cat");
-                let targetId = event.target.id;
-                let subCatTmp = targetId.replace('sub-', '');
-
-                if(!productFilter.sub_category.includes(subCatTmp)){
-                    for(let a = 0; a < subElem.length; a++){
-                        subElem[a].classList.remove('active');
-                    };
-                    document.getElementById(targetId).classList.add('active');
-                    productFilter.sub_category = subCatTmp;
-
-                    window.location.href = productList.methods.buildURLLink();
-                }
             },
             clearFilterToList(){
                 productFilter.page = "1";
-
                 productFilter.keyword = "";
                 productFilter.sub_category = "";
-                productFilter.sort = "";
-
-                //keywordInput.value = "";
-                
+                productFilter.sort = "";                
             },
             buildParamlist(){
                 //Get all items on the object and buld them as parameters
@@ -160,40 +121,10 @@ let productList = (function () {
                 }
                 return urlStr;
             },
-            previousButtonClick(event){
-                //Function for pagination previous button click event
-                let tmpPage = Number(productFilter.page);
-                tmpPage--;
-                productFilter.page = tmpPage.toString();
-
-                window.location.href = productList.methods.buildURLLink();
-            },
-            nextButtonClick(event){
-                //Function for pagination next button click event
-                let tmpPage = Number(productFilter.page);
-                tmpPage++;
-                productFilter.page = tmpPage.toString();
-                
-                window.location.href = productList.methods.buildURLLink();
-            },
-            pageSizeValueSelected(event){
-                //Function for pagination page size selected event
-                let tmpVal = event.detail;
-                productFilter.per_page = tmpVal;
-                productFilter.page = 1;
-
-                window.location.href = productList.methods.buildURLLink();
-            },
-            openMobileFilterDrawer(event){
+            openMobileFilterDrawer(){
                 let mobileFilterDrawer = document.getElementById('mobile-filter-drawer');
                 if(mobileFilterDrawer){
                     mobileFilterDrawer.setDrawerState(true);
-                }
-            },
-            closeMobileFilterDrawer(event){
-                let mobileFilterDrawer = document.getElementById('mobile-filter-drawer');
-                if(mobileFilterDrawer){
-                    mobileFilterDrawer.setDrawerState(false);
                 }
             },
             keywordInputEvent(event, type){                
@@ -203,28 +134,19 @@ let productList = (function () {
                     window.location.href = productList.methods.buildURLLink();
                 }
             }
-
-            
-
         },
         init: {
             initProductList() {
                 productList.methods.initBaseURL();
                 productList.methods.initFilterValues();
-                //notyf.success('Your changes have been successfully saved!');
             },
             initFilterListeners(){
-                //Initialize category and search interface
-                if(subCatContElem){
-                    productList.methods.initSubCategoryFilter();
-                }
                 productList.methods.initSearchInterface();
             },
             initProductListInterface() {
                 let viewGridBtn = document.getElementById('view-grid-btn');
                 let viewListBtn = document.getElementById('view-list-btn');
                 if(viewListBtn && viewGridBtn){
-                    //let emailInput = document.getElementById('email');
                     viewGridBtn.addEventListener('insClick', productList.methods.toggleProductView);
                     viewListBtn.addEventListener('insClick', productList.methods.toggleProductView);
                 }
@@ -244,20 +166,6 @@ let productList = (function () {
                     sortSelect.addEventListener('insChange', productList.methods.sortValueSelected);
                 }
 
-                let previousBtn = document.getElementById('previousPage');
-                if(previousBtn){
-                    previousBtn.addEventListener('insClick', productList.methods.previousButtonClick);
-                }
-                let nextBtn = document.getElementById('nextPage');
-                if(nextBtn){
-                    nextBtn.addEventListener('insClick', productList.methods.nextButtonClick);
-                }
-
-                let pageSizeSelect = document.getElementById('page-size-select');
-                if(pageSizeSelect){
-                    pageSizeSelect.addEventListener('insValueChange', productList.methods.pageSizeValueSelected);
-                }
-
                 let mobileCategoryToggle = document.getElementById('mobile-category-button');
                 if(mobileCategoryToggle){
                     let sidebarCategoriesHtml = document.getElementById('sidebar-categories').innerHTML;
@@ -267,11 +175,6 @@ let productList = (function () {
                     mobileFilterWrap.innerHTML = modifiedHTML;
                     mobileCategoryToggle.addEventListener('insClick', productList.methods.openMobileFilterDrawer);
                 }
-                let mobileFilterClose = document.getElementById('mobile-filter-cls');
-                if(mobileFilterClose){
-                    mobileFilterClose.addEventListener('insClick', productList.methods.closeMobileFilterDrawer);
-                }
-
             }
             
         }
