@@ -9,14 +9,12 @@ metadata: {
 <div class="spacer x-large"></div>
 
 
-{%- graphql user = 'modules/ecommerce/account/get_current_user' | dig: 'current_user' -%}
-
 {%- assign page_num = context.params.page | default: 1 -%}
 {%- assign page_size = context.params.per_page | default: 100 -%}
 
 {%- parse_json filters -%}
 {
-    "order_contact_uuid": "{{user.uuid}}",
+    "order_contact_uuid": "{{ context.current_user.external_id }}",
     "page": {{page_num}},
     "size": {{page_size}}
 }

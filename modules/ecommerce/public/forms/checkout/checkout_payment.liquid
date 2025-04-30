@@ -97,7 +97,7 @@ default_payload: >
 
     {% comment %} Get current_user details {% endcomment %}
     {%- if has_profile -%}
-        {% graphql order_contact_uuid = 'modules/ecommerce/account/get_current_user' | dig: 'current_user','uuid' %}
+        {% graphql order_contact_uuid = context.current_user.external_id %}
         {% assign order_contact_first_name =  context.current_user.first_name %}
         {% assign order_contact_last_name = context.current_user.last_name %}
         {% assign order_contact_email = context.current_user.email %}

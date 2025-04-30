@@ -16,13 +16,5 @@ query get_current_user {
       mobile_phone_area_code: property(name: "mobile_phone_area_code")
       mobile_phone_number: property(name: "mobile_phone_number")  
     }    
-    
-    ## ECO Customer
-    customer: profiles(
-      profile_type: "modules/ecommerce/customer"
-    ) {
-      is_activated: property_boolean(name: "is_activated")
-    }
-
   }
 }

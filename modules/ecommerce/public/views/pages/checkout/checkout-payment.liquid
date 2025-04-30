@@ -11,18 +11,12 @@ metadata: {
     "meta_title": "Checkout - Payment Detail"       
 }
 ---
-{%- graphql data = 'modules/ecommerce/account/get_current_user' -%}
-{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
-{%- unless has_profile -%}
-    {%- assign data = "{}" | parse_json -%}
-    {%- assign data = data | add_hash_key: "current_user", null -%}
-{%- endunless -%}
 
 {% include 'modules/ecommerce/checkout/checkout_redirect_step' %}
 
 <div class="grid-x grid-padding-x">
     <div class="large-offset-2 medium-offset-1 small-offset-0 large-8 medium-10 small-12 cell">
-        {% include 'modules/ecommerce/layout/checkout_steps', clickable: true, data %}
+        {% include 'modules/ecommerce/layout/checkout_steps', clickable: true %}
     </div>
 </div>
 
