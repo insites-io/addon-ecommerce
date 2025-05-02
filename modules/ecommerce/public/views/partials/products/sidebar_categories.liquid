@@ -67,14 +67,14 @@ metadata: {
                             arrow-activated>
                             {%- for subCat in sub_categories -%}
                                 {%- liquid
-                                    assign urlparams = 'cat=' | append: subCat.slug | strip                                     
+                                    assign urlparams = 'category=' | append: subCat.slug | strip                                     
                                     if params.page
                                         assign urlparams =  urlparams | append: paramPerPage
                                     endif                                                                                                                                                                                                                            
                                 -%}
                                 {%- assign isChild = subCat.parent_category_uuids | array_any: topCat.uuid -%} 
                                 {%- if isChild -%}
-                                <a href="/products/{{topCat.slug}}?{{urlparams}}" {%- if subCat.slug == params.cat -%}class="active"{%- endif -%}>
+                                <a href="/products/{{topCat.slug}}?{{urlparams}}" {%- if subCat.slug == params.category -%}class="active"{%- endif -%}>
                                     <span class="ui-sidebar" id="sub-{{subCat.id}}">{{subCat.category_name}}</span>
                                 </a>
                                 {%- endif -%}

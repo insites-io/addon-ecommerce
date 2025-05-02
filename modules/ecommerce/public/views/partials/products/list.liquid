@@ -48,7 +48,7 @@ metadata: {
 
 {% comment %} Filter by Categories {% endcomment %}
 {%  liquid
-    assign param_cat = params.cat | strip
+    assign param_cat = params.category | strip
     assign param_slug2 = params.slug2 | strip
 
     if param_cat != ''
