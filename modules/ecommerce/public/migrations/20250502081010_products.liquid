@@ -244,7 +244,7 @@
 ]
 {% endparse_json %}
 
-{% comment %} {%- graphql results, models: import_categories -%}
+{%- graphql results, models: import_categories -%}
      mutation ($models: [CustomizationImport!]!) {
           import_models(
                models: $models
@@ -253,7 +253,7 @@
           }
      }
 {%- endgraphql -%}
-{% log results, type: "SEED DATA: Cateogries" %} {% endcomment %}
+{% log results, type: "SEED DATA: Cateogries" %}
 
 
 {% comment %} Import Products {% endcomment %}
