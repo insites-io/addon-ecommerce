@@ -244,7 +244,7 @@
 ]
 {% endparse_json %}
 
-{%- graphql results, models: import_categories -%}
+{% comment %} {%- graphql results, models: import_categories -%}
      mutation ($models: [CustomizationImport!]!) {
           import_models(
                models: $models
@@ -253,7 +253,7 @@
           }
      }
 {%- endgraphql -%}
-{% log results, type: "SEED DATA: Cateogries" %}
+{% log results, type: "SEED DATA: Cateogries" %} {% endcomment %}
 
 
 {% comment %} Import Products {% endcomment %}
@@ -264,11 +264,13 @@
         "properties": {
           "uuid": "8f817d26-8b44-49e6-b0ad-70d797a35bf8",
           "product_name": "Hiska Marble Dining Set",
-          "slug": "hiska-marble-dining-set",
+          "slug": "hiska-marble-dining-set",          
           "sku": "HK-DS-036",
           "stock_level": 50,
           "is_featured": false,
           "is_on_sale": false,
+          "status": "enabled",
+          "is_fixed_tax_amount": false,          
           "regular_price": 2299,
           "sale_price": null,
           "brand_name": "Kerrick",
@@ -292,6 +294,8 @@
           "stock_level": 50,
           "is_featured": false,
           "is_on_sale": false,
+          "status": "enabled",
+          "is_fixed_tax_amount": false,
           "regular_price": 2499,
           "sale_price": null,
           "brand_name": null,
@@ -315,6 +319,8 @@
           "stock_level": 50,
           "is_featured": false,
           "is_on_sale": false,
+          "status": "enabled",
+          "is_fixed_tax_amount": false,
           "regular_price": 525,
           "sale_price": null,
           "brand_name": null,
@@ -338,6 +344,8 @@
           "stock_level": 25,
           "is_featured": false,
           "is_on_sale": true,
+          "status": "enabled",
+          "is_fixed_tax_amount": false,
           "regular_price": 549,
           "sale_price": 500,
           "brand_name": null,
@@ -361,6 +369,8 @@
           "stock_level": 100,
           "is_featured": false,
           "is_on_sale": false,
+          "status": "enabled",
+          "is_fixed_tax_amount": false,
           "regular_price": 1299,
           "sale_price": null,
           "brand_name": null,
@@ -385,6 +395,8 @@
           "stock_level": 50,
           "is_featured": false,
           "is_on_sale": true,
+          "status": "enabled",
+          "is_fixed_tax_amount": false,
           "regular_price": 1299,
           "sale_price": 1000,
           "brand_name": null,
@@ -408,6 +420,8 @@
           "stock_level": 15,
           "is_featured": false,
           "is_on_sale": false,
+          "status": "enabled",
+          "is_fixed_tax_amount": false,
           "regular_price": 599,
           "sale_price": null,
           "brand_name": null,
@@ -431,6 +445,8 @@
           "stock_level": 0,
           "is_featured": false,
           "is_on_sale": false,
+          "status": "enabled",
+          "is_fixed_tax_amount": false,
           "regular_price": 599,
           "sale_price": null,
           "brand_name": null,
@@ -454,6 +470,8 @@
           "stock_level": 144,
           "is_featured": false,
           "is_on_sale": true,
+          "status": "enabled",
+          "is_fixed_tax_amount": false,
           "regular_price": 549,
           "sale_price": 525,
           "brand_name": null,
@@ -478,6 +496,8 @@
           "stock_level": 125,
           "is_featured": false,
           "is_on_sale": true,
+          "status": "enabled",
+          "is_fixed_tax_amount": false,
           "regular_price": 294,
           "sale_price": 275,
           "brand_name": null,
@@ -489,7 +509,7 @@
           },
           "is_product_variant_enabled": false
         }
-      }
+      }     
 ]
 {% endparse_json %}
 
