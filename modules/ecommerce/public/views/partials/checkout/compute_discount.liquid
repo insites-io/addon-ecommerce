@@ -33,9 +33,7 @@ metadata: {
              {%- elsif discount_type contains "shipping" -%}
 
                  {%- liquid                
-                     assign shipping_discount = 0       
-                     
-                     log discount_type, type: "Discount Type is"
+                     assign shipping_discount = 0                       
 
                      if discount_type contains "fix" and is_free_shipping == false
                          assign shipping_discount = discount_value | times: item.quantity

@@ -43,13 +43,8 @@ metadata: {
 
     {% comment %} Update session discount_uuids {% endcomment %}
     {%- assign local_discount_uuids = context.session.discount_uuids | default: '[]' | parse_json -%}
-    {% log local_discount_uuids, type: "==TEST api-remove local_discount_uuids" %}
-
     {%- assign filtered_uuids = local_discount_uuids | array_delete: discount_uuid -%}
-    {% log filtered_uuids, type: "==TEST api-remove filtered_uuids" %}
-
     {% session discount_uuids = filtered_uuids %}
-    {% log context.session.discount_uuids, type: "==TEST api-remove session.discount_uuids" %}
 
     {%- parse_json data -%}
     {

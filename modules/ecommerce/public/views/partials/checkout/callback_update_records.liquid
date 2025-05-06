@@ -8,8 +8,6 @@ metadata: {
 {%- capture payment_gateway_details -%}{{ payment_response }}{%- endcapture -%}
 {%- assign amount = payment_response.amount | divided_by: 100.00 -%}
 
-{%- log payment_response, type: "Payment Response --><>" -%}
-
 {%- parse_json card -%}
 {
     "last4": "{{ payment_response.source.last4 }}",
@@ -112,16 +110,12 @@ metadata: {
                 {%- graphql stock = "modules/ecommerce/orders/update_stock_purchased"
                     id: cart_item_id
                     model_name: model_name
-                    qty: qty_purchased -%}
-                    
-                {% log "==== Stock updated ==== " %}
+                    qty: qty_purchased -%}                    
             {%- endif -%}
         {%- endfor -%}
     {%- else -%}
         {% log "==== Inventory tracking is disabled: inventory was not updated ==== " %}
     {%- endif -%}
 {%- endif -%}
-
-{%- log updated_order, type: "===========updated_order================" -%}
 
 {% export updated_order %}
