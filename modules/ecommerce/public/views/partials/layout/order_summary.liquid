@@ -77,7 +77,7 @@ metadata: {
                     {%  liquid 
                         assign cart = '' | parse_json
                         assign cart = cart | add_hash_key: 'product_name', item.order_item_name
-                        assign cart = cart | add_hash_key: 'price', item.item_price
+                        assign cart = cart | add_hash_key: 'price', item.unit_price
                     %}
                 {%- else -%}
                     {% include 'modules/ecommerce/carts/cart_details', products, item, user_uuid %}
