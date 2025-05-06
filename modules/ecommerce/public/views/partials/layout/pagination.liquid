@@ -130,7 +130,6 @@ metadata: {
 
     if (typeof createUrlParams !== "function") {
         function createUrlParams() {
-            console.log("createUrlParams");
             let params = Object.entries(filters)
             .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
             .join("&"); 

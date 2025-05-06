@@ -336,7 +336,6 @@ async function compareSessionsAndLocal() {
         };
         const url = '/save-checkout-session.json';
         const response = await apiServices.processRequest('post', url, payload);
-        console.log('compare', response);
         setTimeout(() => {
             window.location.href = '/shopping-cart'
         }, 1000); // add delay to allow the session to be saved

@@ -314,7 +314,6 @@ authorization_policies:
     
     // Filter by category and date
     function filterHandler(e){
-        console.log("filterHandler");
         filters.category = e.detail.Category;
         if(e.detail.Date.from && e.detail.Date.to){
             filters.date = "";
@@ -331,14 +330,12 @@ authorization_policies:
     // Submit the search input when pressing Enter
     function searchNameByEnter(e){
         if (e.detail.keyCode === 13){
-            console.log("searchNameByEnter ========", e.detail);
             filters.name = e.detail.value;
             filters.page = 1;
             createUrlParams(filters);
         }
     }
     function searchByIcon(e){
-        console.log("searchByIcon ==========", e.detail.value);
         if(e.detail.value != paramName){
             filters.name = e.detail.value;
             filters.page = 1;
@@ -348,7 +345,6 @@ authorization_policies:
     // Clear search_by_name when 'x' button is clicked
     function clearSearchByNameHandler(e){        
         if(e.detail == '' && paramName != ''){
-            console.log("detail reset");
             filters.name = '';
             filters.page = 1;
             createUrlParams(filters);
