@@ -523,3 +523,380 @@
      }
 {%- endgraphql -%}
 {% log results, type: "SEED DATA: Products" %}
+
+
+{% comment %} Import Orders {% endcomment %}
+{% parse_json import_orders %}
+[
+     {
+       "type_name": "modules/insites_ecommerce/order",
+        "properties": {
+          "uuid": "cec41679-e2d2-4441-a841-8f4fa06cd84f",
+          "order_reference": "d1c26d18",
+          "date_time": "2025-05-16T02:24:24.000Z",
+          "notes": null,
+          "order_contact_email": "test@combinate.me",
+          "order_company_name": null,
+          "order_contact_first_name": "John",
+          "order_contact_last_name": "Doe",
+          "order_contact_phone_number": null,
+          "order_contact_phone_country_code": null,
+          "billing_company_name": "Combinate",
+          "billing_contact_first_name": "John",
+          "billing_contact_last_name": "Doe",
+          "billing_contact_email": "test@combinate.me",
+          "billing_contact_phone_country_code": "61",
+          "billing_contact_phone_number": "0412345678",
+          "billing_address_1": "National Highway 48 ",
+          "billing_address_2": "Sector 15 ",
+          "billing_address_3": null,
+          "billing_suburb": null,
+          "billing_state": "Gurgaon Division ",
+          "billing_postcode": "122001",
+          "billing_country": "India",
+          "total_tax_amount": 0,
+          "total_amount": 1768.563,
+          "order_status": "Completed",
+          "order_payment_status": "Paid",
+          "order_shipping_status": null,
+          "shipping_company_name": "Combinate",
+          "shipping_contact_first_name": "John",
+          "shipping_contact_last_name": "Doe",
+          "shipping_contact_email": "test@combinate.me",
+          "shipping_contact_phone_country_code": null,
+          "shipping_contact_phone_number": null,
+          "shipping_address_1": "National Highway 48 ",
+          "shipping_address_2": "Sector 15 ",
+          "shipping_address_3": null,
+          "shipping_suburb": null,
+          "shipping_state": "Gurgaon Division ",
+          "shipping_postcode": "122001",
+          "shipping_country": "India",
+          "shipping_instructions": null
+        }
+      },
+      {
+        "type_name": "modules/insites_ecommerce/order",
+        "properties": {
+          "uuid": "a1a9fbe6-14de-4be7-9129-7bb9d51786dc",
+          "order_reference": "84acb280",
+          "date_time": "2025-05-16T03:00:47.000Z",
+          "notes": null,
+          "order_contact_email": "test@combinate.me",
+          "order_company_name": null,
+          "order_contact_first_name": "John",
+          "order_contact_last_name": "Doe",
+          "order_contact_phone_number": null,
+          "order_contact_phone_country_code": null,
+          "billing_company_name": "Combinate",
+          "billing_contact_first_name": "John",
+          "billing_contact_last_name": "Doe",
+          "billing_contact_email": "test@combinate.me",
+          "billing_contact_phone_country_code": "61",
+          "billing_contact_phone_number": "0412345678",
+          "billing_address_1": "National Highway 48 ",
+          "billing_address_2": "Sector 15 ",
+          "billing_address_3": null,
+          "billing_suburb": null,
+          "billing_state": "Gurgaon Division ",
+          "billing_postcode": "122001",
+          "billing_country": "India",
+          "total_tax_amount": 0,
+          "total_amount": 533.925,
+          "order_status": "Completed",
+          "order_payment_status": "Paid",
+          "order_shipping_status": null,
+          "shipping_company_name": "Combinate",
+          "shipping_contact_first_name": "John",
+          "shipping_contact_last_name": "Doe",
+          "shipping_contact_email": "test@combinate.me",
+          "shipping_contact_phone_country_code": "61",
+          "shipping_contact_phone_number": "0412345678",
+          "shipping_address_1": "National Highway 48 ",
+          "shipping_address_2": "Sector 15 ",
+          "shipping_address_3": null,
+          "shipping_suburb": null,
+          "shipping_state": "Gurgaon Division ",
+          "shipping_postcode": "122001",
+          "shipping_country": "India",
+          "shipping_instructions": null
+        }
+      },
+      {
+        "type_name": "modules/insites_ecommerce/order",
+        "properties": {
+          "uuid": "71ee534d-616a-4cfe-9f31-771660de254e",
+          "order_reference": "81a89fb0",
+          "date_time": "2025-05-16T03:09:28.000Z",
+          "notes": null,
+          "order_contact_email": "test@combinate.me",
+          "order_company_name": null,
+          "order_contact_first_name": "John",
+          "order_contact_last_name": "Doe",
+          "order_contact_phone_number": null,
+          "order_contact_phone_country_code": null,
+          "billing_company_name": "Combinate",
+          "billing_contact_first_name": "John",
+          "billing_contact_last_name": "Doe",
+          "billing_contact_email": "test@combinate.me",
+          "billing_contact_phone_country_code": "61",
+          "billing_contact_phone_number": "0412345678",
+          "billing_address_1": "National Highway 48 ",
+          "billing_address_2": "Sector 15 ",
+          "billing_address_3": null,
+          "billing_suburb": null,
+          "billing_state": "Gurgaon Division ",
+          "billing_postcode": "122001",
+          "billing_country": "India",
+          "total_tax_amount": 0,
+          "total_amount": 533.925,
+          "order_status": "Completed",
+          "order_payment_status": "Paid",
+          "order_shipping_status": null,
+          "shipping_company_name": "Combinate",
+          "shipping_contact_first_name": "John",
+          "shipping_contact_last_name": "Doe",
+          "shipping_contact_email": "test@combinate.me",
+          "shipping_contact_phone_country_code": "61",
+          "shipping_contact_phone_number": "0412345678",
+          "shipping_address_1": "National Highway 48 ",
+          "shipping_address_2": "Sector 15 ",
+          "shipping_address_3": null,
+          "shipping_suburb": null,
+          "shipping_state": "Gurgaon Division ",
+          "shipping_postcode": "122001",
+          "shipping_country": "India",
+          "shipping_instructions": null
+        }
+      },
+      {
+        "type_name": "modules/insites_ecommerce/order",
+        "properties": {
+          "uuid": "6b90a0df-5a67-4a99-ba81-0417b0c135e5",
+          "order_reference": "260ef175",
+          "date_time": "2025-05-16T03:14:07.000Z",
+          "notes": null,
+          "order_contact_email": "test@combinate.me",
+          "order_company_name": null,
+          "order_contact_first_name": "John",
+          "order_contact_last_name": "Doe",
+          "order_contact_phone_number": null,
+          "order_contact_phone_country_code": null,
+          "billing_company_name": "Combinate",
+          "billing_contact_first_name": "John",
+          "billing_contact_last_name": "Doe",
+          "billing_contact_email": "test@combinate.me",
+          "billing_contact_phone_country_code": "61",
+          "billing_contact_phone_number": "0412345678",
+          "billing_address_1": "National Highway 48 ",
+          "billing_address_2": "Sector 15 ",
+          "billing_address_3": null,
+          "billing_suburb": null,
+          "billing_state": "Gurgaon Division ",
+          "billing_postcode": "122001",
+          "billing_country": "India",
+          "total_tax_amount": 0,
+          "total_amount": 700.713,
+          "order_status": "Completed",
+          "order_payment_status": "Paid",
+          "order_shipping_status": null,
+          "shipping_company_name": "Combinate",
+          "shipping_contact_first_name": "John",
+          "shipping_contact_last_name": "Doe",
+          "shipping_contact_email": "test@combinate.me",
+          "shipping_contact_phone_country_code": "61",
+          "shipping_contact_phone_number": "0412345678",
+          "shipping_address_1": "National Highway 48 ",
+          "shipping_address_2": "Sector 15 ",
+          "shipping_address_3": null,
+          "shipping_suburb": null,
+          "shipping_state": "Gurgaon Division ",
+          "shipping_postcode": "122001",
+          "shipping_country": "India",
+          "shipping_instructions": null
+        }
+      },
+      {
+        "type_name": "modules/insites_ecommerce/order",
+        "properties": {
+          "uuid": "db536279-869f-452f-8e2c-fec11b8c5ff6",
+          "order_reference": "1403cc38",
+          "date_time": "2025-05-16T03:16:17.000Z",
+          "notes": null,
+          "order_contact_email": "test@combinate.me",
+          "order_company_name": null,
+          "order_contact_first_name": "John",
+          "order_contact_last_name": "Doe",
+          "order_contact_phone_number": null,
+          "order_contact_phone_country_code": null,
+          "billing_company_name": "Combinate",
+          "billing_contact_first_name": "John",
+          "billing_contact_last_name": "Doe",
+          "billing_contact_email": "test@combinate.me",
+          "billing_contact_phone_country_code": "61",
+          "billing_contact_phone_number": "0412345678",
+          "billing_address_1": "National Highway 48 ",
+          "billing_address_2": "Sector 15 ",
+          "billing_address_3": null,
+          "billing_suburb": null,
+          "billing_state": "Gurgaon Division ",
+          "billing_postcode": "122001",
+          "billing_country": "India",
+          "total_tax_amount": 0,
+          "total_amount": 762.75,
+          "order_status": "Completed",
+          "order_payment_status": "Paid",
+          "order_shipping_status": null,
+          "shipping_company_name": "Combinate",
+          "shipping_contact_first_name": "John",
+          "shipping_contact_last_name": "Doe",
+          "shipping_contact_email": "test@combinate.me",
+          "shipping_contact_phone_country_code": "61",
+          "shipping_contact_phone_number": "0412345678",
+          "shipping_address_1": "National Highway 48 ",
+          "shipping_address_2": "Sector 15 ",
+          "shipping_address_3": null,
+          "shipping_suburb": null,
+          "shipping_state": "Gurgaon Division ",
+          "shipping_postcode": "122001",
+          "shipping_country": "India",
+          "shipping_instructions": null
+        }
+      }
+]
+{% endparse_json %}
+
+{%- graphql results, models: import_orders -%}
+     mutation ($models: [CustomizationImport!]!) {
+          import_models(
+               models: $models
+          ) {
+               ids
+          }
+     }
+{%- endgraphql -%}
+{% log results, type: "SEED DATA: Orders" %}
+
+
+{% comment %} Import Order Items {% endcomment %}
+{% parse_json import_order_items %}
+[
+     {
+        "type_name": "modules/insites_ecommerce/order_item",
+        "properties": {
+          "sku": "MCM-SOFA-01",
+          "uuid": "16edc25d-259b-45a8-abcc-1c54c228fc11",
+          "quantity": 1,
+          "item_price": 750,
+          "order_uuid": "db536279-869f-452f-8e2c-fec11b8c5ff6",
+          "tax_amount": null,
+          "unit_price": 750,
+          "tax_percent": null,
+          "product_uuid": "56ab67ed-c687-4c4d-8244-fad407894403",
+          "order_item_name": "H&B Mid-Century Modern Sofa v4",
+          "order_item_image": {},
+          "is_fixed_tax_amount": false
+        }
+      },
+      {
+        "type_name": "modules/insites_ecommerce/order_item",
+        "properties": {
+          "sku": "SS-SOFA-02",
+          "uuid": "badd2ee4-5818-42c1-9340-d41303c11dcf",
+          "quantity": "1",
+          "item_price": 689,
+          "order_uuid": "6b90a0df-5a67-4a99-ba81-0417b0c135e5",
+          "tax_amount": 25,
+          "unit_price": 689,
+          "product_uuid": "05035af0-5b85-4c5a-aa03-097663e2195f",
+          "order_item_name": "Yellow Sectional Sofa",
+          "order_item_image": {
+            "path": "insites_ecommerce/product/product_image/0fb83d2a-d7d6-4da2-b9a9-fbe1b65b5ced/comfynest-modern-sofa-large.webp",
+            "versions": {},
+            "extension": "webp",
+            "file_name": "comfynest-modern-sofa-large.webp"
+          },
+          "is_fixed_tax_amount": true
+        }
+      },
+      {
+        "type_name": "modules/insites_ecommerce/order_item",
+        "properties": {
+          "sku": "EL-SC-031",
+          "uuid": "b41d0eaf-1ae3-4f78-97a4-755de158b5a6",
+          "quantity": 1,
+          "item_price": 525,
+          "order_uuid": "71ee534d-616a-4cfe-9f31-771660de254e",
+          "tax_amount": null,
+          "unit_price": 525,
+          "tax_percent": null,
+          "product_uuid": "0bda7848-93f3-4d77-a110-a1071ad3effc",
+          "order_item_name": "Elevate Storage Credenza",
+          "order_item_image": {},
+          "is_fixed_tax_amount": false
+        }
+      },
+      {
+        "type_name": "modules/insites_ecommerce/order_item",
+        "properties": {
+          "sku": "EL-SC-031",
+          "uuid": "fa753b0d-ede2-4360-9031-18d702cb2e1a",
+          "quantity": 1,
+          "item_price": 525,
+          "order_uuid": "a1a9fbe6-14de-4be7-9129-7bb9d51786dc",
+          "tax_amount": null,
+          "unit_price": 525,
+          "tax_percent": null,
+          "product_uuid": "0bda7848-93f3-4d77-a110-a1071ad3effc",
+          "order_item_name": "Elevate Storage Credenza",
+          "order_item_image": {},
+          "is_fixed_tax_amount": false
+        }
+      },
+      {
+        "type_name": "modules/insites_ecommerce/order_item",
+        "properties": {
+          "sku": "SS-SOFA-02",
+          "uuid": "461bfd71-4c4f-4ec1-826b-07f778455fdc",
+          "quantity": 1,
+          "item_price": 689,
+          "order_uuid": "cec41679-e2d2-4441-a841-8f4fa06cd84f",
+          "tax_amount": 25,
+          "unit_price": 689,
+          "tax_percent": null,
+          "product_uuid": "05035af0-5b85-4c5a-aa03-097663e2195f",
+          "order_item_name": "Yellow Sectional Sofa",
+          "order_item_image": {},
+          "is_fixed_tax_amount": true
+        }
+      },
+      {
+        "type_name": "modules/insites_ecommerce/order_item",
+        "properties": {
+          "sku": "EL-SC-031",
+          "uuid": "aa896fba-bd05-4c71-8e7f-bdeb34a30099",
+          "quantity": 2,
+          "item_price": 525,
+          "order_uuid": "cec41679-e2d2-4441-a841-8f4fa06cd84f",
+          "tax_amount": null,
+          "unit_price": 525,
+          "tax_percent": null,
+          "product_uuid": "0bda7848-93f3-4d77-a110-a1071ad3effc",
+          "order_item_name": "Elevate Storage Credenza",
+          "order_item_image": {},
+          "is_fixed_tax_amount": false
+        }
+      }
+]
+{% endparse_json %}
+
+{%- graphql results, models: import_order_items -%}
+     mutation ($models: [CustomizationImport!]!) {
+          import_models(
+               models: $models
+          ) {
+               ids
+          }
+     }
+{%- endgraphql -%}
+{% log results, type: "SEED DATA: Order Items" %}
