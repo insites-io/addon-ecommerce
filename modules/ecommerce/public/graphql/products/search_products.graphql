@@ -38,6 +38,7 @@ query search_products(
     total_entries
     total_pages
     current_page
+    per_page
     results {
       id
       uuid: property(name: "uuid")      

@@ -150,15 +150,12 @@ Step: Call the search GraphQL with the parameters
 
         <div class="spacer x-large"></div>
 
-        {% include "modules/ecommerce/layout/pagination",  data: products.items, per_page, label: 'Products' %}
+        {% include "modules/ecommerce/layout/pagination",  data: products.items, label: 'Products per page' %}
         
         {%- else -%}
 
-        <div class="grid-x">
-            <div class="small-12 cell text-center">
-                <div class="spacer xxxx-large"></div>
-                <p>No results found.</p>
-            </div>
+        <div class="empty-box">
+            <p class="body-large bold">No results found.</p>
         </div>
 
         {%- endif -%}
