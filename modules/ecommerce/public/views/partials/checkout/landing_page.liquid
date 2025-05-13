@@ -9,13 +9,16 @@ metadata: {
 
 {%- assign company_name = global.company_name | strip | default: "us" -%}
 
-<div class="grid-x grid-padding-x">
+<div id="identify-customer" class="grid-x grid-padding-x">
     <div class="large-offset-1 medium-offset-0 small-offset-0
         large-4 medium-5 small-12 cell">
         
         {%- comment -%}Login form {%- endcomment -%}
-        <h2 class="heading-1">Existing Customer</h2>
+        <h2 class="heading-1">Existing customer</h2>
+        <div class="spacer small"></div>
+        <p>Access your account to proceed with checkout.</p>
         <div class="spacer x-large"></div>
+
         {%- include_form "modules/portal/sign_in" -%}
 
         <div class="spacer xxx-large show-for-small-only"></div>
@@ -27,7 +30,7 @@ metadata: {
 
     <div class="large-4 medium-5 small-12 cell end btn-container">
         {%- comment -%}Redirect to checkout {%- endcomment -%}
-        <h2 class="heading-1">Guest Checkout</h2>
+        <h2 class="heading-1">Guest checkout</h2>
         <div class="spacer x-small"></div>
         <p>No account creation or password is required.</p>
         <div class="spacer x-large"></div>
@@ -35,7 +38,8 @@ metadata: {
         <a href="?guest=true">
             <ins-button outlined 
                 type="button" 
-                label="Checkout as Guest"
+                label="Checkout as guest"
+                class="full"
                 icon-right="icon-arrow-forward">
             </ins-button>
         </a>

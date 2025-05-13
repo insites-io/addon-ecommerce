@@ -123,7 +123,11 @@ body,
 }
 
 .form-label,
-.product-list .filter .ins-select-label-wrap {
+.product-list .filter .ins-select-label-wrap,
+ins-input [class*=ins-] label, 
+[class*=ins-] label, 
+label, 
+.ins-form-field-wrap .ins-form-label {
     color: var(--font-color-head);
     font-family: var(--font-family-02);
     font-size: 12px !important;
@@ -1635,6 +1639,11 @@ ins-button.add-credit-card button.ins-button>div,
     font-style: normal;
     font-weight: 400;
     line-height: 24px; 
+}
+
+/* Checkout */
+#identify-customer a {
+    color: var(--color-main);
 }
 
 .empty-box {
