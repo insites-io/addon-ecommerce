@@ -86,13 +86,7 @@ metadata: {
                 form_update: true,
                 form_delete: true,
                 user_cart, carts, products %}
-            <div class="spacer x-large"></div>
-
-            <div id="proceed-to-checkout" class="show-for-medium text-right {% if context.exports.computed.sub_total_amount <= 0 %}hide{% endif %}">
-                <ins-button label="PROCEED TO CHECKOUT" solid color="blue" class="checkoutBtn proceed-to-checkout-btn" onclick="document.location.href = '/checkout';"></ins-button>
-            </div>
-
-            <div class="spacer x-large"></div>
+            <div class="spacer x-large"></div>            
 
             {% liquid
                 ## Check if has cart
@@ -102,6 +96,13 @@ metadata: {
 
                 include 'modules/ecommerce/discounts/add_discount_code_form'
             %}
+
+            <div class="spacer x-large"></div>
+
+            <div id="proceed-to-checkout" class="show-for-medium text-right {% if context.exports.computed.sub_total_amount <= 0 %}hide{% endif %}">
+                <ins-button label="Proceed to checkout" solid color="blue" class="checkoutBtn proceed-to-checkout-btn" onclick="document.location.href = '/checkout';"></ins-button>
+            </div>
+            
         </div>
     </div>
 </div>

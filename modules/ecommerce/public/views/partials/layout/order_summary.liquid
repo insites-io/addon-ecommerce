@@ -57,7 +57,7 @@ metadata: {
 <div id="order-summary-main-wrap" class="show-for-medium">
     
     {% unless no_heading %}
-        <h2 class="color-font-sub heading-2">Order Summary</h2>
+        <h4>Order summary</h4>
         <div class="spacer x-large"></div>
     {% endunless %}
         
@@ -127,7 +127,7 @@ metadata: {
    {% comment %} Subtotal {% endcomment %}
     <div class="grid-x grid-padding-x">
         <div class="large-6 medium-6 small-6 cell">
-            <p class="font-color-sub">Subtotal</p>
+            <p class="font-color-head bold">Subtotal</p>
         </div>
         <div class="large-6 medium-6 small-6 cell text-right">
             {%- assign sub_total = computed.sub_total_amount | advanced_format: '%.2f' | default: "0.00" -%}
@@ -140,10 +140,10 @@ metadata: {
     </div>
     <div class="spacer x-small"></div>
 
-    {% comment %} Delivery & Handling {% endcomment %}
+    {% comment %} Delivery & handling {% endcomment %}
     <div class="grid-x grid-padding-x">
         <div class="large-6 medium-6 small-6 cell">
-            <p class="font-color-sub">Delivery & Handling</p>
+            <p class="font-color-head bold">Delivery & handling</p>
         </div>
         <div class="large-6 medium-6 small-6 cell text-right">
             {%- assign shipping_cost = computed.shipping_amount | advanced_format: '%.2f' | default: "0.00" -%}
@@ -161,7 +161,7 @@ metadata: {
         <div class="list-discount-codes">
             <div class="grid-x">
                 <div class="small-6 medium-6 large-8 cell">
-                    <p class="font-color-sub">Discounts</p>
+                    <p class="font-color-head bold">Discounts</p>
                 </div>
                 <div class="small-6 medium-6 large-4 cell text-right">
                     {%- if computed.total_discount_amount > 0 -%}
@@ -249,7 +249,7 @@ metadata: {
     {% comment %} Processing Fee {% endcomment %}
     <div class="grid-x grid-padding-x">
         <div class="large-6 medium-6 small-6 cell">
-            <p class="font-color-sub">Processing Fee (1.7%)</p>
+            <p class="font-color-head bold">Processing fee (1.7%)</p>
         </div>
         <div class="large-6 medium-6 small-6 cell text-right">
             {%- assign processing_fee = computed.processing_fee | advanced_format: '%.2f' | default: "0.00" -%}
@@ -271,7 +271,7 @@ metadata: {
             {% if context.session.tax_applied == "both" %}
                 {% comment %} ? IF BOTH INCLUDES AND NOT INCLUDES TAX IS ON CART {% endcomment %}
                 <div class="large-6 medium-6 small-6 cell pb-8">
-                    <p class="font-color-sub" id="summary_tax_label">Includes Tax </p>
+                    <p class="font-color-head bold" id="summary_tax_label">Includes Tax</p>
                 </div>
                 <div class="large-6 medium-6 small-6 cell text-right">
                     {%- assign sub_total_tax_included = context.session.sub_total_tax_included | advanced_format: '%.2f' | default: "0.00" -%}
@@ -283,7 +283,7 @@ metadata: {
                 </div>
 
                 <div class="large-6 medium-6 small-6 cell">
-                    <p class="font-color-sub" id="summary_tax_label">Tax </p>
+                    <p class="font-color-head bold" id="summary_tax_label">Tax</p>
                 </div>
                 <div class="large-6 medium-6 small-6 cell text-right">
                     {%- assign sub_total_tax_not_included = context.session.sub_total_tax_not_included | advanced_format: '%.2f' | default: "0.00" -%}
@@ -295,7 +295,7 @@ metadata: {
                 </div>
             {% else %}
                 <div class="large-6 medium-6 small-6 cell">
-                    <p class="font-color-sub" id="summary_tax_label">{{ computed.tax_label | default: 'Tax' }}</p>
+                    <p class="font-color-head bold" id="summary_tax_label">{{ computed.tax_label | default: 'Tax' }}</p>
                 </div>
                 <div class="large-6 medium-6 small-6 cell text-right">
                     {%- assign tax_amount = computed.tax_amount | advanced_format: '%.2f' | default: "0.00" -%}
@@ -314,7 +314,7 @@ metadata: {
             {% if computed.tax_applied == "both" %}
                 {% comment %} ? IF BOTH INCLUDES AND NOT INCLUDES TAX IS ON CART {% endcomment %}
                 <div class="large-6 medium-6 small-6 cell pb-8">
-                    <p class="font-color-sub" id="summary_tax_label">Includes Tax </p>
+                    <p class="font-color-head bold" id="summary_tax_label">Includes Tax </p>
                 </div>
                 <div class="large-6 medium-6 small-6 cell text-right">
                     {%- assign sub_total_tax_included = computed.sub_total_tax_included | advanced_format: '%.2f' | default: "0.00" -%}
@@ -326,7 +326,7 @@ metadata: {
                 </div>
 
                 <div class="large-6 medium-6 small-6 cell">
-                    <p class="font-color-sub" id="summary_tax_label">Tax </p>
+                    <p class="font-color-head bold" id="summary_tax_label">Tax </p>
                 </div>
                 <div class="large-6 medium-6 small-6 cell text-right">
                     {%- assign sub_total_tax_not_included = computed.sub_total_tax_not_included | advanced_format: '%.2f' | default: "0.00" -%}
@@ -339,7 +339,7 @@ metadata: {
             {% else %}
                 {% comment %} ? IF SINGLE TAX IS ON CARD {% endcomment %}
                 <div class="large-6 medium-6 small-6 cell">
-                    <p class="font-color-sub" id="summary_tax_label">{{ computed.tax_label | default: 'Tax' }}</p>
+                    <p class="font-color-head bold" id="summary_tax_label">{{ computed.tax_label | default: 'Tax' }}</p>
                 </div>
                 <div class="large-6 medium-6 small-6 cell text-right">
                     {%- assign tax_amount = computed.tax_amount | advanced_format: '%.2f' | default: "0.00" -%}
@@ -377,7 +377,7 @@ metadata: {
     {% if context.params.slug == 'shopping-cart' %}
     <div class="spacer x-large"></div>
     <div class="notes-wrap">
-        <p class="body-x-small bold">Notes</p>
+        <p class="body-small bold">Notes</p>
         <ul class="body-x-small">
             <li>Shipping costs will be calculated during checkout.</li>
             <li>Tax and processing fees may be adjusted based on the shipping cost.</li>
@@ -406,7 +406,7 @@ metadata: {
     </div>
     {% if context.params.slug != 'checkout' %}
     <div class="spacer x-large"></div>
-    <ins-button label="PROCEED TO CHECKOUT" solid color="blue" class="checkoutBtn proceed-to-checkout-btn full" onclick="document.location.href = '/checkout';"></ins-button>
+    <ins-button label="Proceed to checkout" solid color="blue" class="checkoutBtn proceed-to-checkout-btn full" onclick="document.location.href = '/checkout';"></ins-button>
     {% endif %}
 </ins-drawer>
 

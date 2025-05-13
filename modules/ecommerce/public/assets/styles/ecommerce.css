@@ -56,7 +56,8 @@ li {
     line-height: 24px;
     margin-bottom: 16px;
 }
-body {
+body,
+.discount-code-form .heading {
     color: var(--font-color-body);
     font-family: var(--font-family-02);
     font-size: 16px;
@@ -239,7 +240,6 @@ ins-input.hidden-input input {
 #mega-menu-btn button {
     padding: 8px 24px;
     height: 40px;
-    border-radius: 14px;
 }
 #mega-menu-btn .ripple-wave.show {
     display: none;
@@ -869,7 +869,7 @@ ins-drawer.cart-drawer .ins-drawer-header h4 {
 .cart-price {
     color: var(--font-color-head);
     text-align: right;
-    font-family: var(--font-family-01);
+    font-family: var(--font-family-02);
     font-size: 16px;
     font-style: normal;
     font-weight: 700;
@@ -880,10 +880,11 @@ ins-drawer.cart-drawer .ins-drawer-header h4 {
 .cart-item-wrap .cart-remove-btn button.blue {    
     color: var(--font-color-body);
     font-family: var(--font-family-01);
-    font-size: 10px !important;
+    font-size: 12px !important;
     font-style: normal;
     font-weight: 700;
     line-height: 16px; /* 160% */
+    text-transform: none;
 }
 .cart-item-wrap .cart-remove-btn:hover button  {
     background: var(--error-hover-light) !important;
@@ -942,6 +943,10 @@ ins-tag.preorder-tag span.ins-tag {
 }
 
 /* Discount Code */
+.discount-code-form .heading {
+    font-weight: 700;
+    color: var(--font-color-head);
+}
 .discount-code-form .ins-accordion-item,
 .discount-code-form .ins-accordion-item_header>.inner-head,
 .discount-code-form .ins-accordion-item.open>.ins-accordion-item_header>.inner-head {
@@ -964,6 +969,9 @@ ins-tag.preorder-tag span.ins-tag {
 }
 .discount-code-form .grid-x.gap {
     gap: 8px;
+}
+.discount-code-form .ins-accordion-item_content .inner-content {
+    border: none;
 }
 
 .list-discount-codes--item+.list-discount-codes--item {
@@ -1000,7 +1008,7 @@ ins-tag.preorder-tag span.ins-tag {
     width: calc(100% + 15px);    
 }
 .order-total {
-    font-family: var(--font-family-01);
+    font-family: var(--font-family-02);
     font-size: 24px;
     font-style: normal;
     font-weight: 700;
@@ -1012,6 +1020,10 @@ ins-tag.preorder-tag span.ins-tag {
     border-radius: 8px;
     border: 1px solid var(--color-ui-04);
     background: var(--color-ui-02);
+}
+.notes-wrap li {
+    margin-bottom: 0px;
+    font-size: 14px;
 }
 #mobile-order-summary {
     position: fixed;
@@ -1366,6 +1378,12 @@ ins-button button[type=submit].blue.outlined,
 ins-button button[type=submit].primary.outlined {
     min-height: 40px;
     padding: 11px 24px; 
+    border-radius: 14px;
+}
+ins-button button, 
+ins-button button[type=button], 
+ins-button button[type=reset], 
+ins-button button[type=submit] {
     border-radius: 14px;
 }
 ins-button button.ins-button span {
