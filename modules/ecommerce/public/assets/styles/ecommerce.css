@@ -197,7 +197,7 @@ ins-input.hidden-input input {
     border-radius: 0px;
     background: var(--color-ui-01);
     border-top: 1px solid var(--color-ui-04);
-    margin-top: 104px;
+    margin-top: 88px;
 }
 #mega-menu .ins-modal-head {
     display: none;
@@ -208,6 +208,15 @@ ins-input.hidden-input input {
 #mega-menu .grid-x > .cell {
     padding: 40px 48px;
 }
+#mega-menu .heading {
+    color: var(--font-color-head);
+    font-family: var(--font-family-02);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 150%; /* 21px */
+    margin-bottom: 16px;
+}
 #mega-menu ul {
     list-style-type: none;
     margin-left: 0px;
@@ -217,26 +226,20 @@ ins-input.hidden-input input {
     line-height: 20px;
     color: var(--font-color-body);
 } 
-#mega-menu li {
-    margin-top: 8px;
-} 
+#mega-menu li a {
+    line-height: 21px;
+}
 #mega-menu .top-categories {
     border-right: 1px solid var(--color-ui-04);
+    background: var(--color-ui-02);
 }
 #mega-menu .featured-categories .wrap {
     width: 18%;
 }
 #mega-menu-btn button {
-    height: 24px;
-}
-#mega-menu-btn button.ins-button span, .icon-angle-down:before {
-    /* text-transform: none;
-    font-size: 14px !important;
-    color: var(--font-color-head);
-    letter-spacing: 0 !important; */
-}
-#mega-menu-btn  button.blue:not([disabled]):hover {
-    background: none;
+    padding: 8px 24px;
+    height: 40px;
+    border-radius: 14px;
 }
 #mega-menu-btn .ripple-wave.show {
     display: none;
@@ -244,8 +247,21 @@ ins-input.hidden-input input {
 #mega-menu-btn button.ins-button span {
     font-weight: 700;
 }
-#mega-menu-btn.show-modal button.ins-button span, #mega-menu-btn.show-modal .icon-angle-down:before{
-    /* color: var(--color-main); */    
+#mega-menu-btn button:hover,
+#mega-menu-btn button:hover span,
+#mega-menu-btn.show-modal button.ins-button span, 
+#mega-menu-btn.show-modal .icon-angle-down:before {
+    color: var(--font-color-link-hovered);
+}
+.light-header #mega-menu-btn button,
+.light-header #mega-menu-btn button span {
+    color: var(--font-color-head)
+}
+.light-header #mega-menu-btn button:hover,
+.light-header #mega-menu-btn button:hover span,
+.light-header #mega-menu-btn.show-modal button.ins-button span, 
+.light-header  #mega-menu-btn.show-modal .icon-angle-down:before {
+    color: var(--font-color-body)
 }
 
 
@@ -676,11 +692,14 @@ ins-carousel .product-cards .placeholder-img {
     display: block;    
     cursor: pointer;
 }
-#mega-menu a,
 #sidebar-categories .ui-sidebar,
 #sidebar-categories .ins-accordion-item>.ins-accordion-item_header>.inner-head a,
 .ins-accordion-item_header>.inner-head {
     color: var(--font-color-head);
+}
+#mega-menu a {
+    color: var(--font-color-body);
+    font-family: var(--font-family-02);
 }
 #mega-menu a:hover,
 #sidebar-categories .ui-sidebar:hover,
