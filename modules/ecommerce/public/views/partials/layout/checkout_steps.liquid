@@ -27,18 +27,16 @@ metadata: {
     {% if clickable %} clickable  with-validation {% endif %}
     {% if context.location.pathname == '/confirmation' %} complete {% endif %}
     id="checkout-nav">
-
-    {% if has_profile %}
+    
     <ins-step data-step="1" 
         {% if currentStep == 1 %}active{% endif %}
         {% if latestStep < 1 %}disabled {% endif %}
         {% if latestStep > 1 and currentStep > 1 %}complete{% endif %}
         content="account-details" 
         link="/checkout" 
-        description="Account Details" 
+        description="Contact" 
         class="checkout-step">
     </ins-step>
-    {% endif %}
 
     <ins-step data-step="2" 
         {% if currentStep == 2 %}active{% endif %}

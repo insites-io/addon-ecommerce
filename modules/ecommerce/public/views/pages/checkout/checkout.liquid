@@ -15,11 +15,8 @@ metadata: {
 {%- assign global = context.exports.global -%}
 {% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
 
-{%- if has_profile -%}
-    {%- include 'modules/ecommerce/checkout/checkout_account_info_page' -%}
-{%- elsif context.params.guest -%}
-    {%- session latest_step = 2 -%}
-    {% redirect_to '/checkout/shipping' %}
+{%- if has_profile or context.params.guest -%}
+    {%- include 'modules/ecommerce/checkout/checkout_contact' -%}
 {%- else -%}
     {%- include 'modules/ecommerce/checkout/landing_page' -%}
 {%- endif -%}

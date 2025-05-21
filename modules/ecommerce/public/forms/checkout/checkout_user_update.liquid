@@ -1,0 +1,42 @@
+---
+name: checkout_user_update
+resource: User
+resource_owner: anyone
+redirect_to: checkout/shipping
+flash_alert: Sorry-AddUser
+flash_notice: Success-AddUser
+fields:
+  email:
+    validation: 
+      presence:
+        message: Please use a valid email address
+      email: 
+        message: Please use a valid email address
+  first_name:
+    validation: 
+      presence: 
+        message: First name is required
+  last_name:
+    validation: 
+      presence: 
+        message: Last name is required
+  
+  company_name:
+    property_options:
+      virtual: true
+
+  profiles:
+    modules/insites_core/crm_contact:
+      properties:
+        mobile_phone_number:
+        mobile_phone_country_code:
+
+callback_actions: |- 
+  {%- session account_company_name = form.company_name | default: "" -%}  
+  {%- session account_mobile_number = form.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_number | default: "" -%}
+  {%- session account_mobile_country_code = form.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_country_code | default: "" -%}
+
+  {%- session latest_step = 2 -%}
+---
+
+{% include 'modules/ecommerce/checkout/checkout_contact_form' %}
