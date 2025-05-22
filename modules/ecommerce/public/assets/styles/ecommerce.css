@@ -1118,6 +1118,9 @@ ins-card.overview .wrap{
         display: block;
     }
 }
+#order-tab .ins-tab{
+    border-radius: 14px;
+}
 #order-tab ins-tab-item>div {
     padding: 40px;
 }
@@ -1233,9 +1236,8 @@ ins-card.overview .wrap{
 .ecommerce .ibt-table-wrap .ibt-table_th {
     color: var(--font-color-head);
     font-family: var(--font-family-02);
-    font-size: 16px;
     font-style: normal;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 24px; /* 150% */
 }
 
@@ -1243,7 +1245,6 @@ ins-card.overview .wrap{
 .ecommerce .ibt-table-wrap .ibt-table_td {
     color: var(--font-color-body);
     font-family: var(--font-family-02);
-    font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: 24px; /* 150% */
@@ -1314,15 +1315,18 @@ ins-card.overview .wrap{
 /* Tags */
 .tagged span {
     font-family: var(--font-family-02);
-    font-size: 14px;
+    font-size: 12px;
     font-style: normal;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 20px; 
     padding: 4px 8px;
     border-radius: 2px;
 }
+#order-table .tagged span {
+    border-radius: 4px;
+}
 .tagged.Processing span {
-    color: var(--color-main);
+    color: var(--color-info);
     background: var(--color-main-hover-light);
 }
 .tagged.Open span {
@@ -1415,6 +1419,7 @@ ins-filter .filter__label {
 }
 ins-filter .filter__label {
     margin-bottom: 8px;
+    margin-top: 13px;
 }
 ins-filter .filter__label,
 ins-filter-item .filter-item__button--text,
@@ -1428,7 +1433,7 @@ ins-filter-item .filter-item__button--option,
 .ibt-table-wrap__prev-next button.page {
     color: var(--font-color-head);
     font-family: var(--font-family-02);
-    font-size: 14px;
+    font-size: 12px;
     font-style: normal;
     font-weight: 700;
     line-height: 20px; /* 142.857% */
@@ -1456,9 +1461,10 @@ ins-filter-item .filter-item__button,
 ins-filter .date-filter {
     border-radius: 2px;
     background: var(--color-ui-03);
-    padding: 8px 12px;
+    padding: 12px 16px;
     justify-content: center;
     align-items: center;    
+    border-radius: 8px;
 }
 ins-filter-item .filter-item__button--option{
     align-items: center;
@@ -1500,6 +1506,12 @@ ins-filter .date-filter .fas  {
 /* Ins-Table */
 .ibt-table .img-wrap, .ibt-table-accordion .img-wrap {
     margin-right: 5px;
+}
+.ibt-table-wrap.no-label .ibt-table-wrap__no-heading{
+    border-radius: 14px;
+}
+.ibt-table-wrap__settings{
+    background-color: transparent;
 }
 @media (max-width: 1023px) {
     .ibt-table-wrap .ibt-table {
