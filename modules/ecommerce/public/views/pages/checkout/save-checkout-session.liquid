@@ -32,12 +32,12 @@ metadata:
 
 {% parse_json account_details %}
 {
-    "company_name": "{{ context.session.account_company_name }}",
+    "company_name": "{{ context.session.crm_company_name }}",
     "contact_first_name": "{{ context.current_user.first_name }}",
     "contact_last_name": "{{ context.current_user.last_name }}",
     "contact_email": "{{ context.current_user.email }}",
-    "contact_phone_number": "{{ context.session.account_mobile_number }}",
-    "contact_phone_country_code": "{{ context.session.account_mobile_country_code }}"
+    "contact_phone_number": "{{ context.session.crm_contact_mobile_number }}",
+    "contact_phone_country_code": "{{ context.session.crm_contact_mobile_country_code }}"
 }
 {% endparse_json %}
 

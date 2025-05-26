@@ -10,6 +10,7 @@ query check_user_email_signup($email:String){
     total_entries
     results{
       id
+      external_id
       email
       deleted_at
       profiles{

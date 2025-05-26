@@ -46,7 +46,7 @@ authorization_policies:
         if company_uuid
             graphql company = "modules/ecommerce/companies/get_company", uuid: company_uuid | dig: 'items', 'results' | first
             if company
-                assign account_company_name = company.company_name
+                assign crm_company_name = company.company_name
             endif
         endif
     else         
@@ -95,7 +95,7 @@ authorization_policies:
                     <div class="large-5 medium-12 small-12 cell">
                         <h3 class="heading-3">Account Details</h3>
                         <div class="spacer small"></div>
-                        <p class="font-cabin">{{ account_company_name | default: order.billing_company_name }}</p>
+                        <p class="font-cabin">{{ crm_company_name | default: order.billing_company_name }}</p>
                         <p class="font-cabin">{{ account_name | default: order.billing_account_name }}</p>
                         <p class="font-cabin">{{ account_email | default: order.billing_contact_email  }}</p>
                         <p class="font-cabin">{{ context.exports.formatted_account_mobile_phone | default: 'N/A' }}</p>

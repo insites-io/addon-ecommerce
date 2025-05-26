@@ -3,12 +3,6 @@ metadata: {
     partial_name: 'Ecommerce | Checkout | Checkout Account Info Page'
 }
 ---
-{%- comment -%}
-    Checkout page + form
-{%- endcomment -%}
-
-{%- graphql data = 'modules/ecommerce/account/get_current_user' -%}
-{% assign company_uuid = data.current_user.crm_contact[0].company_uuid %}
 
 {% include 'modules/ecommerce/checkout/checkout_redirect_step' %}
 
@@ -20,23 +14,31 @@ metadata: {
 
 <div class="spacer xxxx-large"></div>
 
-
-{%- assign company_name = "" -%}
-{%- if company_uuid and company_uuid != '' -%}
-    {%- graphql company = "modules/ecommerce/companies/get_company", 
-        uuid: company_uuid | dig: 'items','results' | first -%}
-    {%- assign company_name = company.company_name -%}
-{%- endif -%}
-
 <h3 class="heading-1 font-color-head">Contact</h3>
 <div class="spacer xxx-large"></div>
 
 <div class="grid-x grid-padding-x">
     <div class="large-7 medium-12 small-12 cell">
         {%- if context.current_user -%}
+
+            {%- graphql data = 'modules/ecommerce/account/get_current_user' -%}
+            {% assign company_uuid = data.current_user.crm_contact[0].company_uuid %}
+
+            {%- assign company_name = "" -%}
+            {%- if company_uuid and company_uuid != '' -%}
+                {%- graphql company = "modules/ecommerce/companies/get_company", 
+                    uuid: company_uuid | dig: 'items','results' | first -%}
+                {%- assign company_name = company.company_name -%}
+            {%- endif -%}
+
             {% include_form 'modules/ecommerce/checkout_user_update', 
                 id: context.current_user.id, 
-                input_company_name: company_name %}
+                company_name: company_name %}
+
+        {%- elsif context.session.guest_user.id -%}
+            {% include_form 'modules/ecommerce/checkout_user_update', 
+                id: context.session.guest_user.id, 
+                company_name: context.session.crm_company_name %}
         {%- else -%}
             {% include_form 'modules/ecommerce/checkout_user_create' %}
         {%- endif -%}

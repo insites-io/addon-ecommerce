@@ -1,6 +1,6 @@
 var apiServices = (function () {
     const
-        apiUrl = "/api",
+        defaultApiUrl = "/api";
         request = axios.create({});
 
     let config = {
@@ -8,12 +8,13 @@ var apiServices = (function () {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('[name="csrf-token"]').content,
+            'Authorization': 'instance_9f020173-8d37-4d70-8cba-f4fc555d5d46_1KkPiTLIaxmoiQPj1ZxeohYDBu367M62vVwvGMaZlSY'
         }
     };
 
     // Axios Processor
-    async function processRequest(method, url, payload, headers = config.headers) {
-        let endpoint = apiUrl + url;
+    async function processRequest(method, url, payload, headers = config.headers, customApiUrl = null) {
+        let endpoint = (customApiUrl || defaultApiUrl) + url;
         let process = method.toLowerCase() === 'get'
             ? request.get(endpoint, { headers })
             : request[method](endpoint, payload, { headers });

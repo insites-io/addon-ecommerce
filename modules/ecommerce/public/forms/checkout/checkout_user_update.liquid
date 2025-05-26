@@ -32,9 +32,22 @@ fields:
         mobile_phone_country_code:
 
 callback_actions: |- 
-  {%- session account_company_name = form.company_name | default: "" -%}  
-  {%- session account_mobile_number = form.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_number | default: "" -%}
-  {%- session account_mobile_country_code = form.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_country_code | default: "" -%}
+  {%- session crm_company_name = form.company_name | default: "" -%}  
+  {%- session crm_contact_mobile_number = form.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_number | default: "" -%}
+  {%- session crm_contact_mobile_country_code = form.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_country_code | default: "" -%}
+
+  {% unless context.current_user %}
+    {%- parse_json guest_user -%}
+    {
+        "id": "{{ context.session.guest_user.id }}",
+        "external_id": "{{ context.session.guest_user.external_id }}",
+        "email": "{{ form.email }}",
+        "first_name": "{{ form.first_name }}",
+        "last_name" : "{{ form.last_name }}"
+    }
+    {%- endparse_json -%}
+    {%- session guest_user = guest_user -%}
+  {% endunless %}
 
   {%- session latest_step = 2 -%}
 ---
