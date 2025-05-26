@@ -1,0 +1,95 @@
+---
+metadata:
+    partial_name: 'location_modal'
+---
+
+<ins-modal id="address-form-modal" data="" with-backdrop no-button class="addUserModal location">
+    <div class="inviteUserModalBodyContainer">
+        <h5 class="heading-3">Add new address</h5>
+        <div class="spacer"></div> 
+
+        <div id="shipping-address-fields" class="address-fields" >
+
+            <ins-input address-lookup label="Search Addresss" 
+                id="shipping-address-search" name="shipping"
+                placeholder="Search Addresss" icon="icon-map-pin">
+            </ins-input>  
+
+            <input type="hidden" id="shipping_latitude" name="shipping_latitude" value="">
+            <input type="hidden" id="shipping_longitude" name="shipping_longitude" value="">    
+                        
+            <ins-input required validate 
+                label="Address 1*" 
+                id="shipping_address_1"
+                name="shipping_address_1"
+                placeholder="Address 1" 
+                value=""
+                error-message="Required">
+            </ins-input>
+
+            <ins-input  
+                label="Address 2" 
+                id="shipping_address_2" 
+                placeholder="Address 2"
+                value=""
+                error-message="">
+            </ins-input>
+
+            <ins-input validate
+                label="Suburb*" 
+                id="shipping_suburb" 
+                placeholder="Suburb"
+                value="" 
+                error-message="Required">
+            </ins-input>
+
+            <ins-input validate 
+                label="State*" 
+                id="shipping_state" 
+                placeholder="State"
+                value=""
+                error-message="Required">
+            </ins-input>
+
+            <ins-input validate 
+                label="Postcode*" 
+                id="shipping_postcode"
+                placeholder="Postcode" 
+                value=""
+                error-message="Required">
+            </ins-input>
+
+            <ins-input validate 
+                label="Country*" 
+                id="shipping_country"
+                placeholder="Country" 
+                value=""
+                error-message="Required">
+            </ins-input>
+
+            <div class="text-right">
+                <ins-button
+                    id="address-cancel-btn"
+                    type="button"
+                    class="card-form-cancel"
+                    label="Cancel"
+                    outlined
+                    icon="icon-close-1">
+                </ins-button>
+
+                <ins-button
+                    type="button"
+                    id="address-submit-btn"
+                    label="Add address"
+                    solid
+                    icon="icon-check-2">
+                </ins-button>
+            </div>
+
+        </div>
+    </div>
+</ins-modal>
+
+<script>
+    let contactUuid = '{{ context.current_user.external_id }}';
+</script>

@@ -12,12 +12,27 @@ fields:
     related_type: 
       property_options:
         default: "contact"
-    address_1:
-    address_2:
-    suburb:
-    state:
-    postcode:
-    country:     
+    #Do not edit any address properties for logged in user.
+    #use virtual property instead of original; sample: used address_1_ instead of address_1
+    #The Add address modal form is responsible for adding new address.
+    address_1_:
+      property_options:
+        virtual: true
+    address_2_:
+      property_options:
+        virtual: true
+    suburb_:
+      property_options:
+        virtual: true
+    state_:
+      property_options:
+        virtual: true
+    postcode_:
+      property_options:
+        virtual: true
+    country_:     
+      property_options:
+        virtual: true
     shipping_same_with_account:
       property_options:
         virtual: true 
@@ -48,27 +63,12 @@ fields:
     
 callback_actions: |-    
 
-  {%- session shipping_address_id = form.id -%}
+  {%- session shipping_address_id = form.properties.shipping_address_id -%}
   {%- session latest_step = 3 -%}
 
 ---
-{% comment %} 
-  Upon clicking the submit button:
-    - Checkout.events.shippingSubmit(event) will be triggered
-    - sessions will be saved under Checkout.events.saveSessionApi(true)
-      * If user select the existing address card from the list:    
-          - skip the form submission and redirect to /checkout/billing page
-      * Else
-          - this form will be submitted and will create new address record
-          - then it will be redirected to /checkout/billing page
-{% endcomment %}
 
 {% assign prop = form.fields.properties %}
-{% assign user_uuid = context.current_user.external_id %}
-{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
-{%- unless has_profile -%}
-    {%- assign user_uuid = null -%}
-{%- endunless -%}
 
 {%- form 
   html-id: "shipping-address-form"
@@ -76,290 +76,52 @@ callback_actions: |-
   html-enctype="multipart/form-data"
   html-onsubmit:"return Checkout.events.shippingSubmit(event);" -%}  
 
-  <input type="hidden" id="temp-address-uuid" name="temp_uuid" value="{{ '' | uuid }}">
-  <input type="hidden" id="address-uuid" name="{{ prop.uuid.name }}" value="{{ '' | uuid }}">
-  <input type="hidden" id="address-related-uuid" name="{{ prop.related_uuid.name }}" value="{{ user_uuid }}">
 
-  <input type="hidden" 
-    id="hidden-shipping-phone" 
-    name="{{ prop.shipping_contact_phone_number.name }}"
-    value="{{ prop.shipping_contact_phone_number.value }}" > 
-  <input type="hidden" 
-    id="hidden-shipping-phone-country-code"
-    name="{{ prop.shipping_contact_phone_country_code.name }}"
-    value="{{ prop.shipping_contact_phone_country_code.value }}" >
+    {% include 'modules/ecommerce/checkout/checkout_shipping_contacts', prop %}
 
+    <div class="spacer large"></div>
 
-  <input type="hidden" id="hidden-first-name" value="{{ context.session.shipping_contact_first_name }}" >
-  <input type="hidden" id="hidden-last-name" value="{{ context.session.shipping_contact_last_name }}" >
-  <input type="hidden" id="hidden-email" value="{{ context.session.shipping_contact_email }}" >
-  <input type="hidden" id="hidden-shipping-company-name" value="{{ context.session.shipping_company_name }}" >
-  <input type="hidden" id="hidden-shipping-country-code" value="{{ context.session.shipping_contact_phone_country_code }}" >
-  <input type="hidden" id="hidden-shipping-mobile-number" value="{{ context.session.shipping_contact_phone_number }}" >
-
-  <input  type="hidden" id="hidden-company-name"value="{{ context.session.account_company_name }}" >
-  <input type="hidden" id="hidden-current-user-id" value="{{ current_user.id }}" >
-  <input type="hidden" id="hidden-account-first-name" value="{{ current_user.first_name }}" >
-  <input type="hidden" id="hidden-account-last-name" value="{{ current_user.last_name }}" >
-  <input type="hidden" id="hidden-account-email" value="{{ current_user.email }}" >
-  <input type="hidden" id="hidden-country-code" value="{{ context.session.account_mobile_country_code }}" >
-  <input type="hidden" id="hidden-mobile-number" value="{{ context.session.account_mobile_number }}" >
-
-    
-  <div id="shipping-details" class="insites-form">
-    <h2 class="heading-2">Shipping Contact</h2>
-    <div class="spacer x-large"></div>
-
-    {% if user_uuid != blank %}
-    <ins-checkbox class="inline" 
-      {% if context.session.shipping_same_with_account == 'true' %} checked {% endif %}
-      name="{{ prop.shipping_same_with_account.name }}"
-      value="{{ context.session.shipping_same_with_account | default: false }}"
-      id="same-shipping" 
-      label="My shipping details are the same as my account details.">
-    </ins-checkbox>
-    <div class="spacer"></div>
-    {% endif %}
-
-    {% comment %} Contact Person Fields {% endcomment %}
-    <div class="grid-x grid-padding-x shipping-contact-person {% if context.session.shipping_same_with_account == 'true' %} hide {% endif %}">
-      <div class="large-12 medium-12 small-12 cell">
-
-        <ins-input shipping-details-field 
-          class="label-input" 
-          label="Company Name" 
-          placeholder="Company Name"
-          field="text" 
-          id="shipping-company-name" 
-          value="{{ context.session.shipping_company_name }}"
-          name="{{ prop.shipping_company_name.name }}">
-        </ins-input>
-      </div>
-      <div class="large-6 medium-6 small-12 cell">
-        <ins-input required validate shipping-details-field
-          label="First Name*" 
-          placeholder="First Name"
-          name="{{ prop.shipping_contact_first_name.name }}" 
-          id="shipping-first-name" 
-          value="{{ context.session.shipping_contact_first_name | default: ''}}"
-          {% if form.errors['properties.shipping_contact_first_name'] %} has-error {% endif %}
-          error-message="{{ prop.shipping_contact_first_name.validation.rules.presence.message }}">
-        </ins-input>
-      </div>
-      <div class="large-6 medium-6 small-12 cell">
-        <ins-input required validate shipping-details-field
-          label="Last Name*" 
-          placeholder="Last Name"
-          name="{{ prop.shipping_contact_last_name.name }}" 
-          id="shipping-last-name" 
-          value="{{ context.session.shipping_contact_last_name | default: ''}}"
-          {% if form.errors['properties.shipping_contact_last_name'] %} has-error {% endif %}
-          error-message="{{ prop.shipping_contact_last_name.validation.rules.presence.message }}">
-        </ins-input>
-      </div>
-      <div class="large-6 medium-6 small-12 cell">
-        <ins-input required validate shipping-details-field
-          label="Email Address*" 
-          placeholder="Email Address*" 
-          field="email"
-          name="{{ prop.shipping_contact_email.name }}" 
-          id="shipping-email" 
-          value="{{ context.session.shipping_contact_email | default: ''}}"
-          {% if form.errors['properties.shipping_contact_email'] %} has-error {% endif %}
-          error-message="{{ prop.shipping_contact_email.validation.rules.presence.message }}"
-          position="right">
-        </ins-input>
-      </div>
-      <div class="large-6 medium-6 small-12 cell">
-        <ins-input-tel shipping-details-field
-          class="label-input" 
-          id="shipping-phone" 
-          label="Phone Number"
-          country-code="{{ context.session.shipping_contact_phone_country_code | default: '61'}}"
-          phonenum-value="{{ context.session.shipping_contact_phone_number | default: ''}}"
-          phonenum-placeholder="Phone Number" no-areacode>
-        </ins-input-tel>
-      </div>
-    </div>
-
-    <div class="spacer"></div>
-    <div class="spacer x-small"></div>
-
-    <div class="validate-address">
-      <h2 class="heading-2">Shipping Address</h2>
-
-      <div class="spacer"></div>
-      <div class="spacer xx-small"></div>
-      
-      {% if has_profile %}      
-
-      {% liquid 
-         if context.current_user
-            assign temp_shipping_address_id = context.session.shipping_address_id | default: ''
-         else 
-            assign temp_shipping_address_id = 'new'
-         endif        
-      %}
-      <ins-input validate
-        id="shipping_address_id" 
-        class="hidden-input"
-        value="{{ temp_shipping_address_id }}"
-        name="{{ prop.shipping_address_id.name }}"
-        error-message="Shipping address is required. Please select from the list below or add new address.">
-      </ins-input> 
-
-        {%- graphql addresses = 'modules/ecommerce/address/get_address', 
-          user_uuid: user_uuid | dig: 'items','results' -%}
-            
-        {%- comment -%}Address cards{%- endcomment -%}
-        {%- include 'modules/ecommerce/layout/address_cards', 
-          addresses: addresses,
-          selected_card: context.session.shipping_address_id | default: "",
-          type: 'shipping' -%}
-              
-        <div class="spacer x-small"></div>
-        <div class="spacer xx-small"></div>        
-
-        {% comment %} Shipping Address Fields {% endcomment %}
-        <div class="text-right"
-          id="address-toggle">
-          <ins-button 
-            type="button" 
-            class="add-address-btn"
-            name="shipping-address-fields" 
-            id="open-address" 
-            icon="icon-add" 
-            label="New Address" 
-            color="blue" 
-            size="small">
-          </ins-button>
-        </div>  
-        <div class="spacer"></div>
-
-      {% else %}
-
-        <div class="spacer x-small"></div>
-        <div class="spacer xx-small"></div>
-
-      {% endif %}
-
-      <div id="shipping-address-fields" class="address-fields {% if addresses.size > 0 %}hide{% endif %} " >
-        <div class="grid-x grid-padding-x">
-          <div class="large-12 medium-12 small-12 cell">
-            <ins-input address-lookup label="Search Addresss" 
-              id="shipping-address-search" name="shipping"
-              placeholder="Search Addresss" icon="icon-map-pin">
-            </ins-input>            
-          </div>
-          <div class="large-6 medium-6 small-12 cell">
-            <ins-input required validate 
-              label="Address 1*" 
-              id="shipping_address_1"
-              placeholder="Address 1" 
-              name="{{ prop.address_1.name }}"
-              value="{{ context.session.shipping_address_1 }}"
-              {% if form.errors['properties.address_1'] %} has-error {% endif %}
-              error-message="{{ prop.address_1.validation.rules.presence.message }}">
-            </ins-input>
-          </div>
-          <div class="large-6 medium-6 small-12 cell">
-            <ins-input  
-              label="Address 2" 
-              id="shipping_address_2" 
-              placeholder="Address 2"
-              name="{{ prop.address_2.name }}"
-              value="{{ context.session.shipping_address_2 }}"
-              {% if form.errors['properties.address_2'] %} has-error {% endif %}
-              error-message="{{ prop.address_2.validation.rules.presence.message }}">
-            </ins-input>
-          </div>
-          <div class="large-6 medium-6 small-12 cell">
-            <ins-input validate
-              label="Suburb*" 
-              id="shipping_suburb" 
-              placeholder="Suburb"
-              name="{{ prop.suburb.name }}"
-              value="{{ context.session.shipping_suburb }}" 
-              {% if form.errors['properties.suburb'] %} has-error {% endif %}
-              error-message="{{ prop.suburb.validation.rules.presence.message }}">
-            </ins-input>
-          </div>
-          <div class="large-6 medium-6 small-12 cell">
-            <ins-input required validate 
-              label="State*" 
-              id="shipping_state" 
-              placeholder="State"
-              name="{{ prop.state.name }}"
-              value="{{ context.session.shipping_state }}"
-              {% if form.errors['properties.state'] %} has-error {% endif %}
-              error-message="{{ prop.state.validation.rules.presence.message }}">
-            </ins-input>
-          </div>
-          <div class="large-6 medium-6 small-12 cell">
-            <ins-input  required validate 
-              label="Postcode*" 
-              id="shipping_postcode"
-              placeholder="Postcode" 
-              name="{{ prop.postcode.name }}"
-              value="{{ context.session.shipping_postcode }}"
-              {% if form.errors['properties.postcode'] %} has-error {% endif %}
-              error-message="{{ prop.postcode.validation.rules.presence.message }}">
-            </ins-input>
-          </div>
-          <div class="large-6 medium-6 small-12 cell">
-            <ins-input  required validate 
-              label="Country*" 
-              id="shipping_country"
-              placeholder="Country" 
-              name="{{ prop.country.name }}"
-              value="{{ context.session.shipping_country }}"
-              {% if form.errors['properties.country'] %} has-error {% endif %}
-              error-message="{{ prop.country.validation.rules.presence.message }}">
-            </ins-input>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="grid-x grid-padding-x">
-          <div class="large-12 medium-12 small-12 cell">
-            <ins-textarea 
-              id= "shipping_instructions"
-              label="Shipping Instructions" 
-              placeholder="Shipping Instructions"
-              name="{{ prop.shipping_instructions.name }}"
-              value="{{ context.session.shipping_instructions | default: '' }}">
-            </ins-textarea>
-          </div>
-        </div>
-      </div>
-      {% comment %}END:Shipping Address Fields {% endcomment %}
-    </div>            
-
-    {%- assign submitLabel = 'Proceed to Billing' -%}
-    {% if addresses.size <= 0 or user_uuid == blank %}
-      {%- assign submitLabel = 'Save and Proceed' -%}
-    {% endif %}
-
-    <div class="spacer x-small"></div>
-    <div class="spacer x-small"></div>
-    <div class="grid-x grid-padding-x">    
-      <div class="large-6 medium-6 small-12 cell">
-        <a href="/checkout">
-          <ins-button solid type="button" label="Back" outlined></ins-button>
-        </a>
-      </div>
-      <div class="show-for-small-only spacer xxx-large"></div>    
-      <div class="large-6 medium-6 small-12 cell text-right">        
-        <ins-button solid 
-          id="shipping-submit-button" 
-          type="submit" 
-          class="checkout-step-btn w-100 checkout-btn" 
-          label="{{submitLabel}}">
+    <div class="grid-x">        
+      <h4>Shipping address</h4>
+      <div class="cell show-for-small-only spacer"></div>
+      {% comment %} Add new address {% endcomment %}
+      <div class="text-right flex-child-grow"
+        id="address-toggle">
+        <ins-button 
+          type="button" 
+          id="add-address-btn"
+          name="shipping-address-fields" 
+          icon="icon-plus" 
+          label="Add new address">
         </ins-button>
-      </div>
-    </div>
-    
-  </div>
+      </div> 
+    </div>      
 
+    <div class="spacer xx-small"></div>
+      
+    {% comment %} Selected address {% endcomment %}
+    <ins-input validate
+    id="shipping_address_id" 
+    class="hidden-input"
+    value="{{ context.session.shipping_address_id }}"
+    name="{{ prop.shipping_address_id.name }}"
+    error-message="Shipping address is required. Please select from the list below or add new address.">
+    </ins-input> 
+                
+    {%- comment -%} Address cards {%- endcomment -%}
+    {%- include 'modules/ecommerce/layout/address_cards', 
+      addresses: addresses,
+      selected_card: context.session.shipping_address_id | default: "",
+      type: 'shipping' -%}
+        
+
+    {% comment %} Shipping Instructions; Buttons {% endcomment %}
+    {% include 'modules/ecommerce/checkout/checkout_shipping_bottom_blocks' %}
+     
+    {% comment %} There is an error when removing this '</div>'. Cant find the opening <div> yet {% endcomment %}
+    </div>
 {%- endform -%}
+
+{% comment %} Add new address modal {% endcomment %}
+{% comment %} Do not put this modal inside <form>, it has it's own validation. {% endcomment %}
+{% include 'modules/ecommerce/checkout/add_address_modal' %}

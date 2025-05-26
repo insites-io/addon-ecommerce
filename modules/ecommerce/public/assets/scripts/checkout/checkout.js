@@ -9,25 +9,6 @@ const accountPhone = {
 }
 const accountSubmitBtn = document.getElementById('account-submit');
 
-// Shipping Address Elements------------------------------------------
-// const shippingPhone = {
-//     inputTelAccount: document.getElementById('shipping-phone'),
-//     shippingMobilePhone: document.getElementById('hidden-shipping-phone'),
-//     shippingMobileCountryCode: document.getElementById('hidden-shipping-phone-country-code')
-// }
-// let shippingSubmitBtn = document.getElementById("shipping-submit-button");
-
-// Billing Address Elements------------------------------------------
-// const billingPhone = {
-//     inputTelAccount: document.getElementById('billing-phone'),
-//     billingPhoneNumber: document.getElementById('hidden-billing_contact_phone_number'),
-//     billingCountryCode: document.getElementById('hidden-billing_contact_phone_country_code')
-// }
-// let sameAddressBtn = document.getElementById('same-billing');
-// let billingSubmitBtn = document.getElementById("billing-submit-button");
-// let billingSameWithShipping = document.getElementById("billing-same-with-shipping"); 
-// let billingContactFields = document.getElementById("billing-contact-fields");
-// let billingAddressFields = document.getElementById("billing-address-fields");
 
 // Payment Information Elements------------------------------------------
 let addCardBtn = document.getElementById('add-card-btn');
@@ -35,27 +16,26 @@ let cardModal = document.getElementById('stripe-modal');
 let checkoutSubmitBtn = document.getElementById('checkout-submit-btn');
 
 let existingAddressCards = [];
-let addAddressBtn = Array.from(document.getElementsByClassName('add-address-btn'));
+//let addAddressBtn = Array.from(document.getElementsByClassName('add-address-btn'));
 let newAddressFlag = false;
 let selectedCardId = null;
-let shippingSamewithAccountFlag = false;
 let billingSamewithShippingFlag = false;
 let guestUserFlag = false;
 
-const inputIds = [
-    "shipping_address_1",
-    "shipping_address_2",
-    "shipping_suburb",
-    "shipping_state",
-    "shipping_postcode",
-    "shipping_country",
-    "billing_address_1",
-    "billing_address_2",
-    "billing_suburb",
-    "billing_state",
-    "billing_postcode",
-    "billing_country"
-];
+// const inputIds = [
+//     "shipping_address_1",
+//     "shipping_address_2",
+//     "shipping_suburb",
+//     "shipping_state",
+//     "shipping_postcode",
+//     "shipping_country",
+//     "billing_address_1",
+//     "billing_address_2",
+//     "billing_suburb",
+//     "billing_state",
+//     "billing_postcode",
+//     "billing_country"
+// ];
 
 // BILLING ELEMENTS ------------------------------------------
 
@@ -68,7 +48,6 @@ const billingCompanyNameEl = document.getElementById('billing_company_name');
 const billingSubmitBtn = document.getElementById("billing-submit-button");
 const billingContactFields = document.getElementById("billing-contact-fields");
 const billingAddressFields = document.getElementById("billing-address-fields");
-const addressCards = document.getElementById("address-cards");
 
 const billingAddress1El = document.getElementById('billing_address_1');
 const billingAddress2El = document.getElementById('billing_address_2');
@@ -107,14 +86,29 @@ const billingPhone = {
 
 // SHIPPING ELEMENTS ------------------------------------------
 
+
+const addressCards = document.getElementById('address-cards');
+const addressFormModal = document.getElementById('address-form-modal');
+const addAddressBtn = document.getElementById('add-address-btn');
+const addressSubmitBtn = document.getElementById('address-submit-btn');
+const addressCancelBtn = document.getElementById('address-cancel-btn');
+const shipping_longitude = document.getElementById('shipping_longitude');
+const shipping_latitude = document.getElementById('shipping_latitude');
+const shipping_address_1 = document.getElementById('shipping_address_1');
+const shipping_address_2 = document.getElementById('shipping_address_2');
+const shipping_suburb = document.getElementById('shipping_suburb');
+const shipping_state = document.getElementById('shipping_state');
+const shipping_postcode = document.getElementById('shipping_postcode');
+const shipping_country = document.getElementById('shipping_country');
+
 // Get references to relevant elements
-const shippingSameWithAccountEl = document.getElementById('same-shipping');
+const shippingSameWithAccountEl = document.getElementById('shipping-same-with-account');
 const shippingFirstNameEl = document.getElementById('shipping-first-name');
 const shippingLastNameEl = document.getElementById('shipping-last-name');
 const shippingEmailEl = document.getElementById('shipping-email');
 const shippingCompanyNameEl = document.getElementById('shipping-company-name');
 const shippingSubmitBtn = document.getElementById("shipping-submit-button");
-const shipCont = document.getElementsByClassName("shipping-contact-person");
+const shippingContact = document.getElementById("shipping-contact-inputs");
 
 // Account and shipping hidden details
 const hiddenAccountFirstNameEl = document.getElementById('hidden-account-first-name');
@@ -193,6 +187,21 @@ let Checkout = (function () {
                     emailIsClean = true;
                 }
             },
+            createAddressCard(data) {
+                let cardHtml = `
+                <div class="large-6 medium-6 small-12 cell">
+                    <ins-checkbox-card data-equalizer-watch="" name="shipping-address-cards" selected-color="blue" value="${data.id}" data-address="${data.properties.address_1}" data-address_1="${data.properties.address_1}" data-address_2="${data.properties.address_2}" data-suburb="${data.properties.suburb}" data-state="${data.properties.state}" data-postcode="${data.properties.postcode}" data-country="${data.properties.country}">                    
+                        <div>
+                            <p class="form-label">${shipping_address_1.value}, ${shipping_address_2.value}</p>
+                            <div class="spacer small"></div>
+                            <p>${shipping_state.value} <br>${shipping_postcode.value}</p>
+                            <p>${shipping_country.value}</p>
+                        </div>
+                    </ins-checkbox-card>                       
+                </div>            
+                `;
+                return cardHtml;
+            },
             checkSelectedCard(){
                 const cards = document.querySelectorAll('ins-checkbox-card');
         
@@ -202,33 +211,33 @@ let Checkout = (function () {
                     // If a selected card is found, stop further processing
                     if (isSelected) {
                         selectedCardId = card.value;
-                        Checkout.methods.removeAddressRequiredAttribute();
+                        //Checkout.methods.removeAddressRequiredAttribute();
                         return; 
                     }
                 });
             },
-            removeAddressRequiredAttribute() {
-                console.info('removeAddressRequiredAttribute function triggered. Removing required and validate attributes.');
-                // Remove the 'required' and 'validate' attributes
-                inputIds.forEach(id => {
-                    const inputElement = document.getElementById(id);
-                    if (inputElement) {
-                        // Remove 'required' and 'validate' attributes from the input
-                        inputElement.removeAttribute('required');
-                        inputElement.removeAttribute('validate');
-                        inputElement.removeAttribute('has-error');
-                        inputElement.classList.remove('is-invalid');
+            // removeAddressRequiredAttribute() {
+            //     console.info('removeAddressRequiredAttribute function triggered. Removing required and validate attributes.');
+            //     // Remove the 'required' and 'validate' attributes
+            //     inputIds.forEach(id => {
+            //         const inputElement = document.getElementById(id);
+            //         if (inputElement) {
+            //             // Remove 'required' and 'validate' attributes from the input
+            //             inputElement.removeAttribute('required');
+            //             inputElement.removeAttribute('validate');
+            //             inputElement.removeAttribute('has-error');
+            //             inputElement.classList.remove('is-invalid');
 
-                        let invalidEl = inputElement.querySelectorAll(".is-invalid");
-                        // If invalid elements are found, remove the 'is-invalid' class
-                        if (invalidEl){
-                            invalidEl.forEach(el => {
-                                el.classList.remove('is-invalid');
-                            });
-                        }
-                    }
-                });
-            },
+            //             let invalidEl = inputElement.querySelectorAll(".is-invalid");
+            //             // If invalid elements are found, remove the 'is-invalid' class
+            //             if (invalidEl){
+            //                 invalidEl.forEach(el => {
+            //                     el.classList.remove('is-invalid');
+            //                 });
+            //             }
+            //         }
+            //     });
+            // },
             addAddressRequiredAttribute() {
                 console.info('addAddressRequiredAttribute function triggered. Add required and validate attributes.');
                 // List of input IDs to exclude
@@ -267,7 +276,7 @@ let Checkout = (function () {
                     if (!billingSamewithShippingFlag || billingSamewithShippingFlag == 'false') {
                         Checkout.methods.addAddressRequiredAttribute();
                         billingAddressFields.classList.remove('hide');
-                        addAddressBtn[0].classList.add('hide');
+                        //addAddressBtn[0].classList.add('hide');
                     } else {
                         if (billingAddressFields) {
                             billingAddressFields.classList.add('hide');
@@ -276,36 +285,53 @@ let Checkout = (function () {
                 }
             },
             // Validate address conditions for non-guest users
-            validateAddress(isValid){
-                if (!guestUserFlag) {
-                    if (!selectedCardId && !newAddressFlag && existingAddressCards.length > 1) {
-                        isValid = false;
-                        Checkout.events.setAddressCardError();
-                    } 
-                }
+            // validateAddress(isValid){
+            //     if (!guestUserFlag) {
+            //         if (!selectedCardId && !newAddressFlag && existingAddressCards.length > 1) {
+            //             isValid = false;
+            //             Checkout.events.setAddressCardError();
+            //         } 
+            //     }
 
-                return isValid;
-            },
+            //     return isValid;
+            // },
             // Update shipping details based on whether shipping info is the same as account info
-            updateShippingDetails(sameDetails){
-                shippingSamewithAccountFlag = sameDetails;
-                if (sameDetails){
-                    for (var i = 0; i < shipCont.length; i++) { shipCont[i].classList.add('hide'); }
+            updateShippingContact(sameDetails){
+                console.log('sameDetails',sameDetails);
+                let requiredInputs = document.querySelectorAll('#shipping-contact-inputs ins-input[required]');
+                if(sameDetails){
+                    shippingSamewithAccountFlag = true;
+                    shippingContact.classList.add('hide');                            
+                    requiredInputs.forEach(input => {
+                        input.removeAttribute('validate');
+                        input.removeAttribute('has-error');
+                    });
 
-                    shippingFirstNameEl.value = hiddenAccountFirstNameEl.value;
-                    shippingLastNameEl.value = hiddenAccountLastNameEl.value;
-                    shippingEmailEl.value = hiddenAccountEmailEl.value;
-                    shippingCompanyNameEl.value = hiddenAccountCompanyNameEl.value;
-                    Checkout.methods.updatePhone(true, 'shipping');  
                 } else {
-                    for (var i = 0; i < shipCont.length; i++) { shipCont[i].classList.remove('hide'); }
-
-                    shippingFirstNameEl.value = hiddenShippingFirstNameEl.value || '';
-                    shippingLastNameEl.value = hiddenShippingLastNameEl.value || '';
-                    shippingEmailEl.value = hiddenShippingEmailEl.value || '';
-                    shippingCompanyNameEl.value = hiddenShippingCompanyNameEl.value || '',
-                    Checkout.methods.updatePhone(false, 'shipping');  
+                    shippingSamewithAccountFlag = false;
+                    shippingContact.classList.remove('hide');
+                    requiredInputs.forEach(input => {
+                        input.setAttribute('validate', '');
+                    });
                 }
+            //     shippingSamewithAccountFlag = sameDetails;
+            //     if (sameDetails){
+            //         for (var i = 0; i < shipCont.length; i++) { shipCont[i].classList.add('hide'); }
+
+            //         shippingFirstNameEl.value = hiddenAccountFirstNameEl.value;
+            //         shippingLastNameEl.value = hiddenAccountLastNameEl.value;
+            //         shippingEmailEl.value = hiddenAccountEmailEl.value;
+            //         shippingCompanyNameEl.value = hiddenAccountCompanyNameEl.value;
+            //         Checkout.methods.updatePhone(true, 'shipping');  
+            //     } else {
+            //         for (var i = 0; i < shipCont.length; i++) { shipCont[i].classList.remove('hide'); }
+
+            //         shippingFirstNameEl.value = hiddenShippingFirstNameEl.value || '';
+            //         shippingLastNameEl.value = hiddenShippingLastNameEl.value || '';
+            //         shippingEmailEl.value = hiddenShippingEmailEl.value || '';
+            //         shippingCompanyNameEl.value = hiddenShippingCompanyNameEl.value || '',
+            //         Checkout.methods.updatePhone(false, 'shipping');  
+            //     }
             },
             // Update billing details based on whether billing info is the same as shipping info
             updateBillingDetails(sameDetails) {
@@ -338,7 +364,7 @@ let Checkout = (function () {
                     if (!guestUserFlag) {
                         if (billingAddressFields) billingAddressFields.classList.add('hide');
                     } else {
-                        if (addAddressBtn[0]) addAddressBtn[0].classList.add('hide');
+                        //if (addAddressBtn[0]) addAddressBtn[0].classList.add('hide');
                         if (billingAddressFields) billingAddressFields.classList.remove('hide');
                     }
 
@@ -375,13 +401,13 @@ let Checkout = (function () {
                 if (billingAddressFields) billingAddressFields.classList[visibilityAction]('hide');                
             
                 // Show or hide add address button based on billing flag and visibility action
-                const shouldShowAddAddressBtn = !(billingSamewithShippingFlag === true || billingSamewithShippingFlag === 'true');
+                // const shouldShowAddAddressBtn = !(billingSamewithShippingFlag === true || billingSamewithShippingFlag === 'true');
 
-                if (shouldShowAddAddressBtn && !guestUserFlag) {
-                    if (addAddressBtn[0]) addAddressBtn[0].classList.remove('hide');
-                } else {
-                    if (addAddressBtn[0]) addAddressBtn[0].classList.add('hide');
-                }
+                // if (shouldShowAddAddressBtn && !guestUserFlag) {
+                //     if (addAddressBtn[0]) addAddressBtn[0].classList.remove('hide');
+                // } else {
+                //     if (addAddressBtn[0]) addAddressBtn[0].classList.add('hide');
+                // }
                 
             }
         },
@@ -431,25 +457,24 @@ let Checkout = (function () {
             },
             async shippingSubmit(event){
                 event.preventDefault();
-                shippingSubmitBtn.loading = true;
+                //shippingSubmitBtn.loading = true;
 
-                let form = event.srcElement;
-                let isValid = await App.validation.validateForm(form);
+                if(shippingSamewithAccountFlag){
+                    Checkout.methods.updateShippingContact(true);
+                }
+
+                let form = event.srcElement;         
+                let isValid = await App.validation.validateForm(form);                
 
                 // Validate selection of address card based on the flags                                
-                isValid = Checkout.methods.validateAddress(isValid);                
+                //isValid = Checkout.methods.validateAddress(isValid);                
 
                 if (isValid) {
-                    if (!guestUserFlag && newAddressFlag) {
-                        Checkout.events.saveSessionApi(true);
-
-                        //Add delay to allow the session to be saved
-                        setTimeout(() => {
-                            form.submit();
-                        }, 1000);
-                    } else {
-                        Checkout.events.saveSessionApi(true);
-                    }
+                    Checkout.events.saveSessionApi(true);
+                    //Add delay to allow the session to be saved
+                    setTimeout(() => {
+                        form.submit();
+                    }, 1000);
                 } else {
                     App.events.notyf("error", "Please check missing fields.");
                     shippingSubmitBtn.loading = false;
@@ -578,11 +603,13 @@ let Checkout = (function () {
                 addressCard.selected = true;
                 selectedCardId = addressCard.value;
                 console.info('selected card', selectedCardId);
+                document.getElementById('shipping_address_id').setValue(selectedCardId);
                 //Show the add new address button
-                document.getElementsByClassName('add-address-btn')[0]?.classList.remove('hide');
-                //Modify fields and form
-                this.fillAddressField(addressCard);
-                this.setFormAsPatch(addressCard);
+                //document.getElementsByClassName('add-address-btn')[0]?.classList.remove('hide');
+                
+                //Modify fields and form                
+                //this.fillAddressField(addressCard);                
+                //this.setFormAsPatch(addressCard);
             },
             fillAddressField(addressCard) {
                 let name = addressCard.getAttribute('name');
@@ -632,9 +659,9 @@ let Checkout = (function () {
                     this.billingShippingStatusCheck(addressCard);
                 }
                 //Hide the form fields
-                let containerId = name.split('-')[0] + "-address-fields";
-                let containerEl = document.getElementById(containerId);
-                containerEl.classList.add("hide");
+                //let containerId = name.split('-')[0] + "-address-fields";
+                //let containerEl = document.getElementById(containerId);
+                //containerEl.classList.add("hide");
             },
             addNewAddress(button){
                 Checkout.methods.addAddressRequiredAttribute();
@@ -642,7 +669,7 @@ let Checkout = (function () {
                 document.getElementById('address-uuid').value = document.getElementById('temp-address-uuid').value;
 
                 //Set the value of the shipping_address_id field to 'new'
-                document.getElementById('shipping_address_id').setValue('new');
+                //document.getElementById('shipping_address_id').setValue('new');
 
                 let name = button.getAttribute('name');
                 //Hide New Address Button
@@ -659,6 +686,58 @@ let Checkout = (function () {
                     block: "center", // vertical position
                     inline: "start" // horizontal position
                 });
+            },            
+            async addressSubmit() {
+                let isValid = await App.validation.validateForm(addressFormModal);
+                console.log('isValid',isValid);
+                if(false){
+                    let url = '/v1/contacts/addresses' ;
+                    let payload = {
+                            "contact_uuid": contactUuid, //REQUIRED
+                            "address_label": shipping_address_1.value, //REQUIRED
+                            "default_address": false,
+                            "address_1": shipping_address_1.value,
+                            "address_2": shipping_address_2.value,
+                            "suburb": shipping_suburb.value,
+                            "state": shipping_state.value,
+                            "country": shipping_country.value,
+                            "postcode": shipping_postcode.value,
+                            "geojson": {
+                                "type": "Point",
+                                "coordinates": [parseFloat(shipping_latitude.value), parseFloat(shipping_longitude.value)]
+                            },
+                            "latitude": shipping_latitude.value,
+                            "longitude": shipping_longitude.value
+                        }
+                    let response = await apiServices.processRequest('post',url,payload,undefined,'/core/api');
+                    if(response.state && response.data.items.id) {            
+                        addressFormModal.close();
+                        App.events.notyf("success", "Address added successfully.");                        
+                        addressCards.insertAdjacentHTML('afterbegin', Checkout.methods.createAddressCard(response.data.items));
+
+                        //Select the newly added card                        
+                        Checkout.events.selectAddressCard(
+                            document.querySelector(`ins-checkbox-card[value="${response.data.items.id}"]`)
+                        );                          
+
+                        // Reset value to blank
+                        [
+                            'shipping_longitude',
+                            'shipping_latitude',
+                            'shipping_address_1',
+                            'shipping_address_2',
+                            'shipping_suburb',
+                            'shipping_state',
+                            'shipping_postcode',
+                            'shipping_country'
+                        ].forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.value = '';
+                        });
+                    } else {
+                        App.events.notyf("error", "Something went wrong. Please try again.");
+                    }
+                }
             },
             uncheckAddressCard(){
                 let addressCards = Array.from(document.querySelectorAll('ins-checkbox-card'));
@@ -757,8 +836,7 @@ let Checkout = (function () {
                     checkoutSubmitBtn.loading = false
                 }
                 return false;
-            }
-            
+            }            
         },
         init: {
             initEventListener() {
@@ -766,20 +844,33 @@ let Checkout = (function () {
                 this.initShippingDetailsListener();
                 this.initBillingDetailsListener();
                 this.initAddressCardListener();
-                this.initAddressBtnListener();
-                if(addCardBtn) {
-                    addCardBtn.addEventListener('insClick',() => cardModal.open());
-                }
                 this.initCardsEventListener();
                 this.initCheckNavigation();
                 this.initEmailAccountChecker();
+                this.initAddressListener();
+                
+            },
+            initAddressListener() {
+                if(addAddressBtn && addressCancelBtn && addressSubmitBtn) {
+                    console.log('initAddressListener');
+                    addAddressBtn.addEventListener('insClick', () => {        
+                        addressFormModal.open(); 
+                    });
+            
+                    addressCancelBtn.addEventListener('insClick', () => {        
+                        addressFormModal.close(); 
+                    });     
+
+                    addressSubmitBtn.addEventListener('insClick', () => {
+                        Checkout.events.addressSubmit();
+                    });
+                }
             },
             initShippingDetailsListener() {
                 if (shippingSameWithAccountEl) {
-                    shippingSameWithAccountEl.addEventListener('insCheck', (event) => {
-                        let isChecked = event.detail.checked;
-                        Checkout.methods.updateShippingDetails(isChecked);
-                    });
+                    shippingSameWithAccountEl.addEventListener('insCheck', (event) => {                        
+                        Checkout.methods.updateShippingContact(event.detail.checked);
+                    });                    
                 }
             },
             initBillingDetailsListener(){               
@@ -808,25 +899,36 @@ let Checkout = (function () {
                 }
             },
             initAddressCardListener() {
-                existingAddressCards = Array.from(document.querySelectorAll('ins-checkbox-card'));
-                existingAddressCards.forEach(address => {
-                    address.addEventListener('insClick', () => {
-                        Checkout.events.selectAddressCard(address);
-                        Checkout.methods.removeAddressRequiredAttribute();
-                        newAddressFlag = false;
+                // existingAddressCards = Array.from(document.querySelectorAll('ins-checkbox-card'));
+                // existingAddressCards.forEach(address => {
+                //     address.addEventListener('insClick', () => {
+                //         Checkout.events.selectAddressCard(address);
+                //         Checkout.methods.removeAddressRequiredAttribute();
+                //         newAddressFlag = false;
+                //     });
+                // });
+
+                if(addressCards){
+                    addressCards.addEventListener('click', function (e) {
+                        if (e.target.closest('ins-checkbox-card')) {                      
+                            Checkout.events.selectAddressCard(e.target.closest('ins-checkbox-card'));
+                            //Checkout.methods.removeAddressRequiredAttribute();
+                            //newAddressFlag = false;
+                        }
                     });
-                });
+                }
+                  
 
                 Checkout.methods.checkSelectedCard();
             },
             initAddressBtnListener() {
-                addAddressBtn.forEach(btn => {
-                    btn.addEventListener('insClick', () => {
-                        Checkout.events.addNewAddress(btn);
-                        selectedCardId = null;
-                        newAddressFlag = true;
-                    });
-                });
+                // addAddressBtn.forEach(btn => {
+                //     btn.addEventListener('insClick', () => {
+                //         Checkout.events.addNewAddress(btn);
+                //         selectedCardId = null;
+                //         newAddressFlag = true;
+                //     });
+                // });
             },
             initCardsEventListener() {
                 let iterations = 5;

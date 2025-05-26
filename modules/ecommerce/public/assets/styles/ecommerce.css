@@ -1646,6 +1646,19 @@ ins-button.add-credit-card button.ins-button>div,
     color: var(--color-main);
 }
 
+/* Checkout Shipping */
+#address-form-modal .ins-modal-wrap.show-modal.no-button .ins-modal-body {
+    padding: 0px 32px 32px;
+}
+#address-form-modal .ins-modal-wrap.show-modal .ins-modal-head.no-heading .icon-close-1 {
+    top: 34px;
+    right: 32px;
+    z-index: 100;
+}
+.pac-container {
+    z-index: 9999 !important;
+}
+
 .empty-box {
     padding: 80px 24px;
     flex-direction: column;

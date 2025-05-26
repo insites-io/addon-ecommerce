@@ -7,21 +7,21 @@ const checkoutBtnNavigation = Array.from(document.getElementsByClassName('checko
 let CheckoutSteps = (function () {
     return {
         validation: {
-            validateAddress(currentStep) {
-                let container = currentStep.querySelectorAll('.validate-address');
-                if(container) {
-                    container.forEach(block => {
-                        let addressValid = block.querySelectorAll(".address-fields[required] .is-invalid");
-                        if (addressValid.length > 0) {
-                            block.querySelector('.error-message').classList.remove('hide');
-                            CheckoutSteps.events.addressCardsHasError(block, true);
-                        } else {
-                            block.querySelector('.error-message').classList.add('hide');
-                            CheckoutSteps.events.addressCardsHasError(block, false);
-                        }
-                    });
-                }
-            },
+            // validateAddress(currentStep) {
+            //     let container = currentStep.querySelectorAll('.validate-address');
+            //     if(container) {
+            //         container.forEach(block => {
+            //             let addressValid = block.querySelectorAll(".address-fields[required] .is-invalid");
+            //             if (addressValid.length > 0) {
+            //                 block.querySelector('.error-message').classList.remove('hide');
+            //                 CheckoutSteps.events.addressCardsHasError(block, true);
+            //             } else {
+            //                 block.querySelector('.error-message').classList.add('hide');
+            //                 CheckoutSteps.events.addressCardsHasError(block, false);
+            //             }
+            //         });
+            //     }
+            // },
             validateCreditCard(currentStep) {
                 let cardValid = currentStep.querySelectorAll(".card-fields[required] .is-invalid");
                 let container = currentStep.querySelector('.validate-credit-card');
@@ -142,7 +142,7 @@ let CheckoutSteps = (function () {
                     nextStep = nextStep.description.split(' ')[0].toLowerCase() + '-details';
                     if(nextStep === 'shipping-details' && 
                         sameShippingDetailsBtn && sameShippingDetailsBtn.checked) {
-                        Checkout.methods.updateShippingDetails(true); 
+                        Checkout.methods.updateShippingContact(true); 
                     }
                     nextStep = document.getElementById(nextStep);
                 
@@ -153,7 +153,7 @@ let CheckoutSteps = (function () {
             async validateStepFields(event, currentStep, nextStep) {
                 CheckoutSteps.validation.validateTelField(currentStep);
                 let valid = await App.validation.validateForm(currentStep);
-                CheckoutSteps.validation.validateAddress(currentStep);
+                //CheckoutSteps.validation.validateAddress(currentStep);
                 CheckoutSteps.validation.validateCreditCard(currentStep);
                 if (valid) {
                     CheckoutSteps.events.goToNextStep(event, currentStep, nextStep);

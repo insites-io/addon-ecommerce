@@ -1,0 +1,84 @@
+<input type="hidden" 
+id="hidden-shipping-phone" 
+name="{{ prop.shipping_contact_phone_number.name }}"
+value="{{ context.session.shipping_contact_phone_number }}" > 
+
+<input type="hidden" 
+id="hidden-shipping-phone-country-code"
+name="{{ prop.shipping_contact_phone_country_code.name }}"
+value="{{ context.session.shipping_contact_phone_country_code }}" >
+
+
+{% comment %} Shipping contact {% endcomment %}
+<div id="shipping-details" class="insites-form">
+<h4>Shipping contact</h4>
+<div class="spacer x-large"></div>
+
+<ins-checkbox class="inline" 
+  {% if context.session.shipping_same_with_account == true %} checked {% endif %}
+  name="{{ prop.shipping_same_with_account.name }}"
+  value="true"
+  id="shipping-same-with-account" 
+  label="My shipping details are the same as my account details.">
+</ins-checkbox>
+
+<div id="shipping-contact-inputs" class="grid-x grid-padding-x shipping-contact {% if context.session.shipping_same_with_account == true %} hide {% endif %}">
+  <div class="large-12 medium-12 small-12 cell">
+    <ins-input  
+      class="label-input" 
+      label="Company Name" 
+      placeholder="Company Name"
+      field="text" 
+      id="shipping-company-name" 
+      value="{{ context.session.shipping_company_name }}"
+      name="{{ prop.shipping_company_name.name }}">
+    </ins-input>
+  </div>
+  <div class="large-6 medium-6 small-12 cell">
+    <ins-input required validate 
+      label="First Name*" 
+      placeholder="First Name"
+      name="{{ prop.shipping_contact_first_name.name }}" 
+      id="shipping-first-name" 
+      value="{{ context.session.shipping_contact_first_name | default: ''}}">
+    </ins-input>
+  </div>
+  <div class="large-6 medium-6 small-12 cell">
+    <ins-input required validate 
+      label="Last Name*" 
+      placeholder="Last Name"
+      name="{{ prop.shipping_contact_last_name.name }}" 
+      id="shipping-last-name" 
+      value="{{ context.session.shipping_contact_last_name | default: ''}}"
+      {% if form.errors['properties.shipping_contact_last_name'] %} has-error {% endif %}
+      error-message="{{ prop.shipping_contact_last_name.validation.rules.presence.message }}">
+    </ins-input>
+  </div>
+  <div class="large-6 medium-6 small-12 cell">
+    <ins-input required validate 
+      label="Email*" 
+      placeholder="Email*" 
+      field="email"
+      name="{{ prop.shipping_contact_email.name }}" 
+      id="shipping-email" 
+      value="{{ context.session.shipping_contact_email | default: ''}}"
+      {% if form.errors['properties.shipping_contact_email'] %} has-error {% endif %}
+      error-message="{{ prop.shipping_contact_email.validation.rules.presence.message }}"
+      position="right">
+    </ins-input>
+  </div>
+  <div class="large-6 medium-6 small-12 cell">
+    <ins-input-tel 
+      class="label-input" 
+      id="shipping-phone" 
+      label="Phone"
+      country-code="{{ context.session.shipping_contact_phone_country_code | default: '61'}}"
+      phonenum-value="{{ context.session.shipping_contact_phone_number | default: ''}}"
+      phonenum-placeholder="Phone" no-areacode>
+    </ins-input-tel>
+  </div>
+</div>
+
+<script>
+    var shippingSamewithAccountFlag = {{ context.session.shipping_same_with_account | default: false }};
+</script>
