@@ -1,0 +1,79 @@
+<input type="hidden" 
+id="hidden-billing-phone" 
+name="{{ prop.billing_contact_phone_number.name }}"
+value="{{ context.session.billing_contact_phone_number }}" > 
+
+<input type="hidden" 
+id="hidden-billing-phone-country-code"
+name="{{ prop.billing_contact_phone_country_code.name }}"
+value="{{ context.session.billing_contact_phone_country_code }}" >
+
+
+{% comment %} Shipping contact {% endcomment %}
+<div id="billing-details" class="insites-form">
+<h4>Billing contact</h4>
+<div class="spacer x-large"></div>
+
+<ins-checkbox class="inline" 
+  {% if context.session.billing_same_with_shipping == true %} checked {% endif %}
+  name="{{ prop.billing_same_with_shipping.name }}"
+  value="true"
+  id="billing-same-with-shipping" 
+  label="My billing details are the same as my shipping details.">
+</ins-checkbox>
+
+<div id="billing-contact-inputs" class="grid-x grid-padding-x billing-contact {% if context.session.billing_same_with_shipping == true %} hide {% endif %}">
+  <div class="large-12 medium-12 small-12 cell">
+    <ins-input  
+      class="label-input" 
+      label="Company Name" 
+      placeholder="Company Name"
+      field="text" 
+      id="billing-company-name" 
+      value="{{ context.session.billing_company_name }}"
+      name="{{ prop.billing_company_name.name }}">
+    </ins-input>
+  </div>
+  <div class="large-6 medium-6 small-12 cell">
+    <ins-input required validate 
+      label="First Name*" 
+      placeholder="First Name"
+      name="{{ prop.billing_contact_first_name.name }}" 
+      id="billing-first-name" 
+      value="{{ context.session.billing_contact_first_name | default: ''}}">
+    </ins-input>
+  </div>
+  <div class="large-6 medium-6 small-12 cell">
+    <ins-input required validate 
+      label="Last Name*" 
+      placeholder="Last Name"
+      name="{{ prop.billing_contact_last_name.name }}" 
+      id="billing-last-name" 
+      value="{{ context.session.billing_contact_last_name | default: ''}}">
+    </ins-input>
+  </div>
+  <div class="large-6 medium-6 small-12 cell">
+    <ins-input required validate 
+      label="Email*" 
+      placeholder="Email*" 
+      field="email"
+      name="{{ prop.billing_contact_email.name }}" 
+      id="billing-email" 
+      value="{{ context.session.billing_contact_email | default: ''}}">
+    </ins-input>
+  </div>
+  <div class="large-6 medium-6 small-12 cell">
+    <ins-input-tel 
+      class="label-input" 
+      id="billing-phone" 
+      label="Phone"
+      country-code="{{ context.session.billing_contact_phone_country_code | default: '61'}}"
+      phonenum-value="{{ context.session.billing_contact_phone_number | default: ''}}"
+      phonenum-placeholder="Phone" no-areacode>
+    </ins-input-tel>
+  </div>
+</div>
+
+<script>
+    var billingSamewithShippingFlag = {{ context.session.billing_same_with_shipping | default: false }};
+</script>
