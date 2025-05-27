@@ -11,30 +11,28 @@ metadata: {
 </div>
 <div class="spacer xxx-large"></div>
 
-
-{% graphql order = "modules/ecommerce/orders/get_order_details",
-    id: context.params.slug2, is_shipping_info_needed: true | dig: 'items','results' | first %}
-
-
-{% comment %} Date Format {% endcomment %}
 {%  liquid
-  function localisation_date_format = 'modules/ecommerce/localisation/get_localisation'
 
+  graphql order = "modules/ecommerce/orders/get_order_details", id: context.params.slug2, is_shipping_info_needed: true | dig: 'items','results' | first
+
+  function localisation_date_format = 'modules/ecommerce/localisation/get_localisation'
   if localisation_date_format == 'DD/MM/YYYY'
     assign date_time = order.date_time | date: '%d/%m/%Y'
   else
     assign date_time = order.date_time | date: '%m/%d/%Y'
   endif
+
+  comment
+    Get products info 
+  endcomment
+  if order.uuid
+    graphql ordered_items = 'modules/ecommerce/order_items/get_order_items', order_uuid: order.uuid, is_product_info_needed: true  | dig: 'items','results'
+  else 
+    redirect_to '/404'
+  endif
+
 %}
 
-
-{% comment %} Get products info {% endcomment %}
-{% if order.uuid %} 
-  {% graphql ordered_items = 'modules/ecommerce/order_items/get_order_items', 
-          order_uuid: order.uuid, is_product_info_needed: true  | dig: 'items','results' %}
-{% else %}          
-  {% redirect_to '/404' %}
-{% endif %}
 
 
 {% assign reorder_items = '' | split: ',' %}

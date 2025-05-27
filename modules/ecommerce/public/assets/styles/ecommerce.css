@@ -1135,6 +1135,10 @@ ins-card.overview .wrap{
 #order-tab .ins-tab .ins-tab-headers .ins-tab-header.active {
     font-weight: 700;
 }
+#order-tab .heading-5{
+    font-size: var(--font-large) !important;
+
+}
 #downloads-dropdown {
     display: inline-block;
     width: 48px;
@@ -1321,32 +1325,63 @@ ins-card.overview .wrap{
     line-height: 20px; 
     padding: 4px 8px;
     border-radius: 2px;
+    background: var(--neutral-hover-light);
 }
 #order-table .tagged span {
     border-radius: 4px;
 }
+ins-tag.tagged.For.collection span,
+ins-tag.tagged.For.delivery span,
+ins-tag.tagged.Open span,
+ins-tag.tagged.Packed span,
+ins-tag.tagged.Picked.up span,
+ins-tag.tagged.In.transit span,
+ins-tag.tagged.Processing span,
+.tagged.For.collection span,
+.tagged.For.delivery span,
+.tagged.Open span,
+.tagged.Packed span,
+.tagged.Picked.up span,
+.tagged.In.transit span,
 .tagged.Processing span {
     color: var(--color-info);
-    background: var(--color-main-hover-light);
+    background: var(--info-hover-light);
 }
-.tagged.Open span {
+ins-tag.tagged.Back.ordered span,
+ins-tag.tagged.On.hold span,
+ins-tag.tagged.Unpaid span,
+ins-tag.tagged.Part.paid span,
+.tagged.Back.ordered span,
+.tagged.On.hold span,
+.tagged.Unpaid span,
+.tagged.Part.paid span {
     color: var(--warning);
     background: var(--warning-hover-light);
 }
-.tagged.Cancelled span, 
-.tagged.Refunded span,
-.tagged.Packed span,
-.tagged.In.Transit span,
-.tagged.Picked.Up span {
-    color: var(--font-color-head);
-    background: var(--color-ui-03);
-}
+ins-tag.tagged.Complete span,
+ins-tag.tagged.Completed span,
+ins-tag.tagged.Placed span,
+ins-tag.tagged.Subscription.active span,
+ins-tag.tagged.Paid span,
+ins-tag.tagged.Delivered span,
 .tagged.Complete span,
 .tagged.Completed span,
+.tagged.Placed span,
+.tagged.Subscription.active span,
+.tagged.Paid span,
 .tagged.Delivered span {
     color: var(--success);
     background: var(--success-hover-light);
 }
+ins-tag.tagged.Failed span,
+.tagged.Failed span{
+    color: var(--error);
+    background: var(--error-hover-light);
+}
+
+
+
+
 
 
 /* Other */

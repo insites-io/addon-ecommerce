@@ -100,7 +100,11 @@ metadata: {
         id="order-table"     
         class="ecommerce"    
         sort-keyword="order-number"
-        searchbar-placeholder="Search by order number">         
+        searchbar-placeholder="Search by order number"
+        {%- if context.params.search -%}
+            initial-search="{{context.params.search}}"
+        {%- endif -%}
+        >         
     </ins-table> 
 
 
@@ -157,6 +161,10 @@ metadata: {
         return status;
     }
 
+    function capitalize(val){
+        return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+    }
+
     function mapData(tableData) {
         return tableData.map(data => {                 
             let toDateOnly = TableScript.methods.toDateOnly(data.date_time);                
@@ -169,7 +177,7 @@ metadata: {
             } else {
                 tmp_order_status = data.order_status;
             }
-            let order_status = TableScript.methods.toTitleCase(resolveStatus(tmp_order_status));
+            let order_status = capitalize(resolveStatus(tmp_order_status));
 
             return {
                 id: data.id,
