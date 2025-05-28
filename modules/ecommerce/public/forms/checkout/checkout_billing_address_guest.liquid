@@ -55,7 +55,6 @@ callback_actions: |-
   html-enctype="multipart/form-data"
   html-onsubmit:"return Checkout.events.billingSubmit(event);" -%}  
 
-
     {% unless context.session.billing_address_id %}
       <input type="hidden" name="{{ prop.uuid.name }}" value="{{ '' | uuid }}" >
       <input type="hidden" name="{{ prop.related_uuid.name }}" value="{{ context.session.guest_user.uuid }}" >

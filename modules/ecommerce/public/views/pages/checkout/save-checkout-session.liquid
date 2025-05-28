@@ -170,14 +170,13 @@ metadata:
             session shipping_contact_phone_number = data_contact_details.contact_phone_number
             session shipping_contact_phone_country_code = data_contact_details.contact_phone_country_code
 
-            ## Shipping Address Details      
-            assign data = param_shipping      
-            session shipping_address_1 = data.address_1
-            session shipping_address_2 = data.address_2
-            session shipping_suburb = data.suburb
-            session shipping_state = data.state
-            session shipping_postcode = data.postcode
-            session shipping_country = data.country
+            ## Shipping Address Details       
+            session shipping_address_1 = param_shipping.address_1
+            session shipping_address_2 = param_shipping.address_2
+            session shipping_suburb = param_shipping.suburb
+            session shipping_state = param_shipping.state
+            session shipping_postcode = param_shipping.postcode
+            session shipping_country = param_shipping.country
 
             session shipping_instructions = param_shipping.instructions  
         %}
@@ -202,12 +201,12 @@ metadata:
             session billing_contact_phone_number = data.contact_phone_number
             session billing_contact_phone_country_code = data.contact_phone_country_code
 
-            session billing_address_1 = data.address_1
-            session billing_address_2 = data.address_2
-            session billing_suburb = data.suburb
-            session billing_state = data.state
-            session billing_postcode = data.postcode
-            session billing_country = data.country            
+            session billing_address_1 = param_billing.address_1
+            session billing_address_2 = param_billing.address_2
+            session billing_suburb = param_billing.suburb
+            session billing_state = param_billing.state
+            session billing_postcode = param_billing.postcode
+            session billing_country = param_billing.country            
         %}
     {% endif %}
 

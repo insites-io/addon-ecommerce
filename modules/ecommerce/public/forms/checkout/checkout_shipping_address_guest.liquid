@@ -58,11 +58,9 @@ callback_actions: |-
   html-enctype="multipart/form-data"
   html-onsubmit:"return Checkout.events.shippingSubmit(event);" -%}  
 
-
-    {% comment %} {% session shipping_address_id = null %} {% endcomment %}
     {% unless context.session.shipping_address_id %}
-      <input type="hidden2" name="{{ prop.uuid.name }}" value="{{ '' | uuid }}" >
-      <input type="hidden2" name="{{ prop.related_uuid.name }}" value="{{ context.session.guest_user.uuid }}" >
+      <input type="hidden" name="{{ prop.uuid.name }}" value="{{ '' | uuid }}" >
+      <input type="hidden" name="{{ prop.related_uuid.name }}" value="{{ context.session.guest_user.uuid }}" >
     {% endunless %}  
 
     {% include 'modules/ecommerce/checkout/checkout_shipping_contacts', prop, form_type: form_type %}

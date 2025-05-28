@@ -351,7 +351,7 @@ let Checkout = (function () {
             },
             async shippingSubmit(event){
                 event.preventDefault();
-                //shippingSubmitBtn.loading = true;
+                shippingSubmitBtn.loading = true;
 
                 if(shippingSamewithAccountFlag){
                     Checkout.methods.updateShippingContact(true);
@@ -360,16 +360,13 @@ let Checkout = (function () {
                 Checkout.methods.extractPhoneNumbers(shippingPhone);
 
                 let form = event.srcElement;         
-                let isValid = await App.validation.validateForm(form);                
-
-                // Validate selection of address card based on the flags                                
-                //isValid = Checkout.methods.validateAddress(isValid);                
+                let isValid = await App.validation.validateForm(form);                                
 
                 if (isValid) {
                     if(Checkout.events.saveSessionApi('shipping')){
                         //Add delay to allow the session to be saved
                         setTimeout(() => {
-                            window.location.href = "/checkout/billing";
+                            form.submit();
                         }, 1000);       
                     }                         
                 } else {
@@ -380,7 +377,7 @@ let Checkout = (function () {
             },
             async billingSubmit(event){
                 event.preventDefault();
-                //billingSubmitBtn.loading = true;  
+                billingSubmitBtn.loading = true;  
 
                 if(billingSamewithShippingFlag){
                     Checkout.methods.updateBillingContact(true);
@@ -391,13 +388,11 @@ let Checkout = (function () {
                 let form = event.srcElement;     
                 let isValid = await App.validation.validateForm(form); 
 
-                //return false;
-
                 if (isValid) {
                     if(Checkout.events.saveSessionApi('billing')){
                         //Add delay to allow the session to be saved
                         setTimeout(() => {
-                            window.location.href = "/checkout/payment";
+                            form.submit();
                         }, 1000);       
                     } 
                 } else {                       
