@@ -3,85 +3,92 @@ metadata: {
     partial_name: 'Ecommerce | Layout | Order Summary'
 }
 ---
-{% assign params = context.params %}
-{% assign user_uuid = context.current_user.external_id %}
-{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
-{%- unless has_profile -%}
-    {%- assign user_uuid = null -%}
-{%- endunless -%}
 
-{%- if is_ordered_items == true and order_uuid != '' -%}   
+{%- 
+    liquid
 
-    {% comment %} Get Order Summary for already purchased item(s) {% endcomment %}
-    {% graphql carts = 'modules/ecommerce/order_items/get_order_items', 
-        order_uuid: order_uuid  | dig: 'items','results' %}
+    assign params = context.params
+    assign user_uuid = context.current_user.external_id
 
-{%- else -%}
+    function has_profile = "modules/website/layout/check_if_user_has_profile"
+    unless has_profile
+        assign user_uuid = null
+    endunless
 
-    {% comment %} Get Cart Items {% endcomment %}    
-    {% if user_uuid != blank %}
-        {% comment %} Logged in user {% endcomment %}
-        {% include 'modules/ecommerce/carts/cart_items', user_uuid %}
-        {% assign cart_items = context.exports.cart_items %}
-        {% assign user_cart = cart_items.user_cart %}
-        {% assign carts = cart_items.carts %}
-        {% assign products = cart_items.products %}
-        {% assign discounts = user_cart.discounts %}
-    {% else %}
-        {% comment %} Guest user {% endcomment %}
-        {% assign carts = context.session.guest_cart %}
+    if is_ordered_items == true and order_uuid != ''
+        comment
+            Get Order Summary for already purchased item(s) 
+        endcomment
+        graphql carts = 'modules/ecommerce/order_items/get_order_items', order_uuid: order_uuid  | dig: 'items','results'
+    else
+        comment
+            Get Cart Items
+        endcomment
+        if user_uuid != blank
+            comment
+                Logged in user 
+            endcomment
+            include 'modules/ecommerce/carts/cart_items', user_uuid
+            assign cart_items = context.exports.cart_items
+            assign user_cart = cart_items.user_cart
+            assign carts = cart_items.carts
+            assign products = cart_items.products
+            assign discounts = user_cart.discounts
+        else 
+            comment
+                Guest user 
+            endcomment
+            assign carts = context.session.guest_cart
 
-        {% comment %} Get product info {% endcomment %}
-        {%  liquid  
+            comment
+                Get product info 
+            endcomment
             assign product_uuids = carts | array_map: 'product_uuid' | array_flatten
             graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: carts.size | dig: 'items','results'
-        %}  
 
-        {% if context.session.discount_uuids %}
-            {% graphql discounts = 'modules/ecommerce/discount/get_discount_by_uuids', 
-                uuids: context.session.discount_uuids | dig: 'items', 'results' %}
-        {% endif %}
-    {% endif %}
-    
-{%- endif -%}
+            if context.session.discount_uuids
+                graphql discounts = 'modules/ecommerce/discount/get_discount_by_uuids', uuids: context.session.discount_uuids | dig: 'items', 'results'
+            endif
+        endif
+    endif
+
+    comment
+        No items in the Cart: Do not allow user to enter checkout pages 
+    endcomment
+    if carts == null or carts.size <= 0
+        if context.params.slug == 'checkout'
+            redirect_to '/products'
+        endif
+    endif
+
+-%}
 
 
-{% comment %} No items in the Cart: Do not allow user to enter checkout pages {% endcomment %}
-{%- if carts == null or carts.size <= 0 -%}
-    {%- if context.params.slug == 'checkout' -%}
-        {% redirect_to '/products' %}
-    {%- endif -%}
-{%- endif -%}
-
-
-<div id="order-summary-main-wrap" class="show-for-medium">
-    
+<div id="order-summary-main-wrap" class="show-for-medium">    
     {% unless no_heading %}
         <h4>Order summary</h4>
         <div class="spacer x-large"></div>
     {% endunless %}
-        
     <div id="order-summary-cart-wrap" class="order-summary">  
-        {% comment %}
-            - This is only for logged-in users
-        {% endcomment %}
+        {% comment %} This is only for logged-in users {% endcomment %}
         {%- if show_product and user_uuid != blank -%}   
             {%- for item in carts -%}
                 {% comment %} ? TAX LABEL {% endcomment %}
-                {% if item.is_fixed_tax_amount %}
-                    {% assign tax_label = "Includes Tax" %}
-                {% else %}
-                    {% assign tax_label = "Tax" %}        
-                {% endif %} 
+                {%- if item.is_fixed_tax_amount -%}
+                    {%- assign tax_label = "Includes Tax" -%}
+                {%- else -%}
+                    {%- assign tax_label = "Tax" -%}
+                {%- endif -%}
                 {%- if params.slug == 'confirmation' and params.id != '' -%}
-                    {%  liquid 
+                    {%-  
+                        liquid 
                         assign cart = '' | parse_json
                         assign cart = cart | add_hash_key: 'product_name', item.order_item_name
                         assign cart = cart | add_hash_key: 'price', item.item_price
-                    %}
+                    -%}
                 {%- else -%}
-                    {% include 'modules/ecommerce/carts/cart_details', products, item, user_uuid %}
-                    {% assign cart = context.exports.cart %}   
+                    {%- include 'modules/ecommerce/carts/cart_details', products, item, user_uuid -%}
+                    {%- assign cart = context.exports.cart -%}
                 {%- endif -%}
 
                 <div class="grid-x grid-padding-x body-large">
@@ -101,7 +108,7 @@ metadata: {
                     </div>
                 </div>
                 {%- unless forloop.last -%}
-                <div class="spacer small"></div>
+                    <div class="spacer small"></div>
                 {%- endunless -%}
             
             {%- endfor -%}
@@ -122,7 +129,7 @@ metadata: {
         {%- include 'modules/ecommerce/checkout/compute_order_summary' 
             order_id, user_uuid, user_cart, carts, products, guest_discounts: discounts -%}
     {%- endif -%}
-    {% assign computed = context.exports.computed %}
+    {%- assign computed = context.exports.computed -%}
 
    {% comment %} Subtotal {% endcomment %}
     <div class="grid-x grid-padding-x">
@@ -157,7 +164,7 @@ metadata: {
     <div class="spacer x-small"></div>           
     
     {% comment %} Discounts {% endcomment %}
-    {% if discounts.size > 0 or computed.total_discount_amount > 0 %}
+    {%- if discounts.size > 0 or computed.total_discount_amount > 0 -%}
         <div class="list-discount-codes">
             <div class="grid-x">
                 <div class="small-6 medium-6 large-8 cell">
@@ -189,15 +196,14 @@ metadata: {
                 {%- else -%}
 
                     {% comment %} Run function to validate & auto delete invalid codes {% endcomment %}
-                    {% parse_json payload %}
+                    {%- parse_json payload -%}
                     {
                         "check_duplicates": false,
                         "contact_uuid": "{{ user_uuid }}",
                         "discount_code": "{{ item.discount_code }}"
                     }
-                    {% endparse_json %}
-                    {% function validate_code = "modules/ecommerce/checkout/validate_discount_code"
-                        payload: payload %}
+                    {%- endparse_json -%}
+                    {%- function validate_code = "modules/ecommerce/checkout/validate_discount_code", payload: payload -%}
                     {% comment %} End Function {% endcomment %}
                 {%- endif -%}
 
@@ -217,28 +223,25 @@ metadata: {
                         {%- assign value = code.discount_type -%}
                     {%- endif -%}
                     {%- unless value contains "hipping" -%}{% comment %} <-- not a typo {% endcomment %}
-                        {%- liquid 
+                        {%- 
+                            liquid 
                             if type contains "shipping"
                                 assign value = value | append: " Shipping"
                             endif
                         -%}
                     {%- endunless -%}
                     
-
                     <div class="list-discount-codes--item" data-id="{{ item.id }}" data-uuid="{{ item.uuid }}">
                         <div class="body-small">
                             <p class="font-head bold">{{ code.discount_name }}</p>
                             <p>{{ code.discount_code }} - {{ value }}</p>
                             {%- if code.minimum_cart_value > 0 -%}
-                            <div class="spacer xx-small"></div>
-                            <p>Minimum ${{ code.minimum_cart_value | advanced_format: "%.2f" }} Purchase</p>
+                                <div class="spacer xx-small"></div>
+                                <p>Minimum ${{ code.minimum_cart_value | advanced_format: "%.2f" }} Purchase</p>
                             {%- endif -%}
                         </div>
-                        
                         <div class="icon-close"></div>
-                        
                     </div>
-
                 {%- endif -%}
             {%- endfor -%}
         </div>
@@ -266,9 +269,9 @@ metadata: {
     {% comment %} Tax {% endcomment %}
     <div class="grid-x grid-padding-x">
         {% comment %} ? Confirmation {% endcomment %}
-        {% if context.params.slug == 'confirmation' %}
+        {%- if context.params.slug == 'confirmation' -%}
             {% comment %} ? Tax Applied = Both or Single {% endcomment %}
-            {% if context.session.tax_applied == "both" %}
+            {%- if context.session.tax_applied == "both" -%}
                 {% comment %} ? IF BOTH INCLUDES AND NOT INCLUDES TAX IS ON CART {% endcomment %}
                 <div class="large-6 medium-6 small-6 cell pb-8">
                     <p class="font-color-head bold" id="summary_tax_label">Includes Tax</p>
@@ -293,7 +296,7 @@ metadata: {
                     {%- endunless -%}
                     <p id="summary_tax">{{ sub_total_tax_not_included }}</p>
                 </div>
-            {% else %}
+            {%- else -%}
                 <div class="large-6 medium-6 small-6 cell">
                     <p class="font-color-head bold" id="summary_tax_label">{{ computed.tax_label | default: 'Tax' }}</p>
                 </div>
@@ -303,15 +306,15 @@ metadata: {
                     {%- unless tax_amount contains '.' -%}
                         {%- assign tax_amount = tax_amount | append: '.00' -%}
                     {%- endunless -%}
-                    {% if context.session.sub_total_tax_included != 0 %}
+                    {%- if context.session.sub_total_tax_included != 0 -%}
                         <p id="summary_tax">({{ tax_amount }})</p>
-                    {% else %}
+                    {%- else -%}
                         <p id="summary_tax">{{ tax_amount }}</p>
-                    {% endif %}
+                    {%- endif -%}
                 </div>
-            {% endif %}
-        {% else %}
-            {% if computed.tax_applied == "both" %}
+            {%- endif -%}
+        {%- else -%}
+            {%- if computed.tax_applied == "both" -%}
                 {% comment %} ? IF BOTH INCLUDES AND NOT INCLUDES TAX IS ON CART {% endcomment %}
                 <div class="large-6 medium-6 small-6 cell pb-8">
                     <p class="font-color-head bold" id="summary_tax_label">Includes Tax </p>
@@ -336,7 +339,7 @@ metadata: {
                     {%- endunless -%}
                     <p id="summary_tax">{{ sub_total_tax_not_included }}</p>
                 </div>
-            {% else %}
+            {%- else -%}
                 {% comment %} ? IF SINGLE TAX IS ON CARD {% endcomment %}
                 <div class="large-6 medium-6 small-6 cell">
                     <p class="font-color-head bold" id="summary_tax_label">{{ computed.tax_label | default: 'Tax' }}</p>
@@ -347,14 +350,14 @@ metadata: {
                     {%- unless tax_amount contains '.' -%}
                         {%- assign tax_amount = tax_amount | append: '.00' -%}
                     {%- endunless -%}
-                    {% if computed.sub_total_tax_included != 0 %}
+                    {%- if computed.sub_total_tax_included != 0 -%}
                         <p id="summary_tax">({{ tax_amount }})</p>
-                    {% else %}
+                    {%- else -%}
                         <p id="summary_tax">{{ tax_amount }}</p>
-                    {% endif %}
+                    {%- endif -%}
                 </div>
-            {% endif %}
-        {% endif %}
+            {%- endif -%}
+        {%- endif -%}
     </div>
     <div class="spacer medium"></div>    
     <hr>
@@ -374,16 +377,16 @@ metadata: {
         </div>
     </div>
 
-    {% if context.params.slug == 'shopping-cart' %}
-    <div class="spacer x-large"></div>
-    <div class="notes-wrap">
-        <p class="body-small bold">Notes</p>
-        <ul class="body-x-small">
-            <li>Shipping costs will be calculated during checkout.</li>
-            <li>Tax and processing fees may be adjusted based on the shipping cost.</li>
-        </ul>
-    </div>
-    {% endif %}    
+    {%- if context.params.slug == 'shopping-cart' -%}
+        <div class="spacer x-large"></div>
+        <div class="notes-wrap">
+            <p class="body-small bold">Notes</p>
+            <ul class="body-x-small">
+                <li>Shipping costs will be calculated during checkout.</li>
+                <li>Tax and processing fees may be adjusted based on the shipping cost.</li>
+            </ul>
+        </div>
+    {%- endif -%}    
 
 </div>
 
@@ -404,10 +407,10 @@ metadata: {
     <div id="order-summary-drawer-content">       
 
     </div>
-    {% if context.params.slug != 'checkout' %}
-    <div class="spacer x-large"></div>
-    <ins-button label="Proceed to checkout" solid color="blue" class="checkoutBtn proceed-to-checkout-btn full" onclick="document.location.href = '/checkout';"></ins-button>
-    {% endif %}
+    {%- if context.params.slug != 'checkout' -%}
+        <div class="spacer x-large"></div>
+        <ins-button label="Proceed to checkout" solid color="blue" class="checkoutBtn proceed-to-checkout-btn full" onclick="document.location.href = '/checkout';"></ins-button>
+    {%- endif -%}
 </ins-drawer>
 
 <script>
@@ -417,10 +420,10 @@ metadata: {
     let orderSummaryDrawerContent = document.getElementById('order-summary-drawer-content');
 
     // For Guest account: Compare the POS sessions with the localStorage
-    {% unless has_profile %}
+    {%- unless has_profile -%}
     let session_carts = {{ carts | default: '[]' }};
     let session_discount_uuids = {{ context.session.discount_uuids |  default: '[]' }};
-    {% endunless %}
+    {%- endunless -%}
 
     viewOrderSummaryBtn.addEventListener('insClick', async event => {
         let orderSummaryHtmlContent = orderSummaryMainWrap.innerHTML;

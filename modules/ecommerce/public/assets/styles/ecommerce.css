@@ -1118,6 +1118,9 @@ ins-card.overview .wrap{
         display: block;
     }
 }
+#order-tab .ins-tab{
+    border-radius: 14px;
+}
 #order-tab ins-tab-item>div {
     padding: 40px;
 }
@@ -1127,10 +1130,15 @@ ins-card.overview .wrap{
     font-weight: 400;
     color: #575757;
     line-height: 24px;
-    text-decoration-skip-ink: none;    
+    text-decoration-skip-ink: none;  
+    margin-bottom: 0px;  
 }
 #order-tab .ins-tab .ins-tab-headers .ins-tab-header.active {
     font-weight: 700;
+}
+#order-tab .heading-5{
+    font-size: var(--font-large) !important;
+
 }
 #downloads-dropdown {
     display: inline-block;
@@ -1233,9 +1241,8 @@ ins-card.overview .wrap{
 .ecommerce .ibt-table-wrap .ibt-table_th {
     color: var(--font-color-head);
     font-family: var(--font-family-02);
-    font-size: 16px;
     font-style: normal;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 24px; /* 150% */
 }
 
@@ -1243,7 +1250,6 @@ ins-card.overview .wrap{
 .ecommerce .ibt-table-wrap .ibt-table_td {
     color: var(--font-color-body);
     font-family: var(--font-family-02);
-    font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: 24px; /* 150% */
@@ -1314,35 +1320,70 @@ ins-card.overview .wrap{
 /* Tags */
 .tagged span {
     font-family: var(--font-family-02);
-    font-size: 14px;
+    font-size: 12px;
     font-style: normal;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 20px; 
     padding: 4px 8px;
     border-radius: 2px;
+    color: var(--neutral-hover);
+    background: var(--neutral-hover-light);
 }
+#order-table .tagged span {
+    border-radius: 4px;
+}
+ins-tag.tagged.For.Collection span,
+ins-tag.tagged.For.Delivery span,
+ins-tag.tagged.Open span,
+ins-tag.tagged.Packed span,
+ins-tag.tagged.Picked.Up span,
+ins-tag.tagged.In.Transit span,
+ins-tag.tagged.Processing span,
+.tagged.For.Collection span,
+.tagged.For.Delivery span,
+.tagged.Open span,
+.tagged.Packed span,
+.tagged.Picked.Up span,
+.tagged.In.Transit span,
 .tagged.Processing span {
-    color: var(--color-main);
-    background: var(--color-main-hover-light);
+    color: var(--info);
+    background: var(--info-hover-light);
 }
-.tagged.Open span {
+ins-tag.tagged.Back.Ordered span,
+ins-tag.tagged.On.Hold span,
+ins-tag.tagged.Unpaid span,
+ins-tag.tagged.Part.Paid span,
+.tagged.Back.Ordered span,
+.tagged.On.Hold span,
+.tagged.Unpaid span,
+.tagged.Part.Paid span {
     color: var(--warning);
     background: var(--warning-hover-light);
 }
-.tagged.Cancelled span, 
-.tagged.Refunded span,
-.tagged.Packed span,
-.tagged.In.Transit span,
-.tagged.Picked.Up span {
-    color: var(--font-color-head);
-    background: var(--color-ui-03);
-}
+ins-tag.tagged.Complete span,
+ins-tag.tagged.Completed span,
+ins-tag.tagged.Placed span,
+ins-tag.tagged.Subscription.Active span,
+ins-tag.tagged.Paid span,
+ins-tag.tagged.Delivered span,
 .tagged.Complete span,
 .tagged.Completed span,
+.tagged.Placed span,
+.tagged.Subscription.Active span,
+.tagged.Paid span,
 .tagged.Delivered span {
     color: var(--success);
     background: var(--success-hover-light);
 }
+ins-tag.tagged.Failed span,
+.tagged.Failed span{
+    color: var(--error);
+    background: var(--error-hover-light);
+}
+
+
+
+
 
 
 /* Other */
@@ -1415,6 +1456,7 @@ ins-filter .filter__label {
 }
 ins-filter .filter__label {
     margin-bottom: 8px;
+    margin-top: 13px;
 }
 ins-filter .filter__label,
 ins-filter-item .filter-item__button--text,
@@ -1428,7 +1470,7 @@ ins-filter-item .filter-item__button--option,
 .ibt-table-wrap__prev-next button.page {
     color: var(--font-color-head);
     font-family: var(--font-family-02);
-    font-size: 14px;
+    font-size: 12px;
     font-style: normal;
     font-weight: 700;
     line-height: 20px; /* 142.857% */
@@ -1456,9 +1498,10 @@ ins-filter-item .filter-item__button,
 ins-filter .date-filter {
     border-radius: 2px;
     background: var(--color-ui-03);
-    padding: 8px 12px;
+    padding: 12px 16px;
     justify-content: center;
     align-items: center;    
+    border-radius: 8px;
 }
 ins-filter-item .filter-item__button--option{
     align-items: center;
@@ -1500,6 +1543,12 @@ ins-filter .date-filter .fas  {
 /* Ins-Table */
 .ibt-table .img-wrap, .ibt-table-accordion .img-wrap {
     margin-right: 5px;
+}
+.ibt-table-wrap.no-label .ibt-table-wrap__no-heading{
+    border-radius: 14px;
+}
+.ibt-table-wrap__settings{
+    background-color: transparent;
 }
 @media (max-width: 1023px) {
     .ibt-table-wrap .ibt-table {

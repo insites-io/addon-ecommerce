@@ -3,8 +3,6 @@ metadata: {
     partial_name: 'Ecommerce | Client Portal | Order History Summary'
 }
 ---
-<h2 class="heading-2-small">Order Summary</h2>
-<div class="spacer x-large"></div>
 
 <ins-table 
   class="ecommerce"
@@ -19,9 +17,7 @@ metadata: {
 <div class="spacer"></div>
 
 
-{% include 'modules/ecommerce/layout/order_summary', 
-  order_uuid: order.uuid, 
-  is_ordered_items: true, no_heading: true %}
+{% include 'modules/ecommerce/layout/order_summary', order_uuid: order.uuid, is_ordered_items: true, no_heading: true %}
 
 {% function localisation_date_format = 'modules/ecommerce/localisation/get_localisation' %}
 
@@ -35,8 +31,8 @@ metadata: {
   // set table headers
   orderListTable.tableHeaders = [
     { label: 'Product Name', type: "string", hasImage: true, sortable: true},
-    { label: 'Item Code', type: "string" },
-    { label: 'Variation', type: "string" },
+    { label: 'SKU', type: "string" },
+    { label: 'Variant', type: "string" },
     { label: 'Qty', type: "number" },
     { label: 'Price', type: "currency" }
   ];
@@ -75,10 +71,10 @@ metadata: {
             id: data.id,
             "Product Name": data.order_item_name,
             "Product Name_Img": product_img,
-            "Item Code": data.sku,
-            "Variation": variation,
+            "SKU": data.sku,
+            "Variant": variation,
             "Qty": data.quantity,
-            "Price": sub_price
+            "Price": sub_price.toFixed(2)
         }
     });
   }

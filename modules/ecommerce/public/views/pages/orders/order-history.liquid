@@ -1,6 +1,6 @@
 ---
 slug: order-history
-layout: modules/portal/default
+layout: modules/portal/portal_default
 searchable: false
 max_deep_level: 2
 metadata: {
@@ -31,11 +31,7 @@ authorization_policies:
 ---
 
 {% if context.params.slug2 %} 
-
     {% include 'modules/ecommerce/client_portal/orders/order_history_tabs' %}
-
 {% else %}
-
     {% include 'modules/ecommerce/client_portal/orders/order_history' %}
-
 {% endif %}
