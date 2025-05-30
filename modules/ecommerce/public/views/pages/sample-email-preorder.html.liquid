@@ -1,0 +1,129 @@
+---
+slug: sample-email-preorder
+layout: modules/insites_core/insites_internal_email_layout
+---
+{% include "modules/insites_cms/globals" %}
+{% assign global = context.exports.global %}
+{% assign product = data.product %}
+{% assign user = data.customer_info %}
+
+{% comment %} <!-------------------------------- HTML --------------------------------> {% endcomment %}
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
+
+{% comment %} <!-- Heading --> {% endcomment %}
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+cellspacing="0" width="100%" style="table-layout: fixed;"
+data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10-22">
+    <tbody>
+        <tr>
+        <td style="padding:0px 40px 0px 40px; line-height:40px; text-align:inherit;"
+            height="100%" valign="top" bgcolor="" role="module-content">
+            <div>
+            <div style="font-family: inherit; text-align: left"><span
+                style="font-size: 32px; color: #0d0d0d; text-transform: capitalize"><strong>Pre-Order Shipping</strong></span></div>
+            <div></div>
+            </div>
+        </td>
+        </tr>
+    </tbody>
+</table>
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 40 %}
+
+{% comment %} <!-- Content --> {% endcomment %}
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+cellspacing="0" width="100%" style="table-layout: fixed;"
+data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10-22">
+    <tbody>
+        <tr>
+        <td style="padding:0px 40px 0px 40px; line-height:40px; text-align:inherit;"
+            height="100%" valign="top" bgcolor="" role="module-content">
+            <div>
+            <div style="font-family: inherit; text-align: left"><span
+                style="font-size: 16px; color: #525252;">Hi {{ user.first_name }} {{ user.last_name }},</span></div>
+            <div></div>
+            </div>
+        </td>
+        </tr>
+    </tbody>
+</table>
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 32 %}
+
+{% comment %} <!-- Content --> {% endcomment %}
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+cellspacing="0" width="100%" style="table-layout: fixed;"
+data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10-22">
+    <tbody>
+        <tr>
+        <td style="padding:0px 40px 0px 40px; line-height:40px; text-align:inherit;"
+            height="100%" valign="top" bgcolor="" role="module-content">
+            <div>
+            <div style="font-family: inherit; text-align: left; line-height: 26px"><span
+                style="font-size: 16px; color: #525252;">Thank you for your pre-order of {{ product.product_name }}. We wanted to let you know that this item is currently out of stock, and we are working on restocking it as soon as possible.</span></div>
+            <div></div>
+            </div>
+        </td>
+        </tr>
+    </tbody>
+</table>
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 32 %}
+
+{% comment %} <!-- Content --> {% endcomment %}
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+cellspacing="0" width="100%" style="table-layout: fixed;"
+data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10-22">
+    <tbody>
+        <tr>
+        <td style="padding:0px 40px 0px 40px; line-height:40px; text-align:inherit;"
+            height="100%" valign="top" bgcolor="" role="module-content">
+            <div>
+            <div style="font-family: inherit; text-align: left; line-height: 26px"><span
+                style="font-size: 16px; color: #525252;">We will keep you updated on the shipping status and provide an estimated shipping date soon.</span></div>
+            <div></div>
+            </div>
+        </td>
+        </tr>
+    </tbody>
+</table>
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
+<hr style="margin-left: 40px;margin-right: 40px;border-top: 1px solid #DFDFDF;">
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
+
+{% parse_json cart %}
+[
+    {
+        "product_uuid": "{{ product.uuid }}",
+        "quantity": "{{ product.quantity }}",
+        "product_sku": "{{ product.product_sku }}"
+    }
+]
+
+{% endparse_json %}
+
+{% parse_json products %}
+[
+    {{ product }}
+]
+{% endparse_json %}
+
+{% comment %} <!-- Product List --> {% endcomment %}
+{% include 'modules/ecommerce/emails/product_list', products: products, cart: cart %}
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 40 %}
+<hr style="margin-left: 40px;margin-right: 40px;border-top: 1px solid #DFDFDF;">
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
+
+{% comment %} <!-- Footer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/client_footer', global: global %}
