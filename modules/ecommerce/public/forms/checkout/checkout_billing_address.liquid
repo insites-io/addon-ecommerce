@@ -68,7 +68,7 @@ callback_actions: |-
 {% assign prop = form.fields.properties %}
 
 {%- form 
-  html-id: "shipping-address-form"
+  html-id: "billing-address-form"
   html-novalidate: true
   html-enctype="multipart/form-data"
   html-onsubmit:"return Checkout.events.billingSubmit(event);" -%}  
@@ -87,7 +87,7 @@ callback_actions: |-
         <ins-button 
           type="button" 
           id="add-address-btn"
-          name="shipping-address-fields" 
+          name="billing-address-fields" 
           icon="icon-plus" 
           label="Add new address">
         </ins-button>
@@ -109,7 +109,7 @@ callback_actions: |-
     {%- include 'modules/ecommerce/layout/address_cards', 
       addresses: addresses,
       selected_card: context.session.billing_address_id | default: "",
-      type: 'shipping' -%}
+      type: 'billing' -%}
         
 
     {% comment %} Buttons {% endcomment %}
@@ -121,4 +121,4 @@ callback_actions: |-
 
 {% comment %} Add new address modal {% endcomment %}
 {% comment %} Do not put this modal inside <form>, it has it's own validation. {% endcomment %}
-{% include 'modules/ecommerce/checkout/add_address_modal' %}
+{% include 'modules/ecommerce/checkout/add_address_modal', page: 'billing' %}

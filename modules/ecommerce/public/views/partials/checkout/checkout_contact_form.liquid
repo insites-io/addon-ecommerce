@@ -24,16 +24,34 @@
     <div class="grid-x grid-padding-x account-details">      
 
       <div class="large-12 medium-12 small-12 cell">
-        <ins-input   
-          id="contact-company-name"
-          class="label-input" 
-          label="Company Name"
-          placeholder="Company Name" 
-          field="text" 
-          value="{{ company_name }}"
-          name="{{ fields.company_name.name }}"
-          {% if context.current_user %}disabled{% endif %} >
-        </ins-input>
+        {% if context.current_user %}
+          
+          <ins-input   
+            id="contact-company-name"
+            class="label-input" 
+            label="Company Name"
+            placeholder="Company Name" 
+            field="text" 
+            value="{{ company_name }}"
+            name="temp_company_name"
+            disabled >
+          </ins-input>
+
+          <input type="hidden" name="{{ fields.company_name.name }}" value="{{ company_name }}" >
+
+        {% else %} 
+
+          <ins-input   
+            id="contact-company-name"
+            class="label-input" 
+            label="Company Name"
+            placeholder="Company Name" 
+            field="text" 
+            value="{{ company_name }}"
+            name="company_name">
+          </ins-input>
+
+        {% endif %}        
       </div>
 
       <div class="large-6 medium-6 small-12 cell">
@@ -82,8 +100,8 @@
           class="label-input" 
           id="contact-phone"
           label="Phone"
-          country-code="{{ context.session.contact_phone_country_code | default: '61' }}"  
-          phonenum-value="{{ context.session.contact_phone_number }}"
+          country-code="{{ contact_phone_country_code | default: '61' }}"  
+          phonenum-value="{{ contact_phone_number }}"
           phonenum-placeholder="Phone" 
           no-areacode>
         </ins-input-tel>
@@ -91,12 +109,12 @@
         <input type="hidden" 
           id="phone-number"
           name="{{ profiles_prop.mobile_phone_number.name }}"
-          value="{{ context.session.contact_phone_number }}" >
+          value="{{ contact_phone_number }}" >
 
         <input type="hidden" 
           id="phone-country-code"
           name="{{ profiles_prop.mobile_phone_country_code.name }}"
-          value="{{ context.session.contact_phone_country_code }}" >
+          value="{{ contact_phone_country_code }}" >
       </div>
 
     </div>

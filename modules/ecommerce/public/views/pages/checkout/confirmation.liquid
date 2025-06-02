@@ -20,55 +20,15 @@ authorization_policies:
 {% endif %}
 
 {% liquid
-    assign billing_account_name = order.billing_contact_first_name | append: ' ' | append: order.billing_contact_last_name 
-    assign shipping_phone_data = "{}" | parse_json
-    assign account_phone_data = "{}" | parse_json
+
 
     # Fetch current user data
     function has_profile = "modules/website/layout/check_if_user_has_profile"
-    graphql current_user = 'modules/ecommerce/account/get_current_user' | dig: 'current_user'
 
-    if has_profile
-        assign account_contact = current_user | dig: 'crm_contact' | first
+    include 'modules/ecommerce/checkout/clear_session'
+    include 'modules/ecommerce/checkout/clear_local_storage'
 
-        # Assign account details
-        assign company_uuid = account_contact.company_uuid | default: null
-        assign account_name = current_user.first_name | append: ' ' | append: current_user.last_name
-        assign account_email = current_user.email
 
-        assign account_phone_data = account_phone_data | add_hash_key: 'account_phone', true
-        assign account_phone_data = account_phone_data | add_hash_key: 'country_code', account_contact.mobile_phone_country_code
-        assign account_phone_data = account_phone_data | add_hash_key: 'phone_number', account_contact.mobile_phone_number
-
-        include 'modules/ecommerce/checkout/phone_format', data: account_phone_data
-
-        # Fetch company details if company UUID is available
-        if company_uuid
-            graphql company = "modules/ecommerce/companies/get_company", uuid: company_uuid | dig: 'items', 'results' | first
-            if company
-                assign crm_company_name = company.company_name
-            endif
-        endif
-    else         
-        include 'modules/ecommerce/checkout/clear_session'
-        include 'modules/ecommerce/checkout/clear_local_storage'
-        
-        # Guest: Fetch billing contact number
-        if order.billing_contact_phone_number 
-            assign account_phone_data = account_phone_data | add_hash_key: 'account_phone', true
-            assign account_phone_data = account_phone_data | add_hash_key: 'country_code', order.billing_contact_phone_country_code
-            assign account_phone_data = account_phone_data | add_hash_key: 'phone_number', order.billing_contact_phone_number
-
-            include 'modules/ecommerce/checkout/phone_format', data: account_phone_data
-        endif
-    endif
-
-    if order.shipping_contact_phone_number 
-        assign shipping_phone_data = shipping_phone_data | add_hash_key: 'shipping_phone', true
-        assign shipping_phone_data = shipping_phone_data | add_hash_key: 'country_code', order.shipping_contact_phone_country_code
-        assign shipping_phone_data = shipping_phone_data | add_hash_key: 'phone_number', order.shipping_contact_phone_number
-        include 'modules/ecommerce/checkout/phone_format', data: shipping_phone_data
-    endif 
 %}
 
 
@@ -85,104 +45,114 @@ authorization_policies:
 
     <div class="grid-x grid-padding-x confirmation__wrapper">
         <div class="large-7 medium-6 small-12 cell">
-            <h2 class="heading-2">Order Details</h2>
-            <div class="spacer xx-large"></div>
+            <h4>Order details</h4>
+            <div class="spacer x-large"></div>
        
             <div class="grid-x grid-padding-x">
+                
+                
+                <div class="large-5 medium-12 small-12 cell">
+                    <div class="grid-y">
+                        {% comment %} Contact details {% endcomment %}
+                        <div class="wrap">
+                            <h5 class="heading-5-small">Contact details</h5>
+                            <div class="spacer small"></div>
+                            <p class="font-cabin">{{ order.order_company_name }}</p>
+                            <p class="font-cabin">{{ order.order_contact_first_name }} {{ order.order_contact_last_name }}</p>
+                            <p class="font-cabin">{{ order.order_contact_email  }}</p>
+                            <p class="font-cabin">
+                                {% if order.order_contact_phone_country_code %}({{ order.order_contact_phone_country_code }}){% endif %} 
+                                {{ order.order_contact_phone_number }}
+                            </p>                            
+                        </div>
 
-                {% if has_profile %}
-                    {% comment %} Account Details {% endcomment %}
-                    <div class="large-5 medium-12 small-12 cell">
-                        <h3 class="heading-3">Account Details</h3>
-                        <div class="spacer small"></div>
-                        <p class="font-cabin">{{ crm_company_name | default: order.billing_company_name }}</p>
-                        <p class="font-cabin">{{ account_name | default: order.billing_account_name }}</p>
-                        <p class="font-cabin">{{ account_email | default: order.billing_contact_email  }}</p>
-                        <p class="font-cabin">{{ context.exports.formatted_account_mobile_phone | default: 'N/A' }}</p>
-                        <div class="spacer xx-large"></div>
+                        <div class="spacer x-large"></div>
+
+                        {% comment %} Shipping details {% endcomment %}
+                        <div class="wrap">
+                            <h5 class="heading-5-small">Shipping details</h5>
+                            <div class="spacer small"></div>
+                            <p class="font-cabin">{{ order.shipping_company_name }}</p>
+                            <p class="font-cabin">{{ order.shipping_contact_first_name }} {{ order.shipping_contact_last_name }}</p>
+                            <p class="font-cabin">{{ order.shipping_contact_email  }}</p>
+                            <p class="font-cabin">
+                                {% if order.shipping_contact_phone_country_code %}({{ order.shipping_contact_phone_country_code }}){% endif %} 
+                                {{ order.shipping_contact_phone_number }}
+                            </p>
+                            {%   liquid
+                                assign shipping_address = '' | split: ','
+                                assign shipping_address = shipping_address | array_add: order.shipping_address_1
+                                assign shipping_address = shipping_address | array_add: order.shipping_address_2
+                                assign shipping_address = shipping_address | array_add: order.shipping_address_3
+                                assign shipping_address = shipping_address | array_add: order.billing_suburb
+                                assign shipping_address = shipping_address | array_add: order.billing_state
+                                assign shipping_address = shipping_address | array_add: order.billing_postcode 
+                                assign shipping_address = shipping_address | array_add: order.billing_country | array_compact
+                                assign shipping_address = shipping_address | join: ', ' | replace: ' ,', ','
+                            %}  
+                            <p>{{ shipping_address }}</p>
+                        </div>
+
+                        <div class="spacer x-large"></div>
+
+                        {% comment %} Shipping instructions {% endcomment %}
+                        <div class="wrap">
+                            <h5 class="heading-5-small">Shipping instructions</h5>
+                            <div class="spacer small"></div>
+                            <p class="font-cabin">{{ order.shipping_instructions }}</p>
+                        </div>
+                        
                     </div>
-                {% endif %}
+                </div>                                    
+                               
+                <div class="large-offset-1 large-5 medium-12 small-12 cell">
+                    <div class="grid-y">
 
-                {% comment %} Shipping Details {% endcomment %}                
-                <div class="{% if has_profile %}large-offset-1{% endif %} large-5 medium-12 small-12 cell">
-                    <h3 class="heading-3">Shipping Details</h3>
-                    <div class="spacer small"></div>
-                        {%- assign shipping_address = "" -%}
-                        {%- if order.shipping_address_1 and order.shipping_address_1 != '' -%}
-                            {%- assign shipping_address = shipping_address | append: order.shipping_address_1 | append : ", " -%}
-                        {%- endif -%}
-                        {%- if order.shipping_address_2 and order.shipping_address_2 != '' -%}
-                            {%- assign shipping_address = shipping_address | append: order.shipping_address_2 | append : ", " -%}
-                        {%- endif -%}
-                        {%- if order.shipping_address_3 and order.shipping_address_3 != '' -%}
-                            {%- assign shipping_address = shipping_address | append: order.shipping_address_3 | append : ", " -%}
-                        {%- endif -%}
-                        {%- if order.shipping_suburb and order.shipping_suburb != '' -%}
-                            {%- assign shipping_address = shipping_address | append: order.shipping_suburb | append : ", " -%}
-                        {%- endif -%}
-                        {%- if order.shipping_state and order.shipping_state != '' -%}
-                            {%- assign shipping_address = shipping_address | append: order.shipping_state | append : " " -%}
-                        {%- endif -%}
-                        {%- if order.shipping_postcode and order.shipping_postcode != '' -%}
-                            {%- assign shipping_address = shipping_address | append: order.shipping_postcode | append : ", " -%}
-                        {%- endif -%}
-                        {%- if order.shipping_country and order.shipping_country != '' -%}
-                            {%- assign shipping_address = shipping_address | append: order.shipping_country | append : " " -%}
-                        {%- endif -%}
-                    {%- if order.shipping_company_name -%}
-                    <p class="font-cabin">{{ order.shipping_company_name }}</p>
-                    {%- endif -%}
-                    <p class="font-cabin">{{ order.shipping_contact_first_name | append: ' ' | append: order.shipping_contact_last_name }}</p>
-                    <p class="font-cabin">{{ order.shipping_contact_email }}</p>
-                    <p class="font-cabin">{{ context.exports.formatted_shipping_mobile_phone | default: 'N/A' }}</p>
-                    <p class="font-cabin">{{ shipping_address }}</p>
-                    <div class="spacer xx-large"></div>
+                        {% comment %} Billing Details {% endcomment %} 
+                        <div class="wrap">
+                            <h5 class="heading-5-small">Billing details</h5>                    
+                            <div class="spacer small"></div>
+                            <p class="font-cabin">{{ order.billing_company_name }}</p>
+                            <p class="font-cabin">{{ order.billing_contact_first_name }} {{ order.billing_contact_last_name }}</p>
+                            <p class="font-cabin">{{ order.billing_contact_email  }}</p>
+                            <p class="font-cabin">
+                                {% if order.billing_contact_phone_country_code %}({{ order.billing_contact_phone_country_code }}){% endif %} 
+                                {{ order.billing_contact_phone_number }}
+                            </p>
+                            {%   liquid
+                                assign billing_address = '' | split: ','
+                                assign billing_address = billing_address | array_add: order.billing_address_1
+                                assign billing_address = billing_address | array_add: order.billing_address_2
+                                assign billing_address = billing_address | array_add: order.billing_address_3
+                                assign billing_address = billing_address | array_add: order.billing_suburb
+                                assign billing_address = billing_address | array_add: order.billing_state
+                                assign billing_address = billing_address | array_add: order.billing_postcode 
+                                assign billing_address = billing_address | array_add: order.billing_country | array_compact
+                                assign billing_address = billing_address | join: ', ' | replace: ' ,', ','
+                            %}
+                            <p>{{ billing_address }}</p>
+                        </div>
+
+                        <div class="spacer x-large"></div>
+
+                        {% comment %} Payment details {% endcomment %} 
+                        <div class="wrap">
+                            <h5 class="heading-5-small">Payment details</h5>                    
+                            <div class="spacer small"></div>
+                            <p class="font-cabin">{{ order.payment.card_brand | upcase }} **** **** **** {{ order.payment.card_last_four_digits }}</p>
+                            {%- assign month = order.payment.card_expiry_month -%}
+                            {%- if order.payment.card_expiry_month.size < 2 -%}
+                                {%- assign month = "0" | append: order.payment.card_expiry_month -%}
+                            {%- endif -%}
+                            <p class="font-cabin">{{ month }} / {{ order.payment.card_expiry_year }}</p>
+                        </div>
+
+                    </div>
                 </div>
 
-                {% comment %} Billing Details {% endcomment %}
-                <div class="large-5 medium-12 small-12 cell {% unless has_profile %}large-offset-1{% endunless %}">
-                    <h3 class="heading-3">Billing Details</h3>
-                    <div class="spacer small"></div>
-                    {%- assign billing_address = "" -%}
-                        {%- if order.billing_address_1 and order.billing_address_1 != '' -%}
-                            {%- assign billing_address = billing_address | append: order.billing_address_1 | append : ", " -%}
-                        {%- endif -%}
-                        {%- if order.billing_address_2 and order.billing_address_2 != '' -%}
-                            {%- assign billing_address = billing_address | append: order.billing_address_2 | append : ", " -%}
-                        {%- endif -%}
-                        {%- if order.billing_address_3 and order.billing_address_3 != '' -%}
-                            {%- assign billing_address = billing_address | append: order.billing_address_3 | append : ", " -%}
-                        {%- endif -%}
-                        {%- if order.billing_suburb and order.billing_suburb != '' -%}
-                            {%- assign billing_address = billing_address | append: order.billing_suburb | append : ", " -%}
-                        {%- endif -%}
-                        {%- if order.billing_state and order.billing_state != '' -%}
-                            {%- assign billing_address = billing_address | append: order.billing_state | append : " " -%}
-                        {%- endif -%}
-                        {%- if order.billing_postcode and order.billing_postcode != '' -%}
-                            {%- assign billing_address = billing_address | append: order.billing_postcode | append : ", " -%}
-                        {%- endif -%}
-                        {%- if order.billing_country and order.billing_country != '' -%}
-                            {%- assign billing_address = billing_address | append: order.billing_country | append : " " -%}
-                        {%- endif -%}
-                    <p class="font-cabin">{{ billing_address }}</p>
-                    <div class="spacer xx-large"></div>
-                </div>
+                
 
-                {% if has_profile %}
-                    {% comment %} Payment Details {% endcomment %}                
-                    <div class="{% if has_profile %}large-offset-1{% endif %} large-5 medium-12 small-12 cell">
-                        <h3 class="heading-3">Payment Details</h3>
-                        <div class="spacer small"></div>
-                        <p class="font-cabin">{{ order.payment.card_brand | upcase }} **** **** **** {{ order.payment.card_last_four_digits }}</p>
-                        {%- assign month = order.payment.card_expiry_month -%}
-                        {%- if order.payment.card_expiry_month.size < 2 -%}
-                            {%- assign month = "0" | append: order.payment.card_expiry_month -%}
-                        {%- endif -%}
-                        <p class="font-cabin">{{ month }} / {{ order.payment.card_expiry_year }}</p>
-                        <div class="spacer xx-large"></div>
-                    </div>
-                {% endif %}
+
                                               
 
             </div>

@@ -15,13 +15,13 @@ metadata:
                 placeholder="Search Addresss" icon="icon-map-pin">
             </ins-input>  
 
-            <input type="hidden" id="shipping_latitude" name="shipping_latitude" value="">
-            <input type="hidden" id="shipping_longitude" name="shipping_longitude" value="">    
+            <input type="hidden" id="{{page}}_latitude" name="{{page}}_latitude" value="">
+            <input type="hidden" id="{{page}}_longitude" name="{{page}}_longitude" value="">    
                         
             <ins-input required validate 
                 label="Address 1*" 
-                id="shipping_address_1"
-                name="shipping_address_1"
+                id="{{page}}_address_1"
+                name="{{page}}_address_1"
                 placeholder="Address 1" 
                 value=""
                 error-message="Required">
@@ -29,7 +29,7 @@ metadata:
 
             <ins-input  
                 label="Address 2" 
-                id="shipping_address_2" 
+                id="{{page}}_address_2" 
                 placeholder="Address 2"
                 value=""
                 error-message="">
@@ -37,7 +37,7 @@ metadata:
 
             <ins-input validate
                 label="Suburb*" 
-                id="shipping_suburb" 
+                id="{{page}}_suburb" 
                 placeholder="Suburb"
                 value="" 
                 error-message="Required">
@@ -45,7 +45,7 @@ metadata:
 
             <ins-input validate 
                 label="State*" 
-                id="shipping_state" 
+                id="{{page}}_state" 
                 placeholder="State"
                 value=""
                 error-message="Required">
@@ -53,7 +53,7 @@ metadata:
 
             <ins-input validate 
                 label="Postcode*" 
-                id="shipping_postcode"
+                id="{{page}}_postcode"
                 placeholder="Postcode" 
                 value=""
                 error-message="Required">
@@ -61,7 +61,7 @@ metadata:
 
             <ins-input validate 
                 label="Country*" 
-                id="shipping_country"
+                id="{{page}}_country"
                 placeholder="Country" 
                 value=""
                 error-message="Required">

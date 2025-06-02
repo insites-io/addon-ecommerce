@@ -31,27 +31,16 @@ fields:
         mobile_phone_number:
         mobile_phone_country_code:
 
-callback_actions: |- 
+callback_actions: |-   
+  {%  unless context.current_user %} 
+    {%- session guest_id = form.id -%}  
+  {% endunless %} %}
   {%- session contact_first_name = form.first_name -%}  
   {%- session contact_last_name = form.last_name -%}  
   {%- session contact_email = form.email -%}  
   {%- session contact_company_name = form.company_name -%}  
   {%- session contact_phone_number = form.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_number | default: "" -%}
-  {%- session contact_phone_country_code = form.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_country_code | default: "" -%}
-
-  {% unless context.current_user %}
-    {%- parse_json guest_user -%}
-    {
-        "id": "{{ form.id }}",
-        "uuid": "{{ context.session.guest_user.uuid }}",
-        "email": "{{ form.email }}",
-        "first_name": "{{ form.first_name }}",
-        "last_name" : "{{ form.last_name }}"
-    }
-    {%- endparse_json -%}
-    {%- session guest_user = guest_user -%}
-  {% endunless %}
-
+  {%- session contact_phone_country_code = form.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_country_code | default: "" -%}  
   {%- session latest_step = 2 -%}
 ---
 

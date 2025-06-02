@@ -28,15 +28,25 @@ const contactSubmitBtn = document.getElementById('contact-submit');
 const virtualContactSubmitBtn = document.querySelector('#virtual-form #contact-submit');
 
 
-let selectedCardId = null;
 let guestUserFlag = false;
 
 // Address Modal Form
-const addressCards = document.getElementById('address-cards');
 const addressFormModal = document.getElementById('address-form-modal');
 const addAddressBtn = document.getElementById('add-address-btn');
 const addressSubmitBtn = document.getElementById('address-submit-btn');
 const addressCancelBtn = document.getElementById('address-cancel-btn');
+
+// Addresses
+const addressCards = document.getElementById('address-cards');
+let selectedAddressId = null;
+let selectedAddress = {
+    "address_1": "",
+    "address_2": "",
+    "suburb": "",
+    "state": "",
+    "postcode": "",
+    "country": ""    
+}
 
 // Shipping Contact
 const shippingSameWithAccountEl = document.getElementById('shipping-same-with-account');
@@ -77,6 +87,8 @@ const billingCountryEl = document.getElementById('billing_country');
 const billingSubmitBtn = document.getElementById("billing-submit-button");
 
 // Payment Information
+let addCardBtn = document.getElementById('add-card-btn');
+let cardModal = document.getElementById('stripe-modal');
 let checkoutSubmitBtn = document.getElementById('checkout-submit-btn');
 
 
@@ -107,6 +119,8 @@ let Checkout = (function () {
                 if(data.items.total_entries > 0){
                     // If the existing email has a 'guest' note, allow it to update the data
                     if(data.items.results[0]?.profiles[0]?.properties.notes == 'guest'){
+                        emailElem.hasError = false;
+                        emailElem.errorMessage = "";
                         return {
                             status: 'existing guest',
                             user_uuid: data.items.results[0].external_id
@@ -159,7 +173,7 @@ let Checkout = (function () {
 
                     // If a selected card is found, stop further processing
                     if (isSelected) {
-                        selectedCardId = card.value;
+                        selectedAddressId = card.value;
                         //Checkout.methods.removeAddressRequiredAttribute();
                         return; 
                     }
@@ -247,16 +261,10 @@ let Checkout = (function () {
             // Contact Information submission
             async contactSubmit(event){
                 event.preventDefault();
-                contactSubmitBtn.loading = true;
-
-                console.log('contactSubmit');
-                
-                Checkout.methods.extractPhoneNumbers(contactPhone);
-
                 let form = event.srcElement;
-                let isValid = await App.validation.validateForm(form);
-
-                if(isValid) {
+                contactSubmitBtn.loading = true;                
+                Checkout.methods.extractPhoneNumbers(contactPhone);
+                if(await App.validation.validateForm(form)) {
                     form.submit();
                 } else {
                     App.events.notyf("error", "Please check missing fields.");
@@ -264,23 +272,11 @@ let Checkout = (function () {
                 }
                 return false;
             },
-            async virtualContactSubmit(){
-                
-                contactSubmitBtn.loading = true;
-                console.log('virtualContactSubmit');
-                
+            async virtualContactSubmit(){                
+                contactSubmitBtn.loading = true;                
                 Checkout.methods.extractPhoneNumbers(contactPhone);
-
-                // call this line above validateForm
-                let emailStatus = await Checkout.methods.checkSignUpUserEmail(document.getElementById('contact-email'));
-                console.log('emailStatus',emailStatus);
-
-                let isValid = await App.validation.validateForm(document.getElementById('virtual-form'));
-
-                console.log('isValid',isValid);
-
-                if(isValid) {
-                    
+                let emailStatus = await Checkout.methods.checkSignUpUserEmail(contactEmailEl);
+                if(await App.validation.validateForm(document.getElementById('virtual-form'))) {                    
                     var companyPayload = {
                         "company_name" : contactCompanyNameEl.value
                     };
@@ -294,12 +290,9 @@ let Checkout = (function () {
                     };                    
 
                     if(emailStatus.status == 'existing guest'){
-                        //Update user
-                        console.log('existing guest');
                         //Add CRM Company
                         if (contactCompanyNameEl.value) {                              
-                            var companies = await Checkout.methods.insitesAPI('post', '/v2/companies', companyPayload, '/crm/api');                        
-                            console.log('companies',companies);
+                            var companies = await Checkout.methods.insitesAPI('post', '/v2/companies', companyPayload, '/crm/api');
                         }
 
                         //Update CRM Contact
@@ -307,24 +300,24 @@ let Checkout = (function () {
                             contactPayload['company.uuid'] = companies?.data.uuid;
                         }
                         var contacts = await Checkout.methods.insitesAPI('put', `/v2/contacts/${emailStatus.user_uuid}`, contactPayload, '/crm/api');
-                        console.log('contacts',contacts);
+
+                        // Submit
                         if(contacts?.data?.email){
                             guest_uuid = contacts?.data?.uuid;
-                            if(Checkout.events.saveSessionApi('contact')){
+                            if(Checkout.events.saveSessionApi('virtual-contact')){
                                 //Add delay to allow the session to be saved
                                 setTimeout(() => {
                                     window.location.href = "/checkout/shipping";
                                 }, 1000);       
                             }                         
-                        }  
-
+                        } else {
+                            App.events.notyf("error", "API response error. Please notify the website administrator.");
+                        }
                         contactSubmitBtn.loading = false;
                     } else if(emailStatus.status == 'not exist'){
-                        console.log('not exist');
                         //Add CRM Company
                         if (contactCompanyNameEl.value) {                            
-                            var companies = await Checkout.methods.insitesAPI('post', '/v2/companies', companyPayload, '/crm/api');                        
-                            console.log('companies',companies);
+                            var companies = await Checkout.methods.insitesAPI('post', '/v2/companies', companyPayload, '/crm/api');
                         }
 
                         //Add CRM Contact
@@ -332,16 +325,20 @@ let Checkout = (function () {
                             contactPayload['company.uuid'] = companies?.data.uuid;
                         }
                         var contacts = await Checkout.methods.insitesAPI('post', '/v2/contacts', contactPayload, '/crm/api');
-                        console.log('contacts',contacts);
+
+                        // Submit
                         if(contacts?.data?.email){
                             guest_uuid = contacts?.data?.uuid;
-                            if(Checkout.events.saveSessionApi('contact')){
+                            if(Checkout.events.saveSessionApi('virtual-contact')){
                                 //Add delay to allow the session to be saved
                                 setTimeout(() => {
                                     window.location.href = "/checkout/shipping";
                                 }, 1000);       
-                            }                         
-                        }                        
+                            }               
+                        } else {
+                            App.events.notyf("error", "API response error. Please notify the website administrator.");
+                        }    
+                        contactSubmitBtn.loading = false;           
                     }               
                 } else {
                     App.events.notyf("error", "Please check missing fields.");
@@ -352,17 +349,14 @@ let Checkout = (function () {
             async shippingSubmit(event){
                 event.preventDefault();
                 shippingSubmitBtn.loading = true;
+                let form = event.srcElement;
 
                 if(shippingSamewithAccountFlag){
                     Checkout.methods.updateShippingContact(true);
                 }
-
                 Checkout.methods.extractPhoneNumbers(shippingPhone);
-
-                let form = event.srcElement;         
-                let isValid = await App.validation.validateForm(form);                                
-
-                if (isValid) {
+                                                      
+                if (await App.validation.validateForm(form)) {
                     if(Checkout.events.saveSessionApi('shipping')){
                         //Add delay to allow the session to be saved
                         setTimeout(() => {
@@ -378,17 +372,14 @@ let Checkout = (function () {
             async billingSubmit(event){
                 event.preventDefault();
                 billingSubmitBtn.loading = true;  
+                let form = event.srcElement;
 
                 if(billingSamewithShippingFlag){
                     Checkout.methods.updateBillingContact(true);
-                }
-                
-                Checkout.methods.extractPhoneNumbers(billingPhone);
+                }                
+                Checkout.methods.extractPhoneNumbers(billingPhone);                                     
 
-                let form = event.srcElement;     
-                let isValid = await App.validation.validateForm(form); 
-
-                if (isValid) {
+                if (await App.validation.validateForm(form)) {
                     if(Checkout.events.saveSessionApi('billing')){
                         //Add delay to allow the session to be saved
                         setTimeout(() => {
@@ -407,22 +398,22 @@ let Checkout = (function () {
 
                 // Prepare payload based on whether it's shipping or billing
                 let payload = {};
-                if (page == 'contact') {
+                if (page == 'contact' || page == 'virtual-contact') {
                     payload = {
-                        type: 'contact',  
-                        guest_uuid: guest_uuid,                      
+                        type: 'contact',
                         contact_company_name: contactCompanyNameEl.value,
                         contact_first_name: contactFirstNameEl.value,
                         contact_last_name: contactLastNameEl.value,
                         contact_email: contactEmailEl.value,
                         contact_phone_number: contactPhone.phone.value,
                         contact_phone_country_code: contactPhone.countryCode.value,
-                        latest_step: 2
+                        latest_step: 2,
+                        ...(page === 'virtual-contact' && { guest_uuid: guest_uuid })
                     };
                 } else if (page == 'shipping') {
-                    address = 'shipping';
                     payload = {
                         type: 'shipping',
+                        //shipping_address_id: shippingAddressID.value,
                         shipping_same_with_account: shippingSamewithAccountFlag,
                         shipping_instructions: document.getElementById('shipping_instructions').value,
                         shipping_company_name: shippingCompanyNameEl.value,
@@ -435,9 +426,9 @@ let Checkout = (function () {
                         guest_user: guestUserFlag
                     };
                 } else if (page == 'billing') {
-                    address = 'billing';
                     payload = {
                         type: 'billing',
+                        //billing_address_id: billingAddressID.value,
                         billing_same_with_shipping: billingSamewithShippingFlag,
                         billing_company_name: billingCompanyNameEl.value,
                         billing_contact_first_name: billingFirstNameEl.value,
@@ -450,19 +441,34 @@ let Checkout = (function () {
                     };
                 }
 
-                if(page == 'shipping' || page == 'billing'){
-                    const addressPayload = {
-                        [`${address}_address_1`]: document.getElementById(`${address}_address_1`).value,
-                        [`${address}_address_2`]: document.getElementById(`${address}_address_2`).value,
-                        [`${address}_suburb`]: document.getElementById(`${address}_suburb`).value,
-                        [`${address}_state`]: document.getElementById(`${address}_state`).value,
-                        [`${address}_postcode`]: document.getElementById(`${address}_postcode`).value,
-                        [`${address}_country`]: document.getElementById(`${address}_country`).value,
-                    };
-                
-                    // Merge AddressPayload into the main payload
+                if (page === 'shipping' || page === 'billing') {
+                    let addressPayload = {};
+                  
+                    const isMemberCheckout = document.getElementById(`${page}_address_id`);
+                  
+                    if (isMemberCheckout) {
+                      // Member checkout: use selected address object
+                      addressPayload = {
+                        [`${page}_address_1`]: selectedAddress.address_1,
+                        [`${page}_address_2`]: selectedAddress.address_2,
+                        [`${page}_suburb`]: selectedAddress.suburb,
+                        [`${page}_state`]: selectedAddress.state,
+                        [`${page}_postcode`]: selectedAddress.postcode,
+                        [`${page}_country`]: selectedAddress.country
+                      };
+                    } else {
+                      // Guest checkout: get values from form inputs
+                      addressPayload[`${page}_address_1`] = document.getElementById(`${page}_address_1`).value;
+                      addressPayload[`${page}_address_2`] = document.getElementById(`${page}_address_2`).value;
+                      addressPayload[`${page}_suburb`] = document.getElementById(`${page}_suburb`).value;
+                      addressPayload[`${page}_state`] = document.getElementById(`${page}_state`).value;
+                      addressPayload[`${page}_postcode`] = document.getElementById(`${page}_postcode`).value;
+                      addressPayload[`${page}_country`] = document.getElementById(`${page}_country`).value;
+                    }
+                  
+                    // Merge into main payload
                     payload = { ...payload, ...addressPayload };
-                }
+                }                  
                 
                 
                 // Send request to save session data
@@ -486,31 +492,40 @@ let Checkout = (function () {
                 // set selected state
                 addressCard.setAttribute('selected', true);
                 addressCard.selected = true;
-                selectedCardId = addressCard.value;
-                console.info('selected card', selectedCardId);
+                selectedAddressId = addressCard.value;
+                console.info('selected card', selectedAddressId);
+
+                selectedAddress = {
+                    "address_1": addressCard.getAttribute('data-address_1'),
+                    "address_2": addressCard.getAttribute('data-address_2'),
+                    "suburb": addressCard.getAttribute('data-suburb'),
+                    "state": addressCard.getAttribute('data-state'),
+                    "postcode": addressCard.getAttribute('data-postcode'),
+                    "country": addressCard.getAttribute('data-country')   
+                };
 
                 if(shippingAddressID){
-                    shippingAddressID.setValue(selectedCardId);
+                    shippingAddressID.setValue(selectedAddressId);
                 }
 
                 if(billingAddressID){
-                    billingAddressID.setValue(selectedCardId);
+                    billingAddressID.setValue(selectedAddressId);
                 }                
             },
-            fillAddressField(addressCard) {
-                let name = addressCard.getAttribute('name');
-                let type = name.split('-')[0];
+            // fillAddressField(addressCard) {
+            //     let name = addressCard.getAttribute('name');
+            //     let type = name.split('-')[0];
                 
-                document.getElementById('address-uuid').value = addressCard.dataset.uuid;
-                document.getElementById(`${type}-address-search`).value = addressCard.dataset.address;
-                document.getElementById(`${type}_address_id`).value = addressCard.value || "";
-                document.getElementById(`${type}_address_1`).value = addressCard.dataset.address_1 || "";
-                document.getElementById(`${type}_address_2`).value = addressCard.dataset.address_2 || "";
-                document.getElementById(`${type}_suburb`).value = addressCard.dataset.suburb || "";
-                document.getElementById(`${type}_state`).value = addressCard.dataset.state || "";
-                document.getElementById(`${type}_postcode`).value = addressCard.dataset.postcode || "";
-                document.getElementById(`${type}_country`).value = addressCard.dataset.country || "";
-            },        
+            //     document.getElementById('address-uuid').value = addressCard.dataset.uuid;
+            //     document.getElementById(`${type}-address-search`).value = addressCard.dataset.address;
+            //     document.getElementById(`${type}_address_id`).value = addressCard.value || "";
+            //     document.getElementById(`${type}_address_1`).value = addressCard.dataset.address_1 || "";
+            //     document.getElementById(`${type}_address_2`).value = addressCard.dataset.address_2 || "";
+            //     document.getElementById(`${type}_suburb`).value = addressCard.dataset.suburb || "";
+            //     document.getElementById(`${type}_state`).value = addressCard.dataset.state || "";
+            //     document.getElementById(`${type}_postcode`).value = addressCard.dataset.postcode || "";
+            //     document.getElementById(`${type}_country`).value = addressCard.dataset.country || "";
+            // },        
             async addressSubmit() {
                 let isValid = await App.validation.validateForm(addressFormModal);
                 console.log('isValid',isValid);
@@ -569,30 +584,30 @@ let Checkout = (function () {
                     address.setAttribute('selected', false);
                     address.selected = false;
                 });
-                selectedCardId = null;
+                selectedAddressId = null;
             },
-            clearAddressField(btnAddress){
-                let name = btnAddress.getAttribute('name');
-                let type = name.split('-')[0];
+            // clearAddressField(btnAddress){
+            //     let name = btnAddress.getAttribute('name');
+            //     let type = name.split('-')[0];
 
-                document.getElementById(`${type}-address-search`).value = "";
-                document.getElementById(`${type}_address_id`).value = "";
-                document.getElementById(`${type}_address_1`).value = "";
-                document.getElementById(`${type}_address_2`).value = "";
-                document.getElementById(`${type}_suburb`).value = "";
-                document.getElementById(`${type}_state`).value = "";
-                document.getElementById(`${type}_postcode`).value = "";
-                document.getElementById(`${type}_country`).value = "";
-            },
-            setAddressCardError(){
-                // let addressCards = Array.from(document.querySelectorAll('ins-checkbox-card'));
-                let addressCardsWrap = Array.from(document.querySelectorAll('.ins-checkbox-card-wrap'));
+            //     document.getElementById(`${type}-address-search`).value = "";
+            //     document.getElementById(`${type}_address_id`).value = "";
+            //     document.getElementById(`${type}_address_1`).value = "";
+            //     document.getElementById(`${type}_address_2`).value = "";
+            //     document.getElementById(`${type}_suburb`).value = "";
+            //     document.getElementById(`${type}_state`).value = "";
+            //     document.getElementById(`${type}_postcode`).value = "";
+            //     document.getElementById(`${type}_country`).value = "";
+            // },
+            // setAddressCardError(){
+            //     // let addressCards = Array.from(document.querySelectorAll('ins-checkbox-card'));
+            //     let addressCardsWrap = Array.from(document.querySelectorAll('.ins-checkbox-card-wrap'));
 
-                addressCardsWrap.forEach(address => {
-                    address.style.borderColor = '';
-                    address.style.borderColor = 'red';
-                });
-            },
+            //     addressCardsWrap.forEach(address => {
+            //         address.style.borderColor = '';
+            //         address.style.borderColor = 'red';
+            //     });
+            // },
             // Function to remove 'is-invalid' class from all form elements
             removeInvalidClassFromForm() {
                 const invalidElements = document.querySelectorAll('.is-invalid');
@@ -627,7 +642,10 @@ let Checkout = (function () {
                 this.initAddressCardListener();
                 this.initCardsEventListener();
                 this.initCheckNavigation();
-                this.initAddressListener();                
+                this.initAddressListener();    
+                if(addCardBtn) {
+                    addCardBtn.addEventListener('insClick',() => cardModal.open());
+                }            
             },
             initAddressListener() {
                 if(addAddressBtn && addressCancelBtn && addressSubmitBtn) {

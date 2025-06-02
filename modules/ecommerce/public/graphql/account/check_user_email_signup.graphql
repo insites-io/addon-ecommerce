@@ -13,7 +13,7 @@ query check_user_email_signup($email:String){
       external_id
       email
       deleted_at
-      profiles{
+      profiles(profile_type: "modules/insites_core/crm_contact"){
         id
         profile_type
         properties

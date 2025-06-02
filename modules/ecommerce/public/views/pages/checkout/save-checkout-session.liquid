@@ -111,11 +111,11 @@ metadata:
 {% endparse_json %}
 
 
-{%  liquid
-    if context.params.guest_uuid 
-        assign guest_user = guest_user | add_hash_key: 'uuid', context.params.guest_uuid 
-        session guest_user = guest_user
-    endif    
+{%  liquid    
+    ## guest_uuid
+    if context.params.guest_uuid
+        session guest_uuid = context.params.guest_uuid
+    endif 
 %}
 
 {% if guest_user and guest_user == true %}

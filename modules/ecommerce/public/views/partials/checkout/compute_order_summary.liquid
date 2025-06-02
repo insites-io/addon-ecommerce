@@ -98,9 +98,7 @@ metadata: {
         {% comment %} 
             when is_tax_included = true, the tax is already included in the price of the product
         {% endcomment %}
-        {%  liquid                
-            log "---------------------------------------------------------------------------"
-            log cart.product_name, type: "Product Name"
+        {%  liquid                            
             if cart.selected_prop.is_fixed_tax_amount == true
                 assign tax = cart.selected_prop.tax_amount | times: item.quantity
             else 
@@ -140,7 +138,6 @@ metadata: {
             freight_amount: freight_amount,
             sub_freight_amount : sub_freight_amount
         %}        
-        {%- log sub_total_discount, type: "Sub Total Discount" -%}
         {% assign used_discounts = context.exports.used_discounts %}
                     
     {% endfor %}

@@ -35,7 +35,9 @@ metadata: {
             {% comment %} Get user's and company's addresses {% endcomment %}
             {% assign related_uuid = '' |  split: ',' %}
             {% assign related_uuid = related_uuid | array_add: context.current_user.external_id %}
-            {% assign related_uuid = related_uuid | array_add: company_uuid %}
+            {% if company_uuid %}
+                {% assign related_uuid = related_uuid | array_add: company_uuid %}
+            {% endif %}
             {%- graphql addresses = 'modules/ecommerce/address/get_address', 
                 related_uuid: related_uuid | dig: 'items','results' -%}
             
