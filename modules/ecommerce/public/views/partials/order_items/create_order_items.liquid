@@ -83,8 +83,11 @@ metadata: {
 
 %}
 
+{%- log order_items_payload, type: "Create Order Items - payload" -%}
 {% graphql create_order_item = 'modules/ecommerce/system/trigger_api_call', 
     name: "modules/ecommerce/add_order_items", 
     data: order_items_payload %}
+
+{%- log create_order_item, type: "Create Order Items API" -%}
 
 {% export cart %}
