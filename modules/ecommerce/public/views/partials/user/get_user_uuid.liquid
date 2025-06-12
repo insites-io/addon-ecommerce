@@ -8,13 +8,11 @@
 
           ## Logged in user
           assign user_uuid = context.current_user.external_id
-          echo '============1'     
 
      elsif context.session.guest_temp_uuid and context.session.guest_temp_uuid != ''
 
           ## Guest user: Use temporary UUID
           assign user_uuid = context.session.guest_temp_uuid
-          echo '============3'
 
      else
 
@@ -23,7 +21,6 @@
           assign guest_temp_uuid = 'guest-' | append: temp_uuid
           session guest_temp_uuid = guest_temp_uuid 
           assign user_uuid = guest_temp_uuid
-          echo '============4'
 
      endif
      
