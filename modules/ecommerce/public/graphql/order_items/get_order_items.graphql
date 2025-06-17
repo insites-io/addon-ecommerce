@@ -33,6 +33,7 @@ query get_order_items (
       id             
       created_at
       product_uuid: property(name: "product_uuid")
+      product_variant_uuid: property(name: "product_variant_uuid")
       sku: property(name: "sku")
       quantity: property_int(name: "quantity")
       item_price: property_float(name: "item_price")

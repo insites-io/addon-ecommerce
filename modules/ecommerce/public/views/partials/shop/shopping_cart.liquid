@@ -68,9 +68,11 @@ metadata: {
                         <p class="cart-price compute-price">{{ cart.item_total_price | pricify }}</p>
                         <div class="spacer small"></div>
                         <ins-input-stepper
+                            name="cart-stepper"
                             class="cart-stepper" 
                             data-id="{{ item.id }}"
                             data-product_uuid="{{ item.product_uuid }}"
+                            data-product_sku="{{ item.product_sku }}"
                             data-variant_uuid="{{ item.variant_uuid }}"
                             data-product_name="{{ item.product_name }}"
                             value="{{ item.quantity }}" 

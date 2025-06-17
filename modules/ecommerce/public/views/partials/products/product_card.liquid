@@ -81,10 +81,10 @@ metadata: {
                     {
                         "id": "{{ selected_prop.id }}",
                         "product_uuid": "{{ product.uuid }}",
+                        "product_sku": "{{ selected_prop.sku }}",
                         "variant_uuid": "{{ variant_uuid }}",
                         "product_name": "{{ product.product_name | replace: "'", "`"}}",
-                        "price": "{{ price | default: 0 }}",
-                        "product_sku": "{{ selected_prop.sku }}"
+                        "price": "{{ price | default: 0 | advanced_format: '%.2f' }}"
                     }
                     {% endparse_json %}
 

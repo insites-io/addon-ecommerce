@@ -226,7 +226,7 @@ async function addToCart(data, type){
     
 }      
 
-/* Redirects the user to the shopping cart page if the type is not "Add to Cart" or "stepper",
+/* Redirect the user to the shopping cart page if the type is neither 'Add to Cart' nor 'stepper',
     and handles additional logic when the type is "Buy Now". */
 function handleShoppingCartRedirect(type, data) {
     if (type != "Add to Cart" && type != "stepper") {
@@ -332,6 +332,7 @@ function cartItemHtml(data, cart_item){
                     <p class="cart-price compute-price">$${ item_total_price }</p>
                     <div class="spacer x-small"></div>
                     <ins-input-stepper
+                        name="cart-stepper"
                         class="cart-stepper" 
                         data-id="${ data.id }"
                         data-product_uuid="${ data.product_uuid }"

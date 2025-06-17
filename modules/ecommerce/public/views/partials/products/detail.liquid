@@ -206,6 +206,7 @@ metadata: {
             <div>                                                    
                 <p class="form-label">Quantity</p>
                 <ins-input-stepper
+                    name="cart-quantity"
                     id="cart-quantity" 
                     value="1" 
                     step="1" min="1" 
@@ -267,7 +268,7 @@ metadata: {
 <script>
     let variants = {{ variants }};
     let variant_data = {
-       "id": {{ variant_id }},
+       "id": {{ variant_id | default: 0 }},
         "product_uuid": "{{ product.uuid }}",
         "variant_uuid": "{{ variant_uuid }}",
         "product_name": "{{ product.product_name | replace: "'", "`" }}",

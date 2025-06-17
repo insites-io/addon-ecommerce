@@ -107,6 +107,7 @@ metadata: {
                     <p class="cart-price compute-price">{{ item_total | plus: 0 | pricify: 'USD', no_cents_if_whole: false }}</p>
                     <div class="spacer x-small"></div>
                     <ins-input-stepper
+                        name="cart-stepper"
                         class="cart-stepper" 
                         data-id="{{ item.id }}"
                         data-product_uuid="{{ item.product_uuid }}"
@@ -142,14 +143,14 @@ metadata: {
     </div>
     
     {% comment %} user_cart = blank if the user has a guest account {% endcomment %}
-    <div id="empty-cart-wrap" class="empty-cart-wrap {% if user_cart.items.size > 0 %}hide{% endif %}">
+    <div id="empty-cart-wrap" class="empty-cart-wrap {% if user_cart.cart_items.size > 0 %}hide{% endif %}">
         <h3 class="text-center">Your cart is empty!</h3>
         <div class="spacer x-small"></div>
         <p class="text-center">Don't miss out on the best deals!</p>
     </div>
     
     {% comment %} user_cart = blank if the user has a guest account {% endcomment %}
-    <div id="bottom-wrap" class="bottom-wrap {% if user_cart.items.size <= 0 or user_cart == blank %}hide{% endif %}">
+    <div id="bottom-wrap" class="bottom-wrap {% if user_cart.cart_items.size <= 0 or user_cart == blank %}hide{% endif %}">
         <div class="wrap">
             <div class="spacer"></div>
             <div class="grid-x align-justify" >
