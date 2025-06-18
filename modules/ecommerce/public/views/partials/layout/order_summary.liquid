@@ -166,16 +166,23 @@ metadata: {
                     {%- parse_json validate_code -%}{ "is_valid": true }{%- endparse_json -%}
                 {%- else -%}
 
-                    {% comment %} Run function to validate & auto delete invalid codes {% endcomment %}
-                    {%- parse_json payload -%}
-                    {
-                        "check_duplicates": false,
-                        "contact_uuid": "{{ user_uuid }}",
-                        "discount_code": "{{ item.discount_code }}"
-                    }
-                    {%- endparse_json -%}
-                    {%- function validate_code = "modules/ecommerce/checkout/validate_discount_code", payload: payload -%}
-                    {% comment %} End Function {% endcomment %}
+                    {% comment %} Revalidate the applied discount code on the checkout/payment page. {% endcomment %}
+                    {% if context.params.slug2 == 'payment' %}
+                        {% comment %} Run function to validate & auto delete invalid codes {% endcomment %}
+                        {%- parse_json payload -%}
+                        {
+                            "check_duplicates": false,
+                            "delete_invalid": true,
+                            "contact_uuid": "{{ user_uuid }}",
+                            "discount_code": "{{ item.discount_code }}"
+                        }
+                        {%- endparse_json -%}
+                        {%- function validate_code = "modules/ecommerce/checkout/validate_discount_code", payload: payload -%}
+                        {% comment %} End Function {% endcomment %}
+                    {% else %}
+                        {%- parse_json validate_code -%}{ "is_valid": true }{%- endparse_json -%}
+                    {% endif %}
+
                 {%- endif -%}
 
                 {%- if validate_code.is_valid == true or validate_code.is_valid == 'true' -%}
@@ -202,7 +209,7 @@ metadata: {
                         -%}
                     {%- endunless -%}
                     
-                    <div class="list-discount-codes--item" data-id="{{ item.id }}" data-uuid="{{ item.uuid }}">
+                    <div class="list-discount-codes--item" data-id="{{ item.id }}" data-uuid="{{ item.uuid }}" data-contact-uuid="{{ user_uuid }}">
                         <div class="body-small">
                             <p class="font-head bold">{{ code.discount_name }}</p>
                             <p>{{ code.discount_code }} - {{ value }}</p>

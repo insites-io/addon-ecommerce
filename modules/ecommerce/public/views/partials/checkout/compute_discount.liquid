@@ -4,10 +4,12 @@ metadata: {
 }
 ---
 
-{% for discount in discounts %}
-                
-    {% assign in_product_ids =  discount.product_uuids | array_any: item.product_uuid %}
-    {% if discount.is_applicable_to_all_products or in_product_ids %}
+{% comment %} 
+ - This only computes all discount codes added in modules/insites_ecommerce/cart.
+ - No further validation is performed here to check whether the discount_code_uuids are still valid.
+{% endcomment %}
+
+{% for discount in discounts %}    
 
          {% if item_total_price >= discount.minimum_cart_value or discount.minimum_cart_value == blank %}
 
@@ -54,7 +56,6 @@ metadata: {
 
             {% endif %}             
          {% endif %}
-     {% endif %}        
  {% endfor %}
 
  {% return sub_total_discount %}

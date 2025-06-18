@@ -9,8 +9,6 @@ payload: {
     check_duplicates: Boolean
     contact_uuid: ID! / String!
     discount_code: String!
-    local_cart: [String!]
-    local_discount_uuids: [String!]
     type: String!
 }
 {% endcomment %}
@@ -23,14 +21,11 @@ payload: {
 
 {%- assign contact_uuid = payload.contact_uuid | default: blank -%}
 {%- assign discount_code =  payload.discount_code | default: blank -%}
-{%- assign local_cart =  payload.local_cart | default: blank -%}
 {%- assign type =  payload.type | default: blank -%}
-{%- assign local_discount_uuids =  payload.local_discount_uuids | parse_json | default: blank -%}
-
-{% if local_discount_uuids == blank %}
-    {% assign local_discount_uuids = '' | split: ',' %}
-{% endif %}
-
+{%- assign check_duplicates = payload.check_duplicates | default: false -%}
+{%- assign delete_invalid = payload.delete_invalid | default: false -%}
+{%- assign is_valid = true -%}
+{%- assign is_duplicate = false -%}
 
 
 {% comment %} Step 1: Check if code exist {% endcomment %}
@@ -43,21 +38,14 @@ payload: {
 {% if discount.uuid %}
 
     {% comment %} Step 2-A: If valid, check if code is already been used to avoid duplicate{% endcomment %}
-    {%- if payload.check_duplicates -%}
-        {% assign is_duplicate = false %}
+    {%- if check_duplicates -%}
         {%- if contact_uuid != '' and contact_uuid != blank -%}
-            {% comment %} Logged in user {% endcomment %}
             {% graphql current_codes = 'modules/ecommerce/carts/get_cart_discount',
                     contact_uuid: contact_uuid, discount_code_uuids: discount.uuid
                     | dig: 'items','results' %}      
             {%- if current_codes.size > 0 -%} 
                 {% assign is_duplicate = true %}
             {%- endif -%}
-        {%- else -%}
-            {% comment %} Guest user {% endcomment %}
-            {% if local_discount_uuids contains discount.uuid %}
-                {% assign is_duplicate = true %}
-            {% endif %}
         {%- endif -%}
     {%- endif -%}
 
@@ -94,7 +82,7 @@ payload: {
         {% comment %}Step 4: If discount code is still valid, continue other validation checks {% endcomment %}
         {%- if is_valid == blank or is_valid == "" or is_valid == true  -%}
 
-            {% comment %} Step 4-1: If valid, check if cart applies to any items within the cart item{% endcomment %}                        
+            {% comment %} Step 4-1: If valid, check if cart applies to any items within the cart item{% endcomment %}                
 
             {% if discount.applicable_to == 'products' and discount.is_applicable_to_all_products == true %}
                 {%- assign is_valid = true -%}
@@ -104,32 +92,19 @@ payload: {
 
                 {% comment %} Get user cart {% endcomment %}
                 {%- if contact_uuid != '' and contact_uuid != blank -%}
-                    {% comment %} Logged in user {% endcomment %}
-                    {% graphql user_cart_test = 'modules/ecommerce/carts/get_cart', 
-                        contact_uuid: contact_uuid | dig: 'items','results' | first | dig: 'items' %}
-                {% else %}
-                    {% comment %} cart local storage {% endcomment %}
-                     {% assign user_cart_test = local_cart %}
+                    {% graphql carts = 'modules/ecommerce/carts/get_cart', 
+                        contact_uuid: contact_uuid | dig: 'items','results' | first %}
                 {% endif %}
 
                 {% comment %} Get cart product_uuids {% endcomment %}
-                {% if user_cart_test.size > 0 %}                        
-                    {%  liquid
-                        ## Convert an array of strings into an array of objects
-                        assign item_obj = '' | split: ',' 
-                        for item in user_cart_test
-                            assign item_json = item | parse_json
-                            assign item_obj = item_obj | array_add: item_json
-                        endfor
-
-                        assign cart_product_uuids = item_obj | array_map: 'product_uuid' | array_flatten 
-                    %}
-                {% endif %}                                       
+                {% if carts.cart_items.size > 0 %}                        
+                    {% assign cart_product_uuids = carts.cart_items | array_map: 'product_uuid' | array_flatten %}
+                {% endif %}                                
 
                 {% comment %} Get cart category_uuids {% endcomment %}
                 {% if cart_product_uuids and discount.applicable_to == 'categories' %}
                     {%  liquid                                            
-                        graphql products = 'modules/ecommerce/products/get_cart_products', uuid: cart_product_uuids, size: user_cart.size | dig: 'items','results'
+                        graphql products = 'modules/ecommerce/products/get_cart_products', uuid: cart_product_uuids, size: cart_product_uuids.size | dig: 'items','results'
                         assign cart_category_uuids = products | map: "category_uuids" | flatten | array_uniq
                     %}
                 {% endif %}
@@ -144,6 +119,8 @@ payload: {
 
                 {%- if product_matched and product_matched.size > 0 -%}
                     {%- assign is_valid = true -%}
+                {% else %}
+                    {%- assign is_valid = false -%}
                 {% endif %}
 
             {% endif %}
@@ -157,13 +134,7 @@ payload: {
                     {% include 'modules/ecommerce/discounts/update_discount', 
                         user_uuid: contact_uuid,
                         type: 'add', 
-                        discount_uuid: discount.uuid %}
-                {% else %}
-                    {% comment %} Guest user: Save in session. {% endcomment %}                                        
-                    {% if type == 'add_discount_code' %}
-                        {% assign local_discount_uuids = local_discount_uuids | array_add: discount.uuid | array_uniq %}
-                        {% session discount_uuids = local_discount_uuids %}
-                    {% endif %}                                        
+                        discount_uuid: discount.uuid %}                                     
                 {% endif %}
 
             {%- else -%}
@@ -192,11 +163,23 @@ payload: {
 {%- endif -%}
 
 
+{% comment %} 
+    Steps taken in the Order Summary to list and compute discounts.
+     - Auto delete invalid discount_code_uuid from modules/insites_ecommerce/cart's discount_code_uuids
+{% endcomment %}
+{%- if delete_invalid == true and is_valid != true -%}
+    {%- include 'modules/ecommerce/discounts/update_discount', 
+            user_uuid: contact_uuid,
+            type: 'remove',
+            discount_uuid: discount.uuid -%}
+    {% log "Error: Discount code invalid, discount entry has been deleted " %}
+{%- endif -%}
+
+
 {%- parse_json validate_code -%}
 {
   "is_valid": "{{ is_valid }}",
-  "message": "{{ message }}",
-  "local_discount_uuids": {{ local_discount_uuids | default: '[]' }}
+  "message": "{{ message }}"
 }
 {%- endparse_json -%}
 

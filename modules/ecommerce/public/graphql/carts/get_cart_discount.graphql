@@ -20,7 +20,6 @@ query get_cart_discount (
     results {
       id 
       contact_uuid: property(name: "contact_uuid")
-      items: property_array(name: "items")  
       discount_code_uuids: property_array(name: "discount_code_uuids")  
     }
   }

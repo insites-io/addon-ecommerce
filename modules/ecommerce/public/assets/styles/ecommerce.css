@@ -1398,6 +1398,9 @@ ins-tag.tagged.Failed span,
     border-left: 1px solid var(--color-ui-04);
     height: 100%;
 }
+.notyf__toast--error {
+    background: #FEEDED !important;
+}
 
 /* Override Insites Components */
 ins-button button.blue.solid, 
