@@ -106,9 +106,8 @@ let Checkout = (function () {
                 // Attached to the eventlistener
                 let varEmail = field.value;
                 if(App.validation.validateEmail(field)){
-                    let url = '/check_user_email_signup.json?'+ 'email='+ varEmail ;
+                    let url = '/check-user-email-signup.json?'+ 'email='+ varEmail ;
                     let response = await apiServices.processRequest('get', url);
-                    console.log('check_user_email_signup', response);
                     if(response.state && response.data) {
                         //Check / Handle if user exist
                         return Checkout.methods.checkUserEmail(field, response.data);
