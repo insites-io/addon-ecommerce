@@ -19,17 +19,7 @@ authorization_policies:
         uuid: order_uuid, is_shipping_info_needed: true | dig: 'items' | dig: 'results' | first %}
 {% endif %}
 
-{% liquid
-
-
-    # Fetch current user data
-    function has_profile = "modules/website/layout/check_if_user_has_profile"
-
-    include 'modules/ecommerce/checkout/clear_session'
-    include 'modules/ecommerce/checkout/clear_local_storage'
-
-
-%}
+{% include 'modules/ecommerce/checkout/clear_session' %}
 
 
 {%- if order -%}
