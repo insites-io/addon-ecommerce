@@ -153,7 +153,7 @@ function cartStepperEventListener(step){
 let removeCartBtn = document.querySelectorAll(".cart-remove-btn");
 removeCartBtn.forEach(btn => {
     removeCartEventListener(btn);
-});
+});             
 
     
 function removeCartEventListener(btn){        
@@ -161,7 +161,9 @@ function removeCartEventListener(btn){
         let confirm = await App.events.swal("warning", 
                 "Remove Item?", 
                 "Are you sure you want to remove this item from your cart?", 
-                "Remove");
+                "Remove",
+                undefined,
+                "icon-trash");
 
         if (confirm) {
             if(removeToCart(JSON.parse(event.detail.data))){
