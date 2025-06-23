@@ -106,6 +106,16 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
         <script src="{{ 'modules/portal/services/stripeServices.min.js' | asset_url }}"></script>
         <script src="{{ 'modules/ecommerce/scripts/shopping-cart.min.js' | asset_url }}"></script>
     {%- endif -%}
+
+    {% comment %} Override StripeServices.js -> StripeServices.deleteCreditCard {% endcomment %}
+    <script>
+        if (StripeServices && typeof StripeServices.deleteCreditCard === 'function') {
+            StripeServices.deleteCreditCard = async function (payload) {
+                let url = `/ecommerce/stripe/delete-credit-card.json`;
+                return await apiServices.processRequest('post', url, payload);
+            };
+        }
+    </script>
     
 </body>
 
