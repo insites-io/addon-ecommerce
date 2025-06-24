@@ -141,18 +141,10 @@ let Checkout = (function () {
                     };
                 }
             },
-            async insitesAPI(method='post', url, payload, api='/core/api'){
-                let response = await apiServices.processRequest(method,url,payload,undefined,api);
-                if(response.state) {
-                    return response;
-                } else {
-                    App.events.notyf("error", "Something went wrong. Please try again.");
-                }
-            },
             createAddressCard(data) {
                 let cardHtml = `
                 <div class="large-6 medium-6 small-12 cell">
-                    <ins-checkbox-card data-equalizer-watch="" name="shipping-address-cards" selected-color="blue" value="${data.id}" data-address="${data.properties.address_1}" data-address_1="${data.properties.address_1}" data-address_2="${data.properties.address_2}" data-suburb="${data.properties.suburb}" data-state="${data.properties.state}" data-postcode="${data.properties.postcode}" data-country="${data.properties.country}">                    
+                    <ins-checkbox-card data-equalizer-watch="" name="shipping-address-cards" selected-color="blue" value="${data.id}" data-address="${data.address_1}" data-address_1="${data.address_1}" data-address_2="${data.address_2}" data-suburb="${data.suburb}" data-state="${data.state}" data-postcode="${data.postcode}" data-country="${data.country}">                    
                         <div>
                             <p class="form-label">${shipping_address_1.value}, ${shipping_address_2.value}</p>
                             <div class="spacer small"></div>
@@ -290,15 +282,17 @@ let Checkout = (function () {
 
                     if(emailStatus.status == 'existing guest'){
                         //Add CRM Company
-                        if (contactCompanyNameEl.value) {                              
-                            var companies = await Checkout.methods.insitesAPI('post', '/v2/companies', companyPayload, '/crm/api');
+                        if (contactCompanyNameEl.value) {  
+                            var companies = await apiServices.processRequest('post','/create-company.json',companyPayload);
+                            console.log('companies', companies);
                         }
 
                         //Update CRM Contact
                         if(companies?.data.uuid){
                             contactPayload['company.uuid'] = companies?.data.uuid;
                         }
-                        var contacts = await Checkout.methods.insitesAPI('put', `/v2/contacts/${emailStatus.user_uuid}`, contactPayload, '/crm/api');
+                        var contacts = await apiServices.processRequest('put','/update-contact.json',contactPayload);
+                        console.log('contacts', contacts);
 
                         // Submit
                         if(contacts?.data?.email){
@@ -315,15 +309,17 @@ let Checkout = (function () {
                         contactSubmitBtn.loading = false;
                     } else if(emailStatus.status == 'not exist'){
                         //Add CRM Company
-                        if (contactCompanyNameEl.value) {                            
-                            var companies = await Checkout.methods.insitesAPI('post', '/v2/companies', companyPayload, '/crm/api');
-                        }
+                        if (contactCompanyNameEl.value) {
+                            var companies = await apiServices.processRequest('post','/create-company.json',companyPayload);
+                            console.log('companies', companies);
+                        }                        
 
                         //Add CRM Contact
                         if(companies?.data.uuid){
                             contactPayload['company.uuid'] = companies?.data.uuid;
                         }
-                        var contacts = await Checkout.methods.insitesAPI('post', '/v2/contacts', contactPayload, '/crm/api');
+                        var contacts = await apiServices.processRequest('post','/create-contact.json',contactPayload);
+                        console.log('contacts', contacts);
 
                         // Submit
                         if(contacts?.data?.email){
@@ -527,9 +523,8 @@ let Checkout = (function () {
             // },        
             async addressSubmit() {
                 let isValid = await App.validation.validateForm(addressFormModal);
-                console.log('isValid',isValid);
                 if(isValid){
-                    let url = '/v1/contacts/addresses' ;
+                    let url = '/create-contact-address.json' ;
                     let payload = {
                             "contact_uuid": contactUuid, //REQUIRED
                             "address_label": shipping_address_1.value, //REQUIRED
@@ -547,15 +542,16 @@ let Checkout = (function () {
                             "latitude": shipping_latitude.value,
                             "longitude": shipping_longitude.value
                         }
-                    let response = await apiServices.processRequest('post',url,payload,undefined,'/core/api');
-                    if(response.state && response.data.items.id) {            
+                    let response = await apiServices.processRequest('post',url,payload);
+                    console.log('create-contact-address',response);
+                    if(response.state && response.data.id) {            
                         addressFormModal.close();
                         App.events.notyf("success", "Address added successfully.");                        
-                        addressCards.insertAdjacentHTML('afterbegin', Checkout.methods.createAddressCard(response.data.items));
+                        addressCards.insertAdjacentHTML('afterbegin', Checkout.methods.createAddressCard(response.data));
 
                         //Select the newly added card                        
                         Checkout.events.selectAddressCard(
-                            document.querySelector(`ins-checkbox-card[value="${response.data.items.id}"]`)
+                            document.querySelector(`ins-checkbox-card[value="${response.data.id}"]`)
                         );                          
 
                         // Reset value to blank

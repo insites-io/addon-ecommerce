@@ -1,0 +1,31 @@
+---
+slug: api/create-company
+format: json
+method: post
+searchable: false
+---
+
+{%- assign payload = context.params | parse_json -%}
+{%- assign status = 400 -%}
+
+{%- parse_json properties -%}
+{
+     "properties": {{ payload | default: '[]' }}
+}
+{%- endparse_json -%}
+
+{% comment %} Use Insites V2 API {% endcomment %}
+{%- graphql add_company = 'modules/website/trigger_api_call', 
+     name: 'modules/portal/add_company', 
+     data: properties 
+     | dig: 'items','response','body' | parse_json -%}            
+
+{% comment %} Set Status {% endcomment %}
+{%- liquid
+     if add_company.id 
+          assign status = 200
+     endif
+-%}
+
+{{ add_company  }}
+{%- response_status status -%}
