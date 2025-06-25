@@ -106,7 +106,7 @@ let Checkout = (function () {
                 // Attached to the eventlistener
                 let varEmail = field.value;
                 if(App.validation.validateEmail(field)){
-                    let url = '/check-user-email-signup.json?'+ 'email='+ varEmail ;
+                    let url = '/validate-email.json?'+ 'email='+ varEmail ;
                     let response = await apiServices.processRequest('get', url);
                     if(response.state && response.data) {
                         //Check / Handle if user exist
@@ -644,7 +644,6 @@ let Checkout = (function () {
             },
             initAddressListener() {
                 if(addAddressBtn && addressCancelBtn && addressSubmitBtn) {
-                    console.log('initAddressListener');
                     addAddressBtn.addEventListener('insClick', () => {        
                         addressFormModal.open(); 
                     });
