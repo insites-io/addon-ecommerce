@@ -77,7 +77,7 @@ async function addToCartPreProcess(event, type){
     if(cartItem == null){
       
         let cart_item = await addToCart(data, type);
-        if(cart_item.state){        
+        if(cart_item){        
 
             if (!emptyCartWrap.classList.contains('hide')) {
                 emptyCartWrap.classList.add('hide');
