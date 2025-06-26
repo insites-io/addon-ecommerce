@@ -8,14 +8,6 @@ searchable: false
 {%- assign payload = context.params | parse_json -%}
 {%- assign status = 400 -%}
 
-{% comment %}  
-{%- parse_json properties -%}
-{
-     "properties": {{ payload | default: '[]' }}
-}
-{%- endparse_json -%}
-{% endcomment %}
-
 {% comment %} Use Insites V2 API {% endcomment %}
 {%- graphql update_contact = 'modules/website/trigger_api_call', 
      name: 'modules/portal/update_contact', 
