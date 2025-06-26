@@ -16,7 +16,7 @@ metadata: {
     insBaseTable.pageSizeOptions = [9,15,30];
     insBaseTable.totalCount = {{ data.total_entries }};
     insBaseTable.pageNumber = {{ data.current_page }};
-    insBaseTable.pageSize = {{ data.per_page }};
+    insBaseTable.pageSize = {{ data.per_page |  default: 10}};
     insBaseTable.paginationText = "{{ label }}";    
     
     insBaseTable.addEventListener('insPaginationChange', tablePaginationHandler);
