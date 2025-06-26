@@ -164,7 +164,6 @@ let Checkout = (function () {
                 });
             },
             addAddressRequiredAttribute() {
-                console.info('addAddressRequiredAttribute function triggered. Add required and validate attributes.');
                 // List of input IDs to exclude
                 const excludedIds = ['shipping_address_2', 'billing_address_2'];
             
@@ -476,7 +475,6 @@ let Checkout = (function () {
                 addressCard.setAttribute('selected', true);
                 addressCard.selected = true;
                 selectedAddressId = addressCard.value;
-                console.info('selected card', selectedAddressId);
 
                 selectedAddress = {
                     "address_1": addressCard.getAttribute('data-address_1'),
@@ -494,21 +492,7 @@ let Checkout = (function () {
                 if(billingAddressID){
                     billingAddressID.setValue(selectedAddressId);
                 }                
-            },
-            // fillAddressField(addressCard) {
-            //     let name = addressCard.getAttribute('name');
-            //     let type = name.split('-')[0];
-                
-            //     document.getElementById('address-uuid').value = addressCard.dataset.uuid;
-            //     document.getElementById(`${type}-address-search`).value = addressCard.dataset.address;
-            //     document.getElementById(`${type}_address_id`).value = addressCard.value || "";
-            //     document.getElementById(`${type}_address_1`).value = addressCard.dataset.address_1 || "";
-            //     document.getElementById(`${type}_address_2`).value = addressCard.dataset.address_2 || "";
-            //     document.getElementById(`${type}_suburb`).value = addressCard.dataset.suburb || "";
-            //     document.getElementById(`${type}_state`).value = addressCard.dataset.state || "";
-            //     document.getElementById(`${type}_postcode`).value = addressCard.dataset.postcode || "";
-            //     document.getElementById(`${type}_country`).value = addressCard.dataset.country || "";
-            // },        
+            },      
             async addressSubmit() {
                 let isValid = await App.validation.validateForm(addressFormModal);
                 if(isValid){
@@ -574,7 +558,6 @@ let Checkout = (function () {
                 invalidElements.forEach((element) => {
                     element.classList.remove('is-invalid');
                 });
-                console.info('Removed "is-invalid" class from all elements.');
             },
             async paymentFormSubmit(event){
                 event.preventDefault();
