@@ -101,7 +101,7 @@ metadata: {
             {% comment %} Text heading {% endcomment %}
             <div>
                 <h1 class="heading-1">{{ product.product_name }}</h1>                
-                <p>SKU: <span id="product-sku">{% if product.is_product_variant_enabled != true %}{{ product.sku }}{% endif %}</p>
+                <p>SKU: <span id="product-sku">{% if product.is_product_variant_enabled != true %}{{ product.sku }}{% endif %}</span></p>
             </div>
             
             {% comment %} Price {% endcomment %}
