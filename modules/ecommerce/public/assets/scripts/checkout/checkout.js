@@ -36,6 +36,16 @@ const addAddressBtn = document.getElementById('add-address-btn');
 const addressSubmitBtn = document.getElementById('address-submit-btn');
 const addressCancelBtn = document.getElementById('address-cancel-btn');
 
+// Modal Address
+const modalLongitudeEl = document.getElementById('modal_longitude');
+const modalLatitudeEl = document.getElementById('modal_latitude');
+const modalAddress1El = document.getElementById('modal_address_1');
+const modalAddress2El = document.getElementById('modal_address_2');
+const modalSuburbEl = document.getElementById('modal_suburb');
+const modalStateEl = document.getElementById('modal_state');
+const modalPostcodeEl = document.getElementById('modal_postcode');
+const modalCountryEl = document.getElementById('modal_country');
+
 // Addresses
 const addressCards = document.getElementById('address-cards');
 let selectedAddressId = null;
@@ -48,42 +58,25 @@ let selectedAddress = {
     "country": ""    
 }
 
-// Shipping Contact
+// Shipping
 const shippingSameWithAccountEl = document.getElementById('shipping-same-with-account');
 const shippingContact = document.getElementById("shipping-contact-inputs");
 const shippingFirstNameEl = document.getElementById('shipping-first-name');
 const shippingLastNameEl = document.getElementById('shipping-last-name');
 const shippingEmailEl = document.getElementById('shipping-email');
 const shippingCompanyNameEl = document.getElementById('shipping-company-name');
-
-// Shipping Address
 const shippingAddressID = document.getElementById('shipping_address_id');
-const shipping_longitude = document.getElementById('shipping_longitude');
-const shipping_latitude = document.getElementById('shipping_latitude');
-const shipping_address_1 = document.getElementById('shipping_address_1');
-const shipping_address_2 = document.getElementById('shipping_address_2');
-const shipping_suburb = document.getElementById('shipping_suburb');
-const shipping_state = document.getElementById('shipping_state');
-const shipping_postcode = document.getElementById('shipping_postcode');
-const shipping_country = document.getElementById('shipping_country');
 const shippingSubmitBtn = document.getElementById("shipping-submit-button");
 
-// Billing Contact
+
+// Billing 
 const billingSameWithShippingEl = document.getElementById('billing-same-with-shipping');
 const billingContact = document.getElementById("billing-contact-inputs");
 const billingCompanyNameEl = document.getElementById('billing-company-name');
 const billingFirstNameEl = document.getElementById('billing-first-name');
 const billingLastNameEl = document.getElementById('billing-last-name');
 const billingEmailEl = document.getElementById('billing-email');
-
-// Billing Address
 const billingAddressID = document.getElementById('billing_address_id');
-const billingAddress1El = document.getElementById('billing_address_1');
-const billingAddress2El = document.getElementById('billing_address_2');
-const billingSuburbEl = document.getElementById('billing_suburb');
-const billingStateEl = document.getElementById('billing_state');
-const billingPostCodeEl = document.getElementById('billing_postcode');
-const billingCountryEl = document.getElementById('billing_country');
 const billingSubmitBtn = document.getElementById("billing-submit-button");
 
 // Payment Information
@@ -146,10 +139,10 @@ let Checkout = (function () {
                 <div class="large-6 medium-6 small-12 cell">
                     <ins-checkbox-card data-equalizer-watch="" name="shipping-address-cards" selected-color="blue" value="${data.id}" data-address="${data.address_1}" data-address_1="${data.address_1}" data-address_2="${data.address_2}" data-suburb="${data.suburb}" data-state="${data.state}" data-postcode="${data.postcode}" data-country="${data.country}">                    
                         <div>
-                            <p class="form-label">${shipping_address_1.value}, ${shipping_address_2.value}</p>
+                            <p class="form-label">${data.address_1}, ${data.address_2}</p>
                             <div class="spacer small"></div>
-                            <p>${shipping_state.value} <br>${shipping_postcode.value}</p>
-                            <p>${shipping_country.value}</p>
+                            <p>${data.state} <br>${data.postcode}</p>
+                            <p>${data.country}</p>
                         </div>
                     </ins-checkbox-card>                       
                 </div>            
@@ -526,21 +519,21 @@ let Checkout = (function () {
                 if(isValid){
                     let url = '/create-contact-address.json' ;
                     let payload = {
-                            "contact_uuid": contactUuid, //REQUIRED
-                            "address_label": shipping_address_1.value, //REQUIRED
+                            "related_uuid": contactUuid, //REQUIRED
+                            "address_label": modalAddress1El.value, //REQUIRED
                             "default_address": false,
-                            "address_1": shipping_address_1.value,
-                            "address_2": shipping_address_2.value,
-                            "suburb": shipping_suburb.value,
-                            "state": shipping_state.value,
-                            "country": shipping_country.value,
-                            "postcode": shipping_postcode.value,
+                            "address_1": modalAddress1El.value,
+                            "address_2": modalAddress2El.value,
+                            "suburb": modalSuburbEl.value,
+                            "state": modalStateEl.value,
+                            "country": modalCountryEl.value,
+                            "postcode": modalPostcodeEl.value,
                             "geojson": {
                                 "type": "Point",
-                                "coordinates": [parseFloat(shipping_latitude.value), parseFloat(shipping_longitude.value)]
+                                "coordinates": [parseFloat(modalLatitudeEl.value), parseFloat(modalLongitudeEl.value)]
                             },
-                            "latitude": shipping_latitude.value,
-                            "longitude": shipping_longitude.value
+                            "latitude": modalLatitudeEl.value,
+                            "longitude": modalLongitudeEl.value
                         }
                     let response = await apiServices.processRequest('post',url,payload);
                     console.log('create-contact-address',response);
@@ -556,14 +549,14 @@ let Checkout = (function () {
 
                         // Reset value to blank
                         [
-                            'shipping_longitude',
-                            'shipping_latitude',
-                            'shipping_address_1',
-                            'shipping_address_2',
-                            'shipping_suburb',
-                            'shipping_state',
-                            'shipping_postcode',
-                            'shipping_country'
+                            'modal_longitude',
+                            'modal_latitude',
+                            'modal_address_1',
+                            'modal_address_2',
+                            'modal_suburb',
+                            'modal_state',
+                            'modal_postcode',
+                            'modal_country'
                         ].forEach(id => {
                             const el = document.getElementById(id);
                             if (el) el.value = '';
@@ -581,28 +574,6 @@ let Checkout = (function () {
                 });
                 selectedAddressId = null;
             },
-            // clearAddressField(btnAddress){
-            //     let name = btnAddress.getAttribute('name');
-            //     let type = name.split('-')[0];
-
-            //     document.getElementById(`${type}-address-search`).value = "";
-            //     document.getElementById(`${type}_address_id`).value = "";
-            //     document.getElementById(`${type}_address_1`).value = "";
-            //     document.getElementById(`${type}_address_2`).value = "";
-            //     document.getElementById(`${type}_suburb`).value = "";
-            //     document.getElementById(`${type}_state`).value = "";
-            //     document.getElementById(`${type}_postcode`).value = "";
-            //     document.getElementById(`${type}_country`).value = "";
-            // },
-            // setAddressCardError(){
-            //     // let addressCards = Array.from(document.querySelectorAll('ins-checkbox-card'));
-            //     let addressCardsWrap = Array.from(document.querySelectorAll('.ins-checkbox-card-wrap'));
-
-            //     addressCardsWrap.forEach(address => {
-            //         address.style.borderColor = '';
-            //         address.style.borderColor = 'red';
-            //     });
-            // },
             // Function to remove 'is-invalid' class from all form elements
             removeInvalidClassFromForm() {
                 const invalidElements = document.querySelectorAll('.is-invalid');
