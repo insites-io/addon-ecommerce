@@ -14,11 +14,6 @@ metadata: {
     {% endcomment %}
     {% assign matched_product = products | where: "uuid", cart_product.product_uuid | first %}
 
-    {%- comment %} 
-        * Log the product UUID for debugging purposes.
-    {% endcomment %}
-    {% log cart_product.product_uuid, type: "====cart_product.product_uuid====" %}
-
     {%- if matched_product -%}
         {%- comment %} 
             * Determine the product price based on whether it's on sale or not.

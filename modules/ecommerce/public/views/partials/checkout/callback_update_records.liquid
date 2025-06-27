@@ -8,7 +8,6 @@ metadata: {
 {%- capture payment_gateway_details -%}{{ payment_response }}{%- endcapture -%}
 {%- assign amount = payment_response.amount | divided_by: 100.00 -%}
 
-{%- log payment_response, type: "Payment Response --><>" -%}
 
 {%- parse_json card -%}
 {
