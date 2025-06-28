@@ -23,6 +23,7 @@ query get_product (
     total_entries
     results {
       id        
+      updated_at
       uuid: property(name: "uuid")          
       stock_level: property_int(name: "stock_level")  
       is_on_sale: property_boolean(name: "is_on_sale")

@@ -12,7 +12,6 @@ metadata: {
     "source_name": "modules/insites_ecommerce/product"       
 }
 ---
-
 {% comment -%} 
 URL Structures: 
     /products/living-room
@@ -49,8 +48,10 @@ URL Structures:
 
     {% graphql all_categories = 'modules/ecommerce/categories/get_categories' sort_by: sort_by | dig: 'items','results'  %}
 
+    {% assign is_product_detail = false %}
     {%- if context.params.slug2 -%}
         {%- if slug_type == 'product' -%}
+            {% assign is_product_detail = true %}
             {%- include 'modules/ecommerce/products/detail' -%}
         {%- else -%}        
             <div class="spacer small"></div>
@@ -64,38 +65,13 @@ URL Structures:
 </div>
 
 
-
-{%- if context.params.slug2 -%}
-
-    {%- if slug_type == 'product' -%}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
-        {%- if context.environment == "staging" -%}
-            <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
-        {%- else -%}
-            <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
-        {%- endif -%}
-    {%- else -%}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
-        {%- if context.environment == "staging" -%}
-            <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
-            <script src="{{ 'modules/ecommerce/scripts/product-list.js' | asset_url }}"></script>
-        {%- else -%}
-            <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
-            <script src="{{ 'modules/ecommerce/scripts/product-list.min.js' | asset_url }}"></script>
-        {%- endif -%}
-    {%- endif -%}
-
-{%- else -%}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+{% if is_product_detail == false %}
     {%- if context.environment == "staging" -%}
-        <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
         <script src="{{ 'modules/ecommerce/scripts/product-list.js' | asset_url }}"></script>
-    {%- else -%}
-        <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
+    {% else %}
         <script src="{{ 'modules/ecommerce/scripts/product-list.min.js' | asset_url }}"></script>
-    {%- endif -%}
-{%- endif -%}
-
+    {% endif %}
+{% endif %}
 
 {%- if context.flash and context.flash.notice == "Success-OutStockNotify" -%}
 <script>

@@ -41,6 +41,7 @@ query search_products(
     per_page
     results {
       id
+      updated_at
       uuid: property(name: "uuid")      
       product_name: property(name: "product_name")
       slug: property(name: "slug")

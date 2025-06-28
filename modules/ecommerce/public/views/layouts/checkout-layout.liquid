@@ -96,13 +96,10 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
     {%- endif -%}
 
     {% comment %} Services {% endcomment %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
     {%- if context.environment == "staging" -%}
-        <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
         <script src="{{ 'modules/portal/services/stripeServices.js' | asset_url }}"></script>
         <script src="{{ 'modules/ecommerce/scripts/shopping-cart.js' | asset_url }}"></script>
     {%- else -%}
-        <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
         <script src="{{ 'modules/portal/services/stripeServices.min.js' | asset_url }}"></script>
         <script src="{{ 'modules/ecommerce/scripts/shopping-cart.min.js' | asset_url }}"></script>
     {%- endif -%}

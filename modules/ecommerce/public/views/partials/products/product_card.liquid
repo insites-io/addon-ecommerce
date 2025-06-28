@@ -52,7 +52,10 @@ metadata: {
                 {% assign encoded_filename = filename | replace: ' ', '%20' | replace: ';', '%3B' %}
                 
                 <!-- Rebuild the URL without encoding the base URL -->
-                <img src="{{ image_url | remove: filename }}{{ encoded_filename }}" alt="{{ product.product_name }}">
+                {%- capture img_cache_key -%} product_image-{{ product.id }}-{{ product.updated_at }} {%- endcapture -%}
+                {% cache img_cache_key %}
+                <img src="{{ image_url | remove: filename }}{{ encoded_filename }}" alt="{{ product.product_name }}" loading="lazy">
+                {% endcache %}
             {% else %}
                 {% include 'modules/website/layout/placeholder_image', size: 'medium' %}
             {% endif %}
