@@ -21,7 +21,7 @@ metadata: {
             <div class="grid-x">
                 <div class="large-auto small-12 cell grid-x flex-container align-justify">
                     <div class="align-middle grid-x large-10 medium-9 small-12">
-                        <span class="form-label">Filter By:</span>
+                        <span class="form-label">Filter by:</span>
 
                         {% graphql product_brands = 'modules/ecommerce/products/get_product_brands' 
                             | dig: 'items','results' | map: 'brand' | array_uniq %}

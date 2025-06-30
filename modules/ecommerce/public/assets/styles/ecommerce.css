@@ -196,6 +196,10 @@ ins-input.hidden-input input {
     flex-grow: 1;
 }
 
+#main-header {
+    border-bottom: 1px solid var(--color-ui-04);
+}
+
 /* Mega Menu */
 #mega-menu .ins-modal-wrap.show-modal ins-card .ins-card-wrap {
     max-width: 1344px;

@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-/* Add to Cart */
+/* Add to cart */
 let addToCartBtn = document.querySelectorAll(".add-to-cart-btn");
 addToCartBtn.forEach(btn => {
     btn.addEventListener('insClick', event => {  
@@ -58,7 +58,7 @@ async function addToCartPreProcess(event, type){
     bottomWrap.classList.remove("hide");
 
     //show cart drawer
-    if(event.detail.label == "Add to Cart"){
+    if(event.detail.label.toLowerCase() == "add to cart"){
         cartDrawer.setDrawerState(true); 
     } 
 
@@ -236,10 +236,10 @@ async function addToCart(data, type){
     
 }      
 
-/* Redirect the user to the shopping cart page if the type is neither 'Add to Cart' nor 'stepper',
+/* Redirect the user to the shopping cart page if the type is neither 'Add to cart' nor 'stepper',
     and handles additional logic when the type is "Buy Now". */
 function handleShoppingCartRedirect(type, data) {
-    if (type != "Add to Cart" && type != "stepper") {
+    if (type.toLowerCase() != "add to cart" && type != "stepper") {
         window.location.href = "/shopping-cart";
         if (type.toLowerCase() === "buy now") {
             setButtonLoadingState(data.id, false);

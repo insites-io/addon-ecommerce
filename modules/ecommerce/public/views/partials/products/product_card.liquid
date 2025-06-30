@@ -59,7 +59,7 @@ metadata: {
                     <h6>{{ product.product_name }}</h6>
                     <div class="spacer x-small"></div>
                     {% assign category = all_categories | array_detect: uuid: product.category_uuids[0] %}
-                    <p class="body-x-small">{{ category.category_name | default: 'Category' }}</p>
+                    <p class="body-x-small">{{ category.category_name | default: 'Category' | capitalize }}</p>
                     <div class="spacer"></div>
                     <p class="product-current-price">{{ price | pricify }}
                         {% if product.is_on_sale == true or variant.is_on_sale == true %}
@@ -85,10 +85,10 @@ metadata: {
                     }
                     {% endparse_json %}
 
-                    <ins-button class="full add-to-cart-btn" label="Add to Cart" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
+                    <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
                     <div class="spacer x-small"></div>
                     <a href="/products/{{ product.slug }}">
-                        <ins-button class="full" label="View Details" outlined icon="icon-eye"></ins-button>
+                        <ins-button class="full" label="View details" outlined icon="icon-eye"></ins-button>
                     </a>
                 </div>
             </div>
