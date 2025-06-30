@@ -413,7 +413,12 @@ function removeCartFromLocalStorage(data){
 }
 
 function formatNumber(num) {
-    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const value = typeof num === "number" ? num : parseFloat(num);
+    if (isNaN(value)) return "0.00"; // fallback
+    return value.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
 }
 
 function computeItemTotal(itemWrap, qty) {
