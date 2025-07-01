@@ -167,7 +167,7 @@ removeCartBtn.forEach(btn => {
 function removeCartEventListener(btn){        
     btn.addEventListener('insClick', async event => {
         let confirm = await App.events.swal("warning", 
-                "Remove Item?", 
+                "Remove item?", 
                 "Are you sure you want to remove this item from your cart?", 
                 "Remove",
                 undefined,

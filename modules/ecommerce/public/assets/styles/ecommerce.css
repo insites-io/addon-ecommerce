@@ -943,6 +943,9 @@ ins-drawer.cart-drawer .ins-drawer-header h4 {
 .cart-item-wrap .cart-remove-btn:hover *  {
     color: var(--error);
 }
+.cart-remove-btn .btn__icon {
+    font-size: 12px !important;
+}
 
 
 /* Shopping Cart Page */
