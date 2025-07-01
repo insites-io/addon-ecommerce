@@ -56,52 +56,50 @@
             {%- graphql product = 'modules/ecommerce/products/is_product_exist', slug: context.params.slug2 | dig: 'items','results' | first -%}       
             {%- endunless -%}
 
-            <div class="breadbrumbs__wrapper wrapper">
-                <div class="grid-container">
-                    <div class="breadcrumbs grid-x">
-                        <a href="/products">All products</a>                        
-                        
-                        {%- if category.id -%}
+            <div class="breadbrumbs__wrapper">
+                <div class="breadcrumbs grid-x">
+                    <a href="/products">All products</a>                        
+                    
+                    {%- if category.id -%}
 
-                            {% comment %} top tier category {% endcomment %}
-                            {%- if category.parent_category.main_category.slug -%}
-                                <i class="icon-chevron-right"></i>
-                                <a href="/products/{{ category.parent_category.main_category.slug }}">{{ category.parent_category.main_category.category_name }}</a>                                 
-                            {%- endif -%}
-
-                            {% comment %} sub tier category {% endcomment %}
-                            {%- if category.parent_category.slug -%}
-                                <i class="icon-chevron-right"></i>
-                                <a href="/products/{{ category.parent_category.slug }}">{{ category.parent_category.category_name }}</a> 
-                            {%- endif -%}
-
-                            {% comment %} category {% endcomment %}
+                        {% comment %} top tier category {% endcomment %}
+                        {%- if category.parent_category.main_category.slug -%}
                             <i class="icon-chevron-right"></i>
-                            <span class="active">{{ category.category_name }}</span>                          
+                            <a href="/products/{{ category.parent_category.main_category.slug }}">{{ category.parent_category.main_category.category_name }}</a>                                 
+                        {%- endif -%}
 
-                        {%- elsif product.id -%}
-
-                            {%- if product.category.parent_category.main_category.slug -%}
-                                <i class="icon-chevron-right"></i>
-                                <a href="/products/{{ product.category.parent_category.main_category.slug }}">{{ product.category.parent_category.main_category.category_name }}</a>
-                            {%- endif -%}
-
-                            {%- if product.category.parent_category.slug -%}
-                                <i class="icon-chevron-right"></i>
-                                <a href="/products/{{ product.category.parent_category.slug }}">{{ product.category.parent_category.category_name }}</a>
-                            {%- endif -%}
-
-                            {%- if product.category.slug -%}
-                                <i class="icon-chevron-right"></i>
-                                <a href="/products/{{ product.category.slug }}">{{ product.category.category_name }}</a>
-                            {%- endif -%}
-
+                        {% comment %} sub tier category {% endcomment %}
+                        {%- if category.parent_category.slug -%}
                             <i class="icon-chevron-right"></i>
-                            <span class="active">{{ product.product_name }}</span> 
+                            <a href="/products/{{ category.parent_category.slug }}">{{ category.parent_category.category_name }}</a> 
+                        {%- endif -%}
 
-                        {%- endif -%}   
-                                  
-                    </div>
+                        {% comment %} category {% endcomment %}
+                        <i class="icon-chevron-right"></i>
+                        <span class="active">{{ category.category_name }}</span>                          
+
+                    {%- elsif product.id -%}
+
+                        {%- if product.category.parent_category.main_category.slug -%}
+                            <i class="icon-chevron-right"></i>
+                            <a href="/products/{{ product.category.parent_category.main_category.slug }}">{{ product.category.parent_category.main_category.category_name }}</a>
+                        {%- endif -%}
+
+                        {%- if product.category.parent_category.slug -%}
+                            <i class="icon-chevron-right"></i>
+                            <a href="/products/{{ product.category.parent_category.slug }}">{{ product.category.parent_category.category_name }}</a>
+                        {%- endif -%}
+
+                        {%- if product.category.slug -%}
+                            <i class="icon-chevron-right"></i>
+                            <a href="/products/{{ product.category.slug }}">{{ product.category.category_name }}</a>
+                        {%- endif -%}
+
+                        <i class="icon-chevron-right"></i>
+                        <span class="active">{{ product.product_name }}</span> 
+
+                    {%- endif -%}   
+                                
                 </div>
             </div>
         {%- endif -%}

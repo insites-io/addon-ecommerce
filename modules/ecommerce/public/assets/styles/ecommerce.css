@@ -196,8 +196,13 @@ ins-input.hidden-input input {
     flex-grow: 1;
 }
 
-#main-header {
+#main-header,
+.breadbrumbs__wrapper {
     border-bottom: 1px solid var(--color-ui-04);
+}
+.breadbrumbs__wrapper {
+    padding-left: var(--container-padding-xx-large);
+    padding-right: var(--container-padding-xx-large);
 }
 
 /* Mega Menu */
