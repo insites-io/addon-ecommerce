@@ -42,6 +42,7 @@ metadata: {
 {
     "slug": "{{ product.slug }}",
     "product_name": "{{ product_name }}",
+    "product_sku": "{{ selected_prop.product_sku }}",
     "is_variant": {{ is_variant | default: false }},
     "selected_prop": {{ selected_prop | default: '[]' }},
     "price": {{ price | default: 0 }},
