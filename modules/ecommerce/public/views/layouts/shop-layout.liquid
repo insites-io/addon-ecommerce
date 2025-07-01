@@ -1,11 +1,5 @@
-{%- comment -%}
-By adding the global content to the top of the layout
-It can be accessed in the includes without calling the GraphQL again
-It IS NOT accessable in {{content_for_layout}} which includes the specific page
-{%- endcomment -%}
-{%- include "modules/insites_cms/globals" -%}
-{%- assign global = context.exports.global -%}
-
+{% include 'modules/website/cache/layout_fragment_cache_key' %}
+{% assign layout_cache_key = context.exports.layout_cache_key.cache_key %}
 
 <!doctype html>
 <html class="no-js" lang="en">
@@ -41,20 +35,7 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
     <!-- Try to limit assets that are part of the head / technical head to minimize page size & improve page performance.
     Assets like 'Google Map API', should only be referenced as needed. -->
     {%- endcomment -%}
-
-
-    <!-- [Preload] -->    
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9" defer></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-
-    <!-- [Insites Assets] -->
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap" >
-    <!-- Font Icons -->
-    <link rel="stylesheet" href="https://components.insites.io/latest/css/insites-font-icons.css">
+    
     <!-- [Project Assets] -->
     {% include 'modules/website/layout/technical_head' %}
     
@@ -62,7 +43,10 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
 <body>
     <div class="main-wrap">
         
-        {% include 'modules/website/layout/header' %}
+        {%- capture website_header_key -%} {{ layout_cache_key }}-{{context.current_user.id}}-{{context.device.device_type}} {%- endcapture -%}
+        {%- cache website_header_key -%}                    
+            {% include 'modules/website/layout/header' %}
+        {%- endcache -%}
 
         {%- if context.params.slug2 -%}
 
@@ -75,7 +59,7 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
             <div class="breadbrumbs__wrapper wrapper">
                 <div class="grid-container">
                     <div class="breadcrumbs grid-x">
-                        <a href="/products">All Products</a>                        
+                        <a href="/products">All products</a>                        
                         
                         {%- if category.id -%}
 

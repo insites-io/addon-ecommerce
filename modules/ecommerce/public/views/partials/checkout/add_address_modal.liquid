@@ -3,25 +3,24 @@ metadata:
     partial_name: 'location_modal'
 ---
 
-<ins-modal id="address-form-modal" data="" with-backdrop no-button class="addUserModal location">
+<ins-modal id="address-form-modal" with-backdrop no-button >
     <div class="inviteUserModalBodyContainer">
         <h5 class="heading-3">Add new address</h5>
         <div class="spacer"></div> 
 
-        <div id="shipping-address-fields" class="address-fields" >
+        <div class="address-fields" >
 
-            <ins-input address-lookup label="Search Addresss" 
-                id="shipping-address-search" name="shipping"
+            <ins-input address-lookup 
+                label="Search Addresss" name="modal"               
                 placeholder="Search Addresss" icon="icon-map-pin">
             </ins-input>  
 
-            <input type="hidden" id="{{page}}_latitude" name="{{page}}_latitude" value="">
-            <input type="hidden" id="{{page}}_longitude" name="{{page}}_longitude" value="">    
+            <input type="hidden" id="modal_latitude" value="">
+            <input type="hidden" id="modal_longitude" value="">    
                         
             <ins-input required validate 
                 label="Address 1*" 
-                id="{{page}}_address_1"
-                name="{{page}}_address_1"
+                id="modal_address_1"
                 placeholder="Address 1" 
                 value=""
                 error-message="Required">
@@ -29,7 +28,7 @@ metadata:
 
             <ins-input  
                 label="Address 2" 
-                id="{{page}}_address_2" 
+                id="modal_address_2" 
                 placeholder="Address 2"
                 value=""
                 error-message="">
@@ -37,7 +36,7 @@ metadata:
 
             <ins-input validate
                 label="Suburb*" 
-                id="{{page}}_suburb" 
+                id="modal_suburb" 
                 placeholder="Suburb"
                 value="" 
                 error-message="Required">
@@ -45,7 +44,7 @@ metadata:
 
             <ins-input validate 
                 label="State*" 
-                id="{{page}}_state" 
+                id="modal_state" 
                 placeholder="State"
                 value=""
                 error-message="Required">
@@ -53,7 +52,7 @@ metadata:
 
             <ins-input validate 
                 label="Postcode*" 
-                id="{{page}}_postcode"
+                id="modal_postcode"
                 placeholder="Postcode" 
                 value=""
                 error-message="Required">
@@ -61,7 +60,7 @@ metadata:
 
             <ins-input validate 
                 label="Country*" 
-                id="{{page}}_country"
+                id="modal_country"
                 placeholder="Country" 
                 value=""
                 error-message="Required">

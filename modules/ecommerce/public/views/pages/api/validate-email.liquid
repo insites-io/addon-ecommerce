@@ -1,5 +1,5 @@
 ---
-slug: api/check-user-email-signup
+slug: api/validate-email
 format: json
 method: get
 searchable: false
@@ -11,6 +11,6 @@ metadata: {
 ---
 
 {%- assign email = context.params.email | default: null -%}
-{%- graphql results = "modules/ecommerce/account/check_user_email_signup", email: email -%}
+{%- graphql results = "modules/ecommerce/account/check_user_email", email: email -%}
 
 {{ results }}

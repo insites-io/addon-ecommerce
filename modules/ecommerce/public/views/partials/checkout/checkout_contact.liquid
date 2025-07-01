@@ -34,7 +34,7 @@ metadata: {
         {%- elsif context.session.contact_email -%}            
             {% comment %} Guest user: Get the guest_id first if it has not yet been added to the session under guest_user {% endcomment %}
             {%  liquid                 
-                graphql guest = "modules/ecommerce/account/check_user_email_signup", email: context.session.contact_email | dig: 'items','results' | first
+                graphql guest = "modules/ecommerce/account/check_user_email", email: context.session.contact_email | dig: 'items','results' | first
                 session guest_id = guest.id
                 session guest_uuid = guest.external_id
             %}

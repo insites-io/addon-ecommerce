@@ -24,16 +24,26 @@ metadata: {
 {% endif %}
 
 {% comment %} 
-    Add class 'hide' to this ins-drawer component to prevent glitch in the UI, 
+    - Add class 'hide' to this ins-drawer component to prevent glitch in the UI, 
     then remove the class 'hide' when the drawer has loaded.
+    - The width of the #cartDrawer is 440px, but we added an additional 11px to accommodate the scrollbar.
 {% endcomment %}
 <ins-drawer 
   label="Cart ({{ user_cart.cart_items.size | default: 0 }})" 
-  custom-width="390px" 
+  custom-width="451px" 
   position="right" 
   id="cartDrawer"
   class="cart-drawer hide">
 
+    {% comment %} Empty cart {% endcomment %}
+    <div id="empty-cart-wrap" class="empty-cart-wrap {% if user_cart.cart_items.size > 0 %}hide{% endif %}">
+        <h5 class="text-center">Your cart is empty!</h5>
+        <div class="spacer x-small"></div>
+        <p class="text-center">Don't miss out on the best deals!</p>
+    </div>
+
+
+    {% comment %} Cart items - keep the #cart-items-wrap displaying even in zero item  {% endcomment %}
     <div id="cart-items-wrap">
 
     {% if user_cart.cart_items.size > 0 %}
@@ -42,39 +52,48 @@ metadata: {
 
         {% for item in user_cart.cart_items %}
 
-        {% liquid 
-            assign product = products | array_detect: uuid: item.product_uuid
-            assign product_name = product.product_name
-            
-            ## Check if the item is a product or a variant of the product
-            if item.variant_uuid == '' or item.variant_uuid == null
-                ## item is NOT a variant
-                assign selected_prop = product
-            else 
-                ## item is a variant                
-                for variant in product.variants
-                    if item.variant_uuid == variant.uuid
-                        assign selected_prop = variant
-                    endif
-                endfor
-            endif             
+            {% liquid 
+                assign product = products | array_detect: uuid: item.product_uuid
+                assign product_name = product.product_name
+                
+                ## Check if the item is a product or a variant of the product
+                if item.variant_uuid == '' or item.variant_uuid == null
+                    ## item is NOT a variant
+                    assign selected_prop = product
+                else 
+                    ## item is a variant                
+                    for variant in product.variants
+                        if item.variant_uuid == variant.uuid
+                            assign selected_prop = variant
+                        endif
+                    endfor
+                endif             
 
-            if selected_prop.is_on_sale == true 
-                assign price = selected_prop.sale_price
-                assign price_strikethrough = selected_prop.regular_price
-            else 
-                assign price = selected_prop.regular_price
-                assign price_strikethrough = ''
-            endif          
+                if selected_prop.is_on_sale == true 
+                    assign price = selected_prop.sale_price
+                    assign price_strikethrough = selected_prop.regular_price
+                else 
+                    assign price = selected_prop.regular_price
+                    assign price_strikethrough = ''
+                endif          
 
-            assign product_id = selected_prop.id
-            assign item_total = price | times: item.quantity
-            assign subtotal = subtotal | plus: item_total
-        %}
+                assign product_id = selected_prop.id
+                assign item_total = price | times: item.quantity
+                assign subtotal = subtotal | plus: item_total
+            %}
 
         <div id="cart-item-{{product_id}}" class="cart-item-wrap">
             <div class="grid-x" >
-                <div class="cell grid-y large-7 medium-7 small-7">
+
+                <div class="image_wrap">
+                    {% if product.product_image.url %}
+                        <img src="{{ product.product_image.url | replace: ' ', '%20' | replace: ';', '%3B' }}" width="66" height="66" alt="img-{{product_id}}">
+                    {% else %}
+                        {% include 'modules/website/layout/placeholder_image', size: 'small' %}
+                    {% endif %}
+                </div>
+
+                <div class="grid-y cart-details flex-child-auto">
                     <h6>{{ product_name }}</h6>
                     <p class="body-x-small">SKU {{ selected_prop.product_sku }}</p>
                     <div class="spacer x-small"></div>
@@ -103,7 +122,10 @@ metadata: {
                         {% endif %}
                     </p>
                 </div>
-                <div class="cell grid-y large-5 medium-5 small-5 text-right">
+
+                <div class="cell spacer small show-for-small-only"></div>
+
+                <div class="grid-y flex-child-auto text-right">
                     <p class="cart-price compute-price">{{ item_total | plus: 0 | pricify: 'USD', no_cents_if_whole: false }}</p>
                     <div class="spacer x-small"></div>
                     <ins-input-stepper
@@ -140,21 +162,14 @@ metadata: {
 
     {% endif %}
 
-    </div>
-    
-    {% comment %} user_cart = blank if the user has a guest account {% endcomment %}
-    <div id="empty-cart-wrap" class="empty-cart-wrap {% if user_cart.cart_items.size > 0 %}hide{% endif %}">
-        <h3 class="text-center">Your cart is empty!</h3>
-        <div class="spacer x-small"></div>
-        <p class="text-center">Don't miss out on the best deals!</p>
-    </div>
+    </div>        
     
     {% comment %} user_cart = blank if the user has a guest account {% endcomment %}
     <div id="bottom-wrap" class="bottom-wrap {% if user_cart.cart_items.size <= 0 or user_cart == blank %}hide{% endif %}">
         <div class="wrap">
             <div class="spacer"></div>
             <div class="grid-x align-justify" >
-                <p class="heading-3-small font-color-head">Sub Total</p>
+                <p class="heading-3-small font-color-head">Subtotal</p>
                 <p id="cart-subtotal" class="heading-3-small font-color-head">{{ subtotal | plus: 0 | pricify: 'USD', no_cents_if_whole: false }}</p>
             </div>
             <div class="spacer"></div>

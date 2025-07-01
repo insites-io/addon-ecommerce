@@ -43,7 +43,7 @@ metadata: {
     {%- endcomment -%}
         <div id="sidebar-categories" class="sub-category no-icons">
             <a href="/products" {% unless params.slug2 %}class="active"{% endunless %}>
-                <span class="ui-sidebar" >All Products</span>
+                <span class="ui-sidebar" >All products</span>
             </a>
             {%- for topCat in top_categories -%}                                        
                 {%- assign withChild = parent_with_child | array_any: topCat.uuid -%}                    
@@ -59,7 +59,7 @@ metadata: {
                         <ins-accordion-item id="sub-{{topCat.id}}"
                             {{ is_active }}
                             class="ui-sidebar {{ is_active }}"
-                            heading="{{topCat.category_name}}" 
+                            heading="{{topCat.category_name | capitalize}}" 
                             link="/products/{{topCat.slug}}?{{paramPerPage}}"
                             link-target="_self" 
                             open-icon="icon-plus"
@@ -75,7 +75,7 @@ metadata: {
                                 {%- assign isChild = subCat.parent_category_uuids | array_any: topCat.uuid -%} 
                                 {%- if isChild -%}
                                 <a href="/products/{{topCat.slug}}?{{urlparams}}" {%- if subCat.slug == params.category -%}class="active"{%- endif -%}>
-                                    <span class="ui-sidebar" id="sub-{{subCat.id}}">{{subCat.category_name}}</span>
+                                    <span class="ui-sidebar" id="sub-{{subCat.id}}">{{subCat.category_name | capitalize}}</span>
                                 </a>
                                 {%- endif -%}
                             {%- endfor -%}
@@ -83,7 +83,7 @@ metadata: {
                     </ins-accordion>
                 {%- else -%}                
                 <a href="/products/{{topCat.slug}}?{{paramPerPage}}" {%- if topCat.slug == params.slug2 -%}class="active"{%- endif -%}>
-                    <span class="ui-sidebar" id="sub-{{topCat.id}}">{{topCat.category_name}}</span>
+                    <span class="ui-sidebar" id="sub-{{topCat.id}}">{{topCat.category_name | capitalize}}</span>
                 </a>
                 {%- endif -%}
             {%- endfor -%}

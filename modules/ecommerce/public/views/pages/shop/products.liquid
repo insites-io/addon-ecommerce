@@ -8,10 +8,10 @@ metadata: {
     "page_type": "content", 
     "page_name": "Products",
     "page_title": "Products",
-    "meta_title": "Products"       
+    "meta_title": "Products",
+    "source_name": "modules/insites_ecommerce/product"       
 }
 ---
-
 {% comment -%} 
 URL Structures: 
     /products/living-room
@@ -23,14 +23,14 @@ URL Structures:
     {%- assign slug_type = 'category' -%}
     {% comment %} Check if slug2 is a category {% endcomment %}
     {%- graphql category_exist = 'modules/ecommerce/categories/is_category_exist', slug: context.params.slug2 | dig: 'items','total_entries' -%}    
-    {%- unless category_exist == 1 -%}
+    {%- if category_exist < 1 -%}
         {%- assign slug_type = 'product' -%}
         {% comment %} Check if slug2 is a product {% endcomment %}
         {%- graphql product_exist = 'modules/ecommerce/products/is_product_exist', slug: context.params.slug2 | dig: 'items','total_entries' -%}
         {%- if product_exist == 0 -%}
             {% redirect_to '/404' %}
         {%- endif -%}    
-    {%- endunless -%}
+    {%- endif -%}
 {%- endif -%}    
 
 
@@ -48,8 +48,10 @@ URL Structures:
 
     {% graphql all_categories = 'modules/ecommerce/categories/get_categories' sort_by: sort_by | dig: 'items','results'  %}
 
+    {% assign is_product_detail = false %}
     {%- if context.params.slug2 -%}
         {%- if slug_type == 'product' -%}
+            {% assign is_product_detail = true %}
             {%- include 'modules/ecommerce/products/detail' -%}
         {%- else -%}        
             <div class="spacer small"></div>
@@ -63,38 +65,13 @@ URL Structures:
 </div>
 
 
-
-{%- if context.params.slug2 -%}
-
-    {%- if slug_type == 'product' -%}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
-        {%- if context.environment == "staging" -%}
-            <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
-        {%- else -%}
-            <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
-        {%- endif -%}
-    {%- else -%}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
-        {%- if context.environment == "staging" -%}
-            <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
-            <script src="{{ 'modules/ecommerce/scripts/product-list.js' | asset_url }}"></script>
-        {%- else -%}
-            <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
-            <script src="{{ 'modules/ecommerce/scripts/product-list.min.js' | asset_url }}"></script>
-        {%- endif -%}
-    {%- endif -%}
-
-{%- else -%}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+{% if is_product_detail == false %}
     {%- if context.environment == "staging" -%}
-        <script src="{{ 'modules/ecommerce/services/apiServices.js' | asset_url }}"></script>
         <script src="{{ 'modules/ecommerce/scripts/product-list.js' | asset_url }}"></script>
-    {%- else -%}
-        <script src="{{ 'modules/ecommerce/services/apiServices.min.js' | asset_url }}"></script>
+    {% else %}
         <script src="{{ 'modules/ecommerce/scripts/product-list.min.js' | asset_url }}"></script>
-    {%- endif -%}
-{%- endif -%}
-
+    {% endif %}
+{% endif %}
 
 {%- if context.flash and context.flash.notice == "Success-OutStockNotify" -%}
 <script>

@@ -196,6 +196,10 @@ ins-input.hidden-input input {
     flex-grow: 1;
 }
 
+#main-header {
+    border-bottom: 1px solid var(--color-ui-04);
+}
+
 /* Mega Menu */
 #mega-menu .ins-modal-wrap.show-modal ins-card .ins-card-wrap {
     max-width: 1344px;
@@ -828,17 +832,31 @@ ins-button.view-button button {
 ins-drawer.cart-drawer .ins-drawer-wrap {
     z-index: 1000;
 }
+ins-drawer.cart-drawer .ins-drawer-wrap .ins-content {
+    scrollbar-width: thin;  /* Firefox */
+}
+ins-drawer.cart-drawer .ins-drawer-wrap .ins-content::-webkit-scrollbar {
+   width: 8px; /* Chrome, Safari, Edge */                     
+}
 #cartDrawer .ins-drawer-wrap .ins-content .ins-drawer-body,
 #order-summary-drawer .ins-drawer-wrap .ins-content .ins-drawer-body {
-    width: 390px;
+    width: 451px;
     max-width: 100%;
     padding: 24px 16px;
+}
+#cartDrawer .icon-close-1{
+    color: var(--font-color-head);
+    font-size: 18px;
+    line-height: 24px;
 }
 .cart-drawer #cart-items-wrap {
     padding-bottom: 200px;
 }
 .cart-drawer .ins-form-field-wrap {
     margin-bottom: 0px;
+}
+.cart-drawer .cart-stepper .ins-form-field-wrap  {
+    max-width: 140px;
 }
 .cart-stepper .ins-form-field-wrap {
     display: inline-flex;
@@ -869,7 +887,21 @@ ins-drawer.cart-drawer .ins-drawer-header h4 {
 .cart-drawer #bottom-wrap .wrap {
     padding-right: 32px;
 }
-
+.cart-drawer img {
+    width: 66px;
+    height: 66px;
+    margin-right: 24px;
+    margin-bottom: 16px;
+}
+.cart-drawer .cart-details{
+    width: 162px;
+    margin-right: 16px;
+}
+@media screen and (max-width: 640px){
+    .cart-drawer .cart-details{
+        margin-right: 0;
+    }
+}
 .cart-price {
     color: var(--font-color-head);
     text-align: right;
@@ -879,7 +911,9 @@ ins-drawer.cart-drawer .ins-drawer-header h4 {
     font-weight: 700;
     line-height: 16px; /* 100% */
 }
-
+.cart-item-wrap .cart-remove-btn {
+    display: inline-block;
+}
 .cart-item-wrap .cart-remove-btn .btn__label,
 .cart-item-wrap .cart-remove-btn button.blue {    
     color: var(--font-color-body);

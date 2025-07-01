@@ -44,15 +44,11 @@ metadata: {
                 <div class="sale-tag">SALE</div>
             {% endif %}
             {% if product.product_image.url %}
-                {% assign image_url = product.product_image.url %}
-                {% assign base_url = image_url | split: '/' %}
-                {% assign filename = base_url.last %}
-                
-                <!-- Manually encode only the filename part -->
-                {% assign encoded_filename = filename | replace: ' ', '%20' | replace: ';', '%3B' %}
-                
-                <!-- Rebuild the URL without encoding the base URL -->
-                <img src="{{ image_url | remove: filename }}{{ encoded_filename }}" alt="{{ product.product_name }}">
+                {% assign image_url = product.product_image.url | replace: ' ', '%20' | replace: ';', '%3B' %}                               
+                {%- capture img_cache_key -%} product_image-{{ product.id }}-{{ product.updated_at }} {%- endcapture -%}
+                {% cache img_cache_key %}
+                <img src="{{ image_url }}" alt="{{ product.product_name }}" loading="lazy">
+                {% endcache %}
             {% else %}
                 {% include 'modules/website/layout/placeholder_image', size: 'medium' %}
             {% endif %}
@@ -63,7 +59,7 @@ metadata: {
                     <h6>{{ product.product_name }}</h6>
                     <div class="spacer x-small"></div>
                     {% assign category = all_categories | array_detect: uuid: product.category_uuids[0] %}
-                    <p class="body-x-small">{{ category.category_name | default: 'Category' }}</p>
+                    <p class="body-x-small">{{ category.category_name | default: 'Category' | capitalize }}</p>
                     <div class="spacer"></div>
                     <p class="product-current-price">{{ price | pricify }}
                         {% if product.is_on_sale == true or variant.is_on_sale == true %}
@@ -84,14 +80,15 @@ metadata: {
                         "product_sku": "{{ selected_prop.sku }}",
                         "variant_uuid": "{{ variant_uuid }}",
                         "product_name": "{{ product.product_name | replace: "'", "`"}}",
-                        "price": "{{ price | default: 0 | advanced_format: '%.2f' }}"
+                        "price": "{{ price | default: 0 | advanced_format: '%.2f' }}",
+                        "image": "{{ image_url }}"
                     }
                     {% endparse_json %}
 
-                    <ins-button class="full add-to-cart-btn" label="Add to Cart" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
+                    <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
                     <div class="spacer x-small"></div>
                     <a href="/products/{{ product.slug }}">
-                        <ins-button class="full" label="View Details" outlined icon="icon-eye"></ins-button>
+                        <ins-button class="full" label="View details" outlined icon="icon-eye"></ins-button>
                     </a>
                 </div>
             </div>

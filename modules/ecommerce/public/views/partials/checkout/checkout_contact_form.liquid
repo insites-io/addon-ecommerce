@@ -108,12 +108,12 @@
 
         <input type="hidden" 
           id="phone-number"
-          name="{{ profiles_prop.mobile_phone_number.name }}"
+          name="{{ profiles_prop.mobile_phone_number.name | default: 'mobile_phone_number'}}"
           value="{{ contact_phone_number }}" >
 
         <input type="hidden" 
           id="phone-country-code"
-          name="{{ profiles_prop.mobile_phone_country_code.name }}"
+          name="{{ profiles_prop.mobile_phone_country_code.name | default: 'mobile_phone_country_code'}}"
           value="{{ contact_phone_country_code }}" >
       </div>
 

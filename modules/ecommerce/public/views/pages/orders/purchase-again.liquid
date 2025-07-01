@@ -245,10 +245,10 @@ authorization_policies:
                     "price": "{{ price | default: 0 }}"
                 }
                 {% endparse_json %}
-                <ins-button class="full add-to-cart-btn" label="Add to Cart" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
+                <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
                 <div class="spacer x-small"></div>
                 <a href="/products/{{ product.slug }}">
-                    <ins-button class="full" label="View Details" outlined icon="icon-eye"></ins-button>
+                    <ins-button class="full" label="View details" outlined icon="icon-eye"></ins-button>
                 </a>
             </div>
         
