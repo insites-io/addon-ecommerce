@@ -886,11 +886,14 @@ ins-drawer.cart-drawer .ins-drawer-header h4 {
 .cart-drawer #bottom-wrap .wrap {
     padding-right: 32px;
 }
-.cart-drawer img {
-    width: 66px;
-    height: 66px;
+.cart-drawer .image_wrap {
     margin-right: 24px;
     margin-bottom: 16px;
+}
+.cart-drawer img,
+.cart-drawer .placeholder-img {
+    width: 66px;
+    height: 66px;    
 }
 .cart-drawer .cart-details{
     width: 162px;
