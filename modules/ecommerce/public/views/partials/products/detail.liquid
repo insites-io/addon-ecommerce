@@ -68,7 +68,7 @@ metadata: {
 
             {% comment %} Out of Stock {% endcomment %}
             {%  liquid 
-                assign btnLabel = 'Pre-Order'
+                assign btnLabel = 'Pre-order'
                 if product.is_product_variant_enabled 
                     ## Initially hide the out-of-stock overlay when a variant is enabled
                     assign hideOutOfStock = 'hide'

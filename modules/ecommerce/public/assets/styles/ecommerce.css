@@ -521,7 +521,7 @@ ins-carousel .product-cards .placeholder-img {
     content: 'Out of stock';
     color: var(--font-color-inv);
     font-family: var(--font-family-01);
-    font-size: 24px;
+    font-size: 16px;
     font-style: normal;
     font-weight: 700;
     line-height: 130%;
@@ -532,6 +532,9 @@ ins-carousel .product-cards .placeholder-img {
     width: 100%;
     transform: translate(-50%, -50%);   
     letter-spacing: 0.24px; 
+}
+.product-detail .out-of-stock::before {
+    font-size: 24px;
 }
 /* Out of Stock - Product Details */
 .out-of-stock-notice {
