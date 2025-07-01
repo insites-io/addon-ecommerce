@@ -210,9 +210,9 @@ metadata: {
                     {%- endunless -%}
                     
                     <div class="list-discount-codes--item" data-id="{{ item.id }}" data-uuid="{{ item.uuid }}" data-contact-uuid="{{ user_uuid }}">
-                        <div class="body-small">
-                            <p class="font-head bold">{{ code.discount_name }}</p>
-                            <p>{{ code.discount_code }} - {{ value }}</p>
+                        <div class="body-medium">
+                            <p class="font-color-head bold">{{ value }}</p>
+                            <p>{{ code.discount_name }}</p>
                             {%- if code.minimum_cart_value > 0 -%}
                                 <div class="spacer xx-small"></div>
                                 <p>Minimum ${{ code.minimum_cart_value | advanced_format: "%.2f" }} Purchase</p>
