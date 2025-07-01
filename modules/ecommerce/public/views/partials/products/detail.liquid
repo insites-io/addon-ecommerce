@@ -55,20 +55,41 @@ metadata: {
 %}
 
 
-<ins-button label="Go Back" icon="icon-angle-left" size="large" class="inline button-large go-back" onclick=window.history.back();></ins-button>
+<ins-button label="Go back" icon="icon-angle-left" class="inline go-back" onclick=window.history.back();></ins-button>
 <div class="spacer"></div>
 
 <div class="product-detail grid-x grid-padding-x">
     <div class="large-7 medium-12 small-12 cell">                
         <div class="gallery">   
 
-            {% comment %} ON SALE {% endcomment %}
+            {% comment %} On sale {% endcomment %}
             <div id="on-sale-tag" class="on-sale-tag {% unless selected_prop.is_on_sale == true %}hide{% endunless %}">ON SALE</div>
+
+
+            {% comment %} Out of Stock {% endcomment %}
+            {%  liquid 
+                assign btnLabel = 'Pre-Order'
+                if product.is_product_variant_enabled 
+                    ## Initially hide the out-of-stock overlay when a variant is enabled
+                    assign hideOutOfStock = 'hide'
+                    assign btnLabel = 'Buy now'
+                elsif product.stock_level > 0
+                    assign hideOutOfStock = 'hide'
+                    assign btnLabel = 'Buy now'
+                else
+                    assign hideOutOfStock = ''
+                endif
+            %}
+            <div id="out-of-stock-overlay" class="out-of-stock {{hideOutOfStock}}"></div>
 
             {% comment %} Use gallery or product_image {% endcomment %}
             {%- if galleries.size > 0 -%}                  
                 <div class="main-gallery variant-gallery">                       
-                    <ins-gallery with-indicator slidable id="product-galleries">
+                    <ins-gallery 
+                        with-indicator 
+                        slidable 
+                        thumbnail-layout="slider"
+                        id="product-galleries">
                         {%- for gallery in galleries -%}
                          <ins-gallery-image
                             thumbnail="{{ gallery }}"
@@ -85,7 +106,7 @@ metadata: {
         <div class="spacer xx-large"></div>
         <div class="show-for-large">
             {%- if product.long_description != blank -%}
-            <h4>Key Features</h4>
+            <h4>Key features</h4>
             <div class="spacer"></div>
             <div class="body description">                
                 {{ product.long_description  | html_safe }}
@@ -118,25 +139,10 @@ metadata: {
                 <p>{{ product.short_description }}</p>
             </div>
             {% endif %}
-        
-            {% comment %} Out of Stock {% endcomment %}
-            {%  liquid 
-                assign btnLabel = 'Pre-Order'
-                if product.is_product_variant_enabled 
-                    assign hideOutOfStock = 'hide'
-                    assign btnLabel = 'Buy Now'
-                elsif product.stock_level > 0
-                    assign hideOutOfStock = 'hide'
-                    assign btnLabel = 'Buy Now'
-                else
-                    assign hideOutOfStock = ''
-                endif
-            %}
-            <div id="out-of-stock-wrap" class="wrap {{ hideOutOfStock }}">  
-                <div class="out-of-stock-notice">            
-                    <p>We're currently out of stock on this product, but you can secure yours by placing a pre-order now!</p>
-                    <p>We will notify you when your pre-order becomes available for delivery.</p>
-                </div>
+                    
+            <div id="out-of-stock-notice" class="out-of-stock-notice {{ hideOutOfStock }}">    
+                <p class="bold">Sorry, this product is currently out of stock.</p>                         
+                <p>You can secure yours by placing a pre-order now! We will notify you when your pre-order becomes available for delivery.</p>            
             </div>
 
             {% comment %} Variants {% endcomment %}
@@ -239,7 +245,7 @@ metadata: {
             <div>
                 <ins-button id="add-to-cart-btn-{{ add_to_cart_data.id }}"  class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid></ins-button>
                 <div class="spacer small"></div>
-                <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ add_to_cart_data }}' outlined></ins-button>
+                <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ add_to_cart_data }}' icon="icon-shopping-cart"outlined></ins-button>
             </div>
             
         </div>
@@ -249,7 +255,7 @@ metadata: {
     <div class="hide-for-large">        
         {%- if product.long_description != blank -%}
          <div class="spacer x-large"></div>
-        <h4>Key Features</h4>
+        <h4>Key features</h4>
         <div class="spacer large"></div>
         <div class="body description">
             {{ product.long_description  | html_safe }}
@@ -283,7 +289,8 @@ metadata: {
     let productSKU = document.getElementById("product-sku");
     let productPrice = document.getElementById("product-price");
     let regularProductPrice = document.getElementById("regular-product-price");
-    let ourOfStockWrap = document.getElementById("out-of-stock-wrap");
+    let ourOfStockNotice = document.getElementById("out-of-stock-notice");
+    let outOfStockOverlay = document.getElementById("out-of-stock-overlay");
     let variantSelect = document.querySelectorAll(".variant-select");
 
     if (variants.length > 0){
@@ -358,9 +365,11 @@ metadata: {
             }
             //Out of Stock Notice
             if(selectedVariant.stock_level < 1){
-                ourOfStockWrap.classList.remove("hide");
+                ourOfStockNotice.classList.remove("hide");
+                outOfStockOverlay.classList.remove("hide");
             } else {
-                ourOfStockWrap.classList.add("hide");
+                ourOfStockNotice.classList.add("hide");
+                outOfStockOverlay.classList.add("hide");
             }
             //Sale tag
             if(onSaleTag){
@@ -374,7 +383,8 @@ metadata: {
             productSKU.textContent = "";
             productPrice.textContent = "$--";
             regularProductPrice.textContent = "";
-            ourOfStockWrap.classList.remove("hide");
+            ourOfStockNotice.classList.remove("hide");
+            outOfStockOverlay.classList.remove("hide");
         }
     }
 
