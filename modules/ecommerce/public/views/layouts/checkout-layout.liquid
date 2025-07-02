@@ -27,7 +27,7 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
     <link rel="preload" href="https://components.insites.io/latest/css/insites-font-icons.css" as="style">
     <link rel="preload" href="https://components.insites.io/latest/css/insites.css" as="style">
     <link rel="preload" href="{{ 'modules/website/styles/vendor/foundation.min.css' | asset_url }}" as="style">
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css" as="style">
+    <link href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css" as="style">
 
 
     {%- include 'modules/insites_cms/seo' -%}
@@ -68,9 +68,25 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
 <body>
     <div class="main-wrap">
         {% include 'modules/website/layout/header' %}
+
+        
+        {% comment %} Checkout Stepper {% endcomment %}
+        {% assign pages_with_stepper = 'checkout,checkout/shipping,checkout/billing,checkout/payment' | split: ',' %} 
+        {% assign is_pages_with_stepper = pages_with_stepper | array_any: context.page.slug %}        
+        {% if context.page.slug == 'checkout' and context.current_user == blank and context.params.guest != 'true' %} 
+            <div class="spacer xxxx-large"></div>
+        {% elsif is_pages_with_stepper %} 
+            {% include 'modules/ecommerce/checkout/checkout_redirect_step' %}
+            <div class="stepper-wrapper">
+                {% include 'modules/ecommerce/layout/checkout_steps' %}
+            </div>
+        {% else %}
+            <div class="spacer xxxx-large"></div>
+        {% endif %}
+
+        {% comment %} Page Content {% endcomment %}
         <div class="wrapper">
             <div class="grid-container">
-                <div class="spacer xxxx-large"></div>
                     {{ content_for_layout }}
                 <div class="spacer xxxx-large"></div>
             </div>

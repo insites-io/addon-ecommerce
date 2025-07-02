@@ -1780,11 +1780,6 @@ ins-gallery-image.active .ins-gallery-image {
     background-color: var(--color-ui-01);
 }
 
-.ins-step_progress-bar {
-    top: calc(50% - 20px) !important;
-    background: var(--color-ui-04);
-}
-
 ins-button.add-credit-card button.ins-button>div,
 #add-card-btn button.ins-button >div {
     text-align: left;
@@ -1811,6 +1806,30 @@ ins-button.add-credit-card button.ins-button>div,
     font-style: normal;
     font-weight: 400;
     line-height: 24px; 
+}
+
+/* Checkout Stepper */
+.stepper-wrapper {
+    padding: 24px;
+    border-bottom: 1px solid var(--color-ui-04);
+}
+.stepper-wrapper ins-steps {
+    max-width: 923px;
+    margin: 0 auto;
+}
+.stepper-wrapper,
+.stepper-wrapper .ins-steps,
+.stepper-wrapper .ins-step_details{
+    background: var(--color-ui-02);
+}
+.ins-step_progress-bar {
+    background: var(--color-ui-04);
+}
+@media screen and (max-width: 639px) {
+    .ins-steps.ins-steps_inline .ins-step_indicator{
+        float: none;
+        margin: 0 auto 16px;
+    }
 }
 
 /* Checkout */
