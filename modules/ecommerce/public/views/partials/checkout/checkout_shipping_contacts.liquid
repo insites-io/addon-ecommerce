@@ -8,7 +8,7 @@
     name="{{ prop.shipping_same_with_account.name }}"
     value="true"
     id="shipping-same-with-account" 
-    label="My shipping details are the same as my account details.">
+    label="My shipping details are the same as my contact details.">
   </ins-checkbox>
 
   <div id="shipping-contact-inputs" class="grid-x grid-padding-x shipping-contact {% if context.session.shipping_same_with_account == true %} hide {% endif %}">
@@ -29,7 +29,8 @@
         placeholder="First Name"
         name="{{ prop.shipping_contact_first_name.name }}" 
         id="shipping-first-name" 
-        value="{{ context.session.shipping_contact_first_name | default: ''}}">
+        value="{{ context.session.shipping_contact_first_name | default: ''}}"
+        error-message="First name is required.">
       </ins-input>
     </div>
     <div class="large-6 medium-6 small-12 cell">
@@ -40,7 +41,7 @@
         id="shipping-last-name" 
         value="{{ context.session.shipping_contact_last_name | default: ''}}"
         {% if form.errors['properties.shipping_contact_last_name'] %} has-error {% endif %}
-        error-message="{{ prop.shipping_contact_last_name.validation.rules.presence.message }}">
+        error-message="Last name is required.">
       </ins-input>
     </div>
     <div class="large-6 medium-6 small-12 cell">
@@ -52,7 +53,7 @@
         id="shipping-email" 
         value="{{ context.session.shipping_contact_email | default: ''}}"
         {% if form.errors['properties.shipping_contact_email'] %} has-error {% endif %}
-        error-message="{{ prop.shipping_contact_email.validation.rules.presence.message }}"
+        error-message="Email is required."
         position="right">
       </ins-input>
     </div>

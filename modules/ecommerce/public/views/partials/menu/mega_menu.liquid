@@ -48,8 +48,8 @@ metadata: {
 
         {% for parent_category in featured_categories %}
             <div class="wrap">
-                <p class="heading">{{ parent_category.category_name | capitalize }}</p>
-                <ul>
+                <a class="heading" href="/products/{{parent_category.slug}}">{{ parent_category.category_name | capitalize }}</a>
+                <ul class="subcat">
                     {% for sub_category in sub_categories %}
                         {% if sub_category.parent_category_uuids contains parent_category.uuid %}
                             <li><a href="/products/{{sub_category.slug}}">{{ sub_category.category_name | capitalize }}</a></li>

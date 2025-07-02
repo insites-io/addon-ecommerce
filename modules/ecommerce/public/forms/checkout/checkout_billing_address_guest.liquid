@@ -83,7 +83,8 @@ callback_actions: |-
             id="billing_address_1"
             placeholder="Address 1" 
             name="{{ prop.address_1.name }}"
-            value="{{ context.session.billing_address_1 }}">
+            value="{{ context.session.billing_address_1 }}"
+            error-message="Address 1 is required.">
           </ins-input>
         </div>
         <div class="large-6 medium-6 small-12 cell">
@@ -101,7 +102,8 @@ callback_actions: |-
             id="billing_suburb" 
             placeholder="Suburb"
             name="{{ prop.suburb.name }}"
-            value="{{ context.session.billing_suburb }}">
+            value="{{ context.session.billing_suburb }}"
+            error-message="Suburb is required.">
           </ins-input>
         </div>
         <div class="large-6 medium-6 small-12 cell">
@@ -110,7 +112,8 @@ callback_actions: |-
             id="billing_state" 
             placeholder="State"
             name="{{ prop.state.name }}"
-            value="{{ context.session.billing_state }}">
+            value="{{ context.session.billing_state }}"
+            error-message="State is required.">
           </ins-input>
         </div>
         <div class="large-6 medium-6 small-12 cell">
@@ -119,7 +122,8 @@ callback_actions: |-
             id="billing_postcode"
             placeholder="Postcode" 
             name="{{ prop.postcode.name }}"
-            value="{{ context.session.billing_postcode }}">
+            value="{{ context.session.billing_postcode }}"
+            error-message="Postcode is required.">
           </ins-input>
         </div>
         <div class="large-6 medium-6 small-12 cell">
@@ -128,7 +132,8 @@ callback_actions: |-
             id="billing_country"
             placeholder="Country" 
             name="{{ prop.country.name }}"
-            value="{{ context.session.billing_country }}">
+            value="{{ context.session.billing_country }}"
+            error-message="Country is required.">
           </ins-input>
         </div>
       </div>

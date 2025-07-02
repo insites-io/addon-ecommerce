@@ -2,7 +2,7 @@
     --font-head: #2B2B2B;
 }
 
-body :not(header) > .wrapper {
+body .checkout > .wrapper {
     max-width: 1440px;
     margin: 0 auto;
 }
@@ -203,10 +203,15 @@ ins-input.hidden-input input {
 /* Mega Menu */
 #mega-menu .ins-modal-wrap.show-modal ins-card .ins-card-wrap {
     max-width: 1344px;
-    border-radius: 0px;
     background: var(--color-ui-01);
     border-top: 1px solid var(--color-ui-04);
     margin-top: 88px;
+    box-shadow: none;
+}
+#mega-menu .ins-modal-wrap.show-modal ins-card .ins-card-wrap .ins-modal-content {
+    border-radius: 0px 0px 4px 4px;
+    border: 1px solid var(--color-ui-04, #DFDFDF);
+    background: #FFF;
 }
 #mega-menu .ins-modal-head {
     display: none;
@@ -235,6 +240,9 @@ ins-input.hidden-input input {
     line-height: 20px;
     color: var(--font-color-body);
 } 
+#mega-menu ul.subcat li:last-child{
+    margin-bottom: 0px;
+}
 #mega-menu li a {
     line-height: 21px;
 }
@@ -259,6 +267,7 @@ ins-input.hidden-input input {
 #mega-menu-btn button:hover span,
 #mega-menu-btn.show-modal button.ins-button span, 
 #mega-menu-btn.show-modal .icon-angle-down:before {
+    background-color: transparent;
     color: var(--font-color-link-hovered);
 }
 .light-header #mega-menu-btn button,
@@ -290,6 +299,9 @@ ins-input.hidden-input input {
 .product-carousel .ins-carousel_ctrl-btns ins-button button:hover {
     background: var(--color-main-hover-light);
 }
+.product-carousel .ins-carousel_ctrl-btns ins-button button:hover .btn__icon{
+    color: var(--color-main);
+}
 .product-carousel .carouselDesktop .ins-carousel_ctrl-btns ins-button button{
     right: 0px;
 }
@@ -319,6 +331,7 @@ ins-input.hidden-input input {
 .product-carousel .ins-carousel_ctrl-btns .btn__icon{
     color: var(--font-color-body);
     font-size: 24px;
+    margin-left: -3px;
 }
 .product-carousel .ins-carousel_ctrl-btns .icon-angle-left:before {
     content: "\e91f";
@@ -548,13 +561,13 @@ ins-carousel .product-cards .placeholder-img {
 }
 .sale-tag {
     position: absolute;
-    top: 16px;
-    left: 10px;
+    top: 8px;
+    left: 8px;
     z-index: 1;
-    padding: 4px 16px;    
-    border-radius: 2px;    
-    font-size: 14px;    
-    font-weight: 700;
+    padding: 4px 8px;    
+    border-radius: 4px;    
+    font-size: 12px;    
+    font-weight: 600;
     line-height: 20px; /* 142.857% */
 }
 .on-sale-tag {        
@@ -1447,7 +1460,8 @@ ins-button button[type=button].primary.solid,
 ins-button button[type=reset].blue.solid, 
 ins-button button[type=reset].primary.solid, 
 ins-button button[type=submit].blue.solid, 
-ins-button button[type=submit].primary.solid {         
+ins-button button[type=submit].primary.solid { 
+    display: inline-block;        
     min-height: 40px;
     padding: 11px 24px; 
     border-radius: 14px;
@@ -1804,6 +1818,10 @@ ins-button.add-credit-card button.ins-button>div,
     top: 34px;
     right: 32px;
     z-index: 100;
+}
+#address-form-modal .modal-button{
+    display: flex;
+    justify-content: space-between;
 }
 .pac-container {
     z-index: 9999 !important;

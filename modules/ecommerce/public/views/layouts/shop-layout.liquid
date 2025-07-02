@@ -41,7 +41,7 @@
     
 </head>
 <body>
-    <div class="main-wrap">
+    <div class="main-wrap checkout">
         
         {%- capture website_header_key -%} {{ layout_cache_key }}-{{context.current_user.id}}-{{context.device.device_type}} {%- endcapture -%}
         {%- cache website_header_key -%}                    

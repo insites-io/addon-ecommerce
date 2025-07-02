@@ -3,7 +3,7 @@ metadata: {
     partial_name: 'Ecommerce | Client Portal | Order History'
 }
 ---
-<h1 id="order-history-title">Order History</h1>
+<h1 id="order-history-title">Order history</h1>
 <div class="spacer small"></div>
 <p>Check the status of your order and review your order history.</p>
 <div class="spacer x-large"></div>
@@ -83,7 +83,7 @@ metadata: {
                 >
 
                 <ins-filter-item
-                    name="Order Status"
+                    name="Order status"
                     id="order-filter-status"
                     options='["All", "Cancelled", "Completed", "Open", "Processing"]'
                     {%- if context.params.status -%}
@@ -139,11 +139,11 @@ metadata: {
 
     let tableContent = {{ orders.items.results }};
     let tableHeaders = [
-        { label: 'Order Number', type: "string" },
-        { label: 'Date Ordered', type: "string", sortable: true },
-        { label: 'Total Amount', type: "currency" },
-        { label: 'Order Status', type: "string", hasTag: true },
-        { label: 'Shipping Status', type: "string", hasTag: true}
+        { label: 'Order number', type: "string" },
+        { label: 'Date ordered', type: "string", sortable: true },
+        { label: 'Total amount', type: "currency" },
+        { label: 'Order status', type: "string", hasTag: true },
+        { label: 'Shipping status', type: "string", hasTag: true}
     ];
 
     function changeDateFormat(dateString) {
@@ -177,11 +177,11 @@ metadata: {
 
             return {
                 id: data.id,
-                "Order Number": data.id,
-                "Date Ordered": dateOrdered,
-                "Total Amount": TableScript.methods.pricify(data.total_amount),
-                "Order Status": order_status,
-                "Shipping Status": shipping_status
+                "Order number": data.id,
+                "Date ordered": dateOrdered,
+                "Total amount": TableScript.methods.pricify(data.total_amount),
+                "Order status": order_status,
+                "Shipping status": shipping_status
             }
         });
     }
@@ -285,7 +285,7 @@ metadata: {
         if(orderListTable){
             orderListTable.sortKeyword = "Date Ordered";
             orderListTable.tableHeaders = tableHeaders;
-            orderListTable.rowActions = ['View Order'];
+            orderListTable.rowActions = ['View order'];
 
             processTableData(tableContent);
             orderListTable.addEventListener('insPaginationChange', tablePaginationHandler);

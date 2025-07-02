@@ -74,7 +74,7 @@ metadata: {
 
 <div class="grid-x">
   <div class="grid-y large-7 medium-12 small-12">
-    <h1 class="heading-1">Order Number: {{ context.params.slug2 }}</h1>
+    <h1 class="heading-1">Order number: {{ context.params.slug2 }}</h1>
     <div class="spacer small"></div>
     <p><span class="font-color-head bold">Date Ordered:</span> {{ date_time }}</p>
   </div>  
@@ -111,11 +111,11 @@ metadata: {
 
 <ins-tab id="order-tab">
 
-  <ins-tab-item label="Order Details" >
+  <ins-tab-item label="Order details" >
     {% include 'modules/ecommerce/client_portal/orders/order_history_detail', order %}
   </ins-tab-item>
     
-  <ins-tab-item label="Order Summary">
+  <ins-tab-item label="Order summary">
     {% include 'modules/ecommerce/client_portal/orders/order_history_summary', order, ordered_items %}
   </ins-tab-item>
 

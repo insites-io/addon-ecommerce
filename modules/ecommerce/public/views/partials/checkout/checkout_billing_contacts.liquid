@@ -29,7 +29,8 @@
         placeholder="First Name"
         name="{{ prop.billing_contact_first_name.name }}" 
         id="billing-first-name" 
-        value="{{ context.session.billing_contact_first_name | default: ''}}">
+        value="{{ context.session.billing_contact_first_name | default: ''}}"
+        error-message="First name is required.">
       </ins-input>
     </div>
     <div class="large-6 medium-6 small-12 cell">
@@ -38,7 +39,8 @@
         placeholder="Last Name"
         name="{{ prop.billing_contact_last_name.name }}" 
         id="billing-last-name" 
-        value="{{ context.session.billing_contact_last_name | default: ''}}">
+        value="{{ context.session.billing_contact_last_name | default: ''}}"
+        error-message="Last name is required.">
       </ins-input>
     </div>
     <div class="large-6 medium-6 small-12 cell">
@@ -48,7 +50,8 @@
         field="email"
         name="{{ prop.billing_contact_email.name }}" 
         id="billing-email" 
-        value="{{ context.session.billing_contact_email | default: ''}}">
+        value="{{ context.session.billing_contact_email | default: ''}}"
+        error-message="Email is required.">
       </ins-input>
     </div>
     <div class="large-6 medium-6 small-12 cell">
