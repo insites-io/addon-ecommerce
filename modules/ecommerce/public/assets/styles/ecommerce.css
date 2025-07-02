@@ -1498,12 +1498,18 @@ a.ins-button+ins-button button,
 ins-button+a.ins-button button {
     margin-left: 16px;
 }
+ins-button button.size--normal .btn__icon {
+    margin-top: -3px;
+}
 .ins-form-field-wrap,
 ins-checkbox .ins-radio-checkbox label {
     margin-bottom: 24px;
 }
 .ins-checkbox-card-wrap {
     padding: 24px;
+}
+ins-checkbox.inline .ins-radio-checkbox label .ins-checkbox-radio-label {
+    font-family: var(--font-family-02);
 }
 .ins-accordion-item_header .close-icon, 
 .ins-accordion-item_header .open-icon {
