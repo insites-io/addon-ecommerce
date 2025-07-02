@@ -20,41 +20,12 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
     Try to limit assets that are part of the head / technical head to minimize page size & improve page performance.
     Assets like 'Google Map API', should only be referenced as needed.
     -->
-    {%- endcomment -%}
-
-    <!-- [Preload] -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap" as="style">
-    <link rel="preload" href="https://components.insites.io/latest/css/insites-font-icons.css" as="style">
-    <link rel="preload" href="https://components.insites.io/latest/css/insites.css" as="style">
-    <link rel="preload" href="{{ 'modules/website/styles/vendor/foundation.min.css' | asset_url }}" as="style">
-    <link href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css" as="style">
+    {%- endcomment -%}  
 
 
     {%- include 'modules/insites_cms/seo' -%}
     
-    <link rel="shortcut icon" type="image/png" href="{{ global.company_icon }}">
-    
-
-    <!-- [Vendor Assets] -->
-    <link rel="stylesheet" href="{{ 'modules/website/styles/vendor/foundation.min.css' | asset_url }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-
-    <!-- [Insites Assets] -->
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap" >
-    <!-- Font Icons -->
-    <link rel="stylesheet" href="https://components.insites.io/latest/css/insites-font-icons.css">
-    <!-- Components -->
-    {%- assign ins_version = 'https://components.insites.io/v2/latest/' -%}
-    <link rel="stylesheet" href="{{ ins_version | append: 'css/insites.css' }}" >
-    <script type="module" src="{{ ins_version | append: 'insites.esm.js' }}"></script>
-    <script nomodule src="{{ ins_version | append: 'insites.js' }}" defer></script>
-    
+    <link rel="shortcut icon" type="image/png" href="{{ global.company_icon }}">    
 
     <!-- [Project Assets] -->
     {% include 'modules/website/layout/technical_head' %}
@@ -62,8 +33,10 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
     <!--[Pixel Tracking]-->
     {% include 'modules/website/layout/pixel_tracking' %}
     
-    <!-- [Google Maps] -->
-    {% include 'modules/website/layout/googlemaps' %}
+    {% comment %} Google Maps {% endcomment %}
+    {% if context.params.slug2 == 'shipping' or context.params.slug2 == 'billing' %}
+        {% include 'modules/website/layout/googlemaps' %}
+    {% endif %}
 </head>
 <body>
     <div class="main-wrap">
