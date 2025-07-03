@@ -139,7 +139,7 @@ let Checkout = (function () {
                 <div class="large-6 medium-6 small-12 cell">
                     <ins-checkbox-card data-equalizer-watch="" name="shipping-address-cards" selected-color="blue" value="${data.id}" data-address="${data.address_1}" data-address_1="${data.address_1}" data-address_2="${data.address_2}" data-suburb="${data.suburb}" data-state="${data.state}" data-postcode="${data.postcode}" data-country="${data.country}">                    
                         <div>
-                            <p class="form-label">${data.address_1}, ${data.address_2}</p>
+                            <p class="form-label">${data.address_1}${data.address_2 ? `, ${data.address_2}` : ''}</p>
                             <div class="spacer small"></div>
                             <p>${data.state} <br>${data.postcode}</p>
                             <p>${data.country}</p>
@@ -527,6 +527,7 @@ let Checkout = (function () {
 
                         // Reset value to blank
                         [
+                            'modal_search',
                             'modal_longitude',
                             'modal_latitude',
                             'modal_address_1',

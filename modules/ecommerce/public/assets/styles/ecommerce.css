@@ -1894,6 +1894,10 @@ ins-button.add-credit-card button.ins-button>div,
     z-index: 9999 !important;
 }
 
+/* Confirmation */
+.confirmation_wrapper .heading-5-small{
+    color: var(--font-color-sub) !important;
+}
 
 /* Swal */
 .swal2-popup.swal2-modal {

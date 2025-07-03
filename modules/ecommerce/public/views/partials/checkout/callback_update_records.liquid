@@ -23,29 +23,29 @@ metadata: {
 }
 {% endparse_json %}
 {%- comment -%}Step 2.0: Create payment data{%- endcomment -%}
-{% parse_json data %}
+{% parse_json payment_data %}
 {
-    "order_id": "{{ order_id }}",
     "order_uuid": "{{ order_uuid }}",
-    "payment_source": "Payment Gateway",
+    "source": "Payment Gateway",
     "payment_status": "{{ order_payment_status }}",
     "payment_gateway_name": "{{ gateway | titleize }}",
     "date_time": "{{ date_time }}",
     "last_updated_by_id": "{{ context.current_user.id }}",
-    "is_enabled": true,
-    "card_last4": "{{ card.last4 }}",
+    "card_last_four_digits": "{{ card.last4 }}",
     "card_brand": "{{ card.brand }}",
-    "card_exp_month": "{{ card.exp_month }}",
-    "card_exp_year": "{{ card.exp_year }}",
+    "card_expiry_month": "{{ card.exp_month }}",
+    "card_expiry_year": "{{ card.exp_year }}",
     "currency": "{{ currency }}",
     "order_value": {{ amount }},
     "amount": {{ amount }},
-    "amount_due": {{ amount }}
+    "amount_due": {{ amount }},
+    "payment_method_name" : "Credit Card",
+    "status": "{{ payment_response.status }}"
 }
 {% endparse_json %}
-{% assign data = data | add_hash_key: "payment_gateway_details", payment_gateway_details %}
-{% assign data = data | add_hash_key: "computed", temp_computed %}
-{%- graphql add_payment = 'modules/ecommerce/system/trigger_api_call', name: "modules/portal/add_payment", data: data | dig: 'items','response','body' | parse_json -%}   
+{% assign payment_data = payment_data | add_hash_key: "payment_gateway_details", payment_gateway_details %}
+{% assign payment_data = payment_data | add_hash_key: "computed", temp_computed %}
+{%- graphql add_payment = 'modules/ecommerce/system/trigger_api_call', name: "modules/portal/add_payment", data: payment_data | dig: 'items','response','body' | parse_json -%}   
 
 {% comment %} Create Order Items {% endcomment %}
 {%- include 'modules/ecommerce/order_items/create_order_items', order_uuid, guest_user -%}
