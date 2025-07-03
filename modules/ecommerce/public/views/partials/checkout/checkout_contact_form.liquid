@@ -18,7 +18,7 @@
 
 
   <div id="account-details">
-    <h4>Contact information</h4>
+    <h4>Order Contact</h4>
     <div class="spacer x-large"></div>
 
     <div class="grid-x grid-padding-x account-details">      
@@ -34,7 +34,7 @@
             field="text" 
             value="{{ company_name }}"
             name="temp_company_name"
-            disabled >
+            readonly >
           </ins-input>
 
           <input type="hidden" name="{{ fields.company_name.name }}" value="{{ company_name }}" >
