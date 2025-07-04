@@ -48,7 +48,7 @@ metadata: {
 {%- graphql add_payment = 'modules/ecommerce/system/trigger_api_call', name: "modules/portal/add_payment", data: payment_data | dig: 'items','response','body' | parse_json -%}   
 
 {% comment %} Create Order Items {% endcomment %}
-{%- include 'modules/ecommerce/order_items/create_order_items', order_uuid, guest_user -%}
+{%- include 'modules/ecommerce/order_items/create_order_items', order_uuid -%}
 {% assign cart = context.exports.cart %}
 
 
@@ -78,7 +78,12 @@ metadata: {
     "billing_company_name": "{{ form.properties.billing_company_name }}"
 }
 {%- endparse_json -%}
-{%- graphql updated_order = 'modules/ecommerce/system/trigger_api_call', name: "modules/portal/update_order", data: order_update_data | dig: 'items','response','body' | parse_json -%}
+{%- graphql updated_order = 'modules/ecommerce/system/trigger_api_call', 
+    name: "modules/portal/update_order", 
+    data: order_update_data | dig: 'items','response','body' | parse_json -%}
+
+{% export updated_order %}
+
 
 {%- comment -%}Step 2.4: Update inventory{%- endcomment -%}
 {%- if status == 'success' -%}
@@ -120,4 +125,31 @@ metadata: {
     {%- endif -%}
 {%- endif -%}
 
-{% export updated_order %}
+
+{% comment %} Add event {% endcomment %}
+{% parse_json event_data %}
+{
+  "font_icon_color": "#048801",
+  "log": {
+    "data": {
+      "created_at": "{{ updated_order.created_at }}",
+      "id": "{{ updated_order.id }}",
+      "updated_at": "{{ updated_order.updated_at }}",
+      "properties": {{ updated_order |  default: '[]'}}
+    },
+    "action": "add",
+    "order_uuid": "{{ updated_order.uuid }}"
+  },
+  "datetime": "{{ 'now' | date: '%s' }}",
+  "font_icon": "icon-check-2",
+  "module_feature": "orders",
+  "module_source": "insites_ecommerce",
+  "administrator_uuid": "",
+  "uuid": "{{ '' | uuid }}",
+  "details": "",
+  "description": "{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }} added an order <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>."
+}
+{% endparse_json %}
+{%- graphql add_event = 'modules/website/trigger_api_call', 
+     name: "modules/portal/add_events", data: event_data 
+     | dig: 'items','response','body' | parse_json -%}

@@ -63,8 +63,7 @@ Step 3: Update inventory, cart and order models.
     order_uuid: order_uuid,
     form: form,
     gateway: gateway,
-    currency: currency,
-    guest_user: guest_user
+    currency: currency
     %}
 
 {%- comment -%}
@@ -98,7 +97,3 @@ Step 4: Trigger autoresponder, workflow email & API
 {% include 'modules/ecommerce/checkout/callback_email_notifications', 
     status: status,
     data: data %}
-
-
-{% comment %} ? Clear Session Discount Every Purchase {% endcomment %}
-{% session discount_uuids = "[]" %}
