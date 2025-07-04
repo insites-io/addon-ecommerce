@@ -21,5 +21,34 @@ searchable: false
      endif
 -%}
 
+{% comment %} Add event {% endcomment %}
+{% parse_json event_data %}
+{
+  "font_icon_color": "#048801",
+  "log": {
+    "data": {
+      "created_at": "{{ add_contact.created_at }}",
+      "id": "{{ add_contact.id }}",
+      "updated_at": "{{ add_contact.updated_at }}",
+      "properties": {{ add_contact |  default: '[]'}}
+    },
+    "action": "add_contact",
+    "contact_uuid": "{{ add_contact.uuid }}"
+  },
+  "datetime": "{{ 'now' | date: '%s' }}",
+  "font_icon": "icon-check-2",
+  "module_feature": "crm_contact",
+  "module_source": "insites_core",
+  "administrator_uuid": "",
+  "uuid": "{{ '' | uuid }}",
+  "details": "",
+  "description": "New user <a target='_blank' href='/admin/insites/#/crm/contacts/{{add_contact.uuid}}'>{{add_contact.first_name}} {{add_contact.last_name}}</a> has been added via guest checkout."
+}
+{% endparse_json %}
+{%- graphql add_event = 'modules/website/trigger_api_call', 
+     name: "modules/portal/add_events", data: event_data 
+     | dig: 'items','response','body' | parse_json -%}
+
+
 {{ add_contact  }}
 {%- response_status status -%}
