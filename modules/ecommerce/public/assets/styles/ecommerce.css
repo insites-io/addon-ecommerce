@@ -1580,6 +1580,7 @@ ins-filter-item .filter-item__button--option,
     font-weight: 400;
     color: var(--font-color-body);
 }
+
 .ibt-table .action-item {
     font-weight: 400;
     color: var(--color-main) !important;
@@ -1614,6 +1615,16 @@ ins-filter .date-filter .fas  {
     font-style: normal;
     font-weight: 400;
     line-height: normal;
+}
+ins-filter .filter__date ins-button button.blue.outlined,
+ins-filter .filter__date ins-button button.blue.solid {
+    min-height:auto;
+    padding: 4px 16px;
+    border-radius: 8px !important;
+    min-width: auto;
+}
+ins-filter .date-range__cancel-apply ins-button:first-of-type{
+    margin-right: 0px;
 }
 #purchased-filter .filter {
     margin-top: 3px;
