@@ -198,7 +198,7 @@ ins-input.hidden-input input {
 
 #main-header,
 .breadbrumbs__wrapper {
-    border-bottom: 1px solid var(--color-ui-04);
+    /*border-bottom: 1px solid var(--color-ui-04);*/
 }
 .breadbrumbs__wrapper {
     padding-left: var(--container-padding-xx-large);
