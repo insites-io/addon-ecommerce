@@ -16,7 +16,7 @@ const billingPhone = {
 };
 
 
-// Contact Information
+// Order contact
 var guest_uuid = '';
 const contactCompanyNameEl = document.getElementById('contact-company-name');
 const contactFirstNameEl = document.getElementById('contact-first-name');
@@ -26,9 +26,6 @@ const contactSubmitBtn = document.getElementById('contact-submit');
 
 // Virtual form for Contact Information (Guest user)
 const virtualContactSubmitBtn = document.querySelector('#virtual-form #contact-submit');
-
-
-let guestUserFlag = false;
 
 // Address Modal Form
 const addressFormModal = document.getElementById('address-form-modal');
@@ -404,8 +401,7 @@ let Checkout = (function () {
                         shipping_contact_email: shippingEmailEl.value,
                         shipping_contact_phone_number: shippingPhone.phone.value,
                         shipping_contact_phone_country_code: shippingPhone.countryCode.value,
-                        latest_step: 3,
-                        guest_user: guestUserFlag
+                        latest_step: 3
                     };
                 } else if (page == 'billing') {
                     payload = {
@@ -418,8 +414,7 @@ let Checkout = (function () {
                         billing_contact_email: billingEmailEl.value,
                         billing_contact_phone_number: billingPhone.phone.value,
                         billing_contact_phone_country_code: billingPhone.countryCode.value,
-                        latest_step: 4,
-                        guest_user: guestUserFlag
+                        latest_step: 4
                     };
                 }
 
@@ -569,7 +564,6 @@ let Checkout = (function () {
                 Checkout.validation.validateCreditCard(form);
 
                 if(isValid) {
-                    localStorage.removeItem('discount_uuids');
                     form.submit();
                 } else {
                     App.events.notyf("error", "Please check missing fields.");

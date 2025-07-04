@@ -48,7 +48,7 @@ metadata: {
 {%- graphql add_payment = 'modules/ecommerce/system/trigger_api_call', name: "modules/portal/add_payment", data: payment_data | dig: 'items','response','body' | parse_json -%}   
 
 {% comment %} Create Order Items {% endcomment %}
-{%- include 'modules/ecommerce/order_items/create_order_items', order_uuid, guest_user -%}
+{%- include 'modules/ecommerce/order_items/create_order_items', order_uuid -%}
 {% assign cart = context.exports.cart %}
 
 

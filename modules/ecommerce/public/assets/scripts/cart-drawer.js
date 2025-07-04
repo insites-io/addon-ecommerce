@@ -186,7 +186,7 @@ function removeCartEventListener(btn){
 }    
 
 
-/* Add cart to Database or to localStorage */
+/* Add to cart */
 async function addToCart(data, type){        
     data["type"] = type;
     // Reset the cartQuantity
@@ -290,7 +290,7 @@ function goToCartButtonDisabled() {
     }
 }
 
-/* Remove cart from Database or from localStorage */
+/* Remove cart from Database */
 async function removeToCart(data){   
     const shoppingCartListQuery = document.querySelector("#shopping-cart-list");
     const shoppingGuestCartLoaderQuery = document.querySelector("#shopping-guest-cart-loader");
@@ -302,7 +302,6 @@ async function removeToCart(data){
         shoppingCartListQuery.style.display = "none";
         shoppingGuestCartLoaderQuery.classList.remove("hide");
     }
-
     
     goToCartButtonDisabled();
     let response = await apiServices.processRequest("post", "/remove-to-cart.json", data);
@@ -319,7 +318,6 @@ async function removeToCart(data){
         App.events.notyf("error", "Something went wrong. Please try again.");
     }
     
-
     reloadIfShoppingCartPage();
 }       
 
@@ -370,63 +368,12 @@ function cartItemHtml(data, cart_item){
 }
 
 
-function getCartFromLocalStorage(){
-    let carts = localStorage.getItem('carts');
-    if (carts) {
-        carts = JSON.parse(carts);
-    }
-    return carts;     
-}
-
-function addCartToLocalStorage(data){ 
-    let carts = getCartFromLocalStorage();
-
-    if(carts){
-        /* Update Cart */
-        let is_item_exist = false
-        let item_exist_index = -1
-        for (let i = 0; i < carts.length; i++) {    
-            item = JSON.parse(carts[i]); //convert string to object
-            if(item.product_uuid == data.product_uuid && item.product_sku == data.product_sku){
-                is_item_exist = true;
-                item_exist_index = i;                                        
-            }
-        }
-        if(is_item_exist == true){                
-            carts[item_exist_index] = JSON.stringify(data);
-        } else {
-            carts.push(JSON.stringify(data));
-        }
-    } else {
-        /* Add Cart */
-        carts = [(JSON.stringify(data))];
-    }
-
-    localStorage.setItem('carts', JSON.stringify(carts));    
-
-    goToCartButtonEnabled();   
-    reloadIfShoppingCartPage();
-}
-
 function reloadIfShoppingCartPage() {
     if (window.location.pathname === "/shopping-cart") {
         location.reload();
     }
 }
 
-function removeCartFromLocalStorage(data){
-    let carts = getCartFromLocalStorage();
-    if(carts){
-        /* Find the item to be removed */
-        for (let i = 0; i < carts.length; i++) {    
-            item = JSON.parse(carts[i]); //convert string to object
-            if(item.product_uuid == data.product_uuid && item.product_sku == data.product_sku){       
-                carts.splice(i, 1); //remove this item from array                       
-            }
-        }
-    }
-    localStorage.setItem('carts', JSON.stringify(carts));
-}
 
 function formatNumber(num) {
     const value = typeof num === "number" ? num : parseFloat(num);
@@ -487,53 +434,6 @@ function computeSubTotal(){
         emptyCartWrap.classList.remove('hide');            
     }
 }        
-
-
-/**
- * Saves the checkout session data for a guest user by sending the payload to the server.
- * It includes details like subtotal, shipping, processing fees, taxes, and total amount.
- * A success or error notification is triggered based on the response.
- */
- async function saveCheckoutSessionForGuest(products) {
-    // Get cart items from localStorage and parse them
-    const localStorageCarts = localStorage.getItem('carts');
-    let cart = [];
-        
-    if (localStorageCarts) {
-        try {
-            // Parse the JSON string from localStorage
-            const cartArray = JSON.parse(localStorageCarts);                
-            // Convert each item to object if it's a string
-            cart = cartArray.map(item => {
-                if (typeof item === 'string') {
-                    return JSON.parse(item);
-                }
-                return item;
-            });
-        } catch (e) {
-            console.error("Error parsing cart data:", e);
-            cart = [];
-        }
-    }
-
-    // Create payload for the checkout session
-    const payload = {
-        guest_user: true,
-        products: products,
-        cart: cart,
-        type: 'cart_drawer'
-    };
-
-    // Send request to save the session data
-    const url = '/save-checkout-session.json';
-    const response = await apiServices.processRequest('post', url, payload);
-
-    if (response.state && response.data) {            
-        return true;
-    } else {
-        App.events.notyf("error", "An error occurred while saving the order summary.");
-    }
-}
 
 
 /* Close the cart drawer */

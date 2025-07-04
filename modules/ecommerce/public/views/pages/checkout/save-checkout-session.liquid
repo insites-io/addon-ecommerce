@@ -23,10 +23,7 @@ metadata:
   sitemap_changefreq: "never"
 ---
 
-{% liquid
-    assign response = "{}" | parse_json
-    assign guest_user = context.params.guest_user
-%}
+{% assign response = "{}" | parse_json %}
 
 {% parse_json param_contact %}
 {
@@ -117,25 +114,6 @@ metadata:
         session guest_uuid = context.params.guest_uuid
     endif 
 %}
-
-{% if guest_user and guest_user == true %}
-        
-    {% liquid
-
-        # Assign order-cart-related session variables for guest
-        if context.params.cart
-            session guest_cart = context.params.cart
-        endif
-        if context.params.products
-          session guest_products = context.params.products
-        endif 
-        if context.params.discount_uuids
-            session discount_uuids = context.params.discount_uuids
-        endif
-    %}
-
-{% endif %}
-
 
     {% comment %} Update Sessions for Contact Details {% endcomment %}
     {% if context.params.type == 'contact' %}
