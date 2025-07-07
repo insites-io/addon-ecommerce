@@ -25,11 +25,17 @@ metadata: {
     assign order_items = '' | split: ','
     endcomment
     assign order_items = '[]' | parse_json
+    assign total_preorder_items = 0
 
     for cart_item in cart_items
 
         assign product = products | array_detect: uuid: cart_item.product_uuid
         assign product_name = product.product_name
+
+        ## This variable is use in creating preorder events
+        if product.stock_level < 1
+            assign total_preorder_items = total_preorder_items | plus: 1
+        endif
         
         ## Check if the cart_item is a product or a variant of the product
         if cart_item.variant_uuid == '' or cart_item.variant_uuid == null
@@ -94,4 +100,4 @@ metadata: {
     name: "modules/ecommerce/add_order_items", 
     data: order_items_payload %}
 
-{% export cart %}
+{% export cart, total_preorder_items %}
