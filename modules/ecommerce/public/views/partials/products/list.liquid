@@ -102,7 +102,8 @@ Step: Call the search GraphQL with the parameters
                 <h1 class="heading-1">All products</h1>
             {%- endif -%}
         {%- endif -%}
-        <div class="spacer xxx-large"></div>
+        <div class="spacer xxx-large hide-for-small-only"></div>
+        <div class="spacer large show-for-small-only"></div>
     </div>
 </div>
 
@@ -113,7 +114,6 @@ Step: Call the search GraphQL with the parameters
         
         {% comment %} Drawer Categories for Mobile view {% endcomment %}
         <div class="hide-for-large">
-            <div class="spacer"></div>
             <ins-button label="Categories" icon="icon-sliders" id="mobile-category-button" outlined></ins-button>
             <div class="spacer small"></div>
             <ins-drawer 
