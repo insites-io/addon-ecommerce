@@ -22,7 +22,7 @@ metadata: {
     "total_amount": {{ amount }}
 }
 {% endparse_json %}
-{%- comment -%}Step 2.0: Create payment data{%- endcomment -%}
+{%- comment -%} Create payment data {%- endcomment -%}
 {% parse_json payment_data %}
 {
     "order_uuid": "{{ order_uuid }}",
@@ -53,18 +53,7 @@ metadata: {
 {% assign total_preorder_items = context.exports.total_preorder_items %}
 
 
-{%- comment -%} Delete the user cart if the status is not 'failed'. {%- endcomment -%}
-{% assign tmp_order_payment_status = order_payment_status | downcase %}
-{% unless tmp_order_payment_status contains 'failed' %}
-    {% if cart.id %}
-        {% comment %} Delete Cart and Cart Items {% endcomment %}
-        {%- graphql delete_cart = 'modules/ecommerce/carts/delete_cart', id: cart.id -%}
-        {%- graphql delete_cart_items = 'modules/ecommerce/cart_items/delete_cart_items', cart_uuid: cart.uuid | dig: 'records_delete_all' -%}
-    {% endif %}
-{% endunless %}
-
-
-{%- comment -%}Step 2.3: Update order status fields{%- endcomment -%}
+{%- comment -%} Update order status fields {%- endcomment -%}
 {%- parse_json order_update_data -%}
 {
     "uuid": "{{ order_uuid }}",
@@ -82,7 +71,47 @@ metadata: {
 {% export updated_order %}
 
 
-{%- comment -%}Step 2.4: Update inventory{%- endcomment -%}
+{% comment %} Discount code {% endcomment %}
+{% if cart.discount_code_uuids.size > 0 %}
+
+    {% comment %} Add Order Discounts {% endcomment %}
+    {% for discount in cart.discounts %}
+        {% parse_json order_discount_data %}
+        {
+            "order.uuid" : "{{ order_uuid }}",
+            "discount.uuid" : "{{ discount.uuid }}",
+            "discount_name" : "{{ discount.discount_name }}",
+            "discount_type" : "{{ discount.discount_type }}",
+            "discount_value" : {{ discount.discount_value | default: 0.00 }},
+            "discount_code" : "{{ discount.discount_code }}"
+        }
+        {% endparse_json %}
+        {%- graphql add_order_discount = 'modules/ecommerce/system/trigger_api_call', 
+            name: "modules/ecommerce/add_order_discount", data: order_discount_data 
+            | dig: 'items','response','body' | parse_json -%}
+    {% endfor %}
+
+
+    {% comment %} Increment Discount usage_count {% endcomment %}
+    {% assign discount_ids = cart.discounts | map: 'id' %}
+    {% graphql increment_discount_usage_count = "modules/ecommerce/discount/increment_discount_usage_count", ids: discount_ids %}
+
+{% endif %}
+
+
+{%- comment -%} Delete the user cart if the status is not 'failed'. {%- endcomment -%}
+{% assign tmp_order_payment_status = order_payment_status | downcase %}
+{% unless tmp_order_payment_status contains 'failed' %}
+    {% if cart.id %}
+        {% comment %} Delete Cart and Cart Items {% endcomment %}
+        {%- graphql delete_cart = 'modules/ecommerce/carts/delete_cart', id: cart.id -%}
+        {%- graphql delete_cart_items = 'modules/ecommerce/cart_items/delete_cart_items', cart_uuid: cart.uuid | dig: 'records_delete_all' -%}
+    {% endif %}
+{% endunless %}
+
+
+
+{%- comment -%} Update inventory {%- endcomment -%}
 {%- if status == 'success' -%}
 {%- assign model_name = "modules/insites_ecommerce/product" -%}    
 

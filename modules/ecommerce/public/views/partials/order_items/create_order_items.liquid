@@ -10,7 +10,8 @@ metadata: {
     ## Get cart
     if user_cart_uuid and user_cart_uuid != ''
         assign cart_items = '' | split: ','     
-        graphql cart = 'modules/ecommerce/carts/get_cart', contact_uuid: user_cart_uuid | dig: 'items','results' | first 
+        ## Discount details will be used in the export to create an Order Discounts item.
+        graphql cart = 'modules/ecommerce/carts/get_cart', contact_uuid: user_cart_uuid, show_discount_details: true | dig: 'items','results' | first 
         assign cart_items = cart.cart_items
     endif
 
