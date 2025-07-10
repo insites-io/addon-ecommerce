@@ -1,6 +1,5 @@
 mutation increment_discount_usage_count (
   $ids: [ID!]
-  $number_of_use: Float = 1
 ) {
   items: records_update_all (
     sync: true
@@ -10,7 +9,7 @@ mutation increment_discount_usage_count (
     }
     record: {
       properties: [
-        { name: "usage_count", increment: $number_of_use }
+        { name: "usage_count", increment: 1 }
       ]
     }
   ) {
