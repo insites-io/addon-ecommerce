@@ -110,45 +110,21 @@ metadata: {
 {% endunless %}
 
 
-
-{%- comment -%} Update inventory {%- endcomment -%}
+{%- comment -%} Inventory: Decrement Product or Variant stock_level {%- endcomment -%}
 {%- if status == 'success' -%}
-{%- assign model_name = "modules/insites_ecommerce/product" -%}    
-
-    {% comment %} Product Inventory {% endcomment %}
-    {%- if settings.inventory_tracking -%}
-        {% log "==== Inventory tracking is enabled: updating inventory ==== " %}
-        {%- for cart_id in context.exports.order.cart_ids -%}
-            {%- comment -%}2.3.1 Check if cart item was variant or main product{%- endcomment -%}
-            {%- graphql cart = 'modules/ecommerce/cart/get_cart_variant', 
-                id: cart_id
-                | dig: 'items' | dig: 'results' | first -%}
-
-            {%- assign qty_purchased = cart.quantity | times: 1.0 -%}
-            {%- comment -%}Check if cart item was variant or main product{%- endcomment -%}
-            {%- if cart.product_variant_uuid and cart.product.variant_schema -%}
-                {%- comment -%}IF variant id and variant schema, deduct purchase from variant inventory{%- endcomment -%}
-                {%- assign model_name = cart.product.variant_schema -%}
-                {%- assign cart_item_id = cart.product_variant_uuid -%}
-
-            {%- else -%}
-                {%- comment -%}ELSE inventory will be deducted on product model{%- endcomment -%}
-                {%- assign cart_item_id = cart.product.id -%}
-            {%- endif -%}
-            
-            {%- comment -%}2.3.2 Deduct purchase from model variant / product{%- endcomment -%}
-            {%- if cart_item_id -%}
-                {%- graphql stock = "modules/ecommerce/orders/update_stock_purchased"
-                    id: cart_item_id
-                    model_name: model_name
-                    qty: qty_purchased -%}
-                    
-                {% log "==== Stock updated ==== " %}
-            {%- endif -%}
-        {%- endfor -%}
-    {%- else -%}
-        {% log "==== Inventory tracking is disabled: inventory was not updated ==== " %}
-    {%- endif -%}
+    {% for cart_item in cart.cart_items  %}
+        {% if cart_item.variant_uuid == '' or cart_item.variant_uuid == null %}
+            {% graphql decrement_stock_level = "modules/ecommerce/products/decrement_stock_level", 
+                uuid: cart_item.product_uuid,
+                ordered_qty: cart_item.quantity,
+                table: 'modules/insites_ecommerce/product' %}
+        {% else %}
+            {% graphql decrement_stock_level = "modules/ecommerce/products/decrement_stock_level", 
+                uuid: cart_item.variant_uuid,
+                ordered_qty: cart_item.quantity,
+                table: 'modules/insites_ecommerce/product_variant' %}      
+        {% endif %}
+    {% endfor %}
 {%- endif -%}
 
 
