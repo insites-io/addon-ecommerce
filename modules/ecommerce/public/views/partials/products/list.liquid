@@ -121,7 +121,10 @@ Step: Call the search GraphQL with the parameters
                 position="right"
                 bordered=false
                 id="mobile-filter-drawer">
-                <div class="wrap">{% comment %} copy #sidebar-categories html via javascript {% endcomment %}</div>
+                <div class="wrap">
+                    {% comment %} copy #sidebar-categories html via javascript {% endcomment %}
+                    {%- include 'modules/ecommerce/products/sidebar_categories_mobile' -%}
+                </div>
             </ins-drawer>
         </div>    
             

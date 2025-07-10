@@ -133,12 +133,16 @@ metadata: {
                 <div class="wrap">
                     <h3 class="heading-5 color-font-sub">Payment details</h3>
                     <div class="spacer small"></div>
-                    <p>{{ order.payment.card_brand | upcase }} **** **** **** {{ order.payment.card_last_four_digits }}</p>
-                    {%- assign month = order.payment.card_expiry_month -%}
-                    {%- if order.payment.card_expiry_month.size < 2 -%}
-                        {%- assign month = "0" | append: order.payment.card_expiry_month -%}
+                    {%- if order.payment.card_last_four_digits -%}
+                        <p>{{ order.payment.card_brand | upcase }} **** **** **** {{ order.payment.card_last_four_digits }}</p>
+                        {%- assign month = order.payment.card_expiry_month -%}
+                        {%- if order.payment.card_expiry_month.size < 2 -%}
+                            {%- assign month = "0" | append: order.payment.card_expiry_month -%}
+                        {%- endif -%}
+                        <p>{{ month }} / {{ order.payment.card_expiry_year }}</p>
+                    {%- else -%}
+                        <p>-</p>
                     {%- endif -%}
-                    <p>{{ month }} / {{ order.payment.card_expiry_year }}</p>
                     <div class="spacer large"></div>
                 </div>
 

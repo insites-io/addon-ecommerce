@@ -37,7 +37,7 @@ metadata: {
     assign filters = filters | add_hash_key: "sort", sort_by
 
     if context.params.status
-        comment 
+        comment
             ** Handle 'completed' and 'Completed' strings
         endcomment
         assign statFilter = '[]' | parse_json
@@ -83,9 +83,9 @@ metadata: {
                 <ins-filter-item
                     name="Order status"
                     id="order-filter-status"
-                    options='["All", "Cancelled", "Completed", "Open", "Processing"]'
+                    options='["All", "Back ordered", "Cancelled", "Completed", "For collection", "For delivery", "Open", "On hold", "Other", "Parked", "Processing", "Refunded", "Subscription active", "Subscription cancelled"]'
                     {%- if context.params.status -%}
-                        selected='{{context.params.status | capitalize}}'
+                        selected='{{context.params.status | capitalize | replace: "_", " " }}'
                     {%- endif -%}
                     >
                 </ins-filter-item>
@@ -100,7 +100,7 @@ metadata: {
         sort-keyword="order-number"
         searchbar-placeholder="Search by order number"
         {%- if context.params.search -%}
-            initial-search="{{context.params.search}}"
+            initial-search="{{ontext.params.search}}"
         {%- endif -%}
         >         
     </ins-table> 
@@ -121,13 +121,13 @@ metadata: {
     // Used for checking if needs to revert to the first page
     let currentFilter = {
         "searchKeyword": "{{ context.params.search | default: "" }}",
-        "filterStatus" : "{{ context.params.status | default: '' | capitalize }}",
+        "filterStatus" : "{{ context.params.status | default: '' | capitalize | replace: '_', ' ' }}",
         "filterDateTo": "{{ context.params.from | default: '' }}",
         "filterDateFrom" : "{{ context.params.to | default: '' }}"
     };
 
     let searchKeyword = "{{ context.params.search | default: "" }}";
-    let filterStatus = "{{ context.params.status | default: '' | capitalize }}"
+    let filterStatus = "{{ context.params.status | default: '' | capitalize | replace: '_', ' ' }}"
     let filterDateTo = "{{ context.params.from | default: '' }}"
     let filterDateFrom = "{{ context.params.to | default: '' }}"
 
@@ -211,7 +211,7 @@ metadata: {
 
         let searchKey = searchKeyword.trim();
         if(searchKeyword != ''){ urlWithParams.searchParams.append('search', searchKey); }
-        let statusKey = filterStatus.trim();
+        let statusKey = filterStatus.trim().toLowerCase().replace(" ", "_");
         if(statusKey != ''){ urlWithParams.searchParams.append('status', statusKey); }
         if(filterDateTo != ''){ urlWithParams.searchParams.append('to', filterDateTo); }
         if(filterDateFrom != ''){ urlWithParams.searchParams.append('from', filterDateFrom); }
@@ -235,7 +235,7 @@ metadata: {
 
     function filterHandler(event){
         let dateSelected = event.detail["Date"];
-        let orderStatus = event.detail["Order Status"];
+        let orderStatus = event.detail["Order status"];
 
         if(orderStatus == "All"){ filterStatus = ''; } 
         else { filterStatus = orderStatus; }  

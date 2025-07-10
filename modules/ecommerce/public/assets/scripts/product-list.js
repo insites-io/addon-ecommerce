@@ -166,17 +166,19 @@ let productList = (function () {
                     sortSelect.addEventListener('insChange', productList.methods.sortValueSelected);
                 }
 
+                
                 let mobileCategoryToggle = document.getElementById('mobile-category-button');
                 if(mobileCategoryToggle){
-                    let sidebarCategoriesHtml = document.getElementById('sidebar-categories').innerHTML;
-                    console.log("sidebarCategoriesHtml",sidebarCategoriesHtml);
+                    //let sidebarCategoriesHtml = document.getElementById('sidebar-categories').innerHTML;
+                    //console.log("sidebarCategoriesHtml",sidebarCategoriesHtml);
                     // Replace 'id' with 'data'
-                    let modifiedHTML = sidebarCategoriesHtml.replace(/\bid="([^"]+)"/g, 'data="$1"');
-                    console.log("modifiedHTML",modifiedHTML);
-                    let mobileFilterWrap = document.querySelector('#mobile-filter-drawer .wrap');                
-                    mobileFilterWrap.innerHTML = modifiedHTML;
+                    //let modifiedHTML = sidebarCategoriesHtml.replace(/\bid="([^"]+)"/g, 'data="$1"');
+                    //console.log("modifiedHTML",modifiedHTML);
+                    //let mobileFilterWrap = document.querySelector('#mobile-filter-drawer .wrap');                
+                    //mobileFilterWrap.innerHTML = modifiedHTML;
                     mobileCategoryToggle.addEventListener('insClick', productList.methods.openMobileFilterDrawer);
                 }
+                    
             }
             
         }

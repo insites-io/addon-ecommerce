@@ -330,7 +330,7 @@ metadata: {
                         {%- assign tax_amount = tax_amount | append: '.00' -%}
                     {%- endunless -%}
                     {%- if computed.sub_total_tax_included != 0 -%}
-                        <p id="summary_tax">({{ tax_amount }})</p>
+                        <p id="summary_tax">{{ tax_amount }}</p>
                     {%- else -%}
                         <p id="summary_tax">{{ tax_amount }}</p>
                     {%- endif -%}

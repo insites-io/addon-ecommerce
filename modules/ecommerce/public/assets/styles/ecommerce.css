@@ -173,6 +173,13 @@ ins-button.button-large button .btn__icon {
     font-size: 14px;
     text-align: right;
 }
+ins-button.full button.is-loading{
+    width: 100% !important;
+    text-align: center;
+}
+ins-button.full button.is-loading .spinner{
+    display: inline-block;
+}
 .hidden-input,
 ins-input.hidden-input input {
     height: 0px !important;
@@ -523,7 +530,7 @@ ins-carousel .product-cards .placeholder-img {
 
 /* Out of Stock - Product Card */
 .out-of-stock {
-    background-color: rgba(89, 89, 89, 0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     position: absolute;
     width: 100%;
     height: 100%;
@@ -659,6 +666,11 @@ ins-carousel .product-cards .placeholder-img {
 }
 #mobile-filter-drawer .ins-drawer-header .ins-drawer-close-btn {
     top: 24px;
+    color: var(--font-color-head);
+    font-size: 18px;
+    padding: 12px;
+    right: 6px;
+    top: 6px;
 }
 #mobile-filter-drawer .ins-drawer-header.sticky+.ins-drawer-body {
     margin-top: 66px;
@@ -672,7 +684,11 @@ ins-carousel .product-cards .placeholder-img {
     display: block;
 }
 #mobile-filter-drawer ins-accordion .inner-content a {
-    padding: 12px 16px 12px 32px;
+    padding: 16px 24px 16px 40px;
+    font-size: 14px !important;
+}
+#mobile-filter-drawer ins-accordion .inner-content a span{
+    font-size: 14px !important;
 }
 #mobile-filter-drawer ins-accordion a span {
     padding: 0px;
@@ -848,6 +864,16 @@ ins-drawer#mobile-menu ins-accordion .ins-accordion-item ins-accordion .ins-acco
     margin-bottom: 0px;
     margin-left: 8px;
 }
+.product-list .ibt-table-wrap__prev-next button.page{
+    font-size: 14px !important;
+    height: auto;
+}
+@media screen and (max-width: 639px) {
+    .product-list .filter .ins-select-wrap {
+        margin-bottom: 0px;
+        margin-left: 0px;
+    }
+}
 .product-list .filter .ins-select-option-wrap,
 .product-list .filter .ins-select-label-wrap span {
     color: var(--font-color-body);
@@ -955,6 +981,9 @@ ins-drawer.cart-drawer .ins-drawer-header h4 {
 .cart-drawer .cart-details{
     width: 162px;
     margin-right: 16px;
+}
+.cart-drawer .shipping-note{
+    color: var(--font-color-body, #575757) !important;
 }
 @media screen and (max-width: 640px){
     .cart-drawer .cart-details{
@@ -1659,6 +1688,36 @@ ins-filter .filter__date ins-button button.blue.solid {
 ins-filter .date-range__cancel-apply ins-button:first-of-type{
     margin-right: 0px;
 }
+ins-filter .flatpickr-day:hover{
+    background-color: var(--color-main-hover-light);
+    color: var(--color-main);
+}
+ins-filter .flatpickr-day:hover, .flatpickr-day.prevMonthDay:hover{
+    background-color: var(--color-main-hover-light);
+}
+ins-date-time .ins-date-time-wrap .flatpickr-calendar .flatpickr-rContainer .flatpickr-day{
+    font-family: var(--font-family-02);
+    color: var(--font-color-body);
+}
+ins-filter .date-range__opt-container>div{
+    margin: 0px;
+}
+ins-filter .date-range__opt-container>div>div{
+    height: auto;
+    padding: 8px;
+    line-height: normal;
+    font-family: var(--font-family-02);
+}
+ins-filter .date-range__opt-container>div>div.active-tab,
+ins-filter .date-range__opt-container>div>div:hover{
+    background-color: var(--color-main-hover-light);
+    color: var(--color-main);
+    border: none;
+}
+ins-filter ins-button button.ins-button.size--small span{
+    text-transform: capitalize;
+}
+
 #purchased-filter .filter {
     margin-top: 3px;
     margin-bottom: -3px;
@@ -1689,6 +1748,9 @@ ins-filter .date-range__cancel-apply ins-button:first-of-type{
 }
 .ibt-table-wrap__settings{
     background-color: transparent;
+}
+.ibt-table-wrap .ibt-table_tr:hover:nth-child(odd){
+    background-color: inherit;
 }
 @media (max-width: 1023px) {
     .ibt-table-wrap .ibt-table {
