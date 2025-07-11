@@ -29,7 +29,7 @@ metadata: {
         assign selected_prop = product.variants[0] 
         assign variant_id = selected_prop.id
         assign variant_uuid = selected_prop.uuid        
-        
+         
         ## Variant Galleries        
         for variant in product.variants
             assign galleries = galleries | array_add: variant.product_image.url
@@ -91,19 +91,18 @@ metadata: {
                         thumbnail-layout="slider"
                         id="product-galleries">
                         {%- for gallery in galleries -%}
-                         <ins-gallery-image
-                            thumbnail="{{ gallery }}"
-                            image="{{ gallery }}">
-                        </ins-gallery-image>
+                            <ins-gallery-image
+                                thumbnail="{{ gallery }}"
+                                image="{{ gallery }}">
+                            </ins-gallery-image>
                         {%- endfor -%}
                     </ins-gallery>
                 </div>
-                                
             {%- else -%}
                 {%- include 'modules/website/layout/placeholder_image', size: 'large' -%}
             {%- endif -%}
         </div>
-        <div class="spacer xx-large"></div>
+        <div class="spacer xx-large hide-for-small-only"></div>
         <div class="show-for-large">
             {%- if product.long_description != blank -%}
             <h4>Key features</h4>
@@ -116,7 +115,7 @@ metadata: {
     </div>
 
     <div class="large-4 medium-12 small-12 large-offset-1 cell">
-        <div class="hide-for-large spacer xxx-large"></div>
+        <div class="hide-for-large spacer x-large"></div>
 
         <div class="grid-y grid-padding-y product-details-column-2">
             {% comment %} Text heading {% endcomment %}

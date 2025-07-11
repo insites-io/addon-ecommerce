@@ -53,14 +53,14 @@ metadata: {
                 user_cart, carts, products %}
             <div class="spacer x-large"></div>            
 
-            {% liquid
+            {%- liquid
                 ## Check if has cart
                 if user_cart.id
                     assign cart_id = user_cart.id   
                 endif
 
                 include 'modules/ecommerce/discounts/add_discount_code_form'
-            %}
+            -%}
 
             <div class="spacer x-large"></div>
 

@@ -1864,6 +1864,17 @@ ins-gallery-image.active .ins-gallery-image {
     margin-bottom: 16px;
 }
 
+@media screen and (max-width: 639px) {
+    .product-detail .ins-gallery_slide{
+        border: 1px solid var(--color-ui-04, #DFDFDF);
+    }
+    .product-detail .ins-gallery_current-image img{
+        max-height: 204px;
+        object-fit: contain;
+        background: none;
+    }
+}
+
 /* Credit Card */
 #credit-card-fields .ins-credit-card-compact-size{
     margin-bottom: 0px !important;
@@ -1976,6 +1987,15 @@ ins-button.add-credit-card button.ins-button>div,
     #account-details button {
         width: 100%;
     }
+    #shipping-address-form ins-button button.is-loading,
+    #account-details ins-button button.is-loading{
+        width: 100% !important;
+        text-align: center;
+    }
+    #shipping-address-form ins-button button.is-loading .spinner,
+    #account-details ins-button button.is-loading .spinner{
+        display: inline-block;
+    }
     #shipping-address-form ins-button:not(#add-address-btn) button{
         width: 100%;
     }
@@ -2001,6 +2021,12 @@ ins-button.add-credit-card button.ins-button>div,
     right: 32px;
     z-index: 100;
 }
+
+@media screen and (max-width: 639px) {
+    #address-form-modal .ins-modal-wrap ins-card .ins-card-wrap{
+        margin: 1.75rem 24px;
+    }
+}
 #address-form-modal .modal-button{
     display: flex;
     justify-content: space-between;
@@ -2023,14 +2049,19 @@ ins-button.add-credit-card button.ins-button>div,
 }
 
 .empty-box {
-    padding: 80px 24px;
+    padding: 80px 0px;
     flex-direction: column;
     border-radius: 4px;
     border: 1px solid var(--color-ui-04);
     background: var(--color-ui-01);
     text-align: center;
 }
-
+.empty-box > span{
+    color: var(--font-color-head);
+    font-family: var(--font-family-02);
+    font-weight: 700;
+    font-size: 18px;
+}
 .pr-8{
     padding-right: 8px;
 }
