@@ -63,7 +63,7 @@ callback_actions: |-
       <input type="hidden" name="{{ prop.related_uuid.name }}" value="{{ context.session.guest_uuid }}" >
     {% endunless %}  
 
-    {% include 'modules/ecommerce/checkout/checkout_shipping_contacts', prop, form_type: form_type %}
+    {% include 'modules/ecommerce/checkout/checkout_shipping_contacts', prop %}
 
     <div class="spacer large"></div>
     <div class="grid-x">        
