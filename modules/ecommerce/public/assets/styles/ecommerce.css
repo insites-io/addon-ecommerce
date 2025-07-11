@@ -1576,15 +1576,13 @@ ins-button button[type=submit] {
 ins-button button.ins-button span {
     font-family: var(--font-family-01);
     font-size: 14px;
+    line-height: 14px;
     text-transform: none;
 }
 ins-button+ins-button button,
 a.ins-button+ins-button button,
 ins-button+a.ins-button button {
     margin-left: 16px;
-}
-ins-button button.size--normal .btn__icon {
-    margin-top: -3px;
 }
 .ins-form-field-wrap,
 ins-checkbox .ins-radio-checkbox label {
