@@ -77,7 +77,7 @@ const billingAddressID = document.getElementById('billing_address_id');
 const billingSubmitBtn = document.getElementById("billing-submit-button");
 
 // Payment Information
-let addCardBtn = document.getElementById('add-card-btn');
+let addCardBtns = document.querySelectorAll('.add-card-btn');
 let cardModal = document.getElementById('stripe-modal');
 let checkoutSubmitBtn = document.getElementById('checkout-submit-btn');
 
@@ -582,8 +582,10 @@ let Checkout = (function () {
                 this.initCardsEventListener();
                 this.initCheckNavigation();
                 this.initAddressListener();    
-                if(addCardBtn) {
-                    addCardBtn.addEventListener('insClick',() => cardModal.open());
+                if(addCardBtns) {
+                    addCardBtns.forEach(btn => {
+                        btn.addEventListener('insClick',() => cardModal.open());
+                    });
                 }            
             },
             initAddressListener() {

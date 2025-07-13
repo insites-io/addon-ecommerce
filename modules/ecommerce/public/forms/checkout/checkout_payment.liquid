@@ -208,6 +208,10 @@ callback_actions: >
 
     <!-- Payment Details -->
 
+    {%- graphql cards = "modules/ecommerce/payment_method/get_payment_method", 
+            contact_uuid: contact_uuid
+            size: 50 | dig: 'items' -%}
+
     <div id="payment-details" class="aa">
         <div class="grid-x grid-padding-x">
             <div class="large-6 medium-6 small-12 cell">
@@ -216,8 +220,10 @@ callback_actions: >
             <div class="large-6 medium-6 small-12 cell text-right">
                 {% if has_profile %}
                 <div class="spacer x-small"></div>
-                <ins-button type="button" id="add-card-btn" icon="icon-plus" label="Add credit card">
-                </ins-button>
+                <div id="add-credit-card-button-holder">
+                    <ins-button type="button" class="add-card-btn {% if cards.total_entries < 1 %}hide{% endif %}" icon="icon-plus" label="Add credit card">
+                    </ins-button>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -238,10 +244,7 @@ callback_actions: >
                             {%- graphql user_stripe = 'modules/portal/customers/get_user_stripe_id', email: email | dig: 'items','results' | first -%}
                             {%- assign stripe_id = user_stripe | dig: 'profiles' | first | dig: 'stripe_id' -%}
 
-                            {% if stripe_id != '' and stripe_id != null %}
-                                {%- graphql cards = "modules/ecommerce/payment_method/get_payment_method", 
-                                    contact_uuid: contact_uuid
-                                    size: 50 | dig: 'items' -%}
+                            {% if stripe_id != '' and stripe_id != null %}                                
                                 {%- for card in cards.results -%}
                                     {%  liquid
                                         assign is_card_active = ''
@@ -272,9 +275,11 @@ callback_actions: >
             </div>
 
             {%- if has_profile -%}
-                <ins-card steady id="no-card" class="empty-card {% if cards.total_entries > 0 %}hide{% endif %}">
-                    No card added.
-                </ins-card>
+                <div id="no-card" class="empty-box {% if cards.total_entries > 0 %}hide{% endif %}">
+                    <p class="body-large bold">No card added.</p>
+                    <div class="spacer"></div>
+                    <ins-button solid type="button" class="add-card-btn" icon="icon-plus" label="Add credit card"></ins-button>
+                </div>
             {%- else -%}
                 {% comment %} Use block stripe form for Guest Chackout {% endcomment %}
                 <div class="spacer x-small"></div>
