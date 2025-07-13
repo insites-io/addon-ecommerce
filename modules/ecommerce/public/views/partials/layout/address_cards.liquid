@@ -45,7 +45,7 @@ metadata: {
                 <div>
                     <p class="form-label">{{ full_address }}</p>
                     <div class="spacer small"></div>
-                    <p>{{ data.state | strip }} <br>{{ data.postcode | strip }}</p>
+                    <p>{{ data.suburb | strip }} {{ data.state | strip }}, {{ data.postcode | strip }}</p>
                     <p>{{ data.country | strip }}</p>
                 </div>
             </ins-checkbox-card>
