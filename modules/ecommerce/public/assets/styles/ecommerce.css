@@ -1588,6 +1588,12 @@ ins-button+a.ins-button button {
 ins-checkbox .ins-radio-checkbox label {
     margin-bottom: 24px;
 }
+ins-checkbox .ins-checkbox-wrap label {
+    display: flex;
+}
+ins-checkbox .ins-checkbox-wrap input {
+    min-width: 16px;
+}
 .ins-checkbox-card-wrap {
     padding: 24px;
 }
