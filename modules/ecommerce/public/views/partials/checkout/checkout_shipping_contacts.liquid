@@ -1,7 +1,8 @@
 {% comment %} Shipping contact {% endcomment %}
 <div id="shipping-details" class="insites-form">
   <h4>Shipping contact</h4>
-  <div class="spacer x-large"></div>
+  <div class="hide-for-small-only spacer x-large"></div>
+  <div class="show-for-small-only spacer small"></div>
 
   <ins-checkbox class="inline" 
     {% if context.session.shipping_same_with_account == true %} checked {% endif %}
