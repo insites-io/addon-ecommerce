@@ -1253,6 +1253,15 @@ ins-card.overview .wrap{
 #order-tab ins-tab-item>div {
     padding: 40px;
 }
+
+@media screen and (max-width: 639px) {
+    #order-tab ins-tab-item>div {
+        padding: 40px 16px;
+    }
+    #order-tab #order-summary-main-wrap{
+        display: block !important;
+    }
+}
 #order-tab .ins-tab .ins-tab-headers .ins-tab-header {
     font-family: var(--font-family-02);
     font-size: 16px;
@@ -1369,6 +1378,14 @@ ins-tab .ins-tab .ins-tab-headers .ins-tab-header:hover::before{
     ins-filter-item .filter-item__button {
        margin-bottom: 8px;
     }
+    #order-filter ins-filter-item .filter-item__button {
+        margin-bottom: 0px;
+    }
+}
+@media only screen and (max-width: 639px) {
+    #order-table .ins-searchbar-container{
+        max-width: 100%;
+    }
 }
 
 /* Order History Summary */
@@ -1388,6 +1405,34 @@ ins-tab .ins-tab .ins-tab-headers .ins-tab-header:hover::before{
     font-weight: 400;
     line-height: 24px; /* 150% */
 }
+.ecommerce .ibt-table-accordion .ibt-table-accordion_row-head{
+    color: var(--font-color-head);
+    font-family: var(--font-family-02);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    padding: 16px 24px;
+}
+.ecommerce .ibt-table-accordion .ibt-table-accordion_row-body.opened{
+    padding: 16px 24px;
+}
+.ecommerce .ibt-table-accordion .ibt-table-accordion_row-body td{
+    display: block;
+    box-sizing: border-box;
+    clear: both;
+}
+.ecommerce .ibt-table-accordion .ibt-table-accordion_row-body tr:not(:last-child) > td:last-child{
+    margin-bottom: 24px;
+}
+.ecommerce .ibt-table-accordion .ibt-table-accordion_row-body .column-label{
+    padding: 0px;
+}
+@media (max-width: 768px) {
+    .ecommerce .ibt-table-accordion .text-label span {
+        margin-left: 0px;
+    }
+}
+
 
 .ecommerce .ibt-table-wrap .ibt-table_tr:last-child .ibt-table_td{
     border-bottom: none;

@@ -386,6 +386,12 @@ metadata: {
     <div id="order-summary-drawer-content">       
 
     </div>
+    <div class="spacer x-large"></div>
+    <div class="show-for-small-only">
+        {%- liquid
+            include 'modules/ecommerce/discounts/add_discount_code_form_mobile'
+        -%}
+    </div>
     {%- if context.params.slug != 'checkout' -%}
         <div class="spacer x-large"></div>
         <ins-button label="Proceed to checkout" solid color="blue" class="checkoutBtn proceed-to-checkout-btn full" onclick="document.location.href = '/checkout';"></ins-button>

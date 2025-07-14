@@ -51,8 +51,9 @@ metadata: {
                 form_update: true,
                 form_delete: true,
                 user_cart, carts, products %}
-            <div class="spacer x-large"></div>            
-
+            <div class="spacer x-large"></div>  
+            
+            <div class="hide-for-small-only">
             {%- liquid
                 ## Check if has cart
                 if user_cart.id
@@ -61,6 +62,7 @@ metadata: {
 
                 include 'modules/ecommerce/discounts/add_discount_code_form'
             -%}
+            </div>
 
             <div class="spacer x-large"></div>
 
