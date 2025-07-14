@@ -2036,15 +2036,18 @@ ins-button.add-credit-card button.ins-button>div,
     #account-details button {
         width: 100%;
     }
+    #billing-address-form ins-button button.is-loading,
     #shipping-address-form ins-button button.is-loading,
     #account-details ins-button button.is-loading{
         width: 100% !important;
         text-align: center;
     }
+    #billing-address-form ins-button button.is-loading .spinner,
     #shipping-address-form ins-button button.is-loading .spinner,
     #account-details ins-button button.is-loading .spinner{
         display: inline-block;
     }
+    #billing-address-form ins-button:not(#add-address-btn) button,
     #shipping-address-form ins-button:not(#add-address-btn) button{
         width: 100%;
     }
@@ -2058,6 +2061,9 @@ ins-button.add-credit-card button.ins-button>div,
     }
     #shipping-address-fields #address-cancel-btn{
         margin-bottom: 16px;
+    }
+    #address-toggle{
+        text-align: left;
     }
 }
 
