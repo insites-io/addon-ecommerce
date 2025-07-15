@@ -62,11 +62,15 @@ callback_actions: |-
 
     {% include 'modules/ecommerce/checkout/checkout_billing_contacts', prop %}
 
-    <div class="spacer large"></div>
+    <div class="hide-for-small-only spacer large"></div>
+    <div class="show-for-small-only spacer small"></div>
+
     <div class="grid-x">        
       <h4>Billing address</h4>
     </div>
-    <div class="spacer x-large"></div> 
+
+    <div class="hide-for-small-only spacer x-large"></div>
+    <div class="show-for-small-only spacer"></div>
 
     {% comment %} Search address {% endcomment %}
     <div id="billing-address-fields" class="address-fields" >
