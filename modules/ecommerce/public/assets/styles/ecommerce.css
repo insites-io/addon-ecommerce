@@ -222,8 +222,12 @@ ins-input.hidden-input input {
 #mega-menu .ins-modal-wrap.show-modal ins-card .ins-card-wrap .ins-modal-content {
     border-radius: 0px 0px 4px 4px;
     border: 1px solid var(--color-ui-04, #DFDFDF);
+    border-top: none;
     background: #FFF;
+
+    box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.10);
 }
+
 #mega-menu .ins-modal-head {
     display: none;
 }
@@ -1314,7 +1318,13 @@ ins-tab .ins-tab .ins-tab-headers .ins-tab-header:hover::before{
 #order-table .ibt-table-wrap.no-label .ibt-table-header-wrap {
     padding-top: 66px;
 }
-
+ins-button.reorder-btn button.blue.outlined.is-loading{
+    background: transparent;
+}
+ins-button.reorder-btn button.is-loading .spinner{
+    border: 3px solid var(--color-main);
+    border-left-color: #fff;
+}
 @media (max-width: 768px) {
     #order-table .ibt-table-wrap .ins-searchbar-container {
         position: absolute;
@@ -1330,7 +1340,7 @@ ins-tab .ins-tab .ins-tab-headers .ins-tab-header:hover::before{
     .reorder-btn button,
     #downloads-dropdown {
         width: 100%;
-    }
+    } 
     #downloads-dropdown{
         border-radius: 4px;
         margin-left: initial;
@@ -1427,6 +1437,14 @@ ins-tab .ins-tab .ins-tab-headers .ins-tab-header:hover::before{
 .ecommerce .ibt-table-accordion .ibt-table-accordion_row-body .column-label{
     padding: 0px;
 }
+.ecommerce .ibt-table-accordion_th .first-th{
+    color: var(--font-color-head);
+    font-family: var(--font-family-02);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 150%;
+}
 @media (max-width: 768px) {
     .ecommerce .ibt-table-accordion .text-label span {
         margin-left: 0px;
@@ -1445,7 +1463,6 @@ ins-tab .ins-tab .ins-tab-headers .ins-tab-header:hover::before{
     border-radius: 32px;
     border: 1px solid var(--color-ui-04);
 }
-
 
 /* Pagination */
 .paginations {
@@ -1741,6 +1758,12 @@ ins-filter .flatpickr-day:hover{
     background-color: var(--color-main-hover-light);
     color: var(--color-main);
 }
+
+ins-filter ins-date-time .ins-date-time-wrap .flatpickr-calendar .flatpickr-rContainer .flatpickr-day.selected{
+    background-color: var(--color-main-hover-light);
+    color: var(--color-main);
+    border: none;
+}
 ins-filter .flatpickr-day:hover, .flatpickr-day.prevMonthDay:hover{
     background-color: var(--color-main-hover-light);
 }
@@ -1793,6 +1816,7 @@ ins-filter ins-button button.ins-button.size--small span{
     margin-right: 5px;
 }
 .ibt-table-wrap.no-label .ibt-table-wrap__no-heading{
+    overflow: hidden;
     border-radius: 14px;
 }
 .ibt-table-wrap__settings{
@@ -2032,21 +2056,28 @@ ins-button.add-credit-card button.ins-button>div,
     color: var(--color-main);
 }
 
+.ins-step.completed .ins-step_description{
+    color: var(--font-color-body);
+}
+
 @media screen and (max-width: 639px) {
     #account-details button {
         width: 100%;
     }
+    #checkout-form ins-button button.is-loading,
     #billing-address-form ins-button button.is-loading,
     #shipping-address-form ins-button button.is-loading,
     #account-details ins-button button.is-loading{
         width: 100% !important;
         text-align: center;
     }
+    #checkout-form ins-button button.is-loading .spinner,
     #billing-address-form ins-button button.is-loading .spinner,
     #shipping-address-form ins-button button.is-loading .spinner,
     #account-details ins-button button.is-loading .spinner{
         display: inline-block;
     }
+    #checkout-form ins-button:not(.add-card-btn) button,
     #billing-address-form ins-button:not(#add-address-btn) button,
     #shipping-address-form ins-button:not(#add-address-btn) button{
         width: 100%;
@@ -2064,6 +2095,19 @@ ins-button.add-credit-card button.ins-button>div,
     }
     #address-toggle{
         text-align: left;
+    }
+    #add-credit-card-button-holder{
+        text-align: left;
+    }
+    .ins-step.completed .ins-step_progress-bar{
+        display: none;
+        background: transparent;
+    }
+    .stepper-wrapper .ins-steps ins-step{
+        flex-grow: initial;
+    }
+    .force-show{
+        display: block !important;
     }
 }
 

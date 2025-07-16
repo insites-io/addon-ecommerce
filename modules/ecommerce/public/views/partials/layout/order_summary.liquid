@@ -35,10 +35,12 @@ metadata: {
 -%}
 
 
-<div id="order-summary-main-wrap" class="show-for-medium">    
+<div id="order-summary-main-wrap" class="show-for-medium {% if context.params.slug == 'confirmation' %}force-show{% endif %}">    
     {% unless no_heading %}
+        <div class="spacer x-large show-for-small-only"></div>
         <h4>Order summary</h4>
-        <div class="spacer x-large"></div>
+        <div class="spacer x-large hide-for-small-only"></div>
+        <div class="spacer show-for-small-only"></div>
     {% endunless %}
     <div id="order-summary-cart-wrap" class="order-summary">  
         {% comment %} This is only for logged-in users {% endcomment %}
@@ -66,10 +68,10 @@ metadata: {
                     <div class="product-name large-6 medium-8 small-6 cell">
                         <p class="font-color-sub">{{ cart.product_name }}</p>
                     </div>
-                    <div class="text-right large-3 medium-4 small-6 cell">                        
+                    <div class="text-right large-3 medium-4 small-2 cell">                        
                         <p>{{ item.quantity }}x</p>
                     </div>
-                    <div class="text-right large-3 medium-12 small-12 cell">
+                    <div class="text-right large-3 medium-12 small-4 cell">
                         {%- assign item_amount = cart.price | advanced_format: '%.2f' | default: "0.00" -%}
                         {%- assign item_amount = item_amount | pricify -%}
                         {%- unless item_amount contains '.' -%}
@@ -369,6 +371,7 @@ metadata: {
 
 </div>
 
+{%- unless context.params.slug == 'confirmation' -%}
 <div id="mobile-order-summary" class="show-for-small-only">
     <div class="total">
         <p class="color-ui-05 body-x-small">Total</p>
@@ -376,6 +379,7 @@ metadata: {
     </div>
     <ins-button type="button" id="view-order-summary-btn" label="View order summary"></ins-button>
 </div>
+{%- endunless -%}
 
 <ins-drawer 
   custom-width="430px" 

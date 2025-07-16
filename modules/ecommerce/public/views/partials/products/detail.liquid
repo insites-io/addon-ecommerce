@@ -28,13 +28,14 @@ metadata: {
     if product.is_product_variant_enabled
         assign selected_prop = product.variants[0] 
         assign variant_id = selected_prop.id
-        assign variant_uuid = selected_prop.uuid        
-         
+        assign variant_uuid = selected_prop.uuid 
         ## Variant Galleries        
         for variant in product.variants
-            assign galleries = galleries | array_add: variant.product_image.url
-            assign gallery_indexes = gallery_indexes | add_hash_key: variant.id, index
-            assign index = index | plus: 1
+            if variant.product_image.url
+                assign galleries = galleries | array_add: variant.product_image.url
+                assign gallery_indexes = gallery_indexes | add_hash_key: variant.id, index
+                assign index = index | plus: 1
+            endif
         endfor
     else 
         assign selected_prop = product    
@@ -244,7 +245,7 @@ metadata: {
             <div>
                 <ins-button id="add-to-cart-btn-{{ add_to_cart_data.id }}"  class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid></ins-button>
                 <div class="spacer small"></div>
-                <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ add_to_cart_data }}' icon="icon-shopping-cart"outlined></ins-button>
+                <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ add_to_cart_data }}' icon="icon-shopping-cart" outlined></ins-button>
             </div>
             
         </div>
@@ -269,7 +270,10 @@ metadata: {
     </div>
     
 </div>
-
+<hr>
+<hr>
+{{ price }}
+<hr>
 <script>
     let variants = {{ variants }};
     let variant_data = {
@@ -341,7 +345,7 @@ metadata: {
         });
 
         //Update active view in galleries based on selected variant
-        productGalleries.activate(galleryIndexes[selectedVariant.id]); 
+        productGalleries.activate(galleryIndexes[selectedVariant.id]);
 
         if(selectedVariant.id){
             //Identifiers
@@ -356,7 +360,7 @@ metadata: {
                 productPrice.textContent = `$${selectedVariant.sale_price}`;
                 regularProductPrice.textContent = `$${selectedVariant.regular_price}`;                
             } else {
-                variant_data.price = selectedVariant.sale_price;
+                variant_data.price = selectedVariant.regular_price;
                 productPrice.textContent = `$${selectedVariant.regular_price}`;
                 if (regularProductPrice) {
                     regularProductPrice.textContent = "";

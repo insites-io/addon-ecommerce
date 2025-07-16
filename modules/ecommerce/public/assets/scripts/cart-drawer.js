@@ -69,6 +69,7 @@ async function addToCartPreProcess(event, type){
         type = event.detail.label 
     }            
         
+    
     //used for product with variants in product details page
     if(data.variant_product){
         data.id = variant_data.id;
@@ -137,6 +138,7 @@ function cartStepperEventListener(step){
 
             // Calculate the total price for the item
             let priceData = computeItemTotal(itemWrap, event.detail);
+            console.log("stepperData", stepperData);
 
             let data = {
                 "id": stepperData.id,

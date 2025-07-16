@@ -40,7 +40,6 @@ authorization_policies:
        
             <div class="grid-x grid-padding-x">
                 
-                
                 <div class="large-5 medium-12 small-12 cell">
                     <div class="grid-y">
                         {% comment %} Order contact {% endcomment %}
@@ -89,8 +88,10 @@ authorization_policies:
                         <div class="wrap">
                             <h5 class="heading-5-small">Shipping instructions</h5>
                             <div class="spacer small"></div>
-                            <p class="font-cabin">{{ order.shipping_instructions }}</p>
+                            <p class="font-cabin">{{ order.shipping_instructions | default: "Sample shipping Instruction" }}</p>
                         </div>
+
+                        <div class="spacer x-large show-for-small-only"></div>
                         
                     </div>
                 </div>                                    

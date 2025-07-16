@@ -37,7 +37,7 @@ metadata: {
         if product.stock_level < 1
             assign total_preorder_items = total_preorder_items | plus: 1
         endif
-        
+        log product, type: "oiuoiuouiouiouoiuoiuoiuoiiooioiuoiuoiu"
         ## Check if the cart_item is a product or a variant of the product
         if cart_item.variant_uuid == '' or cart_item.variant_uuid == null
             ## item is NOT a variant
@@ -50,6 +50,7 @@ metadata: {
                 endif
             endfor
         endif            
+        log selected_prop, type: "asdsadsadassadsadsadsadsadad"
 
         if selected_prop.is_on_sale == true 
             assign price = selected_prop.sale_price
@@ -60,7 +61,6 @@ metadata: {
         assign order_item_image = selected_prop.product_image.url | default: ''
 
         assign properties = '' | parse_json
-
         assign properties = properties | add_hash_key: 'order.uuid', order_uuid
         assign properties = properties | add_hash_key: 'product.uuid', cart_item.product_uuid
         assign properties = properties | add_hash_key: 'product_variant.uuid', cart_item.variant_uuid
@@ -68,7 +68,7 @@ metadata: {
             assign properties = properties | add_hash_key: 'order_item_image', order_item_image
         endif
         assign properties = properties | add_hash_key: 'order_item_name', product_name
-        assign properties = properties | add_hash_key: 'sku', cart_item.product_sku
+        assign properties = properties | add_hash_key: 'sku', selected_prop.product_sku
         assign temp_cart_item_quantity = cart_item.quantity | plus: 0
         assign properties = properties | add_hash_key: 'quantity', temp_cart_item_quantity
         assign properties = properties | add_hash_key: 'is_fixed_tax_amount', selected_prop.is_fixed_tax_amount
