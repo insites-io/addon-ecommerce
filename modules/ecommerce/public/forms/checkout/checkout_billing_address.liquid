@@ -76,11 +76,12 @@ callback_actions: |-
 
     {% include 'modules/ecommerce/checkout/checkout_billing_contacts', prop %}
 
-    <div class="spacer large"></div>
+    <div class="hide-for-small-only spacer large"></div>
+    <div class="show-for-small-only spacer small"></div>
 
     <div class="grid-x">        
       <h4>Billing address</h4>
-      <div class="cell show-for-small-only spacer"></div>
+      <div class="cell show-for-small-only spacer small"></div>
       {% comment %} Add new address {% endcomment %}
       <div class="text-right flex-child-grow"
         id="address-toggle">
