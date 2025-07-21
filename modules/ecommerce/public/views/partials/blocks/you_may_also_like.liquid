@@ -5,7 +5,7 @@ metadata: {
 ---
 <section class="bg-color-ui-01">
     <div class="spacer xxxx-large"></div>
-    <h3>You may also like</h3>     
+    <h5>You may also like</h5>     
     <div class="spacer x-large"></div>
 
     {% graphql products = "modules/ecommerce/products/get_products", not_uuid: not_uuid, size: 4 | dig: 'items','results' %}    

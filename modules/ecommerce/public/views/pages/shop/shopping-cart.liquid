@@ -34,12 +34,13 @@ metadata: {
 
 <div class="ecommerce-wrapper grid-container">
     <div class="grid-x grid-padding-x">
-        <div class="small-12 cell spacer x-large"></div>
+        <div class="small-12 cell spacer xxxx-large hide-for-small-only"></div>
+        <div class="small-12 cell spacer xxx-large show-for-small-only"></div>
         <div class="small-12 cell">
             <h1 class="heading-1">Review your cart</h1>
         </div>
-        <div class="small-12 cell spacer x-large"></div>
-        
+        <div class="small-12 cell spacer x-large hide-for-small-only"></div>
+        <div class="small-12 cell spacer show-for-small-only"></div>
         <div class="large-7 small-12 cell">
             {% include 'modules/ecommerce/shop/shopping_cart', user_uuid, carts, products %}
             <div class="spacer x-large hide-for-large-only"></div>

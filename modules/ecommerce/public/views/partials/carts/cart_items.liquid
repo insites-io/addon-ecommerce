@@ -24,7 +24,7 @@ metadata: {
             assign carts = user_cart.cart_items
             assign product_uuids = carts | array_map: 'product_uuid' | array_flatten
             ## Product details
-            graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: user_cart.items.size | dig: 'items','results'
+            graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: user_cart.cart_items.size | dig: 'items','results'
         %}
     {%- endif -%}
 {% endif %}

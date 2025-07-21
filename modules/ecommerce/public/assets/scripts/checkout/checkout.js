@@ -618,6 +618,7 @@ let Checkout = (function () {
                 }
             },
             initBillingDetailsListener() {
+                Checkout.methods.updateBillingContact(true);
                 if (billingSameWithShippingEl) {
                     billingSameWithShippingEl.addEventListener('insCheck', (event) => {                        
                         Checkout.methods.updateBillingContact(event.detail.checked);

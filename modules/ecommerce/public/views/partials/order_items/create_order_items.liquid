@@ -37,7 +37,7 @@ metadata: {
         if product.stock_level < 1
             assign total_preorder_items = total_preorder_items | plus: 1
         endif
-        log product, type: "oiuoiuouiouiouoiuoiuoiuoiiooioiuoiuoiu"
+
         ## Check if the cart_item is a product or a variant of the product
         if cart_item.variant_uuid == '' or cart_item.variant_uuid == null
             ## item is NOT a variant
@@ -50,7 +50,6 @@ metadata: {
                 endif
             endfor
         endif            
-        log selected_prop, type: "asdsadsadassadsadsadsadsadad"
 
         if selected_prop.is_on_sale == true 
             assign price = selected_prop.sale_price

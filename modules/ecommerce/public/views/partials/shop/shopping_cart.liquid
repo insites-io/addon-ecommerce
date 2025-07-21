@@ -65,7 +65,7 @@ metadata: {
                         </p>
                     </div>
                     <div class="btn-wrap grid-y">
-                        <p class="cart-price compute-price">{{ cart.item_total_price | pricify }}</p>
+                        <p class="cart-price compute-price">{{ cart.item_total_price | pricify: 'USD', no_cents_if_whole: false }}</p>
                         <div class="spacer small"></div>
                         <ins-input-stepper
                             name="cart-stepper"

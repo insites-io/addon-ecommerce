@@ -10,8 +10,8 @@ metadata: {
     "page_title": "Checkout - Order Successful",
     "meta_title": "Checkout - Order Successful"       
 }
-authorization_policies:
-    - modules/ecommerce/order_created_date_valid
+#authorization_policies:
+#    - modules/ecommerce/order_created_date_valid
 ---
 {% assign order_uuid = context.params.id %}
 {% if order_uuid != blank %}

@@ -6,7 +6,8 @@
     name="{{ prop.billing_same_with_shipping.name }}"
     value="true"
     id="billing-same-with-shipping" 
-    label="My billing details are the same as my shipping details.">
+    label="My billing details are the same as my shipping details."
+    checked>
   </ins-checkbox>
 
   <div id="billing-contact-inputs" class="grid-x grid-padding-x billing-contact {% if context.session.billing_same_with_shipping == true %} hide {% endif %}">

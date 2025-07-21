@@ -52,6 +52,7 @@ metadata: {
                 {%- else -%}
                     {%- assign tax_label = "Tax" -%}
                 {%- endif -%}
+
                 {%- if params.slug == 'confirmation' and params.id != '' -%}
                     {%-  
                         liquid 
@@ -99,8 +100,7 @@ metadata: {
     {%- if is_ordered_items == true and order_uuid != '' -%}
         {% include 'modules/ecommerce/checkout/compute_completed_order_amounts', uuid: order_uuid %}
     {%- else -%}
-        {%- include 'modules/ecommerce/checkout/compute_order_summary' 
-            order_id, user_cart, carts, products -%}
+        {%- include 'modules/ecommerce/checkout/compute_order_summary', order_id, user_cart, carts, products -%}
     {%- endif -%}
     {%- assign computed = context.exports.computed -%}
 
@@ -245,7 +245,6 @@ metadata: {
         </div>
     </div>
     <div class="spacer x-small"></div> 
-
 
     {% comment %} Tax {% endcomment %}
     <div class="grid-x grid-padding-x">
