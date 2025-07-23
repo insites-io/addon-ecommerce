@@ -199,7 +199,10 @@ let Checkout = (function () {
                 let requiredInputs = document.querySelectorAll('#billing-contact-inputs ins-input[required]');
                 if(sameDetails){
                     billingSamewithShippingFlag = true;
-                    billingContact.classList.add('hide');                            
+                    console.log("billingContact", billingContact);
+                    if(billingContact){
+                        billingContact.classList.add('hide');
+                    }
                     requiredInputs.forEach(input => {
                         input.removeAttribute('validate');
                         input.removeAttribute('has-error');

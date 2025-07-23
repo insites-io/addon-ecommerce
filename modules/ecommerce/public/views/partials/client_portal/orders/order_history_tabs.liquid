@@ -26,11 +26,11 @@ metadata: {
     Get products info 
   endcomment
   if order.uuid
-    graphql ordered_items = 'modules/ecommerce/order_items/get_order_items', order_uuid: order.uuid, is_product_info_needed: true  | dig: 'items','results'
+    graphql ordered_items = 'modules/ecommerce/order_items/get_order_items', order_uuid: order.uuid, is_product_info_needed: true | dig: 'items','results'
   else 
     redirect_to '/404'
   endif
-
+  
 %}
 
 
@@ -81,7 +81,7 @@ metadata: {
 
   <div class="spacer hide-for-large cell"></div>
 
-  <div class="large-5 medium-12 small-12 text-right">
+  <div class="large-5 medium-12 small-12 text-right reorder-btn-container">
       <ins-button label="Re-order" id="reorder-btn" class="reorder-btn" data='{{ reorder_items }}' icon="icon-shopping-cart" outlined ></ins-button>
 
       <div class="spacer x-small hide-for-large cell"></div>

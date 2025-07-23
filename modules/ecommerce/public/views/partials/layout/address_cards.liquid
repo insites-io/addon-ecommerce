@@ -17,9 +17,7 @@ metadata: {
         {%- if data.address_3 and data.address_3 != '' -%}
             {%- assign full_address = full_address | append: data.address_3 | strip | append : ", " -%}
         {%- endif -%}
-        {%- if data.suburb and data.suburb != '' -%}
-            {%- assign full_address = full_address | append: data.suburb | strip -%}
-        {%- endif -%}
+
         <div class="large-6 medium-6 small-12 cell">
         
             {% comment %} Convert into integer for comparison with selected_card {% endcomment %}

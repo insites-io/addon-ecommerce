@@ -1363,13 +1363,26 @@ ins-tab .ins-tab .ins-tab-headers .ins-tab-header:hover::before{
 #order-table .ibt-table-wrap.no-label .ibt-table-header-wrap {
     padding-top: 66px;
 }
-ins-button.reorder-btn button.blue.outlined.is-loading{
-    background: transparent;
+ins-button.reorder-btn button.blue.outlined.is-loading,
+ins-button button.blue.outlined.is-loading{
+    background: transparent !important;
+    text-align: center;
 }
-ins-button.reorder-btn button.is-loading .spinner{
+ins-button.reorder-btn button.is-loading .spinner,
+ins-button button.blue.outlined.is-loading .spinner{
+    display: inline-block;
     border: 3px solid var(--color-main);
     border-left-color: #fff;
 }
+ins-button button.is-loading, 
+ins-button button[type=button].is-loading{
+    text-align: center;
+}
+ins-button button.is-loading .spinner, 
+ins-button button[type=button].is-loading .spinner{
+    display: inline-block;
+}
+
 @media (max-width: 768px) {
     #order-table .ibt-table-wrap .ins-searchbar-container {
         position: absolute;
@@ -1407,6 +1420,14 @@ ins-button.reorder-btn button.is-loading .spinner{
         top: 20px;
         left: 0px;
         min-width: 100%;    
+    }
+}
+@media only screen and (max-width: 639px) {
+    .reorder-btn-container{
+        text-align: left !important;
+    }
+    .reorder-btn button{
+        width: auto;
     }
 }
 .order-filter-wrap {
@@ -1482,6 +1503,10 @@ ins-button.reorder-btn button.is-loading .spinner{
     font-style: normal;
     font-weight: 400;
     line-height: 24px; /* 150% */
+}
+.ibt-table-accordion_row-td .icon-caret-down, 
+.ibt-table-accordion_row-td .icon-caret-up{
+    color: var(--font-color-head);
 }
 .ecommerce .ibt-table-accordion .ibt-table-accordion_row-head{
     color: var(--font-color-head);
@@ -1720,6 +1745,11 @@ ins-checkbox .ins-radio-checkbox label {
 }
 ins-checkbox .ins-checkbox-wrap label {
     display: flex;
+    align-items: center;
+    vertical-align: middle;
+}
+ins-checkbox .ins-radio-checkbox .ripple-check{
+    align-self: center;
 }
 ins-checkbox .ins-checkbox-wrap input {
     min-width: 16px;
@@ -1729,6 +1759,7 @@ ins-checkbox .ins-checkbox-wrap input {
 }
 ins-checkbox.inline .ins-radio-checkbox label .ins-checkbox-radio-label {
     font-family: var(--font-family-02);
+    margin-top: 3px;
 }
 .ins-accordion-item_header .close-icon, 
 .ins-accordion-item_header .open-icon {
@@ -1783,7 +1814,7 @@ ins-filter-item .filter-item__button--option,
 }
 .ibt-table-wrap__prev-next button.next, 
 .ibt-table-wrap__prev-next button.prev {
-    color: var(--color-ui-04);
+    color: var(--font-color-body);
     font-size: 16px;
     line-height: 16px;
 }
@@ -1874,6 +1905,20 @@ ins-filter ins-button button.ins-button.size--small span{
     ins-filter .filter {
         margin-bottom: 0px;
     }
+    ins-filter .date-range__cancel-apply{
+
+    }
+    ins-filter .date-range__cancel-apply button{
+        width: 100%;
+        margin: 0px;
+        margin-bottom: 12px;
+    }
+    ins-filter .date-range__cancel-apply ins-button:last-child button{
+        margin-bottom: 0px;
+    }
+    ins-filter .date-range__opt-container>div{
+        width: 50%;
+    }
 }
 .ins-select-wrap.buttonise .ins-select-label-wrap {
     padding: 12px 16px;
@@ -1886,12 +1931,19 @@ ins-filter ins-button button.ins-button.size--small span{
 .ibt-table-wrap.no-label .ibt-table-wrap__no-heading{
     overflow: hidden;
     border-radius: 14px;
+    border: 1px solid var(--color-ui-04, #DFDFDF) !important;
 }
 .ibt-table-wrap__settings{
     background-color: transparent;
 }
 .ibt-table-wrap .ibt-table_tr:hover:nth-child(odd){
     background-color: inherit;
+}
+.ibt-table-accordion .action-item{
+    color: var(--color-main-hover);
+}
+.ibt-table-wrap .pagination-wrap *{
+    font-family: var(--font-family-02);
 }
 @media (max-width: 1023px) {
     .ibt-table-wrap .ibt-table {
@@ -1902,6 +1954,12 @@ ins-filter ins-button button.ins-button.size--small span{
     }
     .ibt-table-wrap .ins-searchbar-container {
         width: 100%;
+    }
+}
+@media screen and (max-width: 639px){
+    #order-table .pagination-wrap>.ibt-table-wrap__prev-next{
+        margin: 0px;
+        padding: 0px;
     }
 }
 
@@ -2072,13 +2130,12 @@ ins-gallery-image.active .ins-gallery-image {
 @media only screen and (max-width: 640px) {
     #stripe-modal .modal-btn-container,
     #guest-add-card-form .block-btn-container {
-        flex-direction: column-reverse;
-        row-gap: 24px;
+        row-gap: 16px;
    }
    #stripe-modal .modal-btn-container ins-button,
    #stripe-modal .modal-btn-container button,
    #guest-add-card-form .block-btn-container button {
-       width: 100%;
+       width: 100% !important;
        margin: 0px;
    }
 }
@@ -2229,6 +2286,22 @@ ins-button.add-credit-card button.ins-button>div,
 }
 .pac-container {
     z-index: 9999 !important;
+}
+@media screen and (max-width: 639px) {
+    #address-form-modal .modal-button{
+        display: block;
+    }
+    #address-form-modal .modal-button ins-button button[type=button].blue.outlined,
+    #address-form-modal .modal-button ins-button button[type=button].blue.solid{
+        display: block;
+        margin: 0px;
+        margin-bottom: 16px;
+        width: 100% !important;
+    }
+    #address-form-modal .modal-button ins-button:last-child button[type=button].blue.outlined,
+    #address-form-modal .modal-button ins-button:last-child button[type=button].blue.solid{
+        margin-bottom: 0px;
+    }
 }
 
 /* Confirmation */
