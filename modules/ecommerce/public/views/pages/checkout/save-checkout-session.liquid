@@ -163,6 +163,7 @@ metadata:
     {% comment %} Update Sessions for Billing Details {% endcomment %}
     {% if context.params.type == 'billing' %}
         {%  liquid
+            log session_shipping, type: "SEssion op da Shipping"
 
             if context.params.billing_same_with_shipping == true or context.params.billing_same_with_shipping == 'true' 
                 assign data = session_shipping
@@ -179,12 +180,12 @@ metadata:
             session billing_contact_phone_number = data.contact_phone_number
             session billing_contact_phone_country_code = data.contact_phone_country_code
 
-            session billing_address_1 = param_billing.address_1
-            session billing_address_2 = param_billing.address_2
-            session billing_suburb = param_billing.suburb
-            session billing_state = param_billing.state
-            session billing_postcode = param_billing.postcode
-            session billing_country = param_billing.country            
+            session billing_address_1 = data.address_1
+            session billing_address_2 = data.address_2
+            session billing_suburb = data.suburb
+            session billing_state = data.state
+            session billing_postcode = data.postcode
+            session billing_country = data.country
         %}
     {% endif %}
 

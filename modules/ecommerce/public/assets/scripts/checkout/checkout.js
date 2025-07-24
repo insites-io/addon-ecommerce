@@ -69,6 +69,7 @@ const shippingSubmitBtn = document.getElementById("shipping-submit-button");
 // Billing 
 const billingSameWithShippingEl = document.getElementById('billing-same-with-shipping');
 const billingContact = document.getElementById("billing-contact-inputs");
+const billingAddressCont = document.getElementById("billing-address-fields");
 const billingCompanyNameEl = document.getElementById('billing-company-name');
 const billingFirstNameEl = document.getElementById('billing-first-name');
 const billingLastNameEl = document.getElementById('billing-last-name');
@@ -197,13 +198,21 @@ let Checkout = (function () {
             },
             updateBillingContact(sameDetails){
                 let requiredInputs = document.querySelectorAll('#billing-contact-inputs ins-input[required]');
+                let requiredAddressInputs = document.querySelectorAll('#billing-address-fields ins-input[required]');
                 if(sameDetails){
                     billingSamewithShippingFlag = true;
-                    console.log("billingContact", billingContact);
                     if(billingContact){
                         billingContact.classList.add('hide');
                     }
+                    if(billingAddressCont){
+                        billingAddressCont.classList.add('hide');
+                    }
+
                     requiredInputs.forEach(input => {
+                        input.removeAttribute('validate');
+                        input.removeAttribute('has-error');
+                    });
+                    requiredAddressInputs.forEach(input => {
                         input.removeAttribute('validate');
                         input.removeAttribute('has-error');
                     });
@@ -211,7 +220,13 @@ let Checkout = (function () {
                 } else {
                     billingSamewithShippingFlag = false;
                     billingContact.classList.remove('hide');
+                    if(billingAddressCont){
+                        billingAddressCont.classList.remove('hide');
+                    }
                     requiredInputs.forEach(input => {
+                        input.setAttribute('validate', '');
+                    });
+                    requiredAddressInputs.forEach(input => {
                         input.setAttribute('validate', '');
                     });
                 }

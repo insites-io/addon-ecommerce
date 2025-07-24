@@ -65,15 +65,13 @@ callback_actions: |-
     <div class="hide-for-small-only spacer large"></div>
     <div class="show-for-small-only spacer small"></div>
 
-    <div class="grid-x">        
-      <h4>Billing address</h4>
-    </div>
-
-    <div class="hide-for-small-only spacer x-large"></div>
-    <div class="show-for-small-only spacer"></div>
-
     {% comment %} Search address {% endcomment %}
     <div id="billing-address-fields" class="address-fields" >
+      <div class="grid-x">        
+        <h4>Billing address</h4>
+      </div>
+      <div class="hide-for-small-only spacer x-large"></div>
+      <div class="show-for-small-only spacer"></div>
       <div class="grid-x grid-padding-x">
         <div class="large-12 medium-12 small-12 cell">
           <ins-input address-lookup label="Search Address" 
@@ -101,7 +99,7 @@ callback_actions: |-
           </ins-input>
         </div>
         <div class="large-6 medium-6 small-12 cell">
-          <ins-input validate
+          <ins-input required validate
             label="Suburb*" 
             id="billing_suburb" 
             placeholder="Suburb"

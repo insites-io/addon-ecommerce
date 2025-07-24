@@ -79,38 +79,43 @@ callback_actions: |-
     <div class="hide-for-small-only spacer large"></div>
     <div class="show-for-small-only spacer small"></div>
 
-    <div class="grid-x">        
-      <h4>Billing address</h4>
-      <div class="cell show-for-small-only spacer small"></div>
-      {% comment %} Add new address {% endcomment %}
-      <div class="text-right flex-child-grow"
-        id="address-toggle">
-        <ins-button 
-          type="button" 
-          id="add-address-btn"
-          name="billing-address-fields" 
-          icon="icon-plus" 
-          label="Add new address">
-        </ins-button>
-      </div> 
-    </div>      
+    <div id="billing-address-fields">
+      <div class="grid-x">        
+        <h4>Billing address</h4>
+        <div class="cell show-for-small-only spacer small"></div>
+        {% comment %} Add new address {% endcomment %}
+        <div id="billing-address-fields" class="text-right flex-child-grow" id="address-toggle">
+          <ins-button 
+            type="button" 
+            id="add-address-btn"
+            name="billing-address-fields" 
+            icon="icon-plus" 
+            label="Add new address">
+          </ins-button>
+        </div> 
+      </div>
 
-    <div class="spacer xx-small"></div>
-      
-    {% comment %} Selected address {% endcomment %}
-    <ins-input validate
-      id="billing_address_id" 
-      class="hidden-input"
-      value="{{ context.session.billing_address_id }}"
-      name="{{ prop.billing_address_id.name }}"
-      error-message="Billing address is required. Please select from the list below or add new address.">
-    </ins-input> 
+      <div class="spacer xx-small"></div>
+
+      {% comment %} Selected address {% endcomment %}
+      <ins-input validate required
+        id="billing_address_id" 
+        class="hidden-input"
+        value="{{ context.session.billing_address_id }}"
+        name="{{ prop.billing_address_id.name }}"
+        error-message="Billing address is required. Please select from the list below or add new address.">
+      </ins-input> 
                 
-    {%- comment -%} Address cards {%- endcomment -%}
-    {%- include 'modules/ecommerce/layout/address_cards', 
-      addresses: addresses,
-      selected_card: context.session.billing_address_id | default: "",
-      type: 'billing' -%}
+      {%- comment -%} Address cards {%- endcomment -%}
+      {%- include 'modules/ecommerce/layout/address_cards', addresses: addresses, selected_card: context.session.billing_address_id | default: "", type: 'billing' -%}
+
+    </div>
+
+     
+
+    
+      
+    
         
 
     {% comment %} Buttons {% endcomment %}

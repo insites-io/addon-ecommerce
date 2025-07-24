@@ -199,7 +199,6 @@ callback_actions: >
 
 {% function stripe_settings = "modules/portal/stripe/get_stripe_settings" %}
 
-
 {% form 
     html-id: "checkout-form"
     html-onsubmit:"return Checkout.events.paymentFormSubmit(event);"
@@ -310,9 +309,11 @@ callback_actions: >
                 
                     <div class="grid-x grid-padding-x">  
                         <div class="large-6 medium-6 small-12 cell">
-                            <a href="/checkout/billing">
-                                <ins-button type="button" label="Back" outlined icon="icon-arrow-back"></ins-button>
-                            </a>
+                            {%- if has_profile -%}
+                                <a href="/checkout/billing">
+                                    <ins-button type="button" label="Back" outlined icon="icon-arrow-back"></ins-button>
+                                </a>
+                            {%- endif -%}
                         </div>
                         <div class="show-for-small-only spacer xxx-large"></div> 
                         <div id="submit-buttons" class="large-6 medium-6 small-12 cell text-right {% if cards.total_entries < 1 or cards == null %} hide {% endif %}">
