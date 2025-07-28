@@ -933,6 +933,9 @@ ins-drawer#mobile-menu .menu .ins-accordion-item_content .sign-out-wrapper{
     }
     .product-list .filter .form-label{
         margin-bottom: 8px;
+        display: block;
+        width: 100%;
+        text-align: center;
     }
 }
 .product-list .filter .ins-select-option-wrap,
@@ -1322,6 +1325,20 @@ ins-card.overview .wrap{
         justify-content: space-around;
     }
 }
+@media screen and (max-width: 300px) {
+    .ibt-table-wrap .pagination-wrap>div.ibt-table-wrap__page-nav{
+        flex-direction: column !important;
+        align-items: center !important;
+        padding-bottom: 0px;
+    }
+    .ibt-table-wrap .pagination-wrap *{
+        margin-bottom: 10px;
+    }
+    .ibt-table-wrap .pagination-wrap *:last-child{
+        margin-bottom: 0px;
+    }
+}
+
 #order-tab .ins-tab{
     border-radius: 14px;
 }

@@ -134,11 +134,15 @@ let Checkout = (function () {
             },
             createAddressCard(data) {
                 const suburbState = [data.suburb, data.state].filter(Boolean).join(' ');
+                let streetAddress = data.address_1;
+                if(data.address_2){
+                    streetAddress += `, ${data.address_2}`;
+                }
                 let cardHtml = `
                 <div class="large-6 medium-6 small-12 cell">
                     <ins-checkbox-card data-equalizer-watch="" name="shipping-address-cards" selected-color="blue" value="${data.id}" data-address="${data.address_1}" data-address_1="${data.address_1}" data-address_2="${data.address_2}" data-suburb="${data.suburb}" data-state="${data.state}" data-postcode="${data.postcode}" data-country="${data.country}">                    
                         <div>
-                            <p class="form-label">${data.address_1}${data.address_2 ? `, ${data.address_2}` : ''}, ${data.suburb}</p>
+                            <p class="form-label">${streetAddress}</p>
                             <div class="spacer small"></div>
                             <p>${[suburbState, data.postcode].filter(Boolean).join(', ')}</p>
                             <p>${data.country}</p>

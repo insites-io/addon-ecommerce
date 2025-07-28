@@ -9,13 +9,13 @@ metadata: {
     {%- for data in addresses -%}
         {%- assign full_address = "" -%}
         {%- if data.address_1 and data.address_1 != '' -%}
-            {%- assign full_address = full_address | append: data.address_1 | strip | append : ", " -%}
+            {%- assign full_address = full_address | append: data.address_1 | strip -%}
         {%- endif -%}
         {%- if data.address_2 and data.address_2 != '' -%}
-            {%- assign full_address = full_address | append: data.address_2 | strip | append : ", " -%}
+            {%- assign full_address = full_address | append : ", " | append: data.address_2 | strip -%}
         {%- endif -%}
         {%- if data.address_3 and data.address_3 != '' -%}
-            {%- assign full_address = full_address | append: data.address_3 | strip | append : ", " -%}
+            {%- assign full_address = full_address | append : ", " | append: data.address_3 | strip -%}
         {%- endif -%}
 
         <div class="large-6 medium-6 small-12 cell">
