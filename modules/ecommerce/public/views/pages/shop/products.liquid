@@ -7,10 +7,37 @@ metadata: {
     "status": "published",
     "page_type": "content", 
     "page_name": "Products",
-    "page_title": "Products",
-    "meta_title": "Products",
+    "open_graph:url": "",
+    "open_graph:type": "",
+    "open_graph:image": "",
+    "open_graph:title": "Products | Insites",
+    "open_graph:description": "",
+    "open_graph:site_name": "",
+    "meta_title": "Products | Insites",
+    "page_title": "Products | Insites",
+    "meta_description": "",
+    "canonical_url": "",
+    "is_visible_to_search_engines": true,
+    "sitemap_enabled": true,
+    "sitemap_priority": "1.0",
+    "sitemap_order": "1", 
+    "sitemap_changefreq": "monthly",
     "source_name": "modules/insites_ecommerce/product"       
 }
+dynamic_cache:
+    layout: true
+    key: |-
+        {%- parse_json models -%}
+        [
+            "modules/insites_cms/global",
+            "modules/insites_core/localisation",
+            "modules/insites_ecommerce/category",
+            "modules/insites_ecommerce/order",
+            "modules/insites_ecommerce/order_item",
+            "modules/insites_ecommerce/product"
+        ]
+        {%- endparse_json -%}
+        {%- include "modules/website/cache/generate_cache_key", models: models -%}
 ---
 {% comment -%} 
 URL Structures: 

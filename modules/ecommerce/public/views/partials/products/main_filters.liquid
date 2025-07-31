@@ -20,7 +20,7 @@ metadata: {
 
             <div class="grid-x">
                 <div class="large-auto small-12 cell grid-x flex-container align-justify">
-                    <div class="align-middle grid-x large-10 medium-9 small-12">
+                    <div class="main-filter-by align-middle grid-x large-10 medium-12 small-12">
                         <span class="form-label">Filter by:</span>
 
                         {% graphql product_brands = 'modules/ecommerce/products/get_product_brands' 
@@ -67,7 +67,7 @@ metadata: {
                             <ins-button-select-option label="Price: Low-High" value="price-ascending" {% if params.sort == "price-ascending" %}activated{% endif %}></ins-button-select-option>
                         </ins-button-select>
                     </div>
-                    <div class="align-middle align-right grid-x hide-for-small-only">
+                    <div class="main-filter-views align-middle align-right grid-x hide-for-small-only">
                         <div><p class="form-label pr-8">View:</p></div>
                         <ins-button id="view-grid-btn" icon="icon-grid" color="white" size="normal" label="" class="view-button active"></ins-button>
                         <ins-button id="view-list-btn" icon="icon-list" color="white" size="normal" label="" class="view-button"></ins-button>

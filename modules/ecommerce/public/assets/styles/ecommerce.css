@@ -738,8 +738,17 @@ ins-carousel .product-cards .placeholder-img {
 #mobile-filter-drawer .ins-drawer-body .wrap > a span{
     font-weight: 700;
     font-size: 14px !important;
+    display: block;
     border-bottom: 1px solid var(--color-ui-03, #F3F4F4);
 }
+#mobile-filter-drawer a.active:not(ins-accordion a){
+    background: var(--color-main-hover-light);
+}
+#mobile-filter-drawer a.active .ui-sidebar{
+    color: var(--color-main);
+    font-weight: 700;
+}
+
 #mobile-filter-drawer .ins-drawer-body .wrap > ins-accordion .ins-accordion-item_header .inner-head a{
     font-weight: 700;
     font-size: 14px !important;
@@ -749,6 +758,12 @@ ins-carousel .product-cards .placeholder-img {
 }
 #mobile-filter-drawer .ins-drawer-body .ins-accordion.menu ins-accordion-item:first-of-type .ins-accordion-item_header{
     border-top: none;
+}
+
+@media screen and (max-width: 430px) {
+    #mobile-filter-drawer .ins-drawer-wrap .ins-content{
+        width: 100% !important;
+    }
 }
 
 ins-drawer#mobile-menu ins-accordion .ins-accordion-item ins-accordion .ins-accordion-item{
@@ -912,6 +927,14 @@ ins-drawer#mobile-menu .menu .ins-accordion-item_content .sign-out-wrapper{
     font-size: 14px !important;
     height: auto;
 }
+.main-filter-by .form-label,
+.main-filter-by .ins-button-select-wrap{
+    margin-bottom: 8px;
+}
+.main-filter-views{
+    margin-bottom: 8px;
+} 
+
 @media screen and (max-width: 639px) {
     .product-list .filter .ins-select-wrap {
         margin-bottom: 0px;
@@ -938,6 +961,7 @@ ins-drawer#mobile-menu .menu .ins-accordion-item_content .sign-out-wrapper{
         text-align: center;
     }
 }
+
 .product-list .filter .ins-select-option-wrap,
 .product-list .filter .ins-select-label-wrap span {
     color: var(--font-color-body);
@@ -1010,6 +1034,11 @@ ins-drawer.cart-drawer .ins-drawer-wrap .ins-content::-webkit-scrollbar {
 }
 .cart-stepper .ins-form-field-wrap {
     display: inline-flex;
+}
+@media screen and (max-width: 451px) {
+    #cartDrawer .ins-content{
+        width: 100% !important;
+    }
 }
 @media screen and (max-width: 370px) {
     .cart-stepper .ins-input-stepper_input-wrap input {

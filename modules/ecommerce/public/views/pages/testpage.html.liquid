@@ -1,0 +1,88 @@
+---
+slug: testpage
+---
+<!doctype html>
+<html class="no-js" lang="en">
+    
+<head>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
+
+    <!-- Font Icons -->
+    <link rel="stylesheet" href="https://components.insites.io/v2/latest/css/insites-font-icons.css">
+
+    <!-- Components -->
+    <link rel="stylesheet" href="https://components.insites.io/v2/latest/css/insites.css" />
+    <script type="module" src="https://components.insites.io/v2/latest/insites.esm.js"></script>
+    <script nomodule src="https://components.insites.io/v2/latest/insites.js"></script>
+</head>
+<body>
+    {%- graphql product = 'modules/ecommerce/products/get_product', slug: 'colorful-tealight-holder' | dig: 'items','results' | first -%}
+    <h1>Ins Gallery</h1>
+    {% liquid
+        ## Galleries
+        assign galleries = '' | split: ','    
+        assign gallery_indexes = '{}' | parse_json 
+        assign index = 0
+        if product.gallery_1.size > 0
+            for gallery in product.gallery_1
+                assign galleries = galleries | array_add: gallery.file.url
+                assign gallery_indexes = gallery_indexes | add_hash_key: variant.id, index
+                assign index = index | plus: 1
+            endfor
+        elsif product.product_image.url
+            assign galleries = galleries | array_add: product.product_image.url    
+            assign gallery_indexes = gallery_indexes | add_hash_key: variant.id, index  
+            assign index = index | plus: 1
+        endif
+
+        if product.is_product_variant_enabled
+            assign selected_prop = product.variants[0] 
+            assign variant_id = selected_prop.id
+            assign variant_uuid = selected_prop.uuid 
+            ## Variant Galleries        
+            for variant in product.variants
+                if variant.product_image.url
+                    assign galleries = galleries | array_add: variant.product_image.url
+                    assign gallery_indexes = gallery_indexes | add_hash_key: variant.id, index
+                    assign index = index | plus: 1
+                endif
+            endfor
+        else 
+            assign selected_prop = product    
+            assign variant_id = null
+            assign variant_uuid = null    
+        endif
+
+        if selected_prop.is_on_sale == true 
+            assign price = selected_prop.sale_price
+            assign price_strikethrough = selected_prop.regular_price
+        else 
+            assign price = selected_prop.regular_price
+            assign price_strikethrough = ''
+        endif
+
+        assign variants = '[]'
+    %}
+
+    <div class="main-gallery variant-gallery">                       
+        <ins-gallery slidable slidable-thumbs>            
+            {%- for gallery in galleries -%}
+                <ins-gallery-thumbnail
+                    source="{{ gallery }}"
+                    actual="{{ gallery }}">
+                </ins-gallery-thumbnail>
+                {%- comment -%}
+                <ins-gallery-image
+                    thumbnail="{{ gallery }}"
+                    image="{{ gallery }}">
+                </ins-gallery-image>
+                {%- endcomment -%}
+            {%- endfor -%}
+        </ins-gallery>
+    </div>
+
+    <div>
+        Gallery code end
+    </div>
+</body>

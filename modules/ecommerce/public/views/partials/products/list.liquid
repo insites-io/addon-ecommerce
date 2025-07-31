@@ -77,7 +77,7 @@ metadata: {
     {%- if show == "sale" -%}
         "is_on_sale": true,
     {%- elsif show == "in-stock" -%}
-        "not_number": 0,
+        "not_number": "0",
     {%- endif -%}
 
     "sort":{{ sort_by | json }}
@@ -139,7 +139,7 @@ Step: Call the search GraphQL with the parameters
         
         {% include "modules/ecommerce/products/main_filters" %}
         
-        <div class="spacer"></div>
+        <div class="spacer small"></div>
         
         {%- if products.items and products.items.total_entries > 0 -%}                
         

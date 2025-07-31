@@ -27,11 +27,10 @@ metadata: {
         {% else %}
             {% assign slug = context.params.slug2 %}
         {% endif %}
-
-        {%- include 'modules/insites_ecommerce/seo', 
-            type: "category",
-            slug: slug -%}
+        <meta include-used="modules/insites_ecommerce/seo" slug="{{ slug }}">
+        {%- include 'modules/insites_ecommerce/seo', type: "category", slug: slug -%}
     {%- else -%}
+        <meta include-used="modules/insites_cms/seo" slug="{{ slug }}">
         {%- include 'modules/insites_cms/seo' -%}
     {%- endif -%}
     
