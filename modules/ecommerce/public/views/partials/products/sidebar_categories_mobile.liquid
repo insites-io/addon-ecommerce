@@ -51,13 +51,13 @@ metadata: {
 {%- for topCat in top_categories -%}                                        
     {%- assign withChild = parent_with_child | array_any: topCat.uuid -%}                    
     {%- if withChild -%}        
-        {%-  
+        {%-
             liquid 
             assign is_active = ''
             if topCat.slug == params.slug2
                 assign is_active = 'active'
             endif
-        -%}                    
+        -%}
         <ins-accordion menu>
             <ins-accordion-item id="sub-{{topCat.id}}"
                 {{ is_active }}

@@ -104,7 +104,7 @@ let productList = (function () {
                 let entries = Object.entries(productFilter);
                 let tmpParamArr = [];
                 for(let a = 0; a < entries.length; a++){
-                    if(entries[a][1] != ""){
+                    if(entries[a][0] != "" && entries[a][1] != ""){
                         tmpParamArr.push(entries[a].join('='));
                     }
                 }

@@ -825,6 +825,10 @@ ins-drawer#mobile-menu .menu .ins-accordion-item_content .sign-out-wrapper{
     display: block;    
     cursor: pointer;
 }
+#mega-menu a.active{
+    color: var(--color-main-hover);
+}
+
 #sidebar-categories .ui-sidebar,
 #sidebar-categories .ins-accordion-item>.ins-accordion-item_header>.inner-head a,
 .ins-accordion-item_header>.inner-head {

@@ -29,8 +29,9 @@ metadata: {
                         <ins-button-select 
                             id="brandSelect"
                             label="Brand"
-                            placeholder="{{ params.brand | default: 'Select brand' }}" 
+                            placeholder="{{ params.brand | default: 'All' }}" 
                             small>
+                                <ins-button-select-option label="All" value="" {% if params.brand == blank %}activated{% endif %}></ins-button-select-option>
                             {% for product_brand in product_brands %}
                                 <ins-button-select-option label="{{product_brand}}" value="{{product_brand}}" {% if params.brand == product_brand %}activated{% endif %}></ins-button-select-option>
                             {% endfor %}

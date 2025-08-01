@@ -52,7 +52,7 @@ metadata: {
                 <ul class="subcat">
                     {% for sub_category in sub_categories %}
                         {% if sub_category.parent_category_uuids contains parent_category.uuid %}
-                            <li><a href="/products/{{sub_category.slug}}">{{ sub_category.category_name | capitalize }}</a></li>
+                            <li><a href="/products/{{parent_category.slug}}?category={{sub_category.slug}}">{{ sub_category.category_name | capitalize }}</a></li>
                         {% endif %}
                     {% endfor %}
                 </ul>
