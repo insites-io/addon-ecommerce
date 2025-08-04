@@ -86,9 +86,10 @@ metadata: {
             {% comment %} Use gallery or product_image {% endcomment %}
             {%- if galleries.size > 0 -%}                  
                 <div class="main-gallery variant-gallery">                       
-                    <ins-gallery 
+                    <ins-gallery  
                         with-indicator 
                         slidable 
+                        slidable-thumbs 
                         thumbnail-layout="slider"
                         id="product-galleries">
                         {%- for gallery in galleries -%}
@@ -96,6 +97,12 @@ metadata: {
                                 thumbnail="{{ gallery }}"
                                 image="{{ gallery }}">
                             </ins-gallery-image>
+                            {%- comment -%}
+                            <ins-gallery-thumbnail
+                                source="{{ gallery }}"
+                                actual="{{ gallery }}">
+                            </ins-gallery-thumbnail>
+                            {%- endcomment -%}
                         {%- endfor -%}
                     </ins-gallery>
                 </div>
