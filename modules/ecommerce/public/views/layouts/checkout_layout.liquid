@@ -51,8 +51,9 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
         
         {% comment %} Checkout Stepper {% endcomment %}
         {% assign pages_with_stepper = 'checkout,checkout/shipping,checkout/billing,checkout/payment' | split: ',' %} 
-        {% assign is_pages_with_stepper = pages_with_stepper | array_any: context.page.slug %}        
-        {% if context.page.slug == 'checkout' and context.current_user == blank and context.params.guest != 'true' %} 
+        {% assign is_pages_with_stepper = pages_with_stepper | array_any: context.page.slug %}      
+        {% function has_profile = "modules/website/layout/check_if_user_has_profile" %}  
+        {% if context.page.slug == 'checkout' and has_profile == false and context.params.guest != 'true' %} 
             <div class="spacer xxxx-large"></div>
         {% elsif is_pages_with_stepper %} 
             {% include 'modules/ecommerce/checkout/checkout_redirect_step' %}
