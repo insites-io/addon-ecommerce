@@ -134,10 +134,8 @@ metadata: {
             
             {% comment %} Price {% endcomment %}
             <div>                                                
-                <h5 id="product-price" class="heading-5-small">{{ price | pricify: 'USD', no_cents_if_whole: false }}</h5>
-                {% if price_strikethrough != '' %}
-                <p id="regular-product-price" class="strikethrough">{{ price_strikethrough | pricify: 'USD', no_cents_if_whole: false }}</p>
-                {% endif %}
+                <h5 id="product-price" class="heading-5-small">{{ price | pricify: 'USD', no_cents_if_whole: false }}</h5>                
+                <p id="regular-product-price" class="strikethrough">{{ price_strikethrough | pricify: 'USD', no_cents_if_whole: false }}</p>                
             </div>
 
             {% comment %} Description {% endcomment %}
@@ -347,6 +345,10 @@ metadata: {
                 selectedVariant = variant;                
             } 
         });
+
+        console.log('selectedVariant',selectedVariant);
+        console.log('selectedVariant id',selectedVariant.id);
+        console.log('options',options);
 
         //Update active view in galleries based on selected variant
         productGalleries.activate(galleryIndexes[selectedVariant.id]);
