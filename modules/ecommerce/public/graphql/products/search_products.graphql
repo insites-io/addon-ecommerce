@@ -57,6 +57,11 @@ query search_products(
         table: "modules/insites_ecommerce/product_variant"
         join_on_property: "uuid"
         foreign_property: "product_uuid"
+        filter:{
+          properties:[
+            { name: "stock_level", range: { gt: $not_number } }
+          ]
+        }
       ){
         id
         uuid: property(name: "uuid")
