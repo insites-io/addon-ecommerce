@@ -71,15 +71,15 @@ async function addToCartPreProcess(event, type){
         
     
     //used for product with variants in product details page
-    if(variant_data){
-        console.log('entered variant_data');
-        data.id = variant_data.id;
-        data.product_uuid = variant_data.product_uuid;
-        data.price = variant_data.price;
-        data.product_name = variant_data.product_name;
-        data.variant_uuid = variant_data.variant_uuid; 
-        data.product_sku = variant_data.sku;
-        data.image = variant_data.image;  
+    if(selected_variant){
+        console.log('entered selected_variant');
+        data.id = selected_variant.id;
+        data.product_uuid = selected_variant.product_uuid;
+        data.price = selected_variant.price;
+        data.product_name = selected_variant.product_name;
+        data.variant_uuid = selected_variant.variant_uuid; 
+        data.product_sku = selected_variant.sku;
+        data.image = selected_variant.image;  
     }
    
     let cartItem = document.getElementById(`cart-item-${data.id}`);

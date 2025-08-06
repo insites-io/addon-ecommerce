@@ -100,12 +100,6 @@ metadata: {
                                 thumbnail="{{ gallery }}"
                                 image="{{ gallery }}">
                             </ins-gallery-image>
-                            {%- comment -%}
-                            <ins-gallery-thumbnail
-                                source="{{ gallery }}"
-                                actual="{{ gallery }}">
-                            </ins-gallery-thumbnail>
-                            {%- endcomment -%}
                         {%- endfor -%}
                     </ins-gallery>
                 </div>
@@ -114,6 +108,8 @@ metadata: {
             {%- endif -%}
         </div>
         <div class="spacer xx-large hide-for-small-only"></div>
+
+        {% comment %} Desktop: Long Description {% endcomment %}
         <div class="show-for-large">
             {%- if product.long_description != blank -%}
             <h4>Key features</h4>
@@ -147,13 +143,14 @@ metadata: {
                 <p id="regular-product-price" class="strikethrough">{{ price_strikethrough }}</p>                
             </div>
 
-            {% comment %} Description {% endcomment %}
+            {% comment %} Short Description {% endcomment %}
             {% if product.short_description %}
             <div>
                 <p>{{ product.short_description }}</p>
             </div>
             {% endif %}
                     
+            {% comment %} Out of Stock Notice {% endcomment %}
             <div id="out-of-stock-notice" class="out-of-stock-notice {{ hideOutOfStock }}">    
                 <p class="bold">Sorry, this product is currently out of stock.</p>                         
                 <p>You can secure yours by placing a pre-order now! We will notify you when your pre-order becomes available for delivery.</p>            
@@ -230,30 +227,19 @@ metadata: {
                 </ins-input-stepper>                
             </div>
     
-            {% comment %} Buttons {% endcomment %}
-             {% comment %} 
-            {% if variant_uuid %}
-                The product has variants: The data will vary. 
-                {% parse_json add_to_cart_data %}
-                {
-                    "variant_product": true
-                }
-                {% endparse_json %}
-            {% else %}    {% endcomment %}
-                {% comment %} The product has no variants: The data will remain unchanged {% endcomment %}
-                {% parse_json add_to_cart_data %}
-                {
-                    "id": "{{ product.id }}",
-                    "product_uuid": "{{ product.uuid }}",
-                    "product_name": "{{ product.product_name | replace: "'", "`" }}",
-                    "price": "{{ price | default: 0 }}",
-                    "product_sku": "{{ product.sku }}"
-                }
-                {% endparse_json %}
-                {% if galleries.size > 0 %}
-                    {% assign add_to_cart_data = add_to_cart_data | add_hash_key: 'image', galleries[0] %}
-                {% endif %}
-            {% comment %} {% endif %}  {% endcomment %}             
+            {% comment %} Buttons {% endcomment %}            
+            {% parse_json add_to_cart_data %}
+            {
+                "id": "{{ product.id }}",
+                "product_uuid": "{{ product.uuid }}",
+                "product_name": "{{ product.product_name | replace: "'", "`" }}",
+                "price": "{{ price | default: 0 }}",
+                "product_sku": "{{ product.sku }}"
+            }
+            {% endparse_json %}
+            {% if galleries.size > 0 %}
+                {% assign add_to_cart_data = add_to_cart_data | add_hash_key: 'image', galleries[0] %}
+            {% endif %}                     
             <div id="product-details-btn">
                 <ins-button id="add-to-cart-btn-{{ add_to_cart_data.id }}"  class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid {{ disabled }}></ins-button>
                 <div class="spacer small"></div>
@@ -264,6 +250,7 @@ metadata: {
         
     </div>
 
+    {% comment %} Mobile: Long Description {% endcomment %}
     <div class="hide-for-large">        
         {%- if product.long_description != blank -%}
          <div class="spacer x-large"></div>
@@ -285,30 +272,21 @@ metadata: {
 
 <script>
     let variants = {{ variants }};
-    // let variant_data = {
-    //    "id": {{ variant_id | default: 0 }},
-    //     "product_uuid": "{{ product.uuid }}",
-    //     "variant_uuid": "{{ variant_uuid }}",
-    //     "product_name": "{{ product.product_name | replace: "'", "`" }}",
-    //     "sku": "{{ product.sku }}",
-    //     "price": "{{ price | default: 0 }}",
-    //     "quantity": 1,
-    //     "image": ""
-    // };
+    let selected_variant = {
+        "product_name": "{{ product.product_name }}"
+    }; 
     let galleryIndexes = {{ gallery_indexes | default: '[]' }};
-    const onSaleTag = document.getElementById('on-sale-tag');
+    
     const productGalleries = document.getElementById('product-galleries');    
-
     const productSKU = document.getElementById("product-sku");
     const productPrice = document.getElementById("product-price");
     const regularProductPrice = document.getElementById("regular-product-price");
+    const onSaleTag = document.getElementById('on-sale-tag');
     const ourOfStockNotice = document.getElementById("out-of-stock-notice");
     const outOfStockOverlay = document.getElementById("out-of-stock-overlay");
-    //const variantSelect = document.querySelectorAll(".variant-select");
-
 
     if(variants.length > 0) {
-        let variant_data = {};
+        
         const nextSelectsWrap = document.getElementById('next-selects');
 
         // Helper to parse all variant options once at the start
@@ -347,31 +325,29 @@ metadata: {
             });
         }
 
-
-
         function updateSelectionDetails(selectedVariant) {
 
             if(selectedVariant.id){
                 //Identifiers
-                variant_data.id = selectedVariant.id;
-                variant_data.variant_uuid = selectedVariant.uuid;                        
+                selected_variant.id = selectedVariant.id;
+                selected_variant.variant_uuid = selectedVariant.uuid;                
                 //SKU
-                variant_data.sku = selectedVariant.sku;
+                selected_variant.sku = selectedVariant.sku;
                 productSKU.textContent = `${selectedVariant.sku}`;
                 //Product Price
                 if(selectedVariant.is_on_sale){
-                    variant_data.price = selectedVariant.sale_price;
+                    selected_variant.price = selectedVariant.sale_price;
                     productPrice.textContent = `$${selectedVariant.sale_price}`;
                     regularProductPrice.textContent = `$${selectedVariant.regular_price}`;                
                 } else {
-                    variant_data.price = selectedVariant.regular_price;
+                    selected_variant.price = selectedVariant.regular_price;
                     productPrice.textContent = `$${selectedVariant.regular_price}`;
                     if (regularProductPrice) {
                         regularProductPrice.textContent = "";
                     }
                 }
                 //Image
-                variant_data.image = selectedVariant.product_image.url;
+                selected_variant.image = selectedVariant.product_image.url;
                 //Out of Stock Notice
                 if(selectedVariant.stock_level < 1){
                     ourOfStockNotice.classList.remove("hide");
@@ -396,10 +372,9 @@ metadata: {
                 outOfStockOverlay.classList.remove("hide");
             }
 
-            console.log('variant_data', variant_data);
+            console.log('selected_variant', selected_variant);
 
         }
-
 
 
         // Recursive function to render select
@@ -429,7 +404,6 @@ metadata: {
             if (!nextLabel) {
                 console.log('last select');
                 const selections = await getUserSelections();
-                console.log('selections', selections);
                 const matchedVariant = findMatchingVariant(selections, variants);
 
                 if (matchedVariant) {
@@ -461,7 +435,6 @@ metadata: {
 
             // Create new ins-select
             const wrapper = document.createElement('div');
-            //wrapper.classList.add('spacer');
             wrapper.dataset.level = level;
 
             const selectId = `option-${level}`;
@@ -488,83 +461,11 @@ metadata: {
             });
         }
 
-        // Add listener to first select
+        // Add listener to first variant option
         const firstSelect = document.getElementById('option-0');
         const firstLabel = firstSelect.getAttribute('label');
-
         firstSelect.addEventListener('insValueChange', (e) => {
             renderSelect(1, [{ label: firstLabel, value: e.detail }]);
         });
-    }
-
-
-
-    
-    // if (variants.length > 0){
-    //     //Extracts and processes the first product option to update the content
-    //     document.addEventListener("DOMContentLoaded", function() {
-    //         let productOption = JSON.parse(variants[0].product_options[0]);
-    //         options = [
-    //             {
-    //                 product_option_label: productOption.product_option_label,
-    //                 product_option_value: productOption.product_option_value
-    //             }
-    //         ]
-    //         // Call the 'updateContent' function with the 'options' array as an argument
-    //         updateContent(options);
-    //     });
-    // }
-
-    // variantSelect.forEach(el => {
-    //     el.addEventListener('insValueChange', event => { 
-    //         getSelectedVariant();
-    //     });
-    // });
-
-    // function getSelectedVariant(){
-    //     let options = [];
-    //     for (let i = 0; i < variantSelect.length; i++) {               
-    //         let el = variantSelect[i];   
-    //         let label =  el.getAttribute("label-key");              
-
-    //         el.getValue().then(result => {                
-    //             options.push({product_option_label: label, product_option_value: result});
-    //             //end of loop
-    //             if (i === variantSelect.length - 1) {
-    //                 updateContent(options);
-    //             } 
-    //         }).catch(error => {
-    //             console.error(error); 
-    //         });
-    //     };        
-    // }
-
-    // function updateContent(options){
-    //     let selectedVariant = {};
-    //     variants.forEach(variant => {                
-    //         if(arraysEqual(variant.options, options)){
-    //             selectedVariant = variant;                
-    //         } 
-    //     });
-
-    //     console.log('selectedVariant',selectedVariant);
-    //     console.log('selectedVariant id',selectedVariant.id);
-    //     console.log('options',options);
-
-    //     //Update active view in galleries based on selected variant
-    //     productGalleries.activate(galleryIndexes[selectedVariant.id]);
-
-
-    // }
-
-    function arraysEqual(arr1, arr2) {
-        if (arr1.length !== arr2.length) return false;
-
-        // Stringify each object and sort arrays
-        let arr1Sorted = arr1.map(obj => JSON.stringify(obj)).sort();
-        let arr2Sorted = arr2.map(obj => JSON.stringify(obj)).sort();
-
-        // Compare each stringified object
-        return arr1Sorted.every((value, index) => value === arr2Sorted[index]);
     }
 </script>
