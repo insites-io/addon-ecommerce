@@ -43,12 +43,15 @@ metadata: {
         assign variant_uuid = null    
     endif
 
-    if selected_prop.is_on_sale == true 
-        assign price = selected_prop.sale_price
-        assign price_strikethrough = selected_prop.regular_price
+    ## Use product details here even if variant is enabled
+    assign price_strikethrough = ''
+    if product.is_on_sale == true 
+        assign price = product.sale_price
+        if product.regular_price > 0
+            assign price_strikethrough = product.regular_price | pricify: 'USD', no_cents_if_whole: false
+        endif
     else 
-        assign price = selected_prop.regular_price
-        assign price_strikethrough = ''
+        assign price = product.regular_price        
     endif
 
     assign variants = '[]'
@@ -128,14 +131,20 @@ metadata: {
         <div class="grid-y grid-padding-y product-details-column-2">
             {% comment %} Text heading {% endcomment %}
             <div>
-                <h1 class="heading-1">{{ product.product_name }}</h1>                
-                <p>SKU: <span id="product-sku">{% if product.is_product_variant_enabled != true %}{{ product.sku }}{% endif %}</span></p>
+                <h1 class="heading-1">{{ product.product_name }}</h1>       
+                {% if product.sku != '' %}
+                    <p>SKU: <span id="product-sku">{{ product.sku }}</span></p>
+                {% endif %}
             </div>
             
-            {% comment %} Price {% endcomment %}
-            <div>                                                
+            {% comment %} Price {% endcomment %}            
+            {% if price == '' or price == blank %}                                
+                {% assign hidePrice = 'hide' %}
+                {% assign disabled = 'disabled' %}
+            {% endif %}
+            <div class="wrap {{hidePrice}}">                                                
                 <h5 id="product-price" class="heading-5-small">{{ price | pricify: 'USD', no_cents_if_whole: false }}</h5>                
-                <p id="regular-product-price" class="strikethrough">{{ price_strikethrough | pricify: 'USD', no_cents_if_whole: false }}</p>                
+                <p id="regular-product-price" class="strikethrough">{{ price_strikethrough }}</p>                
             </div>
 
             {% comment %} Description {% endcomment %}
@@ -156,7 +165,7 @@ metadata: {
                     <div class="small-12 cell">
                         
                         {% comment %} Get variant info {% endcomment %}
-                        {% assign variants = '' | split: ',' %}
+                        {% assign variants = '' | split: ',' %}                        
                         {%- for variant in product.variants -%}
                             {%  liquid 
                                 ## Convert an array of strings into an array of objects
@@ -169,46 +178,41 @@ metadata: {
                                 assign variants = variants | array_add:variant
                             %}
                         {%- endfor -%}
-                
-    
-                        {% comment %} Get variant options {% endcomment %}
-                        {% graphql variant_options = 'modules/ecommerce/products/variant_options/get_product_variant_options', 
-                                product_uuid: product.uuid | dig: 'items','results' %}
+                                           
 
-                        {%- for option in variant_options -%}
-                            <ins-select 
-                                class="variant-select" 
-                                label="{{ option.product_option_label | capitalize }}"
-                                label-key="{{ option.product_option_label }}"
-                                placeholder="Select Variant"
-                                error-message="Please select a variant"
-                                small>
-                        
-                                {%- for value in option.product_option_values -%}
-                                    {% comment %}
-                                        - Check if the value exists in the product variants, and render the option if found
-                                    {% endcomment %}
-                                    {%- assign value_exists = false -%}
-                                    {%- for variant_option in product.variants -%}
-                                        {%- if variant_option.options[0].product_option_value == value -%}
-                                            {%- assign value_exists = true -%}
-                                        {%- endif -%}
-                                    {%- endfor -%}
-                        
-                                    {%- if value_exists -%}
-                                        {%- if forloop.first -%}
-                                            <ins-select-option label="{{ value }}" value="{{ value }}" default ></ins-select-option>
-                                        {%- else -%}
-                                            <ins-select-option label="{{ value }}" value="{{ value }}"></ins-select-option>
-                                        {%- endif -%}
-                                    {%- endif -%}
-                                {%- endfor -%}
-                        
-                            </ins-select>
-                            {% unless forloop.last %}
-                            <div class="spacer"></div>
-                            {% endunless %}
-                        {%- endfor -%}
+                        {% if variants.size > 0 %}
+                            {% assign first_option_label = '' %}
+                            {% assign first_option_values = '' | split: ',' %}
+                            
+                            {% for variant in product.variants %}
+                                {% assign first_opt = variant.product_options[0] | parse_json %}
+                                {% if first_option_label == '' %}
+                                    {% assign first_option_label = first_opt.product_option_label %}
+                                {% endif %}
+                                {% unless first_option_values contains first_opt.product_option_value %}
+                                    {% assign first_option_values = first_option_values | array_add: first_opt.product_option_value %}
+                                {% endunless %}
+                            {% endfor %}
+
+                            <div id="product-options">
+                                <ins-select 
+                                    id="option-0"
+                                    class="variant-select2" 
+                                    label="{{ first_option_label }}"
+                                    label-key="{{ first_option_label }}"
+                                    placeholder="Select Variant"
+                                    error-message="Please select a variant"
+                                    small> 
+                                    {% for value in first_option_values %}
+                                    <ins-select-option label="{{ value }}" value="{{ value }}" ></ins-select-option>
+                                    {% endfor %}
+                                </ins-select>
+                                
+                                {% comment %} Dynamic select will be inserted here {% endcomment %}
+                                <div id="next-selects"></div>
+                            </div>
+                        {% endif %}
+
                     </div>
                 </div>
             {%- endif -%} 
@@ -227,30 +231,33 @@ metadata: {
             </div>
     
             {% comment %} Buttons {% endcomment %}
+             {% comment %} 
             {% if variant_uuid %}
-                {% comment %} The product has variants: The data will vary. {% endcomment %}
+                The product has variants: The data will vary. 
                 {% parse_json add_to_cart_data %}
                 {
                     "variant_product": true
                 }
                 {% endparse_json %}
-            {% else %}    
+            {% else %}    {% endcomment %}
                 {% comment %} The product has no variants: The data will remain unchanged {% endcomment %}
                 {% parse_json add_to_cart_data %}
                 {
                     "id": "{{ product.id }}",
                     "product_uuid": "{{ product.uuid }}",
-                    "variant_uuid": "",
                     "product_name": "{{ product.product_name | replace: "'", "`" }}",
                     "price": "{{ price | default: 0 }}",
                     "product_sku": "{{ product.sku }}"
                 }
                 {% endparse_json %}
-            {% endif %} 
-            <div>
-                <ins-button id="add-to-cart-btn-{{ add_to_cart_data.id }}"  class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid></ins-button>
+                {% if galleries.size > 0 %}
+                    {% assign add_to_cart_data = add_to_cart_data | add_hash_key: 'image', galleries[0] %}
+                {% endif %}
+            {% comment %} {% endif %}  {% endcomment %}             
+            <div id="product-details-btn">
+                <ins-button id="add-to-cart-btn-{{ add_to_cart_data.id }}"  class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid {{ disabled }}></ins-button>
                 <div class="spacer small"></div>
-                <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ add_to_cart_data }}' icon="icon-shopping-cart" outlined></ins-button>
+                <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ add_to_cart_data }}' icon="icon-shopping-cart" outlined {{ disabled }}></ins-button></ins-button>
             </div>
             
         </div>
@@ -278,124 +285,277 @@ metadata: {
 
 <script>
     let variants = {{ variants }};
-    let variant_data = {
-       "id": {{ variant_id | default: 0 }},
-        "product_uuid": "{{ product.uuid }}",
-        "variant_uuid": "{{ variant_uuid }}",
-        "product_name": "{{ product.product_name | replace: "'", "`" }}",
-        "sku": "{{ product.sku }}",
-        "price": "{{ price | default: 0 }}",
-        "quantity": 1
-    };
+    // let variant_data = {
+    //    "id": {{ variant_id | default: 0 }},
+    //     "product_uuid": "{{ product.uuid }}",
+    //     "variant_uuid": "{{ variant_uuid }}",
+    //     "product_name": "{{ product.product_name | replace: "'", "`" }}",
+    //     "sku": "{{ product.sku }}",
+    //     "price": "{{ price | default: 0 }}",
+    //     "quantity": 1,
+    //     "image": ""
+    // };
     let galleryIndexes = {{ gallery_indexes | default: '[]' }};
-    let onSaleTag = document.getElementById('on-sale-tag');
-    let productGalleries = document.getElementById('product-galleries');    
+    const onSaleTag = document.getElementById('on-sale-tag');
+    const productGalleries = document.getElementById('product-galleries');    
 
-    let productSKU = document.getElementById("product-sku");
-    let productPrice = document.getElementById("product-price");
-    let regularProductPrice = document.getElementById("regular-product-price");
-    let ourOfStockNotice = document.getElementById("out-of-stock-notice");
-    let outOfStockOverlay = document.getElementById("out-of-stock-overlay");
-    let variantSelect = document.querySelectorAll(".variant-select");
+    const productSKU = document.getElementById("product-sku");
+    const productPrice = document.getElementById("product-price");
+    const regularProductPrice = document.getElementById("regular-product-price");
+    const ourOfStockNotice = document.getElementById("out-of-stock-notice");
+    const outOfStockOverlay = document.getElementById("out-of-stock-overlay");
+    //const variantSelect = document.querySelectorAll(".variant-select");
 
-    if (variants.length > 0){
-        //Extracts and processes the first product option to update the content
-        document.addEventListener("DOMContentLoaded", function() {
-                let productOption = JSON.parse(variants[0].product_options[0]);
-                options = [
-                    {
-                        product_option_label: productOption.product_option_label,
-                        product_option_value: productOption.product_option_value
-                    }
 
-                ]
-                // Call the 'updateContent' function with the 'options' array as an argument
-                updateContent(options);
-            });
-    }
+    if(variants.length > 0) {
+        let variant_data = {};
+        const nextSelectsWrap = document.getElementById('next-selects');
 
-    variantSelect.forEach(el => {
-        el.addEventListener('insValueChange', event => { 
-            getSelectedVariant();
-        });
-    });
+        // Helper to parse all variant options once at the start
+        const parsedVariants = variants.map(v => ({
+            ...v,
+            product_options: v.product_options.map(JSON.parse)
+        }));
 
-    function getSelectedVariant(){
-        let options = [];
-        for (let i = 0; i < variantSelect.length; i++) {               
-            let el = variantSelect[i];   
-            let label =  el.getAttribute("label-key");              
+        async function getUserSelections() {
+            const selects = document.querySelectorAll('#product-options ins-select, #next-selects ins-select');
+            const selections = [];
 
-            el.getValue().then(result => {                
-                options.push({product_option_label: label, product_option_value: result});
-                //end of loop
-                if (i === variantSelect.length - 1) {
-                    updateContent(options);
-                } 
-            }).catch(error => {
-                console.error(error); 
-            });
-        };        
-    }
-
-    function updateContent(options){
-        let selectedVariant = {};
-        variants.forEach(variant => {                
-            if(arraysEqual(variant.options, options)){
-                selectedVariant = variant;                
-            } 
-        });
-
-        console.log('selectedVariant',selectedVariant);
-        console.log('selectedVariant id',selectedVariant.id);
-        console.log('options',options);
-
-        //Update active view in galleries based on selected variant
-        productGalleries.activate(galleryIndexes[selectedVariant.id]);
-
-        if(selectedVariant.id){
-            //Identifiers
-            variant_data.id = selectedVariant.id;
-            variant_data.variant_uuid = selectedVariant.uuid;                        
-            //SKU
-            variant_data.sku = selectedVariant.sku;
-            productSKU.textContent = `${selectedVariant.sku}`;
-            //Product Price
-            if(selectedVariant.is_on_sale){
-                variant_data.price = selectedVariant.sale_price;
-                productPrice.textContent = `$${selectedVariant.sale_price}`;
-                regularProductPrice.textContent = `$${selectedVariant.regular_price}`;                
-            } else {
-                variant_data.price = selectedVariant.regular_price;
-                productPrice.textContent = `$${selectedVariant.regular_price}`;
-                if (regularProductPrice) {
-                    regularProductPrice.textContent = "";
+            for (const select of selects) {
+                const label = select.getAttribute('label');
+                const value = await select.getValue();
+                console.log('selects', label, value);
+                if (value) {
+                    selections.push({ label, value });
                 }
             }
-            //Out of Stock Notice
-            if(selectedVariant.stock_level < 1){
+
+            return selections;
+        }
+
+
+        function findMatchingVariant(selections, variants) {
+            return variants.find(variant => {
+                const options = variant.product_options.map(JSON.parse);
+
+                return selections.every(selection => {
+                    return options.some(opt =>
+                        opt.product_option_label === selection.label &&
+                        opt.product_option_value === selection.value
+                    );
+                });
+            });
+        }
+
+
+
+        function updateSelectionDetails(selectedVariant) {
+
+            if(selectedVariant.id){
+                //Identifiers
+                variant_data.id = selectedVariant.id;
+                variant_data.variant_uuid = selectedVariant.uuid;                        
+                //SKU
+                variant_data.sku = selectedVariant.sku;
+                productSKU.textContent = `${selectedVariant.sku}`;
+                //Product Price
+                if(selectedVariant.is_on_sale){
+                    variant_data.price = selectedVariant.sale_price;
+                    productPrice.textContent = `$${selectedVariant.sale_price}`;
+                    regularProductPrice.textContent = `$${selectedVariant.regular_price}`;                
+                } else {
+                    variant_data.price = selectedVariant.regular_price;
+                    productPrice.textContent = `$${selectedVariant.regular_price}`;
+                    if (regularProductPrice) {
+                        regularProductPrice.textContent = "";
+                    }
+                }
+                //Image
+                variant_data.image = selectedVariant.product_image.url;
+                //Out of Stock Notice
+                if(selectedVariant.stock_level < 1){
+                    ourOfStockNotice.classList.remove("hide");
+                    outOfStockOverlay.classList.remove("hide");
+                } else {
+                    ourOfStockNotice.classList.add("hide");
+                    outOfStockOverlay.classList.add("hide");
+                }
+                //Sale tag
+                if(onSaleTag){
+                    if(selectedVariant.is_on_sale == true){
+                        onSaleTag.classList.remove("hide");
+                    } else {
+                        onSaleTag.classList.add("hide");
+                    }
+                }
+            } else {
+                productSKU.textContent = "";
+                productPrice.textContent = "$--";
+                regularProductPrice.textContent = "";
                 ourOfStockNotice.classList.remove("hide");
                 outOfStockOverlay.classList.remove("hide");
-            } else {
-                ourOfStockNotice.classList.add("hide");
-                outOfStockOverlay.classList.add("hide");
             }
-            //Sale tag
-            if(onSaleTag){
-                if(selectedVariant.is_on_sale == true){
-                    onSaleTag.classList.remove("hide");
-                } else {
-                    onSaleTag.classList.add("hide");
-                }
-            }
-        } else {
-            productSKU.textContent = "";
-            productPrice.textContent = "$--";
-            regularProductPrice.textContent = "";
-            ourOfStockNotice.classList.remove("hide");
-            outOfStockOverlay.classList.remove("hide");
+
+            console.log('variant_data', variant_data);
+
         }
+
+
+
+        // Recursive function to render select
+        async function renderSelect(level, selectedPath = []) {
+
+            // Remove any selects deeper than current level
+            [...nextSelectsWrap.children].forEach(child => {
+                if (parseInt(child.dataset.level, 10) >= level) {
+                    child.remove();
+                }
+            });
+
+            // Filter variants matching all selected values so far
+            const filtered = parsedVariants.filter(variant => {
+                return selectedPath.every((selected, i) => {
+                    const opt = variant.product_options[i];
+                    return opt &&
+                        opt.product_option_label === selected.label &&
+                        opt.product_option_value === selected.value;
+                });
+            });
+
+            // Find the next option label
+            const nextLabel = filtered[0]?.product_options[selectedPath.length]?.product_option_label;
+
+            // No more dropdowns to generate
+            if (!nextLabel) {
+                console.log('last select');
+                const selections = await getUserSelections();
+                console.log('selections', selections);
+                const matchedVariant = findMatchingVariant(selections, variants);
+
+                if (matchedVariant) {
+                    console.log('Matching variant:', matchedVariant);
+                    updateSelectionDetails(matchedVariant);
+
+                    //Update active view in galleries based on selected variant
+                    productGalleries.activate(galleryIndexes[matchedVariant.id]);
+
+                    //Activate add-to-cart button
+                    document.querySelectorAll('#product-details-btn .add-to-cart-btn').forEach(btn => {
+                        btn.disabled = false;
+                    });
+                } else {
+                    console.log('No matching variant found');
+                }
+
+                return; 
+            } 
+
+            // Collect unique values for next label
+            const values = new Set();
+            filtered.forEach(v => {
+                const opt = v.product_options[selectedPath.length];
+                if (opt?.product_option_label === nextLabel) {
+                    values.add(opt.product_option_value);
+                }
+            });
+
+            // Create new ins-select
+            const wrapper = document.createElement('div');
+            //wrapper.classList.add('spacer');
+            wrapper.dataset.level = level;
+
+            const selectId = `option-${level}`;
+            wrapper.innerHTML = `
+                <div class="spacer"></div>
+                <ins-select 
+                id="${selectId}" 
+                label="${nextLabel}" 
+                placeholder="Select ${nextLabel}" 
+                validate>
+                ${[...values].map(val => `
+                    <ins-select-option label="${val}" value="${val}"></ins-select-option>
+                `).join('')}
+                </ins-select>
+            `;
+
+            nextSelectsWrap.appendChild(wrapper);
+
+            // Add listener to new select
+            const newSelect = wrapper.querySelector('ins-select');
+            newSelect.addEventListener('insValueChange', (e) => {
+                const newPath = [...selectedPath, { label: nextLabel, value: e.detail }];
+                renderSelect(level + 1, newPath);
+            });
+        }
+
+        // Add listener to first select
+        const firstSelect = document.getElementById('option-0');
+        const firstLabel = firstSelect.getAttribute('label');
+
+        firstSelect.addEventListener('insValueChange', (e) => {
+            renderSelect(1, [{ label: firstLabel, value: e.detail }]);
+        });
     }
+
+
+
+    
+    // if (variants.length > 0){
+    //     //Extracts and processes the first product option to update the content
+    //     document.addEventListener("DOMContentLoaded", function() {
+    //         let productOption = JSON.parse(variants[0].product_options[0]);
+    //         options = [
+    //             {
+    //                 product_option_label: productOption.product_option_label,
+    //                 product_option_value: productOption.product_option_value
+    //             }
+    //         ]
+    //         // Call the 'updateContent' function with the 'options' array as an argument
+    //         updateContent(options);
+    //     });
+    // }
+
+    // variantSelect.forEach(el => {
+    //     el.addEventListener('insValueChange', event => { 
+    //         getSelectedVariant();
+    //     });
+    // });
+
+    // function getSelectedVariant(){
+    //     let options = [];
+    //     for (let i = 0; i < variantSelect.length; i++) {               
+    //         let el = variantSelect[i];   
+    //         let label =  el.getAttribute("label-key");              
+
+    //         el.getValue().then(result => {                
+    //             options.push({product_option_label: label, product_option_value: result});
+    //             //end of loop
+    //             if (i === variantSelect.length - 1) {
+    //                 updateContent(options);
+    //             } 
+    //         }).catch(error => {
+    //             console.error(error); 
+    //         });
+    //     };        
+    // }
+
+    // function updateContent(options){
+    //     let selectedVariant = {};
+    //     variants.forEach(variant => {                
+    //         if(arraysEqual(variant.options, options)){
+    //             selectedVariant = variant;                
+    //         } 
+    //     });
+
+    //     console.log('selectedVariant',selectedVariant);
+    //     console.log('selectedVariant id',selectedVariant.id);
+    //     console.log('options',options);
+
+    //     //Update active view in galleries based on selected variant
+    //     productGalleries.activate(galleryIndexes[selectedVariant.id]);
+
+
+    // }
 
     function arraysEqual(arr1, arr2) {
         if (arr1.length !== arr2.length) return false;
