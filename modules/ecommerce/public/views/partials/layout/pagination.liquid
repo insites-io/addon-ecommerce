@@ -22,27 +22,28 @@ metadata: {
     
     insBaseTable.addEventListener('insPaginationChange', tablePaginationHandler);
 
-    function tablePaginationHandler(event){
-        pageSize = event.detail.pageSize;
-        pageNumber = event.detail.pageNumber;
+    function tablePaginationHandler(event) {
+        const pageSize = event.detail.pageSize;
+        const pageNumber = event.detail.pageNumber;
 
-        // Get the current URL
-        const currentUrl = window.location.href;
+        // Use URL object for robust parsing
+        const url = new URL(window.location.href);
 
-        // Remove any existing `page` and `per_page` query parameters
-        const newUrl = currentUrl.replace(/[?&]page=\d+/, '').replace(/[?&]per_page=\d+/, '');
+        // Get current query parameters
+        const params = url.searchParams;
 
-        // Separator
-        const separator = newUrl.includes('?') ? '&' : '?';
-        
-        // Set the new `page` and `per_page` values
-        const newPage = pageNumber;
-        const newPerPage = pageSize;
+        // Remove existing page and per_page params
+        params.delete('page');
+        params.delete('per_page');
 
-        // Append the new `page` and `per_page` query parameters to the URL
-        const updatedUrl = `${newUrl}${separator}page=${newPage}&per_page=${newPerPage}`;
+        // Set new pagination params
+        params.set('page', pageNumber);
+        params.set('per_page', pageSize);
 
-        // Navigate to the updated URL
-        window.location.href = updatedUrl;
+        // Set the updated search params back to the URL object
+        url.search = params.toString();
+
+        // Redirect to the new URL
+        window.location.href = url.toString();
     }
 </script>
