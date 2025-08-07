@@ -138,7 +138,7 @@ metadata: {
                 {% assign hidePrice = 'hide' %}
                 {% assign disabled = 'disabled' %}
             {% endif %}
-            <div class="wrap {{hidePrice}}">                                                
+            <div id="pricing-wrap" class="wrap {{hidePrice}}">                                                
                 <h5 id="product-price" class="heading-5-small">{{ price | pricify: 'USD', no_cents_if_whole: false }}</h5>                
                 <p id="regular-product-price" class="strikethrough">{{ price_strikethrough }}</p>                
             </div>
@@ -230,6 +230,7 @@ metadata: {
             {% comment %} Buttons {% endcomment %}            
             {% parse_json add_to_cart_data %}
             {
+                "detail_page": true,
                 "id": "{{ product.id }}",
                 "product_uuid": "{{ product.uuid }}",
                 "product_name": "{{ product.product_name | replace: "'", "`" }}",
@@ -272,21 +273,21 @@ metadata: {
 
 <script>
     let variants = {{ variants }};
-    let selected_variant = {
-        "product_name": "{{ product.product_name }}"
-    }; 
     let galleryIndexes = {{ gallery_indexes | default: '[]' }};
+    let selected_variant = {
+            "product_name": "{{ product.product_name }}"
+        }; 
     
     const productGalleries = document.getElementById('product-galleries');    
     const productSKU = document.getElementById("product-sku");
+    const pricingWrap = document.getElementById("pricing-wrap");
     const productPrice = document.getElementById("product-price");
     const regularProductPrice = document.getElementById("regular-product-price");
     const onSaleTag = document.getElementById('on-sale-tag');
     const ourOfStockNotice = document.getElementById("out-of-stock-notice");
     const outOfStockOverlay = document.getElementById("out-of-stock-overlay");
 
-    if(variants.length > 0) {
-        
+    if(variants.length > 0) {        
         const nextSelectsWrap = document.getElementById('next-selects');
 
         // Helper to parse all variant options once at the start
@@ -302,7 +303,6 @@ metadata: {
             for (const select of selects) {
                 const label = select.getAttribute('label');
                 const value = await select.getValue();
-                console.log('selects', label, value);
                 if (value) {
                     selections.push({ label, value });
                 }
@@ -335,6 +335,7 @@ metadata: {
                 selected_variant.sku = selectedVariant.sku;
                 productSKU.textContent = `${selectedVariant.sku}`;
                 //Product Price
+                pricingWrap.classList.remove('hide');
                 if(selectedVariant.is_on_sale){
                     selected_variant.price = selectedVariant.sale_price;
                     productPrice.textContent = `$${selectedVariant.sale_price}`;
@@ -371,9 +372,6 @@ metadata: {
                 ourOfStockNotice.classList.remove("hide");
                 outOfStockOverlay.classList.remove("hide");
             }
-
-            console.log('selected_variant', selected_variant);
-
         }
 
 
@@ -402,7 +400,6 @@ metadata: {
 
             // No more dropdowns to generate
             if (!nextLabel) {
-                console.log('last select');
                 const selections = await getUserSelections();
                 const matchedVariant = findMatchingVariant(selections, variants);
 

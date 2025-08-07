@@ -69,12 +69,8 @@ async function addToCartPreProcess(event, type){
         type = event.detail.label 
     }            
         
-    
-    //used for product with variants in product details page
-    if(selected_variant){
-        console.log('entered selected_variant');
-        data.id = selected_variant.id;
-        data.product_uuid = selected_variant.product_uuid;
+    if(data.detail_page === true && typeof selected_variant !== 'undefined' && selected_variant.id){
+        data.id = selected_variant.id;        
         data.price = selected_variant.price;
         data.product_name = selected_variant.product_name;
         data.variant_uuid = selected_variant.variant_uuid; 
@@ -140,7 +136,6 @@ function cartStepperEventListener(step){
 
             // Calculate the total price for the item
             let priceData = computeItemTotal(itemWrap, event.detail);
-            console.log("stepperData", stepperData);
 
             let data = {
                 "id": stepperData.id,
