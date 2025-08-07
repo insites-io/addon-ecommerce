@@ -1,0 +1,38 @@
+query get_product_brand_uuid(
+  $page: Int = 1,
+  $size: Int = 500,
+  $keyword : String,
+  $category_uuids: [String!],
+  $is_on_sale: Boolean,
+  $not_number: String = "0",
+){
+  items: records(
+    page: $page
+    per_page: $size
+    filter:{
+      table:{ value:"modules/insites_ecommerce/product" }
+      properties:[
+      	{ name: "status", not_value_in: ["archived","disabled"] }
+        { name: "category_uuids", value_in: $category_uuids }
+        { name: "is_on_sale", value_boolean: $is_on_sale }
+        { name: "stock_level", range: { gt: $not_number } }
+        { name: "brand_uuid", exists: true }
+      ]
+      fulltext:{
+        keyword:$keyword
+        match_type:CONTAINS
+        operator:OR
+      }
+    }
+  ){
+     total_entries
+     total_pages
+     current_page
+     per_page
+     results {      
+          brand_uuid: property(name: "brand_uuid")
+          brand: property(name: "brand_name")
+		#properties
+     }
+  }
+}

@@ -23,7 +23,7 @@ metadata: {
                     <div class="main-filter-by align-middle grid-x large-10 medium-12 small-12">
                         <span class="form-label">Filter by:</span>
 
-                        {% graphql product_brands = 'modules/ecommerce/products/get_product_brands' 
+                        {% graphql product_brands = 'modules/ecommerce/products/get_product_brand_uuid', args: filters 
                             | dig: 'items','results' | map: 'brand' | array_uniq %}
                         
                         <ins-button-select 
