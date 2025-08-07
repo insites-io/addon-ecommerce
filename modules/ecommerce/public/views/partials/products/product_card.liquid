@@ -18,20 +18,33 @@ metadata: {
             endfor
         endif
     elsif product.is_product_variant_enabled
+        assign class_add_to_cart_btn = ''
         assign selected_prop = product.variant
         assign variant_uuid = product.variant.uuid
     else 
+        assign class_add_to_cart_btn = 'add-to-cart-btn'
         assign selected_prop = product
         assign variant_uuid = null
     endif
     
 
-    if selected_prop.is_on_sale == true 
-        assign price = selected_prop.sale_price
-        assign price_strikethrough = selected_prop.regular_price
-    else 
-        assign price = selected_prop.regular_price
-        assign price_strikethrough = ''
+    ## Pricing
+    ## Use product details here even if the variant is enabled
+    include 'modules/ecommerce/products/pricing', product: product
+    assign price = context.exports.price
+    assign price_strikethrough = context.exports.price_strikethrough
+
+    ## If price is empty and the item is a variant, then use the variant pricing
+    if price == '' or price == blank
+        if product.is_product_variant_enabled
+            if selected_prop.is_on_sale == true 
+                assign price = selected_prop.sale_price
+                assign price_strikethrough = selected_prop.regular_price
+            else 
+                assign price = selected_prop.regular_price
+                assign price_strikethrough = ''
+            endif
+        endif
     endif
 %}    
     <div class="cell">
@@ -63,7 +76,7 @@ metadata: {
                     <div class="spacer"></div>
                     <p class="product-current-price">{{ price | pricify }}
                         {% if product.is_on_sale == true or variant.is_on_sale == true %}
-                        <span class="body-x-small strikethrough">{{ price_strikethrough | pricify }}</span>
+                        <span class="body-x-small strikethrough">{{ price_strikethrough }}</span>
                         {% endif %}
                     </p>
                     <div class="spacer"></div>
@@ -85,7 +98,7 @@ metadata: {
                     }
                     {% endparse_json %}
 
-                    <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
+                    <ins-button class="full {{class_add_to_cart_btn}}" label="Add to cart" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
                     <div class="spacer x-small"></div>
                     <a href="/products/{{ product.slug }}">
                         <ins-button class="full" label="View details" outlined icon="icon-eye"></ins-button>

@@ -43,19 +43,13 @@ metadata: {
         assign variant_uuid = null    
     endif
 
+    ## Pricing
     ## Use product details here even if variant is enabled
-    assign price_strikethrough = ''
-    if product.is_on_sale == true 
-        assign price = product.sale_price
-        if product.regular_price > 0
-            assign price_strikethrough = product.regular_price | pricify: 'USD', no_cents_if_whole: false
-        endif
-    else 
-        assign price = product.regular_price        
-    endif
-
-    assign variants = '[]'
+    include 'modules/ecommerce/products/pricing', product: product
+    assign price = context.exports.price
+    assign price_strikethrough = context.exports.price_strikethrough
     
+    assign variants = '[]'    
 %}
 
 
@@ -136,7 +130,6 @@ metadata: {
             {% comment %} Price {% endcomment %}            
             {% if price == '' or price == blank %}                                
                 {% assign hidePrice = 'hide' %}
-                {% assign disabled = 'disabled' %}
             {% endif %}
             <div id="pricing-wrap" class="wrap {{hidePrice}}">                                                
                 <h5 id="product-price" class="heading-5-small">{{ price | pricify: 'USD', no_cents_if_whole: false }}</h5>                
@@ -242,9 +235,9 @@ metadata: {
                 {% assign add_to_cart_data = add_to_cart_data | add_hash_key: 'image', galleries[0] %}
             {% endif %}                     
             <div id="product-details-btn">
-                <ins-button id="add-to-cart-btn-{{ add_to_cart_data.id }}"  class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid {{ disabled }}></ins-button>
+                <ins-button id="add-to-cart-btn-{{ add_to_cart_data.id }}"  class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid disabled></ins-button>
                 <div class="spacer small"></div>
-                <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ add_to_cart_data }}' icon="icon-shopping-cart" outlined {{ disabled }}></ins-button></ins-button>
+                <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ add_to_cart_data }}' icon="icon-shopping-cart" outlined disabled></ins-button></ins-button>
             </div>
             
         </div>

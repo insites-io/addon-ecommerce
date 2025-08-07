@@ -444,3 +444,20 @@ contShoppingBtn.addEventListener('insClick', event => {
 function openDrawer(){
     cartDrawer.setDrawerState(true);
 }
+
+
+//Trigger a click event on a child <a> element when clicking anywhere inside an element '.product-cards .cell' 
+//(except for ins-button.add-to-cart-btn element and its children)
+const productWrappers = document.querySelectorAll('.product-cards .cell');
+if(productWrappers){
+    productWrappers.forEach(wrapper => {
+        wrapper.addEventListener('click', function (event) {
+            if (!event.target.closest('ins-button.add-to-cart-btn')) {
+                const link = this.querySelector('a');
+                if (link) {
+                    link.click();
+                }
+            }
+        });
+    });
+}
