@@ -27,8 +27,24 @@ metadata: {
         {% else %}
             {% assign slug = context.params.slug2 %}
         {% endif %}
-        <meta include-used="modules/insites_ecommerce/seo" slug="{{ slug }}">
-        {%- include 'modules/insites_ecommerce/seo', type: "category", slug: slug -%}
+
+        {%- if context.params.slug2 -%}
+            {%- assign slug_type = 'category' -%}
+            {% comment %} Check if slug2 is a category {% endcomment %}
+            {%- graphql category_exist = 'modules/ecommerce/categories/is_category_exist', slug: context.params.slug2 | dig: 'items','total_entries' -%}    
+            {%- if category_exist < 1 -%}
+                {%- assign slug_type = 'product' -%}
+                {% comment %} Check if slug2 is a product {% endcomment %}
+                {%- graphql product_exist = 'modules/ecommerce/products/is_product_exist', slug: context.params.slug2 | dig: 'items','total_entries' -%}
+                {%- if product_exist == 0 -%}
+                    {% redirect_to '/404' %}
+                {%- endif -%}    
+            {%- endif -%}
+        {%- endif -%} 
+
+        {%- include 'modules/insites_ecommerce/seo', 
+            type: slug_type,
+            slug: slug -%}
     {%- else -%}
         <meta include-used="modules/insites_cms/seo" slug="{{ slug }}">
         {%- include 'modules/insites_cms/seo' -%}
