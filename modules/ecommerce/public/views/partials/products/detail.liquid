@@ -225,6 +225,7 @@ metadata: {
             {
                 "detail_page": true,
                 "id": "{{ product.id }}",
+                "slug": "{{ product.slug }}",
                 "product_uuid": "{{ product.uuid }}",
                 "product_name": "{{ product.product_name | replace: "'", "`" }}",
                 "price": "{{ price | default: 0 }}",

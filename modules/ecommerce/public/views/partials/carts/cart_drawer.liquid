@@ -86,15 +86,17 @@ metadata: {
             <div class="grid-x" >
 
                 <div class="image_wrap">
+                    <a href="/products/{{product.slug}}">
                     {% if product.product_image.url %}
                         <img src="{{ product.product_image.url | replace: ' ', '%20' | replace: ';', '%3B' }}" width="66" height="66" alt="img-{{product_id}}">
                     {% else %}
                         {% include 'modules/website/layout/placeholder_image', size: 'small' %}
                     {% endif %}
+                    </a>
                 </div>
 
                 <div class="grid-y cart-details flex-child-auto">
-                    <h6>{{ product_name }}</h6>
+                    <a href="/products/{{product.slug}}"><h6>{{ product_name }}</h6></a>
                     <p class="body-x-small">SKU {{ selected_prop.product_sku }}</p>
                     <div class="spacer x-small"></div>
                     {% comment %} Get variant info {% endcomment %}

@@ -89,6 +89,7 @@ metadata: {
                     {% parse_json data %}
                     {
                         "id": "{{ selected_prop.id }}",
+                        "slug": "{{ product.slug }}",
                         "product_uuid": "{{ product.uuid }}",
                         "product_sku": "{{ selected_prop.sku }}",
                         "variant_uuid": "{{ variant_uuid }}",

@@ -330,10 +330,10 @@ function cartItemHtml(data, cart_item){
     return ` <div id="cart-item-${data.id}" class="cart-item-wrap">
             <div class="grid-x" >
                 <div class="image_wrap">
-                    ${ img }
+                    <a href="/products/${data.slug}">${ img }</a>
                 </div>
                 <div class="grid-y cart-details flex-child-auto">
-                    <h6>${ data.product_name }</h6>
+                    <a href="/products/${data.slug}"><h6>${ data.product_name }</h6></a>
                     <p class="body-x-small">SKU ${ data.product_sku }</p>
                     <div class="spacer x-small"></div>
                     <p>
