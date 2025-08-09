@@ -1027,9 +1027,6 @@ ins-drawer.cart-drawer .ins-drawer-wrap .ins-content::-webkit-scrollbar {
     padding: 12px;
     font-weight: 400;
 }
-.cart-drawer #cart-items-wrap {
-    padding-bottom: 200px;
-}
 .cart-drawer .ins-form-field-wrap {
     margin-bottom: 0px;
 }
@@ -1060,15 +1057,18 @@ ins-drawer.cart-drawer .ins-drawer-header h4 {
     line-height: 32px; /* 133.333% */
 }
 .cart-drawer #bottom-wrap {
-    position: fixed;
     bottom: 0px;    
     width: inherit;
     max-width: 100%;
     padding-bottom: 24px;
     background: var(--color-ui-01);
 }
-.cart-drawer #bottom-wrap .wrap {
-    padding-right: 32px;
+#cartDrawer .ins-drawer-header.sticky,
+.cart-drawer #bottom-wrap {
+    position: sticky;
+}
+#cartDrawer .ins-drawer-header.sticky+.ins-drawer-body {
+    margin-top: 0;
 }
 .cart-drawer .image_wrap {
     margin-right: 24px;
