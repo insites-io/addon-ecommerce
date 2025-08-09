@@ -21,7 +21,8 @@ query get_product (
     results {
       id        
       updated_at
-      uuid: property(name: "uuid")          
+      uuid: property(name: "uuid") 
+      slug: property(name: "slug")          
       stock_level: property_int(name: "stock_level")  
       is_on_sale: property_boolean(name: "is_on_sale")
       sale_price: property_float(name: "sale_price")  
