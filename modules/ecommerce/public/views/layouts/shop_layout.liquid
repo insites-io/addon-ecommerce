@@ -123,23 +123,6 @@ metadata: {
     {% include 'modules/ecommerce/carts/cart_drawer' %}
     
     <script src="{{ 'modules/ecommerce/scripts/mega-menu-close.js' | asset_url }}"></script>
-    <script>
-        //Trigger a click event on a child <a> element when clicking anywhere inside an element '.product-cards .cell' 
-        //(except for ins-buttonn element and its children)
-        const productWrappers = document.querySelectorAll('.product-cards .cell');
-        if(productWrappers){
-            productWrappers.forEach(wrapper => {
-                wrapper.addEventListener('click', function (event) {
-                    if (!event.target.closest('ins-button')) {
-                        const link = this.querySelector('a');
-                        if (link) {
-                            link.click();
-                        }
-                    }
-                });
-            });
-        }
-    </script>
 
 </body>
 </html>
