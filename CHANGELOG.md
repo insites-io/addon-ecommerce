@@ -9,10 +9,14 @@
 - Mega Menu
   - Added max-width to align with the navbar width
   - Add background to main categories
+- Cart Drawer
+  - Clickable items in the cart drawer
 - Product carousel (New Arrivals & What's Hot) pagination button - removed border line
 - Products page
   - Products page container width
     - To maintenance the product image ratio, set the page wrapper max-width to 1344px.
+  - Product with variants
+    - Disable the buy-now/pre-order and add-to-cart buttons until the user selects all the available options for the variant.
   - Product item
     - zoom in image on hover
     - image opacity change on hover
