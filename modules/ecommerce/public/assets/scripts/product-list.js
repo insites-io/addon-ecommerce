@@ -78,6 +78,9 @@ let productList = (function () {
                 let tmpVal = event.detail;
                 productFilter.brand = tmpVal;
 
+                // Reset to page 1
+                productFilter.page = "1";
+
                 window.location.href = productList.methods.buildURLLink();
             },
             showValueSelected(event){
@@ -85,12 +88,19 @@ let productList = (function () {
                 let tmpVal = event.detail;
                 productFilter.show = tmpVal;
 
+                // Reset to page 1
+                productFilter.page = "1";
+
                 window.location.href = productList.methods.buildURLLink();
             },
             sortValueSelected(event){
                 //Function to update sort of products
                 let tmpVal = event.detail;
                 productFilter.sort = tmpVal;
+
+                // Reset to page 1
+                productFilter.page = "1";
+                
                 window.location.href = productList.methods.buildURLLink();
             },
             clearFilterToList(){
