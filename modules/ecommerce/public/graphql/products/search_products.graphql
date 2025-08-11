@@ -5,7 +5,7 @@ query search_products(
   $category_uuids: [String!],
   $brand: String,
   $is_on_sale: Boolean,
-  $not_number: String = "0",
+  $not_number: String,
   $sort:[RecordsSortInput!] = [
     { updated_at: { order: DESC } }
   ]
