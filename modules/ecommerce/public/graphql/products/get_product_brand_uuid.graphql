@@ -1,14 +1,12 @@
 query get_product_brand_uuid(
-  $page: Int = 1,
-  $size: Int = 500,
   $keyword : String,
   $category_uuids: [String!],
   $is_on_sale: Boolean,
-  $not_number: String = "0",
+  $not_number: String,
 ){
   items: records(
-    page: $page
-    per_page: $size
+    page: 1
+    per_page: 500
     filter:{
       table:{ value:"modules/insites_ecommerce/product" }
       properties:[
