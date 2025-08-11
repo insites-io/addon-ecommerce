@@ -22,8 +22,8 @@ metadata: {
                 {% endif %}
                 <div class="grid-x" >
                     <div class="img-wrap">
-                        {% if cart.selected_prop.product_image.url %}
-                            <img  src="{{ cart.selected_prop.product_image.url }}" alt="{{ cart.product_name }}" >
+                        {% if cart.imgsrc != '' and cart.imgsrc != blank %}
+                            <img  src="{{ cart.imgsrc | replace: ' ', '%20' | escape }}" width="88" height="88" alt="{{ cart.product_name }}" >
                         {% else %}
                             {% include 'modules/website/layout/placeholder_image', size: 'medium' %}
                         {% endif %}

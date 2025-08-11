@@ -60,6 +60,7 @@ metadata: {
                 if item.variant_uuid == '' or item.variant_uuid == null
                     ## item is NOT a variant
                     assign selected_prop = product
+                    assign imgsrc = product.product_image.url
                 else 
                     ## item is a variant                
                     for variant in product.variants
@@ -67,6 +68,12 @@ metadata: {
                             assign selected_prop = variant
                         endif
                     endfor
+
+                    ## Image: Use the variant; if none exists, use the main product image.
+                    assign imgsrc = selected_prop.product_image.url
+                    if imgsrc == '' or imgsrc == blank 
+                        assign imgsrc = product.product_image.url
+                    endif
                 endif             
 
                 if selected_prop.is_on_sale == true 
@@ -87,8 +94,8 @@ metadata: {
 
                 <div class="image_wrap">
                     <a href="/products/{{product.slug}}">
-                    {% if product.product_image.url %}
-                        <img src="{{ product.product_image.url | replace: ' ', '%20' | replace: ';', '%3B' }}" width="66" height="66" alt="img-{{product_id}}">
+                    {% if imgsrc != '' and imgsrc != blank %}
+                        <img src="{{ imgsrc | replace: ' ', '%20' | escape }}" width="66" height="66" alt="img-{{product_id}}">
                     {% else %}
                         {% include 'modules/website/layout/placeholder_image', size: 'small' %}
                     {% endif %}

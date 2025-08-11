@@ -18,11 +18,18 @@ metadata: {
                 assign is_variant = true
             endif
         endfor
+
+        ## Image: Use the variant; if none exists, use the main product image.
+        assign imgsrc = selected_prop.product_image.url
+        if imgsrc == '' or imgsrc == blank 
+            assign imgsrc = product.product_image.url
+        endif
     else        
         ## item is NOT a variant
         assign selected_prop = product
         assign is_variant = false
-    endif       
+        assign imgsrc = product.product_image.url
+    endif           
 %}       
 
 {% comment %} Prices {% endcomment %}
@@ -48,7 +55,8 @@ metadata: {
     "price": {{ price | default: 0 }},
     "price_strikethrough": "{{ price_strikethrough }}",
     "is_tax_included": {{ is_tax_included | default: false }},
-    "item_total_price": {{ item_total_price | default: 0 }}
+    "item_total_price": {{ item_total_price | default: 0 }},
+    "imgsrc": "{{ imgsrc }}"
 }
 {% endparse_json %}
 

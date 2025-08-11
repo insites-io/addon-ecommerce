@@ -1005,7 +1005,7 @@ ins-button.view-button button {
     max-width: 100%;
 }
 ins-drawer.cart-drawer .ins-drawer-wrap {
-    z-index: 1000;
+    z-index: 99999;
 }
 ins-drawer.cart-drawer .ins-drawer-wrap .ins-content {
     scrollbar-width: thin;  /* Firefox */
