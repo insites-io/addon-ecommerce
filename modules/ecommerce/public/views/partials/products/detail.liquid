@@ -12,24 +12,37 @@ metadata: {
     assign galleries = '' | split: ','    
     assign gallery_indexes = '{}' | parse_json 
     assign index = 0
-    if product.gallery_1.size > 0
-        for gallery in product.gallery_1
-            assign galleries = galleries | array_add: gallery.file.url
-            assign gallery_indexes = gallery_indexes | add_hash_key: variant.id, index
-            assign index = index | plus: 1
-        endfor
-    elsif product.product_image.url
-        assign galleries = galleries | array_add: product.product_image.url    
-        assign gallery_indexes = gallery_indexes | add_hash_key: variant.id, index  
+
+    ## Main Product Image
+    if product.product_image.url
+        assign galleries = galleries | array_add: product.product_image.url  
         assign index = index | plus: 1
     endif
 
+    ## Gallery_1
+    if product.gallery_1.size > 0
+        for gallery in product.gallery_1
+            assign galleries = galleries | array_add: gallery.file.url
+            assign index = index | plus: 1
+        endfor
+    endif
 
+    ## Gallery_2
+    if product.gallery_2.size > 0        
+        for gallery in product.gallery_2
+            assign galleries = galleries | array_add: gallery.file.url
+            assign index = index | plus: 1
+        endfor
+    endif
+    
+    
     if product.is_product_variant_enabled
+        ## The product has variants
         assign selected_prop = product.variants[0] 
         assign variant_id = selected_prop.id
         assign variant_uuid = selected_prop.uuid 
-        ## Variant Galleries        
+        assign disabledBtn = 'disabled'
+        ## Variant Images        
         for variant in product.variants
             if variant.product_image.url
                 assign galleries = galleries | array_add: variant.product_image.url
@@ -38,9 +51,11 @@ metadata: {
             endif
         endfor
     else 
+        ## The product doesn't have variant
         assign selected_prop = product    
         assign variant_id = null
         assign variant_uuid = null    
+        assign disabledBtn = ''
     endif
 
     ## Pricing
@@ -236,9 +251,9 @@ metadata: {
                 {% assign add_to_cart_data = add_to_cart_data | add_hash_key: 'image', galleries[0] %}
             {% endif %}                     
             <div id="product-details-btn">
-                <ins-button id="add-to-cart-btn-{{ add_to_cart_data.id }}"  class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid disabled></ins-button>
+                <ins-button id="add-to-cart-btn-{{ add_to_cart_data.id }}"  class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid {{disabledBtn}}></ins-button>
                 <div class="spacer small"></div>
-                <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ add_to_cart_data }}' icon="icon-shopping-cart" outlined disabled></ins-button></ins-button>
+                <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ add_to_cart_data }}' icon="icon-shopping-cart" outlined {{disabledBtn}}></ins-button></ins-button>
             </div>
             
         </div>

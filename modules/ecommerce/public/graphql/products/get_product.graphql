@@ -63,7 +63,17 @@ query get_product (
         file: property_upload(name: "file") {
           url
         }
-      } 
+      }
+
+      gallery_2: related_records(
+        table: "modules/insites_core/attachment"
+        join_on_property: "gallery_2"
+        foreign_property: "uuid"
+      ){
+        file: property_upload(name: "file") {
+          url
+        }
+      }
     }
   }
 }
