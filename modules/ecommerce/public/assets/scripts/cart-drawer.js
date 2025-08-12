@@ -449,6 +449,9 @@ function computeSubTotal(){
 let contShoppingBtn = document.getElementById("continue-shopping-btn");
 contShoppingBtn.addEventListener('insClick', event => {                 
     cartDrawer.setDrawerState(false); 
+    if(page != 'shopping-cart' && page != 'products') {
+        window.location.href = "/products";
+    }
 });
 
 function openDrawer(){
