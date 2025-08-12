@@ -32,8 +32,10 @@ metadata: {
                         <a href="/products/{{ cart.slug }}">
                             <h6>
                                 {{ cart.product_name }} 
-                                {% if cart.selected_prop.stock_level < 1 %}
-                                <ins-tag label="Pre-order" class='preorder-tag body-x-small' ></ins-tag>
+
+                                {% comment %} Pre-order Tag {% endcomment %}                                
+                                {% if cart.selected_prop.stock_level < item.quantity %}
+                                    <ins-tag label="Pre-order" class='preorder-tag body-x-small' ></ins-tag>
                                 {% endif %}
                             </h6> 
                         </a>
@@ -76,10 +78,7 @@ metadata: {
                             data-variant_uuid="{{ item.variant_uuid }}"
                             data-product_name="{{ item.product_name }}"
                             value="{{ item.quantity }}" 
-                            step="1" min="1" 
-                            {% if cart.selected_prop.stock_level > 0 %}
-                                max="{{ cart.selected_prop.stock_level }}"  
-                            {% endif %}
+                            step="1" min="1"                             
                             small>
                         </ins-input-stepper>
                         <div class="spacer small"></div>

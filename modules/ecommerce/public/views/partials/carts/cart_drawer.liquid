@@ -155,10 +155,7 @@ metadata: {
                         data-variant_uuid="{{ item.variant_uuid }}"
                         data-product_name="{{ item.product_name }}"
                         value="{{ item.quantity }}" 
-                        step="1" min="1" 
-                        {% if selected_prop.stock_level > 0 %}
-                            max="{{ selected_prop.stock_level }}" 
-                        {% endif %}
+                        step="1" min="1"                         
                         small>
                     </ins-input-stepper>
                     <div class="spacer small"></div>
