@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update the cart count in the menu when an item from the cart is automatically deleted
     // probably because the product for that item has been archived, disabled, or deleted.
     if(recount_cart === true) {
-        document.querySelectorAll('.cart-count').forEach( el => { 
+        cartCounts.forEach( el => { 
             el.textContent = recount_total_items;            
         });
         cartDrawer.label = `Cart (${recount_total_items})`;
@@ -408,7 +408,7 @@ function computeItemTotal(itemWrap, qty) {
 
 function computeSubTotal(){    
     let subTotal = 0;
-    let prices = document.querySelectorAll(".compute-price");
+    let prices = document.querySelectorAll("#cartDrawer .compute-price");
 
     prices.forEach(price => {
         subTotal += parseFloat(price.textContent.replace(/[^0-9.]/g, ''));
