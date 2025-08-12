@@ -3,10 +3,17 @@ metadata: {
     partial_name: 'Ecommerce | Carts | Remove to Cart'
 }
 ---
-{%- assign params = context.params -%}
-{%- assign id = params.id -%}
-{%- assign uuid = params.uuid -%}
-{%- assign cart_uuid = params.cart_uuid -%}
+{% liquid 
+    if id != '' and id != blank
+        ## Do nothing. The id, uuid, and cart_uuid are passed as parameters from parent
+    else 
+        assign params = context.params
+        assign id = params.id
+        assign uuid = params.uuid
+        assign cart_uuid = params.cart_uuid
+    endif
+%}    
+
 
 {%- if id and uuid != '' and cart_uuid != '' -%}
 

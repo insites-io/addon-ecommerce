@@ -35,8 +35,18 @@ cartDrawer.addEventListener('didLoad', () => {
     cartDrawer.classList.remove('hide');
 });
 
-// Open the cart drawer modal after reordering items from Order History.
-document.addEventListener('DOMContentLoaded', () => {
+
+document.addEventListener('DOMContentLoaded', () => {    
+    // Update the cart count in the menu when an item from the cart is automatically deleted
+    // probably because the product for that item has been archived, disabled, or deleted.
+    if(recount_cart === true) {
+        document.querySelectorAll('.cart-count').forEach( el => { 
+            el.textContent = recount_total_items;            
+        });
+        cartDrawer.label = `Cart (${recount_total_items})`;
+    }
+
+    // Open the cart drawer modal after reordering items from Order History.
     if (sessionStorage.getItem('openCartDrawer') === 'true') {
         cartDrawer.setDrawerState(true);  // Open modal
         sessionStorage.removeItem('openCartDrawer'); // Clean up
