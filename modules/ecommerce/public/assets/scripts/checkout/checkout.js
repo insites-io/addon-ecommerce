@@ -152,6 +152,16 @@ let Checkout = (function () {
                 `;
                 return cardHtml;
             },
+            updateSelectedAddress(addressCard) {
+                selectedAddress = {
+                    "address_1": addressCard.getAttribute('data-address_1'),
+                    "address_2": addressCard.getAttribute('data-address_2'),
+                    "suburb": addressCard.getAttribute('data-suburb'),
+                    "state": addressCard.getAttribute('data-state'),
+                    "postcode": addressCard.getAttribute('data-postcode'),
+                    "country": addressCard.getAttribute('data-country')   
+                };
+            },
             checkSelectedCard(){
                 const cards = document.querySelectorAll('ins-checkbox-card');
         
@@ -489,19 +499,14 @@ let Checkout = (function () {
                     el.removeAttribute('selected');
                     el.selected = false;
                 });
-                // set selected state
+
+                // Set selected state
                 addressCard.setAttribute('selected', true);
                 addressCard.selected = true;
                 selectedAddressId = addressCard.value;
 
-                selectedAddress = {
-                    "address_1": addressCard.getAttribute('data-address_1'),
-                    "address_2": addressCard.getAttribute('data-address_2'),
-                    "suburb": addressCard.getAttribute('data-suburb'),
-                    "state": addressCard.getAttribute('data-state'),
-                    "postcode": addressCard.getAttribute('data-postcode'),
-                    "country": addressCard.getAttribute('data-country')   
-                };
+                // Update variable selectedAddress
+                Checkout.methods.updateSelectedAddress(addressCard);
 
                 if(shippingAddressID){
                     shippingAddressID.setValue(selectedAddressId);
@@ -640,7 +645,6 @@ let Checkout = (function () {
                 }
             },
             initBillingDetailsListener() {
-                Checkout.methods.updateBillingContact(true);
                 if (billingSameWithShippingEl) {
                     billingSameWithShippingEl.addEventListener('insCheck', (event) => {                        
                         Checkout.methods.updateBillingContact(event.detail.checked);
@@ -648,14 +652,24 @@ let Checkout = (function () {
                 }
             },            
             initAddressCardListener() {
+                // Add click event for Address cards
                 if(addressCards){
                     addressCards.addEventListener('click', function (e) {
                         if (e.target.closest('ins-checkbox-card')) {                      
                             Checkout.events.selectAddressCard(e.target.closest('ins-checkbox-card'));
                         }
                     });
-                }                  
+                } 
+                
+                // Check selected card
                 Checkout.methods.checkSelectedCard();
+
+                // Update variable selectedAddress
+                if(selectedAddressId){                    
+                    Checkout.methods.updateSelectedAddress(
+                        document.querySelector(`ins-checkbox-card[value="${selectedAddressId}"]`)
+                    );
+                }
             },
             initCardsEventListener() {
                 let iterations = 5;
