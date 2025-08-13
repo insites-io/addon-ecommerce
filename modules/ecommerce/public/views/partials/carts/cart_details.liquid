@@ -7,46 +7,30 @@ metadata: {
     assign product = products | array_detect: uuid: item.product_uuid 
     assign product_name = product.product_name    
     assign is_tax_included = product.is_tax_included       
-
-    ## to fix issues in comparing '' versus null
-    if product.product_sku == null 
-        assign product = product | add_hash_key: 'product_sku', ''
-    endif
     
     ## Check if the item is a product or a variant of the product
     assign selected_prop = ''
-    if item.product_sku == product.product_sku
-        ## item is NOT a variant
-        assign selected_prop = product
-        assign is_variant = false
-    else 
+    if product.is_product_variant_enabled
         ## item is a variant                
         for variant in product.variants
-            if item.product_sku == variant.product_sku
+            if item.variant_uuid == variant.uuid
                 assign selected_prop = variant
                 assign is_variant = true
             endif
         endfor
-    endif       
-%}      
 
-{% comment %} product_sku has changed, Remove this item in the cart {% endcomment %}
-{% if selected_prop == '' %}          
-    {%if user_uuid %}
-        {% comment %} This is for logged in user only {% endcomment %}
-        {% parse_json params %}
-        {
-            "product_uuid": "{{ item.product_uuid }}",
-            "product_sku": "{{ item.product_sku }}",
-            "contact_uuid": "{{ user_uuid }}"
-        }
-        {% endparse_json %}
-        {% include 'modules/ecommerce/carts/remove_to_cart', params %} 
-    {% endif %}
-
-    {% comment %} Skip the current iteration of the loop {% endcomment %}
-    {% continue %}
-{% endif %}  
+        ## Image: Use the variant; if none exists, use the main product image.
+        assign imgsrc = selected_prop.product_image.url
+        if imgsrc == '' or imgsrc == blank 
+            assign imgsrc = product.product_image.url
+        endif
+    else        
+        ## item is NOT a variant
+        assign selected_prop = product
+        assign is_variant = false
+        assign imgsrc = product.product_image.url
+    endif           
+%}       
 
 {% comment %} Prices {% endcomment %}
 {%  liquid
@@ -65,12 +49,14 @@ metadata: {
 {
     "slug": "{{ product.slug }}",
     "product_name": "{{ product_name }}",
+    "product_sku": "{{ selected_prop.product_sku }}",
     "is_variant": {{ is_variant | default: false }},
     "selected_prop": {{ selected_prop | default: '[]' }},
     "price": {{ price | default: 0 }},
     "price_strikethrough": "{{ price_strikethrough }}",
     "is_tax_included": {{ is_tax_included | default: false }},
-    "item_total_price": {{ item_total_price | default: 0 }}
+    "item_total_price": {{ item_total_price | default: 0 }},
+    "imgsrc": "{{ imgsrc }}"
 }
 {% endparse_json %}
 

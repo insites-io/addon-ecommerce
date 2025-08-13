@@ -1,0 +1,16 @@
+---
+slug: api/validate-email
+format: json
+method: get
+searchable: false
+metadata: {
+    "status": "published",
+    "api_endpoint_name": "Check User Email API",
+    "page_type": "endpoint"
+}
+---
+
+{%- assign email = context.params.email | default: null -%}
+{%- graphql results = "modules/ecommerce/account/check_user_email", email: email -%}
+
+{{ results }}

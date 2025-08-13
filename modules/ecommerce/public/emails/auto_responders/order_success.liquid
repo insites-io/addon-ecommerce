@@ -277,6 +277,29 @@ data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10
 {% comment %} <!-- Spacer --> {% endcomment %}
 {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 32 %}
 
+{% comment %} <!-- Shipping Details --> {% endcomment %}
+<table class="module" role="module" data-type="text" border="0" cellpadding="0"
+cellspacing="0" width="100%" style="table-layout: fixed;"
+data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10-22">
+    <tbody>
+        <tr>
+        <td style="padding:0px 40px 0px 40px; text-align:inherit;"
+            height="100%" valign="top" bgcolor="" role="module-content">
+            <div>
+            <div style="font-family: inherit; text-align: left"><span
+                style="font-size: 16px; line-height: 26px; color: #0d0d0d"><strong>Shipping Details</strong></span></div>
+            <div></div>
+            </div>
+        </td>
+        </tr>
+    </tbody>
+</table>
+
+{% include 'modules/ecommerce/emails/shipping_details', data: shipping_data -%}
+
+{% comment %} <!-- Spacer --> {% endcomment %}
+{% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 32 %}
+
 {% comment %} <!-- Billing Details --> {% endcomment %}
 <table class="module" role="module" data-type="text" border="0" cellpadding="0"
 cellspacing="0" width="100%" style="table-layout: fixed;"
@@ -300,7 +323,7 @@ data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10
 {% comment %} <!-- Spacer --> {% endcomment %}
 {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 32 %}
 
-{% comment %} <!-- Shipping Details --> {% endcomment %}
+{% comment %} <!-- Payment Method --> {% endcomment %}
 <table class="module" role="module" data-type="text" border="0" cellpadding="0"
 cellspacing="0" width="100%" style="table-layout: fixed;"
 data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10-22">
@@ -310,7 +333,7 @@ data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10
             height="100%" valign="top" bgcolor="" role="module-content">
             <div>
             <div style="font-family: inherit; text-align: left"><span
-                style="font-size: 16px; line-height: 26px; color: #0d0d0d"><strong>Shipping Details</strong></span></div>
+                style="font-size: 16px; line-height: 26px; color: #0d0d0d"><strong>Payment Method</strong></span></div>
             <div></div>
             </div>
         </td>
@@ -318,7 +341,8 @@ data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10
     </tbody>
 </table>
 
-{% include 'modules/ecommerce/emails/shipping_details', data: shipping_data -%}
+{% include 'modules/ecommerce/emails/payment_method', data: data.payment_response -%}
+
 
 {% comment %} <!-- Spacer --> {% endcomment %}
 {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}

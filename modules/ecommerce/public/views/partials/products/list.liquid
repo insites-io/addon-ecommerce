@@ -48,7 +48,7 @@ metadata: {
 
 {% comment %} Filter by Categories {% endcomment %}
 {%  liquid
-    assign param_cat = params.cat | strip
+    assign param_cat = params.category | strip
     assign param_slug2 = params.slug2 | strip
 
     if param_cat != ''
@@ -77,7 +77,7 @@ metadata: {
     {%- if show == "sale" -%}
         "is_on_sale": true,
     {%- elsif show == "in-stock" -%}
-        "not_number": 0,
+        "not_number": "0",
     {%- endif -%}
 
     "sort":{{ sort_by | json }}
@@ -99,10 +99,11 @@ Step: Call the search GraphQL with the parameters
             {%- if params.slug2 -%}
                 <h1 class="heading-1">{{ category_name }}</h1>
             {%- else -%}
-                <h1 class="heading-1">All Products</h1>
+                <h1 class="heading-1">All products</h1>
             {%- endif -%}
         {%- endif -%}
-        <div class="spacer xxx-large"></div>
+        <div class="spacer xxx-large hide-for-small-only"></div>
+        <div class="spacer large show-for-small-only"></div>
     </div>
 </div>
 
@@ -113,7 +114,6 @@ Step: Call the search GraphQL with the parameters
         
         {% comment %} Drawer Categories for Mobile view {% endcomment %}
         <div class="hide-for-large">
-            <div class="spacer"></div>
             <ins-button label="Categories" icon="icon-sliders" id="mobile-category-button" outlined></ins-button>
             <div class="spacer small"></div>
             <ins-drawer 
@@ -121,7 +121,10 @@ Step: Call the search GraphQL with the parameters
                 position="right"
                 bordered=false
                 id="mobile-filter-drawer">
-                <div class="wrap">{% comment %} copy #sidebar-categories html via javascript {% endcomment %}</div>
+                <div class="wrap">
+                    {% comment %} copy #sidebar-categories html via javascript {% endcomment %}
+                    {%- include 'modules/ecommerce/products/sidebar_categories_mobile' -%}
+                </div>
             </ins-drawer>
         </div>    
             
@@ -134,9 +137,9 @@ Step: Call the search GraphQL with the parameters
 
     <div class="large-9 medium-12 small-12 cell">
         
-        {% include "modules/ecommerce/products/main_filters" %}
+        {% include "modules/ecommerce/products/main_filters", filters: filters %}
         
-        <div class="spacer"></div>
+        <div class="spacer small"></div>
         
         {%- if products.items and products.items.total_entries > 0 -%}                
         
@@ -150,15 +153,12 @@ Step: Call the search GraphQL with the parameters
 
         <div class="spacer x-large"></div>
 
-        {% include "modules/ecommerce/layout/pagination",  data: products.items, per_page, label: 'Products' %}
+        {% include "modules/ecommerce/layout/pagination",  data: products.items, label: 'Products per page' %}
         
         {%- else -%}
 
-        <div class="grid-x">
-            <div class="small-12 cell text-center">
-                <div class="spacer xxxx-large"></div>
-                <p>No results found.</p>
-            </div>
+        <div class="empty-box">
+            <p class="body-large bold">No results found.</p>
         </div>
 
         {%- endif -%}

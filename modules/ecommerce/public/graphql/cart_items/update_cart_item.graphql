@@ -1,0 +1,21 @@
+mutation update_cart_item (
+  $id: ID!
+  $quantity: Int!
+) {
+  items: record_update(
+    id: $id,
+    record: {
+      table: "modules/insites_ecommerce/cart_item",
+    	properties: [
+        { name: "quantity", value_int: $quantity }        
+      ]
+    }
+  ) {
+    id
+    uuid: property(name: "uuid")
+    cart_uuid: property(name: "cart_uuid")
+    product_uuid: property(name: "product_uuid")
+    variant_uuid: property(name: "variant_uuid")
+    quantity: property_int(name: "quantity")      
+  }
+}

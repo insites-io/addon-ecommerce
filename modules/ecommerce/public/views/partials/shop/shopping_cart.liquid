@@ -4,26 +4,26 @@ metadata: {
 }
 ---
 {%- if carts.size > 0 -%}
-    <h2>Cart Items</h2>
+    <h4>Cart items</h4>
     <div class="spacer x-large"></div>    
     <div id="shopping-cart-list">
         <div class="wrap shopping-cart grid-y">
 
         {%- for item in carts -%}          
 
-            {% include 'modules/ecommerce/carts/cart_details', products, item, user_uuid %}
+            {% include 'modules/ecommerce/carts/cart_details', products, item %}
             {% assign cart = context.exports.cart %}
             
                                                 
-            <div id="cart-item-{{cart.selected_prop.id}}" class="cart-item-wrap cell">
+            <div id="shop-cart-item-{{cart.selected_prop.id}}" class="cart-item-wrap cell">
                 {% if forloop.first == false %}
                     <hr>
                     <div class="spacer x-large"></div>
                 {% endif %}
                 <div class="grid-x" >
                     <div class="img-wrap">
-                        {% if cart.selected_prop.product_image.url %}
-                            <img  src="{{ cart.selected_prop.product_image.url }}" alt="{{ cart.product_name }}" >
+                        {% if cart.imgsrc != '' and cart.imgsrc != blank %}
+                            <img  src="{{ cart.imgsrc | replace: ' ', '%20' | escape }}" width="88" height="88" alt="{{ cart.product_name }}" >
                         {% else %}
                             {% include 'modules/website/layout/placeholder_image', size: 'medium' %}
                         {% endif %}
@@ -32,12 +32,14 @@ metadata: {
                         <a href="/products/{{ cart.slug }}">
                             <h6>
                                 {{ cart.product_name }} 
-                                {% if cart.selected_prop.stock_level < 1 %}
-                                <ins-tag label="Pre-Order" class='preorder-tag body-x-small' ></ins-tag>
+
+                                {% comment %} Pre-order Tag {% endcomment %}                                
+                                {% if cart.selected_prop.stock_level < item.quantity %}
+                                    <ins-tag label="Pre-order" class='preorder-tag body-x-small' ></ins-tag>
                                 {% endif %}
                             </h6> 
                         </a>
-                        <p class="body-small">SKU: {{ item.product_sku }}</p>
+                        <p class="body-small font-color-body">SKU: {{ cart.product_sku }}</p>
                         <div class="spacer small"></div>
                         {% comment %} Get variant info {% endcomment %}
                         {% if cart.is_variant == true %}
@@ -65,27 +67,28 @@ metadata: {
                         </p>
                     </div>
                     <div class="btn-wrap grid-y">
-                        <p class="cart-price compute-price">{{ cart.item_total_price | pricify }}</p>
+                        <p class="cart-price compute-price">{{ cart.item_total_price | pricify: 'USD', no_cents_if_whole: false }}</p>
                         <div class="spacer small"></div>
                         <ins-input-stepper
+                            name="cart-stepper"
                             class="cart-stepper" 
                             data-id="{{ item.id }}"
                             data-product_uuid="{{ item.product_uuid }}"
                             data-product_sku="{{ item.product_sku }}"
+                            data-variant_uuid="{{ item.variant_uuid }}"
                             data-product_name="{{ item.product_name }}"
                             value="{{ item.quantity }}" 
-                            step="1" min="1" 
-                            {% if cart.selected_prop.stock_level > 0 %}
-                                max="{{ cart.selected_prop.stock_level }}"  
-                            {% endif %}
+                            step="1" min="1"                             
                             small>
                         </ins-input-stepper>
                         <div class="spacer small"></div>
                         <div class="text-right" >
+                            {% comment %} Use these IDs to validate item deletion, as the API does not implement an authentication policy. {% endcomment %}
                             {% parse_json remove_item %}
                             {
-                                "product_uuid": "{{ item.product_uuid }}",
-                                "product_sku": "{{ item.product_sku }}"
+                                "id": "{{ item.id }}",
+                                "uuid": "{{ item.uuid }}",
+                                "cart_uuid": "{{ item.cart_uuid }}"
                             }
                             {% endparse_json %}
                             <ins-button label="Remove" icon="icon-trash-2" size="small" class="cart-remove-btn" data='{{ remove_item }}' ></ins-button>
@@ -103,36 +106,22 @@ metadata: {
     <ins-loader
         id="shopping-cart-loader"
         class="hide"
-        state-title="Processing"
-        state-message="Please wait, we're processing your data."
-        state-icon="processing">
+        state-title="" 
+        state-icon="processing" 
+        state-message="Loading">
     </ins-loader>
 {%- else -%}
 
-    {% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
-    {% if has_profile %}
-
-        <div id="shopping-cart-list" class="shopping-cart grid-x grid-padding-x grid-padding-y">
-            <div class="small-12 cell">
-                <ins-card steady class="empty-state">
-                    <span>Your cart is empty.</span>
-                </ins-card>
+    <div id="shopping-cart-list" class="shopping-cart grid-x grid-padding-x grid-padding-y">
+        <div class="small-12 cell">
+            <div class="empty-box">
+                <span>Your cart is empty.</span>
+                <div class="spacer"></div>
+                <a href="/products">
+                    <ins-button type="button" label="Go to shop" solid></ins-button>
+                </a>
             </div>
         </div>
-
-    {%- else -%}
-        <div id="shopping-cart-items-wrap">
-            {% comment %} Javascript generated content will be place here {% endcomment %}
-        </div>      
-        
-        <ins-loader
-            id="shopping-guest-cart-loader"
-            class="hide"
-            state-title="Processing"
-            state-message="Please wait, we're processing your data."
-            state-icon="processing">
-        </ins-loader>
-
-    {%- endif -%}
+    </div>
 
 {%- endif -%}

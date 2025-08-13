@@ -6,11 +6,13 @@ metadata: {
 {% comment %} 
     Parameters from parent:
      - discount_uuid
+     - user_uuid
+     - type
 {% endcomment %}
 {%- if user_uuid != blank -%}
 
     {% unless user_cart %}
-        {% graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
+        {% graphql user_cart = 'modules/ecommerce/carts/get_cart', 
         contact_uuid: user_uuid | dig: 'items','results' | first %}
     {% endunless %}
 
@@ -27,8 +29,7 @@ metadata: {
     }
     {% endparse_json %}
     {% graphql update_cart_discount = 'modules/ecommerce/carts/update_cart_discount', args: args %}
-{% else %}
-    {% comment %} check cart local storage {% endcomment %}
+
 {% endif %}
 
 {% export update_cart_discount %}

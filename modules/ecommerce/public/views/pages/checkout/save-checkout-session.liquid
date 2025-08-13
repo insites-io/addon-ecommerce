@@ -23,21 +23,27 @@ metadata:
   sitemap_changefreq: "never"
 ---
 
-{% liquid
-    assign response = "{}" | parse_json
-    assign address_id = context.params.address_id | default: null
-    assign user_uuid = context.current_user.external_id
-    assign guest_user = context.params.guest_user
-%}
+{% assign response = "{}" | parse_json %}
 
-{% parse_json account_details %}
+{% parse_json param_contact %}
 {
-    "company_name": "{{ context.session.account_company_name }}",
-    "contact_first_name": "{{ context.current_user.first_name }}",
-    "contact_last_name": "{{ context.current_user.last_name }}",
-    "contact_email": "{{ context.current_user.email }}",
-    "contact_phone_number": "{{ context.session.account_mobile_number }}",
-    "contact_phone_country_code": "{{ context.session.account_mobile_country_code }}"
+    "company_name": "{{ context.params.contact_company_name }}",
+    "contact_first_name": "{{ context.params.contact_first_name }}",
+    "contact_last_name": "{{ context.params.contact_last_name }}",
+    "contact_email": "{{ context.params.contact_email }}",
+    "contact_phone_number": "{{ context.params.contact_phone_number }}",
+    "contact_phone_country_code": "{{ context.params.contact_phone_country_code }}"
+}
+{% endparse_json %}
+
+{% parse_json session_contact %}
+{
+    "company_name": "{{ context.session.contact_company_name }}",
+    "contact_first_name": "{{ context.session.contact_first_name }}",
+    "contact_last_name": "{{ context.session.contact_last_name }}",
+    "contact_email": "{{ context.session.contact_email }}",
+    "contact_phone_number": "{{ context.session.contact_phone_number }}",
+    "contact_phone_country_code": "{{ context.session.contact_phone_country_code }}"
 }
 {% endparse_json %}
 
@@ -102,38 +108,34 @@ metadata:
 {% endparse_json %}
 
 
-{% if guest_user and guest_user == true %}
-        
-    {% liquid
+{%  liquid    
+    ## guest_uuid
+    if context.params.guest_uuid
+        session guest_uuid = context.params.guest_uuid
+    endif 
+%}
 
-        # Assign order-cart-related session variables for guest
-        if context.params.cart
-            session guest_cart = context.params.cart
-        endif
-        if context.params.products
-          session guest_products = context.params.products
-        endif 
-        if context.params.discount_uuids
-            session discount_uuids = context.params.discount_uuids
-        endif
-    %}
-
-{% endif %}
-
+    {% comment %} Update Sessions for Contact Details {% endcomment %}
+    {% if context.params.type == 'contact' %}
+        {%  liquid
+            session contact_company_name = param_contact.company_name
+            session contact_first_name = param_contact.contact_first_name
+            session contact_last_name = param_contact.contact_last_name
+            session contact_email = param_contact.contact_email
+            session contact_phone_number = param_contact.contact_phone_number
+            session contact_phone_country_code = param_contact.contact_phone_country_code
+        %}
+    {% endif %}
 
     {% comment %} Update Sessions for Shipping Details {% endcomment %}
     {% if context.params.type == 'shipping' %}
-        {%  liquid
-                        
-            if address_id
-                session shipping_address_id = address_id
-            endif
+        {%  liquid                        
 
             session shipping_same_with_account = context.params.shipping_same_with_account
 
             ## Select which contact details to use
             if context.params.shipping_same_with_account == true or context.params.shipping_same_with_account == 'true'
-                assign data_contact_details = account_details
+                assign data_contact_details = session_contact
             else
                 assign data_contact_details = param_shipping
             endif
@@ -146,14 +148,13 @@ metadata:
             session shipping_contact_phone_number = data_contact_details.contact_phone_number
             session shipping_contact_phone_country_code = data_contact_details.contact_phone_country_code
 
-            ## Shipping Address Details      
-            assign data = param_shipping      
-            session shipping_address_1 = data.address_1
-            session shipping_address_2 = data.address_2
-            session shipping_suburb = data.suburb
-            session shipping_state = data.state
-            session shipping_postcode = data.postcode
-            session shipping_country = data.country
+            ## Shipping Address Details       
+            session shipping_address_1 = param_shipping.address_1
+            session shipping_address_2 = param_shipping.address_2
+            session shipping_suburb = param_shipping.suburb
+            session shipping_state = param_shipping.state
+            session shipping_postcode = param_shipping.postcode
+            session shipping_country = param_shipping.country
 
             session shipping_instructions = param_shipping.instructions  
         %}
@@ -162,6 +163,7 @@ metadata:
     {% comment %} Update Sessions for Billing Details {% endcomment %}
     {% if context.params.type == 'billing' %}
         {%  liquid
+            log session_shipping, type: "SEssion op da Shipping"
 
             if context.params.billing_same_with_shipping == true or context.params.billing_same_with_shipping == 'true' 
                 assign data = session_shipping
@@ -183,7 +185,7 @@ metadata:
             session billing_suburb = data.suburb
             session billing_state = data.state
             session billing_postcode = data.postcode
-            session billing_country = data.country            
+            session billing_country = data.country
         %}
     {% endif %}
 

@@ -63,8 +63,7 @@ Step 3: Update inventory, cart and order models.
     order_uuid: order_uuid,
     form: form,
     gateway: gateway,
-    currency: currency,
-    guest_user: guest_user
+    currency: currency
     %}
 
 {%- comment -%}
@@ -85,7 +84,7 @@ Step 4: Trigger autoresponder, workflow email & API
     "cart_ids": {{ context.exports.order.cart_ids | default: 0 }},
     "cart": {{ cart | default: '[]' }},
     "products": {{ products | default: '[]' }},
-    "order_info": {{ context.exports.updated_order.items | default: '' }},
+    "order_info": {{ context.exports.updated_order | default: '[]' }},
     "total_discounted_amount": {{ context.exports.order.total_discount_amount | default: 0 }}, 
     "form": {{ form | default: '' }},
     "guest_user": {{ guest_user | default: false }}
@@ -98,7 +97,3 @@ Step 4: Trigger autoresponder, workflow email & API
 {% include 'modules/ecommerce/checkout/callback_email_notifications', 
     status: status,
     data: data %}
-
-
-{% comment %} ? Clear Session Discount Every Purchase {% endcomment %}
-{% session discount_uuids = "[]" %}
