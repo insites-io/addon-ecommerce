@@ -1,6 +1,6 @@
 ---
 slug: checkout/payment
-layout: modules/ecommerce/checkout-layout
+layout: modules/ecommerce/checkout_layout
 searchable: "false"
 max_deep_level: 2
 metadata: {
@@ -12,18 +12,12 @@ metadata: {
 }
 ---
 
-{% include 'modules/ecommerce/checkout/checkout_redirect_step' %}
+<div class="spacer xxxx-large hide-for-small-only"></div>
+<div class="spacer x-large show-for-small-only"></div>
 
-<div class="grid-x grid-padding-x">
-    <div class="large-offset-2 medium-offset-1 small-offset-0 large-8 medium-10 small-12 cell">
-        {% include 'modules/ecommerce/layout/checkout_steps', clickable: true %}
-    </div>
-</div>
-
-<div class="spacer xxxx-large"></div>
-
-<h2 class="heading-1">Payment Info</h2>
-<div class="spacer xxx-large"></div>
+<h2 class="heading-1">Payment</h2>
+<div class="spacer xxx-large hide-for-small-only"></div>
+<div class="spacer show-for-small-only"></div>
 
 <div class="grid-x grid-padding-x">
     <div class="large-7 medium-12 small-12 cell">

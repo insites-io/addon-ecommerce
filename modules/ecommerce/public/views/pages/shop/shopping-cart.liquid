@@ -1,0 +1,83 @@
+---
+slug: shopping-cart
+layout: modules/ecommerce/shop_layout
+max_deep_level: 3
+metadata: {
+    "status": "published",
+    "page_type": "content", 
+    "page_name": "Shopping cart",
+    "page_title": "Shopping cart",
+    "meta_title": "Shopping cart"
+}
+---
+{% function user_uuid = 'modules/ecommerce/user/get_user_uuid' %}
+
+{% if user_uuid %}
+
+    {% graphql user_cart = 'modules/ecommerce/carts/get_cart', 
+            contact_uuid: user_uuid, show_discount_details: true | dig: 'items','results' | first %}
+
+{% endif %}
+
+
+{% if user_cart.cart_items.size > 0 %}
+
+    {% comment %} Get the product info {% endcomment %}
+    {%  liquid
+        assign carts = user_cart.cart_items
+        assign product_uuids = carts | array_map: 'product_uuid' | array_flatten
+        graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: user_cart.cart_items.size | dig: 'items','results'
+    %}
+
+{% endif %}
+
+
+<div class="ecommerce-wrapper grid-container">
+    <div class="grid-x grid-padding-x">
+        <div class="small-12 cell spacer xxxx-large hide-for-small-only"></div>
+        <div class="small-12 cell spacer xxx-large show-for-small-only"></div>
+        <div class="small-12 cell">
+            <h1 class="heading-1">Review your cart</h1>
+        </div>
+        <div class="small-12 cell spacer x-large hide-for-small-only"></div>
+        <div class="small-12 cell spacer show-for-small-only"></div>
+        <div class="large-7 small-12 cell">
+            {% include 'modules/ecommerce/shop/shopping_cart', user_uuid, carts, products %}
+            <div class="spacer x-large hide-for-large-only"></div>
+        </div>
+        <div class="large-4 large-offset-1 small-12 cell">
+            {% include 'modules/ecommerce/layout/order_summary', 
+                show_product: false, 
+                show_discount_list: true,
+                form_update: true,
+                form_delete: true,
+                user_cart, carts, products %}
+            <div class="spacer x-large"></div>  
+            
+            <div class="hide-for-small-only">
+            {%- liquid
+                ## Check if has cart
+                if user_cart.id
+                    assign cart_id = user_cart.id   
+                endif
+
+                include 'modules/ecommerce/discounts/add_discount_code_form'
+            -%}
+            </div>
+
+            <div class="spacer x-large"></div>
+
+            <div id="proceed-to-checkout" class="show-for-medium text-right {% if context.exports.computed.sub_total_amount <= 0 %}hide{% endif %}">
+                <ins-button label="Proceed to checkout" solid color="blue" class="checkoutBtn proceed-to-checkout-btn" onclick="document.location.href = '/checkout';"></ins-button>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+
+{%- if context.environment == "staging" -%}
+    <script src="{{ 'modules/ecommerce/scripts/shopping-cart.js' | asset_url }}"></script>
+{%- else -%}
+    <script src="{{ 'modules/ecommerce/scripts/shopping-cart.min.js' | asset_url }}"></script>
+{%- endif -%}

@@ -1,0 +1,28 @@
+{%  liquid 
+
+     ## This ensures that every user (logged in or guest) is uniquely identified with a user_uuid
+
+     assign user_uuid = null
+
+     if context.current_user.external_id
+
+          ## Logged in user
+          assign user_uuid = context.current_user.external_id
+
+     elsif context.session.guest_temp_uuid and context.session.guest_temp_uuid != ''
+
+          ## Guest user: Use temporary UUID
+          assign user_uuid = context.session.guest_temp_uuid
+
+     else
+
+          ## Guest user: Generate new guest UUID, save it in session
+          assign temp_uuid = '' | uuid
+          assign guest_temp_uuid = 'guest-' | append: temp_uuid
+          session guest_temp_uuid = guest_temp_uuid 
+          assign user_uuid = guest_temp_uuid
+
+     endif
+     
+     return user_uuid
+%}

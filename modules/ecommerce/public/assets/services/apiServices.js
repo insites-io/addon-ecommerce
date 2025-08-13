@@ -1,19 +1,19 @@
 var apiServices = (function () {
     const
-        apiUrl = "/api",
+        defaultApiUrl = "/api";
         request = axios.create({});
 
     let config = {
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('[name="csrf-token"]').content,
+            'X-CSRF-TOKEN': document.querySelector('[name="csrf-token"]').content
         }
     };
 
     // Axios Processor
-    async function processRequest(method, url, payload, headers = config.headers) {
-        let endpoint = apiUrl + url;
+    async function processRequest(method, url, payload, headers = config.headers, customApiUrl = null) {
+        let endpoint = (customApiUrl || defaultApiUrl) + url;
         let process = method.toLowerCase() === 'get'
             ? request.get(endpoint, { headers })
             : request[method](endpoint, payload, { headers });
@@ -41,9 +41,9 @@ var apiServices = (function () {
             let url = `/validate-discount-code.json`;
             return await processRequest('post', url, payload);
         },
-        removeDiscountCode: async (uuid) => {
-            let url = `/remove-discount-code.json`;
-            return await processRequest('post', url, uuid);
+        removeDiscountCode: async (payload) => {
+            let url = `/remove-discount-code.json`;            
+            return await processRequest('post', url, payload);
         },
         processRequest: processRequest
     }

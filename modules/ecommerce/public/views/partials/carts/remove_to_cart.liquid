@@ -3,63 +3,48 @@ metadata: {
     partial_name: 'Ecommerce | Carts | Remove to Cart'
 }
 ---
-{%- comment -%} Check if the user already has a cart {%- endcomment -%}
-{%- graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
-    contact_uuid: params.contact_uuid | dig: 'items','results' | first -%}
+{% liquid 
+    if id != '' and id != blank
+        ## Do nothing. The id, uuid, and cart_uuid are passed as parameters from parent
+    else 
+        assign params = context.params
+        assign id = params.id
+        assign uuid = params.uuid
+        assign cart_uuid = params.cart_uuid
+    endif
+%}    
 
 
-{%- if user_cart.id -%}
-    {%- comment -%} The user already exists: Update Cart {%- endcomment -%}
+{%- if id and uuid != '' and cart_uuid != '' -%}
 
-    {%- comment -%} Convert array values from string to object {%- endcomment -%}
-    {%-  liquid
-        assign item_array = '' | split: ','         
-
-        for item in user_cart.items
-            assign item_json = item | parse_json
-            assign item_array = item_array | array_add: item_json
-
-            ## Check if the product to be added already exists
-            if item_json.product_uuid == params.product_uuid and item_json.product_sku == params.product_sku
-                assign is_item_exist = true
-                assign item_exist_index = forloop.index0
-            endif
-        endfor
-    -%}
-
-    {%- comment -%} Check if the product to be added already exists. {%- endcomment -%}    
-    {%- if is_item_exist == true -%}        
-
-        {%- comment -%} Delete existing {%- endcomment -%}        
-        {%- assign item_array = item_array | array_delete_at: item_exist_index  -%}                
-
-        {%- if item_array.size == 0 -%}
-            {%- assign item_array = '' | split: ',' -%}
-        {%- endif -%}      
-
-    {%- endif -%}
-
-    {%- comment -%} Convert the object back to string {%- endcomment -%}
-    {%-  liquid
-        assign tmp_array = '' | split: ',' 
-        for item in item_array
-            assign tmp_item = item | json
-            assign tmp_array = tmp_array | array_add: tmp_item
-        endfor
-        assign item_array = tmp_array
-    -%}
-
-    {%- parse_json args -%}
+    {% comment %} Ensure that the parameters passed match the item targeted for deletion. {% endcomment %}
+    {%- parse_json data -%}
     {
-        "id": {{ user_cart.id | default: 0 }},
-        "items": {{ item_array | default: '[]' }}
+        "id": {{ id | default: 0 }},
+        "uuid": "{{ uuid }}",
+        "cart_uuid": "{{ cart_uuid }}"
     }
     {%- endparse_json -%}
-    {%- graphql cart = 'modules/ecommerce/carts/edit_cart_items', args: args -%}
+    {%- graphql get_cart_item = 'modules/ecommerce/cart_items/get_cart_item', args: data | dig: 'items','results' | first -%}
+    
+    {%- if get_cart_item.id -%}
+        {%- graphql response = 'modules/ecommerce/cart_items/delete_cart_item', id: id | dig: 'record_delete' -%}
 
+        {% comment %} Update the 'cart' table timestamp to refresh the cache. {% endcomment %}
+        {% assign now = 'now' | date: "%Y-%m-%dT%H:%M:%S.%LZ" %}
+        {%- graphql update_cart_timestamp = 'modules/ecommerce/carts/update_cart_timestamp', 
+                uuid: cart_uuid, now: now | dig: 'items' -%}
+               
+    {%- else -%}
+        {% assign response = 'Unauthorized' %}
+    {%- endif -%}
+
+{%- else -%}
+    {% assign response = 'Unauthorized' %}
 {%- endif -%}
 
+
 {%- if print == true -%}
-    {{cart}}
+    {{- response -}}
     {%- response_status 200 -%}
 {%- endif -%}

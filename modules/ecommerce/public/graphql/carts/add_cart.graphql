@@ -1,19 +1,18 @@
-mutation add_cart (
-  $contact_uuid: String!
+mutation add_cart (  
 	$uuid: String!
-  $items: [String!]
+  $contact_uuid: String!
 ) {
   items: record_create(
     record: {
       table: "modules/insites_ecommerce/cart"
-      properties: [
-        { name: "contact_uuid", value: $contact_uuid }
+      properties: [        
         { name: "uuid", value: $uuid }
-        { name: "items", value_array: $items }
+        { name: "contact_uuid", value: $contact_uuid }
       ]
     }
   ) {
     id
+    uuid: property(name: "uuid")
     created_at
     properties
   }

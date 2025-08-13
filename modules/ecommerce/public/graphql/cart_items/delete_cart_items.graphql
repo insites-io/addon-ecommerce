@@ -1,0 +1,14 @@
+mutation delete_cart_items(
+  $cart_uuid: String!
+){
+  records_delete_all(
+    filter: {
+    	table: {value: "modules/insites_ecommerce/cart_item"}
+      properties: [
+        {name: "cart_uuid", value: $cart_uuid}
+      ]
+    }
+  ) {
+    count
+  }
+}

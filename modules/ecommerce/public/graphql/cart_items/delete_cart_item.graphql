@@ -1,0 +1,11 @@
+mutation delete_cart_item(
+  $id: ID!
+){
+  record_delete(
+    id:$id
+    table: "modules/insites_ecommerce/cart_item"
+  ) {
+    id
+    deleted_at
+  }
+}

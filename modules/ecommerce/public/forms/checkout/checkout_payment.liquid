@@ -33,7 +33,7 @@ fields:
         shipping_country:
         shipping_instructions:      
         
-        ## Payment Details
+        ## Billing Details
         billing_company_name:
         billing_contact_first_name: 
         billing_contact_last_name:
@@ -64,12 +64,16 @@ fields:
 
         ## Transaction Details
         order_reference:
+        order_company_uuid:
+        order_company_name:
         order_contact_uuid:
             validation:
                 presence: true
         order_contact_email:
         order_contact_first_name:
-        order_contact_last_name:                
+        order_contact_last_name:     
+        order_contact_phone_number:    
+        order_contact_phone_country_code:       
         order_status: ## String = "Paid" ??
         order_payment_status: ## String = "Paid" ??
         order_shipping_status: ## String = "Processing" 
@@ -89,32 +93,26 @@ fields:
             property_options:
                 virtual: true   
         uuid:                          
-default_payload: >
-    {%- comment -%} Get currency from eCommerce settings {%- endcomment -%}
-    {%- graphql settings = "modules/ecommerce/system/get_settings" | dig: 'items' | dig: 'results' | first -%}
+default_payload: >    
 
-    {%- function has_profile = "modules/website/layout/check_if_user_has_profile" -%}
-
-    {% comment %} Get current_user details {% endcomment %}
+    {%- comment -%} Get current_user details {%- endcomment -%}
+    {%- function has_profile = "modules/website/layout/check_if_user_has_profile" -%}    
     {%- if has_profile -%}
-        {% graphql order_contact_uuid = context.current_user.external_id %}
+        {% assign order_contact_uuid = context.current_user.external_id %}
         {% assign order_contact_first_name =  context.current_user.first_name %}
         {% assign order_contact_last_name = context.current_user.last_name %}
-        {% assign order_contact_email = context.current_user.email %}
-    {% endif %}
-    
+        {% assign order_contact_email = context.current_user.email %}  
+    {%- else -%}
+        {% assign order_contact_uuid = context.session.guest_uuid %}
+        {% assign order_contact_first_name = context.session.contact_first_name %}
+        {% assign order_contact_last_name = context.session.contact_last_name %}
+        {% assign order_contact_email = context.session.contact_email %}
+    {%- endif -%}
+
+
     {%- comment -%} Compute order values {%- endcomment -%}
-    {% include 'modules/ecommerce/checkout/compute_order_summary' %}
-
-    {% comment %} Get guest details {% endcomment %}
-    {% if order_contact_uuid == '' or order_contact_uuid == null %}
-        {% assign order_contact_uuid = context.session.guest_info.uuid %}
-        {% assign order_contact_first_name = context.session.billing_contact_first_name %}
-        {% assign order_contact_last_name = context.session.billing_contact_last_name %}
-        {% assign order_contact_email = context.session.billing_contact_email %}
-    {% endif %}
-
-    {% assign computed = context.exports.computed %}
+    {%- include 'modules/ecommerce/checkout/compute_order_summary' -%}
+    {%- assign computed = context.exports.computed -%}
     {
         "properties_attributes": {
             "shipping_company_name": "{{context.session.shipping_company_name | default: ''}}",
@@ -147,10 +145,14 @@ default_payload: >
             "billing_postcode": "{{context.session.billing_postcode | default: ''}}",
             "billing_country": "{{context.session.billing_country | default: ''}}",
             "order_reference": "{{ '' | uuid | split: '-' | first }}", 
+            "order_company_uuid": "{{ context.session.company_uuid }}", 
+            "order_company_name": "{{ context.session.contact_company_name }}", 
             "order_contact_uuid": "{{ order_contact_uuid }}", 
             "order_contact_first_name": "{{ order_contact_first_name }}", 
             "order_contact_last_name": "{{ order_contact_last_name }}", 
             "order_contact_email": "{{ order_contact_email }}", 
+            "order_contact_phone_number": "{{ context.session.contact_phone_number }}", 
+            "order_contact_phone_country_code": "{{ context.session.contact_phone_country_code }}", 
             "order_status": "Open", 
             "order_payment_status": "Open",
             "order_shipping_status": "", 
@@ -177,30 +179,25 @@ callback_actions: >
         - Create / Update records
         - Trigger Email & API callback via GraphQL    
     {%- endcomment -%}
-
+    
     {%- include 'modules/ecommerce/checkout/callback_init', 
         form: form
         context: context -%}
     {%- comment -%}END: Checkout callback process{%- endcomment -%}
 
     {%- session latest_step = 5 -%}
----
+---    
+
 {% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
 {%- if has_profile -%}
-    {% comment %} Get the user uuid {% endcomment %}
-    {%  liquid
-        if context.session.user_uuid and context.session.user_uuid != ''
-            assign user_uuid = context.session.user_uuid
-        else
-            graphql user = 'modules/portal/account/get_current_user'
-            session user_uuid = user.current_user.external_id
-            assign user_uuid = user.current_user.external_id
-        endif
-    %}
+    {% assign contact_uuid = context.current_user.external_id %}
+    {% assign email = context.current_user.email %}
+{%- else -%}
+    {% assign contact_uuid = context.session.guest_uuid %}
+    {% assign email = context.session.contact_email %}
 {%- endif -%}
 
 {% function stripe_settings = "modules/portal/stripe/get_stripe_settings" %}
-
 
 {% form 
     html-id: "checkout-form"
@@ -210,73 +207,83 @@ callback_actions: >
 
     <!-- Payment Details -->
 
+    {%- graphql cards = "modules/ecommerce/payment_method/get_payment_method", 
+            contact_uuid: contact_uuid
+            size: 50 | dig: 'items' -%}
+
     <div id="payment-details" class="aa">
         <div class="grid-x grid-padding-x">
             <div class="large-6 medium-6 small-12 cell">
-                <h2 class="heading-2">Credit Card</h2>
+                <h4>Credit card</h4>
             </div>
             <div class="large-6 medium-6 small-12 cell text-right">
                 {% if has_profile %}
-                <div class="spacer x-small"></div>
-                <ins-button type="button" id="add-card-btn" size="small" icon="icon-plus" label="Add Card">
-                </ins-button>
+                <div class="spacer small"></div>
+                <div id="add-credit-card-button-holder">
+                    <ins-button type="button" class="add-card-btn {% if cards.total_entries < 1 %}hide{% endif %}" icon="icon-plus" label="Add credit card">
+                    </ins-button>
+                </div>
                 {% endif %}
             </div>
         </div>
 
         <div class="validate-credit-card">
             {% comment %} Credit Cards {% endcomment %}
-            <div id="credit-card-fields" required class="card-fields">
-                <div class="spacer x-large"></div>
+            <div id="credit-card-fields" class="card-fields">
+                <div class="spacer large"></div>
                 <p class="error-message hide">Credit Card is required.</p>
-                <div id="card-options-list" class="grid-x grid-padding-x grid-padding-y">
-                    {%- if user_uuid -%}
+                <div class="grid-container">
+                    <div id="card-options-list" class="grid-x grid-padding-x grid-padding-y">
+                        {%- if email != '' and email != null -%}
 
-                        {% comment %} 
-                            Check first if the user crm_contact.properties.stripe_id has value,
-                            - because it is possible that the user has card record in payment_method but no crm_contact.properties.stripe_id (during test: manual deletiong of stripe_id)
-                        {% endcomment %}
-                        {%- graphql user_stripe = 'modules/portal/customers/get_user_stripe_id', id: context.current_user.id | dig: 'items','results' | first -%}
-                        {%- assign stripe_id = user_stripe | dig: 'profiles' | first | dig: 'stripe_id' -%}
+                            {% comment %} 
+                                Check first if the user crm_contact.properties.stripe_id has value,
+                                - because it is possible that the user has card record in payment_method but no crm_contact.properties.stripe_id (during test: manual deletiong of stripe_id)
+                            {% endcomment %}
+                            {%- graphql user_stripe = 'modules/portal/customers/get_user_stripe_id', email: email | dig: 'items','results' | first -%}
+                            {%- assign stripe_id = user_stripe | dig: 'profiles' | first | dig: 'stripe_id' -%}
 
-                        {% if stripe_id != '' and stripe_id != null %}
-                            {%- graphql cards = "modules/ecommerce/payment_method/get_payment_method", 
-                                contact_uuid: user_uuid
-                                size: 50 | dig: 'items' -%}
-                            {%- for card in cards.results -%}
-                                {%  liquid
-                                    assign is_card_active = ''
-                                    if forloop.first
-                                        assign selected_card = card.payment_method_token
-                                        assign is_card_active = 'active'
-                                    endif
-                                %}
-                                <div class="large-6 medium-6 small-12 cell card-options">
-                                    <ins-credit-card {{ is_card_active }} data-id="{{ card.id }}" brand="{{ card.card_brand }}"
-                                        last-four="{{ card.card_last_four_digits }}" expiry-month="{{ card.card_expiry_month }}"
-                                        expiry-year="{{ card.card_expiry_year }}" full-year
-                                        value="{{ card.payment_method_token }}"
-                                        compact>
-                                    </ins-credit-card>
-                                </div>
-                            {%- endfor -%}
+                            {% if stripe_id != '' and stripe_id != null %}                                
+                                {%- for card in cards.results -%}
+                                    {%  liquid
+                                        assign is_card_active = ''
+                                        if forloop.first
+                                            assign selected_card = card.payment_method_token
+                                            assign is_card_active = 'active'
+                                        endif
+                                    %}
+                                    <div class="large-6 medium-6 small-12 cell card-options">
+                                        <ins-credit-card {{ is_card_active }} data-id="{{ card.id }}" brand="{{ card.card_brand }}"
+                                            last-four="{{ card.card_last_four_digits }}" expiry-month="{{ card.card_expiry_month }}"
+                                            expiry-year="{{ card.card_expiry_year }}" full-year
+                                            value="{{ card.payment_method_token }}"
+                                            compact>
+                                        </ins-credit-card>
+                                    </div>
+                                {%- endfor -%}
+                            {%- endif -%}
                         {%- endif -%}
-                    {%- endif -%}
+                    </div>
                 </div>
                 <ins-input required validate
                     field="hidden"
                     id="stripe-card"
+                    class="hide"
                     name="{{ form.fields.properties.stripe_credit_card.name }}"
                     value="{{ selected_card }}"></ins-input>
             </div>
 
             {%- if has_profile -%}
-                <ins-card steady id="no-card" class="empty-card {% if cards.total_entries > 0 %}hide{% endif %}">
-                    No card added.
-                </ins-card>
+                <div id="no-card" class="empty-box {% if cards.total_entries > 0 %}hide{% endif %}">
+                    <p class="body-large bold">No card added.</p>
+                    <div class="spacer"></div>
+                    <ins-button solid type="button" class="add-card-btn" icon="icon-plus" label="Add credit card"></ins-button>
+                </div>
             {%- else -%}
-                <div id="guest-add-card-form">
-                    {% include 'modules/ecommerce/forms/add_card' %}
+                {% comment %} Use block stripe form for Guest Chackout {% endcomment %}
+                <div class="spacer x-small"></div>
+                <div id="guest-add-card-form" class="temp {% if cards.total_entries > 0 %}hide{% endif %}">
+                    {% include 'modules/ecommerce/forms/stripe_form', cards: cards %}
                 </div>
             {%- endif -%}
 
@@ -287,8 +294,8 @@ callback_actions: >
         <div class="spacer xx-small"></div>
 
 
-        {%- comment -%}Check if there's items to pay for{%- endcomment -%}
-        {%- include 'modules/ecommerce/checkout/compute_order_summary' -%}
+        {%- comment -%} Check if stripe settings are configured {%- endcomment -%}
+        {% comment %} {%- include 'modules/ecommerce/checkout/compute_order_summary' -%} {% endcomment %}
         <div class="grid-x grid-padding-x">
             <div class="large-12 medium-12 small-12 cell">                             
                             
@@ -299,24 +306,21 @@ callback_actions: >
                         label="Payment settings not configured, please contact website administrator.">
                     </ins-button>
                 {%- else -%}
-                    {% comment %} context.exports.order.total_amount > 0 {% endcomment %}
-                    {%- if true -%}
-                        <div id="submit-buttons" class="grid-x grid-padding-x {% unless has_profile %} hide {% endunless %}">  
-                            <div class="large-6 medium-6 small-12 cell">
+                
+                    <div class="grid-x grid-padding-x">  
+                        <div class="large-6 medium-6 small-12 cell">
+                            {%- if has_profile -%}
                                 <a href="/checkout/billing">
-                                    <ins-button solid type="button" label="Back" outlined></ins-button>
+                                    <ins-button type="button" label="Back" outlined icon="icon-arrow-back"></ins-button>
                                 </a>
-                            </div>
-                            <div class="show-for-small-only spacer xxx-large"></div> 
-                            <div class="large-6 medium-6 small-12 cell text-right">
-                                <ins-button solid type="submit" id="checkout-submit-btn" class="w-100 checkout-btn" label="Purchase Order"></ins-button>
-                            </div>
+                            {%- endif -%}
                         </div>
-                        
-                    {%- else -%}
-                        <ins-button disabled color="negative" label="No items to pay">
-                        </ins-button>
-                    {%- endif -%}
+                        <div class="show-for-small-only spacer xxx-large"></div> 
+                        <div id="submit-buttons" class="large-6 medium-6 small-12 cell text-right {% if cards.total_entries < 1 or cards == null %} hide {% endif %}">
+                            <ins-button solid type="submit" icon="icon-task-completed" id="checkout-submit-btn" class="w-100 checkout-btn" label="Purchase order"></ins-button>
+                        </div>
+                    </div>
+
                 {%- endif -%}
             </div>
         </div>
@@ -326,12 +330,19 @@ callback_actions: >
 {% endform %}
 
 <!-- Stripe Element -->
-<script>
-    //let user_uuid = '{{ context.current_user.external_id }}';
-    let guestAddCardForm = document.getElementById("guest-add-card-form");
-    let submitButtons = document.getElementById("submit-buttons");    
-</script>
+{% comment %} Use modal stripe form for Member Chackout {% endcomment %}
+{% if has_profile %}
+    <ins-modal id="stripe-modal" 
+        no-button 
+        with-backdrop
+        height="255px" 
+        width="520px"
+        heading="Add new card">
+            {% include 'modules/ecommerce/forms/stripe_form', has_profile %}
+    </ins-modal>
+{% endif %}
 {%- include 'modules/ecommerce/forms/stripe_element',
     cc_field_id: "stripe-card",
-    public_key: stripe_settings.pk_key -%}
+    public_key: stripe_settings.pk_key,
+    has_profile: has_profile -%}
 <!-- END Stripe Element -->

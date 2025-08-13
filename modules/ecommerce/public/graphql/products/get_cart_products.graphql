@@ -28,6 +28,7 @@ query get_cart_products(
       regular_price: property_float(name: "regular_price")
       sale_price: property_float(name: "sale_price")
       stock_level: property_int(name: "stock_level") 
+      is_product_variant_enabled: property_boolean(name: "is_product_variant_enabled")
       variants: related_records(
         table: "modules/insites_ecommerce/product_variant"
         join_on_property: "uuid"
@@ -38,7 +39,7 @@ query get_cart_products(
         product_sku: property(name: "product_sku")
         regular_price: property_float(name: "regular_price")
         sale_price: property_float(name: "sale_price")
-        is_on_sale: property_boolean(name: "is_product_on_sale")
+        is_on_sale: property_boolean(name: "is_on_sale")
         stock_level: property_int(name: "stock_level") 
         product_options: property_array(name: "product_options")
         is_free_shipping: property_boolean(name: "is_free_shipping")

@@ -5,7 +5,6 @@ metadata: {
 ---
 {% comment %} 
     Some pages may pass these parameters: 
-        - user_uuid
         - user_cart
         - carts
         - products
@@ -14,29 +13,18 @@ metadata: {
 {% endcomment %}
 
 
-{%- assign user_uuid = context.current_user.external_id | default: null -%}
+{% function user_uuid = 'modules/ecommerce/user/get_user_uuid' %}
 
 {% if user_uuid %}
-
     {% comment %} Get user_cart {% endcomment %}
     {%- if user_cart == '' or user_cart == blank -%}
-        {% graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
+        {% graphql user_cart = 'modules/ecommerce/carts/get_cart', 
             contact_uuid: user_uuid, show_discount_details: true | dig: 'items','results' | first %}
-    {%- endif -%}
-
-
-    {% comment %} Get the product info {% endcomment %}
-    {%- if carts == '' or carts == blank -%}
-        {%  liquid
-            ## Convert an array of strings into an array of objects
-            assign carts = '' | split: ',' 
-            for item in user_cart.items
-                assign item_json = item | parse_json
-                assign carts = carts | array_add: item_json
-            endfor
-
+        {%  liquid 
+            assign carts = user_cart.cart_items
             assign product_uuids = carts | array_map: 'product_uuid' | array_flatten
-            graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: user_cart.items.size | dig: 'items','results'
+            ## Product details
+            graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: user_cart.cart_items.size | dig: 'items','results'
         %}
     {%- endif -%}
 {% endif %}

@@ -3,9 +3,14 @@ metadata: {
     partial_name: 'Ecommerce | Checkout | Clear Session'
 }
 ---
-{%- session account_company_name = null -%}
-{%- session account_mobile_number = null -%}
-{%- session account_mobile_country_code = null -%}
+
+{% comment %} Contact {% endcomment %}
+{%- session contact_company_name = null -%}
+{%- session contact_first_name = null -%}
+{%- session contact_last_name = null -%}
+{%- session contact_email = null -%}
+{%- session contact_phone_number = null -%}
+{%- session contact_phone_country_code = null -%}
 
 {% comment %} Shipping {% endcomment %}
 {%- session shipping_same_with_account = null -%}
@@ -47,15 +52,10 @@ metadata: {
 {%- session latest_step = null -%}
 {%- session stripe_customer_id = null -%}
 {%- session user_uuid = null -%}
+{%- session company_uuid = null -%}
 
-
-{% comment %} Clear guest session data when available {% endcomment %}
-{%- session guest_info = null -%}
-{%- session guest_cart = null -%}
-{%- session guest_products = null -%}
 
 {% comment %} ? Clear tax details for confirmation {% endcomment %}
 {% session sub_total_tax_not_included = null %}
 {% session sub_total_tax_included = null %}
 {% session tax_applied = null %}
-{%- session discount_uuids = null -%}

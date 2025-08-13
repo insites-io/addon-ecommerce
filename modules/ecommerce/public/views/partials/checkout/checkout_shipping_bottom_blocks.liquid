@@ -1,0 +1,40 @@
+   {% comment %} Shipping Instructions {% endcomment %}
+   <div class="grid-x grid-padding-x">
+     <div class="large-12 medium-12 small-12 cell">
+       <ins-textarea 
+         id= "shipping_instructions"
+         label="Shipping Instructions" 
+         placeholder="Shipping Instructions"
+         name="{{ prop.shipping_instructions.name }}"
+         value="{{ context.session.shipping_instructions | default: '' }}">
+       </ins-textarea>
+     </div>
+   </div>      
+   
+   <div class="spacer small"></div>
+
+   {% comment %} Buttons {% endcomment %}
+   {% liquid
+      if context.current_user
+        assign back_link = '/checkout'
+      else 
+        assign back_link = '/checkout?guest=true'
+      endif
+   %}
+    <div class="grid-x grid-padding-x">    
+      <div class="large-6 medium-6 small-12 cell">
+        <a href="{{ back_link }}">
+          <ins-button type="button" label="Back" icon="icon-arrow-back" outlined></ins-button>
+        </a>
+      </div>
+      <div class="show-for-small-only spacer xxx-large"></div>    
+      <div class="large-6 medium-6 small-12 cell text-right">        
+        <ins-button solid 
+        id="shipping-submit-button" 
+        type="submit" 
+        icon-right="icon-arrow-right"
+        class="checkout-step-btn w-100 checkout-btn" 
+        label="Proceed to billing">
+        </ins-button>
+      </div>
+    </div>

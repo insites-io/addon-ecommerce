@@ -1,0 +1,9 @@
+{% comment %} 
+  This virtual form is used during guest checkout. 
+  It will either create a new user or update an existing one, depending on the email entered.
+  If the email exists, it will update the user; otherwise, it will create a new one.
+{% endcomment %}
+
+<div id="virtual-form">
+  {% include 'modules/ecommerce/checkout/checkout_contact_form' %}
+</div>

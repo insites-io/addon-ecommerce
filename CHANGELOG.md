@@ -1,0 +1,33 @@
+ ## Change Log
+ 
+- Prerequisite module: Portal v1.3.0
+  - Rounded buttons
+  - Gradient background color for solid buttons
+- Text headings and labels ( except for Product Name )
+  - Use sentence case ( Sample title ) instead of title case ( Sample Title )
+- New design for loader - https://cbo.d.pr/i/D0lLrp
+- Mega Menu
+  - Added max-width to align with the navbar width
+  - Add background to main categories
+- Cart Drawer
+  - Clickable items in the cart drawer
+- Product carousel (New Arrivals & What's Hot) pagination button - removed border line
+- Products page
+  - Products page container width
+    - To maintenance the product image ratio, set the page wrapper max-width to 1344px.
+  - Product with variants
+    - Disable the buy-now/pre-order and add-to-cart buttons until the user selects all the available options for the variant.
+  - Product item
+    - zoom in image on hover
+    - image opacity change on hover
+    - rounded image
+    - rounded product wrapper
+  - Pagination style similar to ins-table
+  - No result found - add border
+  - Filters - rounded select buttons
+- Checkout
+  - Contact
+    - Add 'Contact information' form steps for guest user
+      - save user data in CRM
+  - Shipping & Billing
+    - Use modal form in adding new address
