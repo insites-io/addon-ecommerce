@@ -29,7 +29,9 @@ metadata: {
 {% assign order_uuid = order.properties.uuid | default: '' %}
 {% assign order_id = order.id %}
 {% assign order_reference = order.properties.order_reference %}
-{% assign order_number = order_id |  append: '-' |  append: order_reference %}
+{% assign order_number = order_id %}
+
+{% log order, type: "order" %}
 
 {%- capture cta_link -%}
     {{ platform_context.host }}/confirmation?id={{ order_uuid }}
@@ -162,7 +164,7 @@ metadata: {
     "id": {{ form.id }},
     "properties": {
       {% assign properties = '' %}
-      {% assign props = order.properties %}
+      {% assign props = order %}
 
       {% assign subtotal_amount = props.subtotal_amount | advanced_format: '%.2f' | pricify | default: '-invalid' %}
       {% assign properties = properties | append: '"subtotal": "' | append: subtotal_amount | append: '"' %}
@@ -176,10 +178,15 @@ metadata: {
       {% assign properties = properties | append: ','  | append: '"total": "' | append: total_amount | append: '"' %}
 
       {{ properties }}
+
+      {% log props, type: "props" %}
     },
     "errors": {{ form.errors }}
   }
 {% endparse_json %}
+
+{% log order_details, type: "order_details" %}
+
 
 
 {% comment %} <!-------------------------------- HTML --------------------------------> {% endcomment %}
