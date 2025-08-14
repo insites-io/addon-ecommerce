@@ -39,7 +39,7 @@ metadata: {
 </ins-accordion>
 
 <script>
-     let contact_uuid = '{{ user_uuid }}';
+     var contact_uuid = contact_uuid || '{{ user_uuid }}';
      let discountCodeForm = document.getElementById('discount-code-form');
      let applyDiscountBtn = document.getElementById('apply-discount-btn');
      let discountCodeInput = document.getElementById('discount-code-input');

@@ -31,7 +31,7 @@ payload: {
 {% comment %} Step 1: Check if code exist {% endcomment %}
 {% if discount_code and discount_code != blank %}
     {% graphql discount = "modules/ecommerce/discount/get_discount_by_code",
-        discount_code: discount_code | dig: 'items' | dig: 'results' | first %}
+        discount_code: discount_code, status: 'enabled' | dig: 'items' | dig: 'results' | first %}
 {% endif %}    
 
 
@@ -167,7 +167,12 @@ payload: {
     Steps taken in the Order Summary to list and compute discounts.
      - Auto delete invalid discount_code_uuid from modules/insites_ecommerce/cart's discount_code_uuids
 {% endcomment %}
-{%- if delete_invalid == true and is_valid != true -%}
+{%- if delete_invalid == true and is_valid != true and discount_code and discount_code != '' -%}
+    {% comment %} Get all the discounts whatever the status is {% endcomment %}
+    {% graphql discount = "modules/ecommerce/discount/get_discount_by_code",
+        discount_code: discount_code, status: '' | dig: 'items' | dig: 'results' | first %}
+
+    {% comment %} Delete discount_code from user's cart {% endcomment %}
     {%- include 'modules/ecommerce/discounts/update_discount', 
             user_uuid: contact_uuid,
             type: 'remove',

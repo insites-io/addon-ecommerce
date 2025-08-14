@@ -79,7 +79,7 @@ callback_actions: |-
     <div class="hide-for-small-only spacer large"></div>
     <div class="show-for-small-only spacer small"></div>
 
-    <div id="billing-address-fields">
+    <div id="billing-address-fields" class="wrap {% if context.session.billing_same_with_shipping == true %} hide {% endif %}">
       <div class="grid-x">        
         <h4>Billing address</h4>
         <div class="cell show-for-small-only spacer small"></div>
