@@ -43,7 +43,6 @@ metadata: {
         <div class="spacer show-for-small-only"></div>
     {% endunless %}
     <div id="order-summary-cart-wrap" class="order-summary">  
-        {% comment %} This is only for logged-in users {% endcomment %}
         {%- if show_product -%}   
             {%- for item in carts -%}
                 {% comment %} ? TAX LABEL {% endcomment %}
@@ -95,12 +94,38 @@ metadata: {
         <div class="spacer"></div>
     {%- endif -%}
 
+
+    {% comment %}--- VALIDATE DISCOUNT CODES ---{% endcomment %}
+    {% assign total_discount_item_deleted = 0 %}
+    {%- for item in discounts -%}
+        {%- if is_ordered_items != true -%}
+             {% comment %} Run function to re-validate & auto delete invalid discount codes {% endcomment %}
+             {%- if context.params.slug2 == 'payment' or context.params.slug == 'checkout' -%}
+                {%- parse_json payload -%}
+                {
+                    "check_duplicates": false,
+                    "delete_invalid": true,
+                    "contact_uuid": "{{ user_uuid }}",
+                    "discount_code": "{{ item.discount_code }}",
+                    "total_cart_value": {{ total_cart_value | default: 0 }}
+                }
+                {%- endparse_json -%}
+                {%- function validate_code = "modules/ecommerce/checkout/validate_discount_code", payload: payload -%}
+                {% assign total_discount_item_deleted = total_discount_item_deleted | plus: validate_code.deleted_item %}
+            {%- endif -%}
+        {%- endif -%}
+    {%- endfor -%}
+    {% if total_discount_item_deleted > 0 %}
+        {% comment %} Get the updated discounts {% endcomment %}
+        {% graphql discounts = 'modules/ecommerce/carts/get_cart_discounts' | dig: 'items','results' %}
+    {% endif %} 
+
     
     {% comment %}--- GET ORDER COMPUTATION SUMMARY ---{% endcomment %}
     {%- if is_ordered_items == true and order_uuid != '' -%}
         {% include 'modules/ecommerce/checkout/compute_completed_order_amounts', uuid: order_uuid %}
     {%- else -%}
-        {%- include 'modules/ecommerce/checkout/compute_order_summary', order_id, user_cart, carts, products -%}
+        {%- include 'modules/ecommerce/checkout/compute_order_summary', user_cart, carts, products, discounts -%}
     {%- endif -%}
     {%- assign computed = context.exports.computed -%}
 
@@ -158,72 +183,41 @@ metadata: {
             <div class="spacer x-small"></div>
 
             {%- for item in discounts -%}
-                {%- if order_id -%}
-                    {%- assign code = item -%}
-                {%- else -%}
-                    {%- assign code = item -%}
-                {%- endif -%}
-                
-                {%- assign type = code.discount_type | downcase -%}
-                {%- if is_ordered_items == true -%}
-                    {%- parse_json validate_code -%}{ "is_valid": true }{%- endparse_json -%}
-                {%- else -%}
-
-                    {% comment %} Revalidate the applied discount code on the checkout/payment page. {% endcomment %}
-                    {% if context.params.slug2 == 'payment' %}
-                        {% comment %} Run function to validate & auto delete invalid codes {% endcomment %}
-                        {%- parse_json payload -%}
-                        {
-                            "check_duplicates": false,
-                            "delete_invalid": true,
-                            "contact_uuid": "{{ user_uuid }}",
-                            "discount_code": "{{ item.discount_code }}"
-                        }
-                        {%- endparse_json -%}
-                        {%- function validate_code = "modules/ecommerce/checkout/validate_discount_code", payload: payload -%}
-                        {% comment %} End Function {% endcomment %}
-                    {% else %}
-                        {%- parse_json validate_code -%}{ "is_valid": true }{%- endparse_json -%}
-                    {% endif %}
-
-                {%- endif -%}
-
-                {%- if validate_code.is_valid == true or validate_code.is_valid == 'true' -%}
-                    {%- if type contains "fix" -%}
-                        {%- assign value = code.discount_value | advanced_format: "%.2f" -%}
-                        {%- assign value = value | pricify -%}
-                        {%- unless value contains '.' -%}
-                            {%- assign value = value | append: '.00' -%}
-                        {%- endunless -%}
-                        {%- assign value = value | append: " Off" -%}
-                    {%- elsif type contains "percent" -%}
-                        {%- assign value = code.discount_value | replace: '.00', '.0' -%}
-                        {%- assign value = value | replace: '.0', '' -%}
-                        {%- assign value = value | append: "% Off" -%}
-                    {%- else -%}
-                        {%- assign value = code.discount_type -%}
-                    {%- endif -%}
-                    {%- unless value contains "hipping" -%}{% comment %} <-- not a typo {% endcomment %}
-                        {%- 
-                            liquid 
-                            if type contains "shipping"
-                                assign value = value | append: " Shipping"
-                            endif
-                        -%}
+                {%- assign type = item.discount_type | downcase -%}
+                {%- if type contains "fix" -%}
+                    {%- assign value = item.discount_value | advanced_format: "%.2f" -%}
+                    {%- assign value = value | pricify -%}
+                    {%- unless value contains '.' -%}
+                        {%- assign value = value | append: '.00' -%}
                     {%- endunless -%}
-                    
-                    <div class="list-discount-codes--item" data-id="{{ item.id }}" data-uuid="{{ item.uuid }}" data-contact-uuid="{{ user_uuid }}">
-                        <div class="body-medium">
-                            <p class="font-color-head bold">{{ value }}</p>
-                            <p>{{ code.discount_name }}</p>
-                            {%- if code.minimum_cart_value > 0 -%}
-                                <div class="spacer xx-small"></div>
-                                <p>Minimum ${{ code.minimum_cart_value | advanced_format: "%.2f" }} Purchase</p>
-                            {%- endif -%}
-                        </div>
-                        <div class="icon-close"></div>
-                    </div>
+                    {%- assign value = value | append: " Off" -%}
+                {%- elsif type contains "percent" -%}
+                    {%- assign value = item.discount_value | replace: '.00', '.0' -%}
+                    {%- assign value = value | replace: '.0', '' -%}
+                    {%- assign value = value | append: "% Off" -%}
+                {%- else -%}
+                    {%- assign value = item.discount_type -%}
                 {%- endif -%}
+                {%- unless value contains "hipping" -%}{% comment %} <-- not a typo {% endcomment %}
+                    {%- 
+                        liquid 
+                        if type contains "shipping"
+                            assign value = value | append: " Shipping"
+                        endif
+                    -%}
+                {%- endunless -%}
+                
+                <div class="list-discount-codes--item" data-id="{{ item.id }}" data-uuid="{{ item.uuid }}" data-contact-uuid="{{ user_uuid }}">
+                    <div class="body-medium">
+                        <p class="font-color-head bold">{{ value }}</p>
+                        <p>{{ item.discount_name }}</p>
+                        {%- if item.minimum_cart_value > 0 -%}
+                            <div class="spacer xx-small"></div>
+                            <p>Minimum ${{ item.minimum_cart_value | advanced_format: "%.2f" }} Purchase</p>
+                        {%- endif -%}
+                    </div>
+                    <div class="icon-close"></div>
+                </div>
             {%- endfor -%}
         </div>
         <div class="spacer x-small"></div>                
@@ -392,7 +386,7 @@ metadata: {
     <div class="spacer x-large"></div>
     <div class="show-for-small-only">
         {%- liquid
-            include 'modules/ecommerce/discounts/add_discount_code_form_mobile'
+            include 'modules/ecommerce/discounts/add_discount_code_form_mobile', total_cart_value: total_cart_value
         -%}
     </div>
     {%- if context.params.slug != 'checkout' -%}
@@ -406,6 +400,7 @@ metadata: {
     let viewOrderSummaryBtn = document.getElementById('view-order-summary-btn');
     let orderSummaryDrawer = document.getElementById('order-summary-drawer');
     let orderSummaryDrawerContent = document.getElementById('order-summary-drawer-content');
+    var total_discount_item_deleted = {{ total_discount_item_deleted | default: 0 }};
 
     viewOrderSummaryBtn.addEventListener('insClick', async event => {
         let orderSummaryHtmlContent = orderSummaryMainWrap.innerHTML;

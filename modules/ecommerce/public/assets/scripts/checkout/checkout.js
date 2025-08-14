@@ -614,6 +614,7 @@ let Checkout = (function () {
                         btn.addEventListener('insClick',() => cardModal.open());
                     });
                 }            
+                this.initPaymentPage();
             },
             initAddressListener() {
                 if(addAddressBtn && addressCancelBtn && addressSubmitBtn) {
@@ -699,6 +700,12 @@ let Checkout = (function () {
                         window.location.reload();
                     }
                 }
+            }, 
+            initPaymentPage(){
+                // For the page /checkout/payment: Show notice if the discount code becomes invalid
+                if( total_discount_item_deleted > 0 ) {
+                    App.events.notyf("error", "Discount code is not found or has been deleted.");
+                }   
             }
         }
     }

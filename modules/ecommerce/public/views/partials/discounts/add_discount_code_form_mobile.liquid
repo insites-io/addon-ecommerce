@@ -40,9 +40,10 @@ metadata: {
 
 <script>
      var contact_uuid = contact_uuid || '{{ user_uuid }}';
-     let discountCodeFormMobile = document.getElementById('discount-code-form-mobile');
-     let applyDiscountBtnMobile = document.getElementById('apply-discount-btn-mobile');
-     let discountCodeInputMobile = document.getElementById('discount-code-input-mobile');
+     var total_cart_value = {{ total_cart_value | default: 0 }};
+     const discountCodeFormMobile = document.getElementById('discount-code-form-mobile');
+     const applyDiscountBtnMobile = document.getElementById('apply-discount-btn-mobile');
+     const discountCodeInputMobile = document.getElementById('discount-code-input-mobile');     
      
      applyDiscountBtnMobile.addEventListener('insClick', async function(event) {
         applyDiscountBtnMobile.loading = true;
@@ -51,7 +52,8 @@ metadata: {
                 contact_uuid: contact_uuid,
                 discount_code: discountCode,
                 check_duplicates: true,
-                type: 'add_discount_code'
+                type: 'add',
+                total_cart_value: total_cart_value
             }          
         shoppingCart.methods.validateDiscountCode(payload, discountCodeFormMobile);
      });

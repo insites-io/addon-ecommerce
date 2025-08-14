@@ -73,7 +73,10 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
         </div>
     </div>
     
-    {% include 'modules/ecommerce/carts/cart_drawer' %}
+    {% comment %} On the checkout/payment page, the carts/cart_drawer is included within the page itself. {% endcomment %}
+    {% if context.params.slug2 != 'payment' %}
+        {% include 'modules/ecommerce/carts/cart_drawer' %}
+    {% endif %}
 
     {% include 'modules/website/layout/header_mobile' %}
 

@@ -4,28 +4,29 @@ metadata: {
 }
 ---
 {% comment %}
-This partial accepts:
 payload: {
     check_duplicates: Boolean
     contact_uuid: ID! / String!
     discount_code: String!
     type: String!
+    total_cart_value: Float
 }
 {% endcomment %}
 {% comment %} 
     This partial is used to validate discount code for:
     - Adding discount code
-    - Order summary computation for total discount amount
+    - Order summary in checkout/payment to re-validate the discounts before payment
 {% endcomment %}
 
 
 {%- assign contact_uuid = payload.contact_uuid | default: blank -%}
-{%- assign discount_code =  payload.discount_code | default: blank -%}
-{%- assign type =  payload.type | default: blank -%}
+{%- assign discount_code = payload.discount_code | default: blank -%}
+{%- assign type = payload.type | default: blank -%}
 {%- assign check_duplicates = payload.check_duplicates | default: false -%}
 {%- assign delete_invalid = payload.delete_invalid | default: false -%}
 {%- assign is_valid = true -%}
 {%- assign is_duplicate = false -%}
+{%- assign total_cart_value = payload.total_cart_value | default: 0 -%}
 
 
 {% comment %} Step 1: Check if code exist {% endcomment %}
@@ -75,9 +76,15 @@ payload: {
                 {% assign message = "Sorry, you have reached the limit of using this discount code." %}
                 {% assign is_valid = "limited use per user" %}
             {%- endif -%}
-        {%- else -%}
-            {% comment %} Do nothing. This is for guest user. {% endcomment %}
         {%- endif -%}
+        
+
+        {% comment %} Step 3.3: If valid, validate if discount.minimum_cart_value => total_cart_value {% endcomment %}
+        {% if discount.minimum_cart_value and discount.minimum_cart_value > 0 and total_cart_value < discount.minimum_cart_value %}
+            {% capture message %}Your cart total must be at least {{ discount.minimum_cart_value }}. Please add more items.{% endcapture %}
+            {% assign is_valid = "minimum_cart_value did not meet" %}
+        {% endif %}
+
 
         {% comment %}Step 4: If discount code is still valid, continue other validation checks {% endcomment %}
         {%- if is_valid == blank or is_valid == "" or is_valid == true  -%}
@@ -130,7 +137,7 @@ payload: {
                 {%- assign message = "Discount code has been applied." -%}
                
                 {% comment %} Update cart, add new discount_code_uuid {% endcomment %}
-                 {% if contact_uuid != '' and contact_uuid != blank %}
+                 {% if contact_uuid != '' and contact_uuid != blank and type == 'add' %}
                     {% include 'modules/ecommerce/discounts/update_discount', 
                         user_uuid: contact_uuid,
                         type: 'add', 
@@ -167,24 +174,29 @@ payload: {
     Steps taken in the Order Summary to list and compute discounts.
      - Auto delete invalid discount_code_uuid from modules/insites_ecommerce/cart's discount_code_uuids
 {% endcomment %}
+{% assign deleted_item = 0 %}
 {%- if delete_invalid == true and is_valid != true and discount_code and discount_code != '' -%}
     {% comment %} Get all the discounts whatever the status is {% endcomment %}
     {% graphql discount = "modules/ecommerce/discount/get_discount_by_code",
-        discount_code: discount_code, status: '' | dig: 'items' | dig: 'results' | first %}
+        discount_code: discount_code, status: '' | dig: 'items','results' | first %}
 
-    {% comment %} Delete discount_code from user's cart {% endcomment %}
-    {%- include 'modules/ecommerce/discounts/update_discount', 
-            user_uuid: contact_uuid,
-            type: 'remove',
-            discount_uuid: discount.uuid -%}
-    {% log "Error: Discount code invalid, discount entry has been deleted " %}
+    {% comment %} Delete the discount_code from user's cart {% endcomment %}
+    {% if discount.status != 'enabled' %}
+        {%- include 'modules/ecommerce/discounts/update_discount', 
+                user_uuid: contact_uuid,
+                type: 'remove',
+                discount_uuid: discount.uuid -%}
+        {% log "Error: Discount code invalid, discount entry has been deleted " %}
+        {% assign deleted_item = 1 %}
+    {% endif %}
 {%- endif -%}
 
 
 {%- parse_json validate_code -%}
 {
   "is_valid": "{{ is_valid }}",
-  "message": "{{ message }}"
+  "message": "{{ message }}",
+  "deleted_item": {{ deleted_item }}
 }
 {%- endparse_json -%}
 

@@ -32,6 +32,14 @@ metadata: {
 {% endif %}
 
 
+{% comment %} 
+    Include carts/cart_drawer here rather than in shop_layout, 
+    as we need to retrieve context.exports.total_cart_value before calling layout/order_summary
+{% endcomment %}
+{% include 'modules/ecommerce/carts/cart_drawer' %}
+{% assign total_cart_value = context.exports.total_cart_value %}
+
+
 <div class="ecommerce-wrapper grid-container">
     <div class="grid-x grid-padding-x">
         <div class="small-12 cell spacer xxxx-large hide-for-small-only"></div>
@@ -51,7 +59,8 @@ metadata: {
                 show_discount_list: true,
                 form_update: true,
                 form_delete: true,
-                user_cart, carts, products %}
+                user_cart, carts, products,
+                total_cart_value: total_cart_value %}
             <div class="spacer x-large"></div>  
             
             <div class="hide-for-small-only">
@@ -61,7 +70,7 @@ metadata: {
                     assign cart_id = user_cart.id   
                 endif
 
-                include 'modules/ecommerce/discounts/add_discount_code_form'
+                include 'modules/ecommerce/discounts/add_discount_code_form', total_cart_value: total_cart_value
             -%}
             </div>
 

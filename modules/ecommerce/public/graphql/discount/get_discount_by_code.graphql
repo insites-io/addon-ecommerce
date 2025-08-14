@@ -22,9 +22,11 @@ query get_discount_by_code (
     results {
       id 
       uuid: property(name: "uuid")
+      status: property(name: "status")
       usage_count: property_int(name: "usage_count")
       usage_limit: property_int(name: "usage_limit")
       usage_limit_per_user: property_int(name: "usage_limit_per_user")
+      minimum_cart_value: property_float(name: "minimum_cart_value")
       applicable_to: property(name: "applicable_to")
       discount_code: property(name: "discount_code")
       discount_name: property(name: "discount_name")

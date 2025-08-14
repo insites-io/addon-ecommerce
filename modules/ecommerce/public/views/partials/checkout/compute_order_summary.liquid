@@ -8,6 +8,7 @@ metadata: {
         - user_cart
         - carts
         - products
+        - discounts
 {% endcomment %}
 
 
@@ -30,10 +31,8 @@ metadata: {
         {% assign user_cart = cart_items.user_cart %}
         {% assign carts = cart_items.carts %}
         {% assign products = cart_items.products %}
+        {% assign discounts = user_cart.discounts %}
     {% endif %}
-
-    {% assign discounts = user_cart.discounts %}
-    
 
 
 {% if carts.size > 0 %}
@@ -89,6 +88,7 @@ metadata: {
                 assign tax_label = 'Tax'
             endif
         %}
+        
 
         {% comment %} Discounts {% endcomment %}
         {% function sub_total_discount = 'modules/ecommerce/checkout/compute_discount', 

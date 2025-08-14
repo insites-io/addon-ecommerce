@@ -19,6 +19,14 @@ metadata: {
 <div class="spacer xxx-large hide-for-small-only"></div>
 <div class="spacer show-for-small-only"></div>
 
+{% comment %} 
+    Include carts/cart_drawer here rather than in checkout_layout, 
+    as we need to retrieve context.exports.total_cart_value before calling layout/order_summary.
+    total_cart_value is use for validating the discount_code againts discount.minimum_cart_value
+{% endcomment %}
+{% include 'modules/ecommerce/carts/cart_drawer' %}
+{% assign total_cart_value = context.exports.total_cart_value %}
+
 <div class="grid-x grid-padding-x">
     <div class="large-7 medium-12 small-12 cell">
         {%- include_form 'modules/ecommerce/checkout_payment' -%}   
@@ -29,7 +37,8 @@ metadata: {
             show_product: true,
             check
             form_update: true,
-            form_delete: true -%}
+            form_delete: true,
+            total_cart_value: total_cart_value -%}
     </div>
 </div>
 
