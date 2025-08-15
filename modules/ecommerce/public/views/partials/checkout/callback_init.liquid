@@ -42,15 +42,13 @@ metadata: {
 Step 2: (optional) Create address models
 {%- endcomment -%}
 {%- if context.current_user.id -%}
-    {% assign guest_user = false %}
-    {% assign products = context.exports.cart_items.products  %}
-    {% assign cart = context.exports.cart_items.carts  %}
+    {% assign guest_user = false %}    
 {% else %}
-    {% assign guest_user = true %}
-    {% assign products = context.exports.guest_cart_items.products  %}
-    {% assign cart = context.exports.guest_cart_items.carts  %}
+    {% assign guest_user = true %}   
 {%- endif -%}
 
+{% assign products = context.exports.cart_items.products  %}
+{% assign cart = context.exports.cart_items.carts  %}
 
 {%- comment -%}
 Step 3: Update inventory, cart and order models.
@@ -91,7 +89,6 @@ Step 4: Trigger autoresponder, workflow email & API
 
 }
 {% endparse_json %}
-{% log status, type: "==== Email & API: status ====" %}
 
 {%- comment -%}Step 4.1 Workflow & Email Notification{%- endcomment -%}
 {% include 'modules/ecommerce/checkout/callback_email_notifications', 

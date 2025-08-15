@@ -17,7 +17,7 @@ layout: modules/insites_core/insites_internal_email_layout
 {% assign order_uuid = data.order_info.properties.uuid | default: '' %}
 {% assign order_id = data.order_info.id %}
 {% assign order_reference = data.order_info.properties.order_reference %}
-{% assign order_number = order_id |  append: '-' |  append: order_reference %}
+{% assign order_number = order_id %}
 
 {%- capture cta_link -%}
     {{ platform_context.host }}/admin/insites#/ecommerce/orders/{{ order_uuid }}

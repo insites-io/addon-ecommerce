@@ -31,8 +31,6 @@ metadata: {
 {% assign order_reference = order.properties.order_reference %}
 {% assign order_number = order_id %}
 
-{% log order, type: "order" %}
-
 {%- capture cta_link -%}
     {{ platform_context.host }}/confirmation?id={{ order_uuid }}
 {%- endcapture -%}
@@ -178,15 +176,11 @@ metadata: {
       {% assign properties = properties | append: ','  | append: '"total": "' | append: total_amount | append: '"' %}
 
       {{ properties }}
-
-      {% log props, type: "props" %}
+      
     },
     "errors": {{ form.errors }}
   }
 {% endparse_json %}
-
-{% log order_details, type: "order_details" %}
-
 
 
 {% comment %} <!-------------------------------- HTML --------------------------------> {% endcomment %}
