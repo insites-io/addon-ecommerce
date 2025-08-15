@@ -26,8 +26,7 @@ metadata: {
 {% parse_json payment_data %}
 {
     "order_uuid": "{{ order_uuid }}",
-    "source": "Payment Gateway",
-    "payment_status": "{{ order_payment_status }}",
+    "source": "payment_gateway",
     "payment_gateway_name": "{{ gateway | titleize }}",
     "date_time": "{{ date_time }}",
     "last_updated_by_id": "{{ context.current_user.id }}",
@@ -40,7 +39,7 @@ metadata: {
     "amount": {{ amount }},
     "amount_due": {{ amount }},
     "payment_method_name" : "Credit Card",
-    "status": "{{ payment_response.status }}"
+    "status": "{{ order_payment_status | downcase }}"
 }
 {% endparse_json %}
 {% assign payment_data = payment_data | add_hash_key: "payment_gateway_details", payment_gateway_details %}
