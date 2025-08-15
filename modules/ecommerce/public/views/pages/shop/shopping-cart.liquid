@@ -32,14 +32,6 @@ metadata: {
 {% endif %}
 
 
-{% comment %} 
-    Include carts/cart_drawer here rather than in shop_layout, 
-    as we need to retrieve context.exports.total_cart_value before calling layout/order_summary
-{% endcomment %}
-{% include 'modules/ecommerce/carts/cart_drawer' %}
-{% assign total_cart_value = context.exports.total_cart_value %}
-
-
 <div class="ecommerce-wrapper grid-container">
     <div class="grid-x grid-padding-x">
         <div class="small-12 cell spacer xxxx-large hide-for-small-only"></div>
@@ -53,6 +45,15 @@ metadata: {
             {% include 'modules/ecommerce/shop/shopping_cart', user_uuid, carts, products %}
             <div class="spacer x-large hide-for-large-only"></div>
         </div>
+
+        {% comment %} 
+            Include carts/cart_drawer here rather than in shop_layout, 
+            as we need to retrieve context.exports.total_cart_value before calling the layout/order_summary
+            but place this code after including the 'modules/ecommerce/shop/shopping_cart' 
+        {% endcomment %}
+        {% include 'modules/ecommerce/carts/cart_drawer' %}
+        {% assign total_cart_value = context.exports.total_cart_value %}
+
         <div class="large-4 large-offset-1 small-12 cell">
             {% include 'modules/ecommerce/layout/order_summary', 
                 show_product: false, 

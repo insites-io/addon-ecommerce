@@ -135,6 +135,10 @@ metadata: {
     {% include 'modules/website/layout/header_mobile' %}
 
     {% include 'modules/website/layout/footer' %}    
+
+    {% if context.params.slug != 'shopping-cart' %}
+        {% include 'modules/ecommerce/carts/cart_drawer' %}
+    {% endif %}
     
     <script src="{{ 'modules/ecommerce/scripts/mega-menu-close.js' | asset_url }}"></script>
 
