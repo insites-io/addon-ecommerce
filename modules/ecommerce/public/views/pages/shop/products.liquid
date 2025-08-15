@@ -7,22 +7,12 @@ metadata: {
     "status": "published",
     "page_type": "content", 
     "page_name": "Products",
-    "open_graph:url": "",
-    "open_graph:type": "",
-    "open_graph:image": "",
-    "open_graph:title": "Products | Insites",
-    "open_graph:description": "",
-    "open_graph:site_name": "",
-    "meta_title": "Products | Insites",
     "page_title": "Products | Insites",
-    "meta_description": "",
-    "canonical_url": "",
     "is_visible_to_search_engines": true,
-    "sitemap_enabled": true,
+    "is_sitemap_enabled": true,
     "sitemap_priority": "1.0",
     "sitemap_order": "1", 
-    "sitemap_changefreq": "monthly",
-    "source_name": "modules/insites_ecommerce/product"       
+    "sitemap_change_frequency": "monthly"     
 }
 ---
 {% comment -%} 
@@ -45,6 +35,11 @@ URL Structures:
         {%- endif -%}    
     {%- endif -%}
 {%- endif -%}    
+
+{% if context.current_user.email == 'ivory@combinate.me' %}
+    {% comment %} context.page.slug="{{context.page.slug}}". <hr>
+    context.page="{{context.page}}".  {% endcomment %}
+{% endif %}
 
 
 
