@@ -121,23 +121,10 @@ metadata: {
                     {% endif %}
                     <p class="body-x-small">SKU {{ selected_prop.product_sku }}</p>
                     <div class="spacer x-small"></div>
-                    {% comment %} Get variant info {% endcomment %}
-                    {% if item.variant_uuid != '' and item.variant_uuid != null %}
-                        {%  liquid 
-                            ## Convert an array of strings into an array of objects
-                            assign options = '' | split: ',' 
-                            for option in selected_prop.product_options
-                                assign option_json = option | parse_json
-                                assign options = options | array_add: option_json
-                            endfor
-                        %}
-                        {% for option in options %}
-                            <p>
-                                <span class="body-x-small-bold">{{ option.product_option_label | titleize }}:</span>
-                                <span class="body-x-small">{{ option.product_option_value | titleize }}</span>
-                            </p>
-                        {% endfor %}
-                    {% endif %}
+
+                    {% comment %} Print variant info {% endcomment %}
+                    {% include 'modules/ecommerce/variants/variants', item: item, selected_prop: selected_prop %}
+                    
                     <p>
                         <span class="body-x-small-bold">Price:</span>
                         <span class="body-x-small item-price">{{ price | plus: 0 | pricify: 'USD', no_cents_if_whole: false }}</span>
