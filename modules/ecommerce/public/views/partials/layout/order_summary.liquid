@@ -223,22 +223,7 @@ metadata: {
         <div class="spacer x-small"></div>                
     {%- endif -%}
     {% comment %} END Discount Codes {% endcomment %}
-
-    {% comment %} Processing Fee {% endcomment %}
-    <div class="grid-x grid-padding-x">
-        <div class="large-6 medium-6 small-6 cell">
-            <p class="font-color-sub bold">Processing fee (1.7%)</p>
-        </div>
-        <div class="large-6 medium-6 small-6 cell text-right">
-            {%- assign processing_fee = computed.processing_fee | advanced_format: '%.2f' | default: "0.00" -%}
-            {%- assign processing_fee = processing_fee | pricify -%}
-            {%- unless processing_fee contains '.' -%}
-                {%- assign processing_fee = processing_fee | append: '.00' -%}
-            {%- endunless -%}
-            <p id="summary_processing_fee">{{ processing_fee }}</p>
-        </div>
-    </div>
-    <div class="spacer x-small"></div> 
+    
 
     {% comment %} Tax {% endcomment %}
     <div class="grid-x grid-padding-x">
@@ -333,7 +318,26 @@ metadata: {
             {%- endif -%}
         {%- endif -%}
     </div>
-    <div class="spacer medium"></div>    
+    <div class="spacer x-small"></div>    
+
+
+    {% comment %} Processing Fee {% endcomment %}
+    <div class="grid-x grid-padding-x">
+        <div class="large-6 medium-6 small-6 cell">
+            <p class="font-color-sub bold">Processing fee (1.7%)</p>
+        </div>
+        <div class="large-6 medium-6 small-6 cell text-right">
+            {%- assign processing_fee = computed.processing_fee | advanced_format: '%.2f' | default: "0.00" -%}
+            {%- assign processing_fee = processing_fee | pricify -%}
+            {%- unless processing_fee contains '.' -%}
+                {%- assign processing_fee = processing_fee | append: '.00' -%}
+            {%- endunless -%}
+            <p id="summary_processing_fee">{{ processing_fee }}</p>
+        </div>
+    </div>
+    <div class="spacer medium"></div> 
+
+
     <hr>
     <div class="spacer medium"></div>
 
