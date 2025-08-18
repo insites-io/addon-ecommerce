@@ -86,6 +86,7 @@ async function addToCartPreProcess(event, type){
         data.variant_uuid = selected_variant.variant_uuid; 
         data.product_sku = selected_variant.sku;
         data.image = selected_variant.image;  
+        data.stock_level = selected_variant.stock_level;  
     }
    
     let cartItem = document.getElementById(`cart-item-${data.id}`);
@@ -334,8 +335,21 @@ function cartItemHtml(data, cart_item){
     const item_price = formatNumber(data.price);
     const item_total_price = formatNumber(data.item_total_price || data.price);
     const img = data.image && data.image.trim() !== ''
-        ? `<img src="${encodeURI(data.image)}" width="66px" height="66px">`
+        ? `<img src="${data.image}" width="66px" height="66px">`
         : placeholderImage;
+    
+
+    // Pre-order tag
+    const stockLevel = parseFloat(data.stock_level);
+    const quantity = parseFloat(data.quantity);    
+    const preorder_tag = (
+        !isNaN(stockLevel) &&
+        !isNaN(quantity) &&
+        stockLevel < quantity
+    ) 
+        ? `<p><ins-tag label="Pre-order" class="preorder-tag body-x-small"></ins-tag></p>`
+        : '';
+    
 
     return ` <div id="cart-item-${data.id}" class="cart-item-wrap">
             <div class="grid-x" >
@@ -344,6 +358,7 @@ function cartItemHtml(data, cart_item){
                 </div>
                 <div class="grid-y cart-details flex-child-auto">
                     <a href="/products/${data.slug}"><h6>${ data.product_name }</h6></a>
+                    ${preorder_tag}
                     <p class="body-x-small">SKU ${ data.product_sku }</p>
                     <div class="spacer x-small"></div>
                     <p>

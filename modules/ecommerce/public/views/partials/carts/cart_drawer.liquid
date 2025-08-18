@@ -114,6 +114,11 @@ metadata: {
 
                 <div class="grid-y cart-details flex-child-auto">
                     <a href="/products/{{product.slug}}"><h6>{{ product_name }}</h6></a>
+                    {% if selected_prop.stock_level < item.quantity %}
+                        <p>
+                            <ins-tag label="Pre-order" class='preorder-tag body-x-small' ></ins-tag>
+                        </p>
+                    {% endif %}
                     <p class="body-x-small">SKU {{ selected_prop.product_sku }}</p>
                     <div class="spacer x-small"></div>
                     {% comment %} Get variant info {% endcomment %}
@@ -154,6 +159,7 @@ metadata: {
                         data-product_uuid="{{ item.product_uuid }}"
                         data-variant_uuid="{{ item.variant_uuid }}"
                         data-product_name="{{ item.product_name }}"
+                        data-stock_level="{{ selected_prop.stock_level | default: 0 }}"
                         value="{{ item.quantity }}" 
                         step="1" min="1"                         
                         small>

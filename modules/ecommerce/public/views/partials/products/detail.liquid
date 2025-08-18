@@ -244,7 +244,8 @@ metadata: {
                 "product_uuid": "{{ product.uuid }}",
                 "product_name": "{{ product.product_name | replace: "'", "`" }}",
                 "price": "{{ price | default: 0 }}",
-                "product_sku": "{{ product.sku }}"
+                "product_sku": "{{ product.sku }}",
+                "stock_level": "{{ product.stock_level | default: 0 }}"
             }
             {% endparse_json %}
             {% if galleries.size > 0 %}
@@ -335,6 +336,7 @@ metadata: {
         }
 
         function updateSelectionDetails(selectedVariant) {
+            console.log('selectedVariant',selectedVariant);
 
             if(selectedVariant.id){
                 //Identifiers
@@ -366,6 +368,7 @@ metadata: {
                     ourOfStockNotice.classList.add("hide");
                     outOfStockOverlay.classList.add("hide");
                 }
+                selected_variant.stock_level = selectedVariant.stock_level;
                 //Sale tag
                 if(onSaleTag){
                     if(selectedVariant.is_on_sale == true){
