@@ -2394,7 +2394,7 @@ ins-button.add-credit-card button.ins-button>div,
 
 /* Swal */
 .swal2-container {
-    z-index: 999999;
+    z-index: 999999 !important;
 }
 .swal2-popup.swal2-modal {
     padding: 32px !important;
