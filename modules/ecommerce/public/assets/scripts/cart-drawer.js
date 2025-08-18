@@ -86,7 +86,8 @@ async function addToCartPreProcess(event, type){
         data.variant_uuid = selected_variant.variant_uuid; 
         data.product_sku = selected_variant.sku;
         data.image = selected_variant.image;  
-        data.stock_level = selected_variant.stock_level;  
+        data.stock_level = selected_variant.stock_level;
+        data.product_options = selected_variant.product_options;  
     }
    
     let cartItem = document.getElementById(`cart-item-${data.id}`);
@@ -331,6 +332,13 @@ async function removeToCart(data){
     reloadIfShoppingCartPage();
 }       
 
+function titleize(str) {
+    if (typeof str !== 'string' || !str) return '';
+    return str.toLowerCase().replace(/(?:^|\s|-)\S/g, function (c) {
+      return c.toUpperCase();
+    });
+}
+
 function cartItemHtml(data, cart_item){
     const item_price = formatNumber(data.price);
     const item_total_price = formatNumber(data.item_total_price || data.price);
@@ -349,7 +357,20 @@ function cartItemHtml(data, cart_item){
     ) 
         ? `<p><ins-tag label="Pre-order" class="preorder-tag body-x-small"></ins-tag></p>`
         : '';
-    
+
+
+    // Variant
+    let variant = ''; 
+    if (data.variant_uuid != '' && data.variant_uuid != null) {        
+        const option = JSON.parse(data.product_options[0]);
+        variant = `
+            <p>
+                <span class="body-x-small-bold">${titleize(option.product_option_label)}:</span>
+                <span class="body-x-small">${titleize(option.product_option_value)}</span>
+            </p>
+        `;
+    }
+         
 
     return ` <div id="cart-item-${data.id}" class="cart-item-wrap">
             <div class="grid-x" >
@@ -361,6 +382,7 @@ function cartItemHtml(data, cart_item){
                     ${preorder_tag}
                     <p class="body-x-small">SKU ${ data.product_sku }</p>
                     <div class="spacer x-small"></div>
+                    ${variant}
                     <p>
                         <span class="body-x-small-bold">Price:</span>
                         <span class="body-x-small item-price">$${ item_price }</span>
