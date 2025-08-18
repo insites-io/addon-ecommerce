@@ -359,18 +359,19 @@ function cartItemHtml(data, cart_item){
         : '';
 
 
-    // Variant
-    const variant = (data.variant_uuid != '' && data.variant_uuid != null)
-    ? (() => {
-        const option = JSON.parse(data.product_options[0]);
-        return `
-            <p>
-                <span class="body-x-small-bold">${titleize(option.product_option_label)}:</span>
-                <span class="body-x-small">${titleize(option.product_option_value)}</span>
-            </p>
-        `;
-    })()
-    : '';
+    // Variant Options
+    let optionsHtml = '';
+    if (data.variant_uuid != '' && data.variant_uuid != null && data.product_options.length > 0) {
+        for (const optionStr of data.product_options) {
+            const option = JSON.parse(optionStr);
+            optionsHtml += `
+                <p>
+                    <span class="body-x-small-bold">${titleize(option.product_option_label)}:</span>
+                    <span class="body-x-small">${titleize(option.product_option_value)}</span>
+                </p>
+            `;
+        }
+    }
          
 
     return ` <div id="cart-item-${data.id}" class="cart-item-wrap">
@@ -383,7 +384,7 @@ function cartItemHtml(data, cart_item){
                     ${preorder_tag}
                     <p class="body-x-small">SKU ${ data.product_sku }</p>
                     <div class="spacer x-small"></div>
-                    ${variant}
+                    ${optionsHtml}
                     <p>
                         <span class="body-x-small-bold">Price:</span>
                         <span class="body-x-small item-price">$${ item_price }</span>
