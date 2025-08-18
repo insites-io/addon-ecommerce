@@ -360,16 +360,17 @@ function cartItemHtml(data, cart_item){
 
 
     // Variant
-    let variant = ''; 
-    if (data.variant_uuid != '' && data.variant_uuid != null) {        
+    const variant = (data.variant_uuid != '' && data.variant_uuid != null)
+    ? (() => {
         const option = JSON.parse(data.product_options[0]);
-        variant = `
+        return `
             <p>
                 <span class="body-x-small-bold">${titleize(option.product_option_label)}:</span>
                 <span class="body-x-small">${titleize(option.product_option_value)}</span>
             </p>
         `;
-    }
+    })()
+    : '';
          
 
     return ` <div id="cart-item-${data.id}" class="cart-item-wrap">
