@@ -3,7 +3,7 @@ metadata: {
     partial_name: 'Ecommerce | Client Portal | Order History Summary'
 }
 ---
-
+asd
 <ins-table 
   class="ecommerce"
   id="fieldTable" 
@@ -16,7 +16,6 @@ metadata: {
 <hr>
 <div class="spacer"></div>
 
-
 {% include 'modules/ecommerce/layout/order_summary', order_uuid: order.uuid, is_ordered_items: true, no_heading: true %}
 
 {% function localisation_date_format = 'modules/ecommerce/localisation/get_localisation' %}
@@ -27,7 +26,7 @@ metadata: {
   let date_format = "{{ localisation_date_format | default: 'DD/MM/YYYY' }}";
   let tableData = {{ ordered_items }};
   
-
+  console.log(tableData, "tableData");
   // set table headers
   orderListTable.tableHeaders = [
     { label: 'Product name', type: "string", hasImage: true, sortable: true},
