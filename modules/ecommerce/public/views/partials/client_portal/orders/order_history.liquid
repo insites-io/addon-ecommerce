@@ -100,7 +100,7 @@ metadata: {
                 <ins-filter-item
                     name="Order status"
                     id="order-filter-status"
-                    options='["All", "Back ordered", "Cancelled", "Completed", "For collection", "For delivery", "Open", "On hold", "Other", "Parked", "Processing", "Refunded", "Subscription active", "Subscription cancelled"]'
+                    options='["All", "Back ordered", "Cancelled", "Completed", "For collection", "For delivery", "Open", "On hold", "Other", "Parked", "Placed", "Processing", "Refunded", "Subscription active"]'
                     {%- if context.params.status -%}
                         selected='{{context.params.status | capitalize | replace: "_", " " }}'
                     {%- endif -%}
