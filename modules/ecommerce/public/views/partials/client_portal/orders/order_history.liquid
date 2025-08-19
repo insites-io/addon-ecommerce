@@ -116,6 +116,7 @@ metadata: {
         class="ecommerce"    
         sort-keyword="order-number"
         searchbar-placeholder="Search by order number"
+        initial-search="{{ context.params.search }}"
         {%- if context.params.search -%}
             initial-search="{{ontext.params.search}}"
         {%- endif -%}
@@ -139,14 +140,14 @@ metadata: {
     let currentFilter = {
         "searchKeyword": "{{ context.params.search | default: "" }}",
         "filterStatus" : "{{ context.params.status | default: '' | capitalize | replace: '_', ' ' }}",
-        "filterDateTo": "{{ context.params.from | default: '' }}",
-        "filterDateFrom" : "{{ context.params.to | default: '' }}"
+        "filterDateTo": "{{ context.params.to | default: '' }}",
+        "filterDateFrom" : "{{ context.params.from | default: '' }}"        
     };
 
     let searchKeyword = "{{ context.params.search | default: "" }}";
     let filterStatus = "{{ context.params.status | default: '' | capitalize | replace: '_', ' ' }}"
-    let filterDateTo = "{{ context.params.from | default: '' }}"
-    let filterDateFrom = "{{ context.params.to | default: '' }}"
+    let filterDateTo = "{{ context.params.to | default: '' }}"
+    let filterDateFrom = "{{ context.params.from | default: '' }}"
 
     let orderListTable = document.getElementById('order-table');
     let orderFilter = document.getElementById('order-filter');
@@ -205,6 +206,7 @@ metadata: {
     function processTableData(){
         orderListTable.totalCount = maxCount;
         orderListTable.pageNumber = currentPage;
+        orderListTable.pageSize = pageSize;
         if (maxCount <= 0) {
             orderListTable.loadingScreen = true;
             orderListTable.loaderTitle = '';
@@ -237,7 +239,7 @@ metadata: {
         let resetPage = false;
 
         if(searchKeyword != currentFilter.searchKeyword){ resetPage = true; }
-        if(statusKey != currentFilter.filterStatus){ resetPage = true; }
+        if(filterStatus != currentFilter.filterStatus){ resetPage = true; }
         if(filterDateTo != currentFilter.filterDateTo){ resetPage = true; }
         if(filterDateFrom != currentFilter.filterDateFrom){ resetPage = true; }
 
