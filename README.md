@@ -45,5 +45,11 @@ Please ensure this application is installed from the Insites Marketplace.
 - Order History
 
 
+## Custom Fields
+- Ecommerce
+-- Categories
+--- is_featured
+
+
 ## Documentation
 [Click Here](https://docs.google.com/document/d/1PwxzrroQ2Bdqj0nAkevEGdX-gxmB6-kWw_WbUpmFJgE/edit?usp=sharing)

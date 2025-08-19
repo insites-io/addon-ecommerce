@@ -1,9 +1,9 @@
 query get_orders (
   $page: Int = 1,
   $size: Int = 100,
+  $order_company_uuid: String,
   $order_contact_uuid: String,
   $keyword: ID,
-  # $keyword: String,
   $dateFrom: String,
   $dateTo: String
   $orderStatus: [String!]
@@ -22,8 +22,8 @@ query get_orders (
       },
       id: { value: $keyword }
       properties: [
+        { name: "order_company_uuid", value: $order_company_uuid }
         { name: "order_contact_uuid", value: $order_contact_uuid }
-        # { name: "order_number", contains: $keyword }
         { name: "date_time", range: {gte: $dateFrom, lte: $dateTo} }
         { name: "order_status", value_in: $orderStatus }
       ]

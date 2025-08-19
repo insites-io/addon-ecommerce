@@ -8,6 +8,17 @@ metadata: {
 <p>Check the status of your order and review your order history.</p>
 <div class="spacer x-large"></div>
 
+{% comment %} Cache company_uuid in session to avoid repeated calls. {% endcomment %}
+{% liquid
+    if context.session.company_uuid != '' and context.session.company_uuid != blank 
+        assign company_uuid = context.session.company_uuid
+    else 
+        graphql company_uuid = 'modules/ecommerce/account/get_current_user' | dig: 'current_user','crm_contact' | first |dig: 'company_uuid'
+        session company_uuid = company_uuid
+    endif    
+%}
+
+
 {%-
     liquid
 
@@ -17,7 +28,13 @@ metadata: {
     assign page_size = context.params.per_page | default: 10 | plus: 0
 
     assign filters = '{}' | parse_json
-    assign filters = filters | add_hash_key: "order_contact_uuid", context.current_user.external_id 
+
+    ## Use this filter when showing orders from logged in user only
+    # assign filters = filters | add_hash_key: "order_contact_uuid", context.current_user.external_id 
+
+    ## The list displays orders placed by any user within the company of the logged-in account.
+    assign filters = filters | add_hash_key: "order_company_uuid", company_uuid
+
     assign filters = filters | add_hash_key: "page", page_num
     assign filters = filters | add_hash_key: "size", page_size
 
@@ -83,7 +100,7 @@ metadata: {
                 <ins-filter-item
                     name="Order status"
                     id="order-filter-status"
-                    options='["All", "Back ordered", "Cancelled", "Completed", "For collection", "For delivery", "Open", "On hold", "Other", "Parked", "Processing", "Refunded", "Subscription active", "Subscription cancelled"]'
+                    options='["All", "Back ordered", "Cancelled", "Completed", "For collection", "For delivery", "Open", "On hold", "Other", "Parked", "Placed", "Processing", "Refunded", "Subscription active"]'
                     {%- if context.params.status -%}
                         selected='{{context.params.status | capitalize | replace: "_", " " }}'
                     {%- endif -%}
@@ -99,6 +116,7 @@ metadata: {
         class="ecommerce"    
         sort-keyword="order-number"
         searchbar-placeholder="Search by order number"
+        initial-search="{{ context.params.search }}"
         {%- if context.params.search -%}
             initial-search="{{ontext.params.search}}"
         {%- endif -%}
@@ -122,14 +140,14 @@ metadata: {
     let currentFilter = {
         "searchKeyword": "{{ context.params.search | default: "" }}",
         "filterStatus" : "{{ context.params.status | default: '' | capitalize | replace: '_', ' ' }}",
-        "filterDateTo": "{{ context.params.from | default: '' }}",
-        "filterDateFrom" : "{{ context.params.to | default: '' }}"
+        "filterDateTo": "{{ context.params.to | default: '' }}",
+        "filterDateFrom" : "{{ context.params.from | default: '' }}"        
     };
 
     let searchKeyword = "{{ context.params.search | default: "" }}";
     let filterStatus = "{{ context.params.status | default: '' | capitalize | replace: '_', ' ' }}"
-    let filterDateTo = "{{ context.params.from | default: '' }}"
-    let filterDateFrom = "{{ context.params.to | default: '' }}"
+    let filterDateTo = "{{ context.params.to | default: '' }}"
+    let filterDateFrom = "{{ context.params.from | default: '' }}"
 
     let orderListTable = document.getElementById('order-table');
     let orderFilter = document.getElementById('order-filter');
@@ -188,6 +206,7 @@ metadata: {
     function processTableData(){
         orderListTable.totalCount = maxCount;
         orderListTable.pageNumber = currentPage;
+        orderListTable.pageSize = pageSize;
         if (maxCount <= 0) {
             orderListTable.loadingScreen = true;
             orderListTable.loaderTitle = '';
@@ -220,7 +239,7 @@ metadata: {
         let resetPage = false;
 
         if(searchKeyword != currentFilter.searchKeyword){ resetPage = true; }
-        if(statusKey != currentFilter.filterStatus){ resetPage = true; }
+        if(filterStatus != currentFilter.filterStatus){ resetPage = true; }
         if(filterDateTo != currentFilter.filterDateTo){ resetPage = true; }
         if(filterDateFrom != currentFilter.filterDateFrom){ resetPage = true; }
 

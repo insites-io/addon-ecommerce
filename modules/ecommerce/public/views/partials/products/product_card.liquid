@@ -95,7 +95,8 @@ metadata: {
                         "variant_uuid": "{{ variant_uuid }}",
                         "product_name": "{{ product.product_name | replace: "'", "`"}}",
                         "price": "{{ price | default: 0 | advanced_format: '%.2f' }}",
-                        "image": "{{ image_url }}"
+                        "image": "{{ image_url }}",
+                        "stock_level": "{{ selected_prop.stock_level | default: 0 }}"
                     }
                     {% endparse_json %}
 
