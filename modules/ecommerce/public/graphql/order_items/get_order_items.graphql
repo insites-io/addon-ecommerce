@@ -53,6 +53,7 @@ query get_order_items (
       ) {
         id
         uuid: property(name: "uuid")
+        status: property(name: "status")
         slug: property(name: "slug")
         sku: property(name: "sku")
         product_name: property(name: "product_name")

@@ -33,21 +33,27 @@ metadata: {
   
 %}
 
--- {{ ordered_items }}
 
-
-
+ {% comment %} Get items to be reordered {% endcomment %}
 {% assign reorder_items = '' | split: ',' %}
+{% assign total_active_products = 0 %}
 
 {% for item in ordered_items %}
   {% liquid
+
+      assign selected_prop = ''
+
       if item.sku == item.product.sku
         assign selected_prop = item.product
+
+        ## The product is not active anymore, do not reorder this item
+        if item.product.status != 'enabled'
+          continue 
+        endif
       else 
         for variant in item.product.variants
           if item.sku == variant.sku
             assign selected_prop = variant
-            assign is_variant = true
           endif
         endfor
       endif
@@ -56,6 +62,13 @@ metadata: {
           assign price = selected_prop.sale_price
       else 
           assign price = selected_prop.regular_price
+      endif
+
+      ## Check if the product or variant is still active
+      if selected_prop == '' or selected_prop == blank
+        continue        
+      else
+        assign total_active_products = total_active_products | plus: 1
       endif
   %}       
 
@@ -72,6 +85,7 @@ metadata: {
   {% assign reorder_items = reorder_items | array_add: reorder_data %}
 
 {% endfor %}
+{% comment %} END - Get items to be reordered {% endcomment %}
 
 
 <div class="grid-x">
@@ -84,7 +98,11 @@ metadata: {
   <div class="spacer hide-for-large cell"></div>
 
   <div class="large-5 medium-12 small-12 text-right reorder-btn-container">
+
+    {% if total_active_products > 0 %}
       <ins-button label="Re-order" id="reorder-btn" class="reorder-btn" data='{{ reorder_items }}' icon="icon-shopping-cart" outlined ></ins-button>
+    {% endif %}
+    
 
       <div class="spacer x-small hide-for-large cell"></div>
 
@@ -126,8 +144,10 @@ metadata: {
 {% comment %} Reorder - Cart {% endcomment %}
 <script>
   const reorderBtn = document.getElementById("reorder-btn");
-  reorderBtn.addEventListener('insClick', async event => {   
-    reorderBtn.loading = true;
-    await addToCartPreProcess(event, 'reorder');
-  });
+  if(reorderBtn){
+    reorderBtn.addEventListener('insClick', async event => {   
+      reorderBtn.loading = true;
+      await addToCartPreProcess(event, 'reorder');
+    });
+  }
 </script>
