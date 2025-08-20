@@ -57,7 +57,7 @@ metadata: {
             assign price = selected_prop.regular_price
         endif 
 
-        assign order_item_image = selected_prop.product_image.url | default: ''
+        assign order_item_image = selected_prop.product_image.url | replace: ' ', '%20' | escape | default: ''
 
         assign properties = '' | parse_json
         assign properties = properties | add_hash_key: 'order.uuid', order_uuid
