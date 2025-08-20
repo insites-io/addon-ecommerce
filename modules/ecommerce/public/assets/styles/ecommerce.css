@@ -1990,12 +1990,13 @@ ins-button button[type=button].is-loading .spinner {
 /* Tags */
 
 .tagged span {
+    min-width: initial !important;
     font-family: var(--font-family-02);
     font-size: 12px;
     font-style: normal;
     font-weight: 600;
     line-height: 20px;
-    padding: 4px 8px;
+    padding: 4px 8px !important;
     border-radius: 4px!important;
     color: var(--neutral-hover);
     background: var(--neutral-hover-light);
