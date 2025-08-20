@@ -3,7 +3,7 @@ metadata: {
     partial_name: 'Ecommerce | Client Portal | Order History Summary'
 }
 ---
-asd
+
 <ins-table 
   class="ecommerce"
   id="fieldTable" 
@@ -54,13 +54,13 @@ asd
   function mapData(tableData) {
     return tableData.map(data => { 
         
-        let product = data.product;
-        let variants = product.variants;
-        let product_img = data.order_item_image.url;        
-        let variation = "";
-        let sub_price = data.unit_price * data.quantity;
+      const product = data.product;
+      const variants = product ? product.variants : [];
+      const product_img = data.order_item_image?.url || '';
+      let variation = "";
+      const sub_price = data.unit_price * data.quantity;
 
-        if(data.sku != product.sku){
+        if(data.sku != product?.sku){
           variants.forEach(variant => {
             if(variant.sku == data.sku) variation = variant.sku;
           });
