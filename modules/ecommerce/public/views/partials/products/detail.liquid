@@ -14,16 +14,21 @@ metadata: {
     assign index = 0
 
     ## Main Product Image
-    if product.product_image.url
-        assign galleries = galleries | array_add: product.product_image.url  
+    assign main_image = product.product_image.url | replace: ' ', '%20' | escape | default: ''
+    if main_image and main_image != ''
+        assign galleries = galleries | array_add: main_image  
         assign index = index | plus: 1
     endif
 
     ## Gallery_1
     if product.gallery_1.size > 0
         for gallery in product.gallery_1
-            assign galleries = galleries | array_add: gallery.file.url
-            assign index = index | plus: 1
+            assign gallery_url = gallery.file.url | replace: ' ', '%20' | escape | default: ''
+            if gallery_url and gallery_url != ''
+                assign galleries = galleries | array_add: gallery_url
+                assign gallery_indexes = gallery_indexes | add_hash_key: gallery.id, index
+                assign index = index | plus: 1
+            endif
         endfor
     endif
 
