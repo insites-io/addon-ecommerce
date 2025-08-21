@@ -282,8 +282,9 @@ metadata: {
 </div>
 
 <script>
-    let variants = {{ variants }};
-    let galleryIndexes = {{ gallery_indexes | default: '[]' }};
+    const variants = {{ variants }};
+    const main_image = "{{ product.product_image.url }}";
+    const galleryIndexes = {{ gallery_indexes | default: '[]' }};
     let selected_variant = {
             "product_name": "{{ product.product_name }}"
         }; 
@@ -359,7 +360,7 @@ metadata: {
                     }
                 }
                 //Image
-                selected_variant.image = selectedVariant.product_image.url;
+                selected_variant.image = selectedVariant.product_image.url || main_image;
                 //Out of Stock Notice
                 if(selectedVariant.stock_level < 1){
                     ourOfStockNotice.classList.remove("hide");
