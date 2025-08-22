@@ -428,7 +428,7 @@ metadata: {
                     updateSelectionDetails(matchedVariant);
 
                     //Update active view in galleries based on selected variant
-                    productGalleries.activate(galleryIndexes[matchedVariant.id]);
+                    productGalleries?.activate(galleryIndexes[matchedVariant.id]);
 
                     //Activate add-to-cart button
                     document.querySelectorAll('#product-details-btn .add-to-cart-btn').forEach(btn => {
