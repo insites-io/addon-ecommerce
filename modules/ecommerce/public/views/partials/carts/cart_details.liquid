@@ -5,8 +5,7 @@ metadata: {
 ---
 {% liquid 
     assign product = products | array_detect: uuid: item.product_uuid 
-    assign product_name = product.product_name    
-    assign is_tax_included = product.is_tax_included       
+    assign product_name = product.product_name
     
     ## Check if the item is a product or a variant of the product
     assign selected_prop = ''
@@ -54,7 +53,6 @@ metadata: {
     "selected_prop": {{ selected_prop | default: '[]' }},
     "price": {{ price | default: 0 }},
     "price_strikethrough": "{{ price_strikethrough }}",
-    "is_tax_included": {{ is_tax_included | default: false }},
     "item_total_price": {{ item_total_price | default: 0 }},
     "imgsrc": "{{ imgsrc }}"
 }

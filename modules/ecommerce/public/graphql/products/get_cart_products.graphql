@@ -44,7 +44,12 @@ query get_cart_products(
         product_options: property_array(name: "product_options")
         is_free_shipping: property_boolean(name: "is_free_shipping")
         freight_amount: property_float(name: "freight_amount")
+        
+        ##Variant tax        
 				is_fixed_tax_amount: property_boolean(name: "is_fixed_tax_amount")
+        is_tax_included: property_boolean(name: "is_tax_included")
+        # Use is_sale_price_tax_included here to maintain consistency with the identifier used in product.properties
+        is_sale_price_tax_included: property_boolean(name: "is_variant_sale_price_tax_included")
         tax_amount: property_float(name: "tax_amount")
 
         #more info
@@ -58,6 +63,7 @@ query get_cart_products(
       freight_amount: property_float(name: "freight_amount")
       is_fixed_tax_amount: property_boolean(name: "is_fixed_tax_amount")
       is_tax_included: property_boolean(name: "is_tax_included")
+      is_sale_price_tax_included: property_boolean(name: "is_sale_price_tax_included")
       tax_amount: property_float(name: "tax_amount")
 
 
