@@ -17,7 +17,7 @@ const billingPhone = {
 
 
 // Order contact
-var guest_uuid = '';
+let guest_uuid = '';
 const contactCompanyNameEl = document.getElementById('contact-company-name');
 const contactFirstNameEl = document.getElementById('contact-first-name');
 const contactLastNameEl = document.getElementById('contact-last-name');
@@ -277,7 +277,12 @@ let Checkout = (function () {
                 contactSubmitBtn.loading = true;                
                 Checkout.methods.extractPhoneNumbers(contactPhone);
                 if(await App.validation.validateForm(form)) {
-                    form.submit();
+                    if(Checkout.events.saveSessionApi('contact')){
+                        //Add delay to allow the session to be saved
+                        setTimeout(() => {
+                            form.submit();
+                        }, 1000);       
+                    } 
                 } else {
                     App.events.notyf("error", "Please check missing fields.");
                     contactSubmitBtn.loading = false;

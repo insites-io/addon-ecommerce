@@ -32,16 +32,7 @@ fields:
         mobile_phone_country_code:
 
 callback_actions: |-   
-  {%  unless context.current_user %} 
-    {%- session guest_id = form.id -%}  
-  {% endunless %} %}
-  {%- session contact_first_name = form.first_name -%}  
-  {%- session contact_last_name = form.last_name -%}  
-  {%- session contact_email = form.email -%}  
-  {%- session contact_company_name = form.company_name -%}  
-  {%- session contact_phone_number = form.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_number | default: "" -%}
-  {%- session contact_phone_country_code = form.profiles['modules/insites_core/crm_contact'].properties.mobile_phone_country_code | default: "" -%}  
-  {%- session latest_step = 2 -%}
+  ## api/save-checkout-session is called in checkout.js to save the user data to the session
 ---
 
 {%- form 
