@@ -1,0 +1,22 @@
+mutation update_cart_contact_uuid (
+  $contact_uuid: String!
+  $guest_uuid: String!
+) {
+  ## Use records_update_all instead of record_update so we do not need to pass the id
+  items: records_update_all (
+    sync: true
+    table: "modules/insites_ecommerce/cart",
+    filter: {
+      properties: [
+        {name: "contact_uuid", value: $guest_uuid}
+      ]
+    }    
+    record: {      
+      properties: [
+        { name: "contact_uuid", value: $contact_uuid }        
+      ]
+    }
+  ) {
+    count
+  }
+}

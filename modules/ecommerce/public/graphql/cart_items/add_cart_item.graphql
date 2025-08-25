@@ -1,7 +1,7 @@
 mutation add_cart_item (
   $uuid: String!
   $cart_uuid: String!
-  $quantity: String!
+  $quantity: Int!
   $product_uuid: String!
   $variant_uuid: String
 ) {
@@ -11,7 +11,7 @@ mutation add_cart_item (
       properties: [
         { name: "uuid", value: $uuid }
         { name: "cart_uuid", value: $cart_uuid }
-        { name: "quantity", value: $quantity }
+        { name: "quantity", value_int: $quantity }
         { name: "product_uuid", value: $product_uuid }
         { name: "variant_uuid", value: $variant_uuid }
       ]
