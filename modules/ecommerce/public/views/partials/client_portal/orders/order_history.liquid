@@ -154,6 +154,7 @@ metadata: {
     let orderFilterStatus = document.getElementById('order-filter-status');
 
     let tableContent = {{ orders.items.results }};
+    console.log(tableContent);
     let tableHeaders = [
         { label: 'Order number', type: "string" },
         { label: 'Date ordered', type: "string", sortable: true },
@@ -183,7 +184,11 @@ metadata: {
             let formatDate = TableScript.methods.formatDate(toDateOnly, date_format);
             let dateOrdered = changeDateFormat(formatDate);
             let shipping_status = data.order_shipping_status || 'Processing';
+            if(shipping_status == 'not_applicable'){
+                shipping_status = 'Not Applicable';
+            }
             let tmp_order_status = "";
+             
             if(data.order_status.includes("_")){
                 tmp_order_status = data.order_status.replaceAll("_"," ");
             } else {
