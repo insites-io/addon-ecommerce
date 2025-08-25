@@ -51,7 +51,7 @@ searchable: false
             {
                 "uuid": "{{ '' | uuid }}",
                 "cart_uuid": "{{ cart.uuid }}",
-                "quantity": "{{ quantity }}",
+                "quantity": {{ quantity | default: 1 }},
                 "product_uuid": "{{ product_uuid }}",
                 "variant_uuid": "{{ variant_uuid }}"
             }
@@ -76,7 +76,7 @@ searchable: false
         {
             "uuid": "{{ '' | uuid }}",
             "cart_uuid": "{{ add_cart.uuid }}",
-            "quantity": "{{ quantity }}",
+            "quantity": {{ quantity | default: 1 }},
             "product_uuid": "{{ product_uuid }}",
             "variant_uuid": "{{ variant_uuid }}"
         }
