@@ -23,7 +23,7 @@ query get_order_items (
       }
     }
     sort: {
-      created_at: { order: DESC}
+      created_at: { order: ASC}
     }
   ) {
     total_entries  

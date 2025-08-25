@@ -85,13 +85,16 @@ metadata: {
                         <div class="spacer x-large"></div>
 
                         {% comment %} Shipping instructions {% endcomment %}
-                        <div class="wrap">
-                            <h5 class="heading-5-small">Shipping instructions</h5>
-                            <div class="spacer small"></div>
-                            <p class="font-cabin">{{ order.shipping_instructions | default: "Sample shipping Instruction" }}</p>
-                        </div>
-
-                        <div class="spacer x-large show-for-small-only"></div>
+                        {% if order.shipping_instructions %}
+                            <div class="wrap">
+                                <h5 class="heading-5-small">Shipping instructions</h5>
+                                <div class="spacer small"></div>
+                                <p class="font-cabin">{{ order.shipping_instructions | default: "Sample shipping Instruction" }}</p>
+                            </div>
+    
+                            <div class="spacer x-large show-for-small-only"></div>
+                        {% endif %}
+                      
                         
                     </div>
                 </div>                                    

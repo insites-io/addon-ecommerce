@@ -10,14 +10,13 @@ metadata: {
 
 {% comment %} Cache company_uuid in session to avoid repeated calls. {% endcomment %}
 {% liquid
-    if context.session.company_uuid != '' and context.session.company_uuid != blank 
-        assign company_uuid = context.session.company_uuid
-    else 
+    # if context.session.company_uuid != '' and context.session.company_uuid != blank 
+    #    assign company_uuid = context.session.company_uuid
+    #else 
         graphql company_uuid = 'modules/ecommerce/account/get_current_user' | dig: 'current_user','crm_contact' | first |dig: 'company_uuid'
         session company_uuid = company_uuid
-    endif    
+    #endif    
 %}
-
 
 {%-
     liquid
@@ -30,7 +29,7 @@ metadata: {
     assign filters = '{}' | parse_json
 
     ## Use this filter when showing orders from logged in user only
-    # assign filters = filters | add_hash_key: "order_contact_uuid", context.current_user.external_id 
+    #assign filters = filters | add_hash_key: "order_contact_uuid", context.current_user.external_id 
 
     ## The list displays orders placed by any user within the company of the logged-in account.
     assign filters = filters | add_hash_key: "order_company_uuid", company_uuid
@@ -158,7 +157,7 @@ metadata: {
     let tableHeaders = [
         { label: 'Order number', type: "string" },
         { label: 'Date ordered', type: "string", sortable: true },
-        { label: 'Total amount', type: "currency" },
+        { label: 'Total amount', type: "currency", textAlign: "left" },
         { label: 'Order status', type: "string", hasTag: true },
         { label: 'Shipping status', type: "string", hasTag: true}
     ];
@@ -186,6 +185,9 @@ metadata: {
             let shipping_status = data.order_shipping_status || 'Processing';
             if(shipping_status == 'not_applicable'){
                 shipping_status = 'Not Applicable';
+            }
+            if(shipping_status == 'picked_up'){
+                shipping_status = 'Picked up';
             }
             let tmp_order_status = "";
              

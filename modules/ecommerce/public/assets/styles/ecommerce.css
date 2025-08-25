@@ -2847,3 +2847,7 @@ ins-button.add-credit-card button.ins-button>div,
 .pb-8 {
     padding-bottom: 8px;
 }
+
+.text-left {
+    text-align: left!important;
+}
