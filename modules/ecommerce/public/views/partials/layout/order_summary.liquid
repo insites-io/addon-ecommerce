@@ -47,7 +47,7 @@ metadata: {
             {%- for item in carts -%}
                 {% comment %} ? TAX LABEL {% endcomment %}
                 {%- if item.is_fixed_tax_amount -%}
-                    {%- assign tax_label = "Includes Tax" -%}
+                    {%- assign tax_label = "Includes tax" -%}
                 {%- else -%}
                     {%- assign tax_label = "Tax" -%}
                 {%- endif -%}
@@ -233,7 +233,7 @@ metadata: {
             {%- if context.session.tax_applied == "both" -%}
                 {% comment %} ? IF BOTH INCLUDES AND NOT INCLUDES TAX IS ON CART {% endcomment %}
                 <div class="large-6 medium-6 small-6 cell pb-8">
-                    <p class="font-color-sub bold" id="summary_tax_label">Includes Tax</p>
+                    <p class="font-color-sub bold" id="summary_tax_label">Includes tax</p>
                 </div>
                 <div class="large-6 medium-6 small-6 cell text-right">
                     {%- assign sub_total_tax_included = context.session.sub_total_tax_included | advanced_format: '%.2f' | default: "0.00" -%}
@@ -276,7 +276,7 @@ metadata: {
             {%- if computed.tax_applied == "both" -%}
                 {% comment %} ? IF BOTH INCLUDES AND NOT INCLUDES TAX IS ON CART {% endcomment %}
                 <div class="large-6 medium-6 small-6 cell pb-8">
-                    <p class="font-color-sub bold" id="summary_tax_label">Includes Tax </p>
+                    <p class="font-color-sub bold" id="summary_tax_label">Includes tax </p>
                 </div>
                 <div class="large-6 medium-6 small-6 cell text-right">
                     {%- assign sub_total_tax_included = computed.sub_total_tax_included | advanced_format: '%.2f' | default: "0.00" -%}

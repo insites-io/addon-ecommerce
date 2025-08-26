@@ -89,12 +89,12 @@ metadata: {
             ## we will use this to subtract in the total amount
             if is_on_sale == false and cart.selected_prop.is_tax_included == true
                 assign sub_total_tax_included = sub_total_tax_included | plus: tax
-                assign tax_label = 'Includes Tax'
+                assign tax_label = 'Includes tax'
             elsif is_on_sale == true and cart.selected_prop.is_sale_price_tax_included == true
                 assign sub_total_tax_included = sub_total_tax_included | plus: tax
-                assign tax_label = 'Includes Tax'
+                assign tax_label = 'Includes tax'
             elsif sub_total_tax_included > 0
-                assign tax_label = 'Includes Tax'
+                assign tax_label = 'Includes tax'
             else 
                 assign tax_label = 'Tax'
             endif
