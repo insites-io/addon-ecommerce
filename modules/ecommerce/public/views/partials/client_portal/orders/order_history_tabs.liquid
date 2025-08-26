@@ -37,6 +37,9 @@ metadata: {
  {% comment %} Get items to be reordered {% endcomment %}
 {% assign reorder_items = '' | split: ',' %}
 {% assign total_active_products = 0 %}
+<script>
+  console.log('ordered_items', {{ ordered_items | json }});
+</script>
 
 {% for item in ordered_items %}
   {% liquid
@@ -45,6 +48,7 @@ metadata: {
 
       if item.sku == item.product.sku
         assign selected_prop = item.product
+        assign is_variant = false
 
         ## The product is not active anymore, do not reorder this item
         if item.product.status != 'enabled'
@@ -54,6 +58,7 @@ metadata: {
         for variant in item.product.variants
           if item.sku == variant.sku
             assign selected_prop = variant
+            assign is_variant = true
           endif
         endfor
       endif
@@ -75,7 +80,11 @@ metadata: {
   {% parse_json reorder_data %}
   {
       "id": "{{ selected_prop.id }}",
+      {% if is_variant == false %}
       "product_uuid": "{{ item.product_uuid }}",
+      {% else %}
+      "variant_uuid": "{{ item.product_variant_uuid }}",
+      {% endif %}
       "product_sku": "{{ item.sku }}",
       "product_name": "{{ item.product.product_name }}",
       "price": "{{ price | default: 0 }}",
@@ -87,6 +96,9 @@ metadata: {
 {% endfor %}
 {% comment %} END - Get items to be reordered {% endcomment %}
 
+<script>
+  console.log('reorder_items', {{ reorder_items | json }});
+</script>
 
 <div class="grid-x">
   <div class="grid-y large-7 medium-12 small-12">
