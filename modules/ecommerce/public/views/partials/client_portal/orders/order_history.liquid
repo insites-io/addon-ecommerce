@@ -239,9 +239,8 @@ metadata: {
         if(searchKeyword != ''){ urlWithParams.searchParams.append('search', searchKey); }
         let statusKey = filterStatus.trim().toLowerCase().replace(" ", "_");
         if(statusKey != ''){ urlWithParams.searchParams.append('status', statusKey); }
-        if(filterDateTo != ''){ urlWithParams.searchParams.append('to', filterDateTo); }
-        if(filterDateFrom != ''){ urlWithParams.searchParams.append('from', filterDateFrom); }
-
+        if(filterDateTo != ''){ urlWithParams.searchParams.append('to', filterDateTo + 'T23:59:59'); }
+        if(filterDateFrom != ''){ urlWithParams.searchParams.append('from', filterDateFrom + 'T00:00:00'); }
         //check if any filter needs to reset the current page number
         let resetPage = false;
 
