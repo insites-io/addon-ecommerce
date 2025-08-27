@@ -8,15 +8,8 @@ metadata: {
 <p>Check the status of your order and review your order history.</p>
 <div class="spacer x-large"></div>
 
-{% comment %} Cache company_uuid in session to avoid repeated calls. {% endcomment %}
-{% liquid
-    # if context.session.company_uuid != '' and context.session.company_uuid != blank 
-    #    assign company_uuid = context.session.company_uuid
-    #else 
-        graphql company_uuid = 'modules/ecommerce/account/get_current_user' | dig: 'current_user','crm_contact' | first |dig: 'company_uuid'
-        session company_uuid = company_uuid
-    #endif    
-%}
+{% graphql company_uuid = 'modules/ecommerce/account/get_current_user' 
+    | dig: 'current_user','crm_contact' | first |dig: 'company_uuid' %}
 
 {%-
     liquid

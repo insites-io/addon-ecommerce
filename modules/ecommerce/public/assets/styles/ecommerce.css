@@ -2377,7 +2377,7 @@ ins-filter ins-button button.ins-button.size--small span {
 
 @media (max-width: 1023px) {
     .ibt-table-wrap .ibt-table {
-        /* display: none; */
+        display: none;
     }
     .ibt-table-wrap .ibt-table-accordion {
         display: block;
