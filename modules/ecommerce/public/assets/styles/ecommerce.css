@@ -2376,13 +2376,13 @@ ins-filter ins-button button.ins-button.size--small span {
 }
 
 @media (max-width: 1023px) {
-    .ibt-table-wrap .ibt-table {
+    .ecommerce .ibt-table-wrap .ibt-table {
         display: none;
     }
-    .ibt-table-wrap .ibt-table-accordion {
+    .ecommerce .ibt-table-wrap .ibt-table-accordion {
         display: block;
     }
-    .ibt-table-wrap .ins-searchbar-container {
+    .ecommerce .ibt-table-wrap .ins-searchbar-container {
         width: 100%;
     }
 }
