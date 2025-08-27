@@ -80,9 +80,8 @@ metadata: {
   {% parse_json reorder_data %}
   {
       "id": "{{ selected_prop.id }}",
-      {% if is_variant == false %}
       "product_uuid": "{{ item.product_uuid }}",
-      {% else %}
+      {% if is_variant == true %}
       "variant_uuid": "{{ item.product_variant_uuid }}",
       {% endif %}
       "product_sku": "{{ item.sku }}",
