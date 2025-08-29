@@ -11,7 +11,7 @@ reply_to: >
 cc:
 bcc:
 subject: Thank you for your order
-layout: modules/insites_core/insites_internal_email_layout
+layout: modules/insites_core/insites_external_email_layout
 metadata: {
     "email_name": "order_success"
 }
@@ -26,13 +26,13 @@ metadata: {
 {% assign cart = data.cart %}
 {% assign guest_user = data.guest_user %}
 
-{% assign order_uuid = order.properties.uuid | default: '' %}
+{% assign order_uuid = order.uuid | default: '' %}
 {% assign order_id = order.id %}
-{% assign order_reference = order.properties.order_reference %}
+{% assign order_reference = order.order_reference %}
 {% assign order_number = order_id %}
 
 {%- capture cta_link -%}
-    {{ platform_context.host }}/confirmation?id={{ order_uuid }}
+    {{ platform_context.host }}/order-history/{{ order_id }}
 {%- endcapture -%}
 
 {% parse_json billing_data %}
