@@ -20,11 +20,10 @@ searchable: false
           assign status = 200
      endif
 -%}
-
 {% comment %} Add event {% endcomment %}
 {% parse_json event_data %}
 {
-  "font_icon_color": "#048801",
+  "font_icon_color": "#FA38A1",
   "log": {
     "data": {
       "created_at": "{{ add_contact.created_at }}",
@@ -36,13 +35,13 @@ searchable: false
     "contact_uuid": "{{ add_contact.uuid }}"
   },
   "datetime": "{{ 'now' | date: '%s' }}",
-  "font_icon": "icon-check-2",
+  "font_icon": "icon-settings-1",
   "module_feature": "crm_contact",
   "module_source": "insites_core",
   "administrator_uuid": "",
   "uuid": "{{ '' | uuid }}",
   "details": "",
-  "description": "New user <a target='_blank' href='/admin/insites/#/crm/contacts/{{add_contact.uuid}}'>{{add_contact.first_name}} {{add_contact.last_name}}</a> has been added via guest checkout."
+  "description": "<a target='_blank' href='/admin/insites/#/crm/contacts/{{add_contact.id}}'>{{add_contact.first_name}} {{add_contact.last_name}}</a> from <a target='_blank' href='/admin/insites/#/crm/companies/{{add_contact.company.uuid}}'>{{add_contact.company.company_name}}</a> was created"
 }
 {% endparse_json %}
 {%- graphql add_event = 'modules/website/trigger_api_call', 

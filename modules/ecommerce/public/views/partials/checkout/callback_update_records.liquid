@@ -51,6 +51,45 @@ metadata: {
 {% assign cart = context.exports.cart %}
 {% assign total_preorder_items = context.exports.total_preorder_items %}
 
+{% comment %} ? GET COMPANY FROM ORDER_CONTACT {% endcomment %}
+{% graphql company = 'modules/ecommerce/account/get_company', uuid: form.properties.order_company_uuid | dig: 'items', 'results' | first %}
+{% log form, type: "FORM ===" %}
+{% log company, type: "COMPANY ===" %}
+
+{% comment %} ? COMPARE CONTACT INFORMATION COMPANY AND SHIPPING/BILLING COMPANY {% endcomment %}
+{% comment %} Set shipping company details {% endcomment %}
+{% assign shipping_contact_uuid = "" %}
+{% assign shipping_company_uuid = "" %}
+{% assign shipping_company_name = form.properties.shipping_company_name %}
+{% assign shipping_company_email = "" %}
+{% assign shipping_company_phone_country_code = "" %}
+{% assign shipping_company_phone_number = "" %}
+
+{% if company.company_name == form.properties.shipping_company_name %}
+    {% assign shipping_contact_uuid = form.properties.order_contact_uuid %}
+    {% assign shipping_company_uuid = company.uuid %}
+    {% assign shipping_company_name = company.company_name %}
+    {% assign shipping_company_email = company.email_1 %}
+    {% assign shipping_company_phone_country_code = company.mobile_phone_country_code %}
+    {% assign shipping_company_phone_number = company.mobile_phone_number %}
+{% endif %}
+
+{% comment %} Set billing company details {% endcomment %}
+{% assign billing_contact_uuid = "" %}
+{% assign billing_company_uuid = "" %}
+{% assign billing_company_name = form.properties.billing_company_name %}
+{% assign billing_company_email = "" %}
+{% assign billing_company_phone_country_code = "" %}
+{% assign billing_company_phone_number = "" %}
+
+{% if company.company_name == form.properties.billing_company_name %}
+    {% assign billing_contact_uuid = form.properties.order_contact_uuid %}
+    {% assign billing_company_uuid = company.uuid %}
+    {% assign billing_company_name = company.company_name %}
+    {% assign billing_company_email = company.email_1 %}
+    {% assign billing_company_phone_country_code = company.mobile_phone_country_code %}
+    {% assign billing_company_phone_number = company.mobile_phone_number %}
+{% endif %}
 
 {%- comment -%} Update order status fields {%- endcomment -%}
 {%- parse_json order_update_data -%}
@@ -59,14 +98,31 @@ metadata: {
     "date_time": "{{ date_time }}",
     "order_payment_status": "{{ order_payment_status }}",
     "order_status": "{{ order_status }}",
-    "shipping_company_name": "{{ form.properties.shipping_company_name }}",
-    "billing_company_name": "{{ form.properties.billing_company_name }}"
+    "order_company_phone_country_code": "{{ company.mobile_phone_country_code }}", 
+    "order_company_phone_number": "{{ company.mobile_phone_number }}", 
+    "order_company_email": "{{ company.email_1 }}",
+    {% comment %} Shipping Details {% endcomment %}
+    "shipping_company.uuid": "{{ shipping_company_uuid }}",
+    "shipping_contact.uuid": "{{ shipping_contact_uuid }}",
+    "shipping_company_name": "{{ shipping_company_name }}",
+    "shipping_company_email": "{{ shipping_company_email }}",
+    "shipping_company_phone_country_code": "{{ shipping_company_phone_country_code }}",
+    "shipping_company_phone_number": "{{ shipping_company_phone_number }}",
+    {% comment %} Billing Details {% endcomment %}
+    "billing_company.uuid": "{{ billing_company_uuid }}",
+    "billing_contact.uuid": "{{ billing_contact_uuid }}",
+    "billing_company_name": "{{ billing_company_name }}",
+    "billing_company_email": "{{ billing_company_email }}",
+    "billing_company_phone_country_code": "{{ billing_company_phone_country_code }}",
+    "billing_company_phone_number": "{{ billing_company_phone_number }}"
 }
 {%- endparse_json -%}
+{% log order_update_data, type: "order_update_data" %}
 {%- graphql updated_order = 'modules/ecommerce/system/trigger_api_call', 
     name: "modules/portal/update_order", 
     data: order_update_data | dig: 'items','response','body' | parse_json -%}
 
+{% log updated_order, type: "updated_order" %}
 {% export updated_order %}
 
 
@@ -138,8 +194,8 @@ metadata: {
     {% assign order_event = true %}
 {% endif %}     
 
-
 {% comment %} Add Order Event {% endcomment %}
+{% graphql user_id = 'modules/ecommerce/account/get_user_id', email: updated_order.order_contact.email | dig: "items", "results" | first %}
 {% if order_event %} 
     {% parse_json order_event_data %}
     {
@@ -161,7 +217,7 @@ metadata: {
     "administrator_uuid": "",
     "uuid": "{{ '' | uuid }}",
     "details": "",
-    "description": "<a href='/admin/insites/#/crm/contacts/{{ updated_order.order_contact_uuid }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> from <a href='/admin/insites#/crm/companies/{{updated_order.order_company.uuid}}'>{{ updated_order.order_company_name }}</a> created order <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>."
+    "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id.id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> from <a href='/admin/insites#/crm/companies/{{updated_order.order_company.uuid}}'>{{ updated_order.order_company_name }}</a> created order <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>."
     }
     {% endparse_json %}
     {%- graphql add_event = 'modules/website/trigger_api_call', 
