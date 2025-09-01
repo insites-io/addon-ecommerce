@@ -2851,3 +2851,11 @@ ins-button.add-credit-card button.ins-button>div,
 .text-left {
     text-align: left!important;
 }
+
+@media screen and (min-width: 640px) and (max-width: 940px) {
+    .ibt-table-wrap .pagination-wrap {
+        flex-direction: column;
+        display: flex;
+        gap: 8px;
+    }
+}
