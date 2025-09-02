@@ -6,12 +6,12 @@ trigger_condition: true
 to: >
     {%- include 'modules/portal/emails/autoresponder_reply_to' -%}
 from: >
-    {%- include 'modules/insites_core/email_layout/workflow_from' -%}
+    {%- include 'modules/portal/emails/workflow_from' -%}
 reply_to: >
-    {%- include 'modules/insites_core/email_layout/workflow_from' -%}
+    {%- include 'modules/portal/emails/workflow_from' -%}
 cc: 
 bcc: 
-subject: New ecommerce order 
+subject: New ecommerce order
 layout: modules/insites_core/insites_internal_email_layout
 ---
 {% assign order_uuid = data.order_info.uuid | default: '' %}

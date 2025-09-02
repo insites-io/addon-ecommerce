@@ -49,10 +49,12 @@ metadata: {
                             <p class="font-cabin">{{ order.order_company_name }}</p>
                             <p class="font-cabin">{{ order.order_contact_first_name }} {{ order.order_contact_last_name }}</p>
                             <p class="font-cabin">{{ order.order_contact_email  }}</p>
-                            <p class="font-cabin">
+                            {% if order.order_contact_phone_number %}
+                                <p class="font-cabin">
                                 {% if order.order_contact_phone_country_code %}({{ order.order_contact_phone_country_code }}){% endif %} 
                                 {{ order.order_contact_phone_number }}
-                            </p>                            
+                            </p>   
+                            {% endif %}                          
                         </div>
 
                         <div class="spacer x-large"></div>
@@ -64,10 +66,12 @@ metadata: {
                             <p class="font-cabin">{{ order.shipping_company_name }}</p>
                             <p class="font-cabin">{{ order.shipping_contact_first_name }} {{ order.shipping_contact_last_name }}</p>
                             <p class="font-cabin">{{ order.shipping_contact_email  }}</p>
-                            <p class="font-cabin">
-                                {% if order.shipping_contact_phone_country_code %}({{ order.shipping_contact_phone_country_code }}){% endif %} 
-                                {{ order.shipping_contact_phone_number }}
-                            </p>
+                            {% if order.shipping_contact_phone_number %}
+                                <p class="font-cabin">
+                                    {% if order.shipping_contact_phone_country_code %}({{ order.shipping_contact_phone_country_code }}){% endif %} 
+                                    {{ order.shipping_contact_phone_number }}
+                                </p>
+                            {% endif %}
                             {%   liquid
                                 assign shipping_address = '' | split: ','
                                 assign shipping_address = shipping_address | array_add: order.shipping_address_1
@@ -109,10 +113,12 @@ metadata: {
                             <p class="font-cabin">{{ order.billing_company_name }}</p>
                             <p class="font-cabin">{{ order.billing_contact_first_name }} {{ order.billing_contact_last_name }}</p>
                             <p class="font-cabin">{{ order.billing_contact_email  }}</p>
-                            <p class="font-cabin">
-                                {% if order.billing_contact_phone_country_code %}({{ order.billing_contact_phone_country_code }}){% endif %} 
-                                {{ order.billing_contact_phone_number }}
-                            </p>
+                            {% if order.billing_contact_phone_number %}
+                                <p class="font-cabin">
+                                    {% if order.billing_contact_phone_country_code %}({{ order.billing_contact_phone_country_code }}){% endif %} 
+                                    {{ order.billing_contact_phone_number }}
+                                </p>
+                            {% endif %}
                             {%   liquid
                                 assign billing_address = '' | split: ','
                                 assign billing_address = billing_address | array_add: order.billing_address_1

@@ -176,12 +176,14 @@ metadata: {
             let formatDate = TableScript.methods.formatDate(toDateOnly, date_format);
             let dateOrdered = changeDateFormat(formatDate);
             let shipping_status = data.order_shipping_status || 'Processing';
-            if(shipping_status == 'not_applicable'){
-                shipping_status = 'Not Applicable';
-            }
-            if(shipping_status == 'picked_up'){
-                shipping_status = 'Picked up';
-            }
+            const statusMap = {
+                'not_applicable': 'Not Applicable',
+                'picked_up': 'Picked up',
+                'packed': 'Packed',
+                'in_transit': 'In Transit',
+                'delivered': 'Delivered'
+            };
+            shipping_status = statusMap[shipping_status] || shipping_status;
             let tmp_order_status = "";
              
             if(data.order_status.includes("_")){
