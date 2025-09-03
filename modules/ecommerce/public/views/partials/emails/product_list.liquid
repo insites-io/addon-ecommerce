@@ -73,13 +73,19 @@ metadata: {
     {% endcomment %}
     <div style="font-family: inherit; font-size: 16px; display: flex; padding: 8px 24px 8px 40px;">
         
-        <div style="width:50%; max-width: 238px; padding-right:24px; line-height: 0px;">
-            <img src="{{ product_image.url }}" alt="{{ product_image }}" style="width: 100%; height:auto;">
+        <div style="width:50%; max-width: 238px; padding-right:24px; line-height: 0px; max-width: 200px">
+            {% if product_image.url == nil or product_image.url == blank or product_image.url == 'null' %}
+               <img src="https://cdn.staging.oregon.platform-os.com/instances/12558/assets/modules/ecommerce/images/no-image-placeholder.png?updated=1756710517" alt="No image available" style="width: 100%; height:auto;">
+            {% else %}
+                <img src="{{ product_image.url }}" alt="{{ product_name }}" style="width: 100%; height:auto;">
+            {% endif %}
         </div>
 
         <div style="flex: 1;">
             <p style="font-weight: bold; color: #0d0d0d; margin-bottom: 5px;">{{ matched_product.product_name }}</p>
-            <p style="margin-bottom: 5px;">SKU {{ product_sku }}</p>
+            {% if product_sku != "invalid" %}
+                <p style="margin-bottom: 5px;">SKU {{ product_sku }}</p>
+            {% endif %}
 
             {% if options and options != '' %}
                 {% comment %}
