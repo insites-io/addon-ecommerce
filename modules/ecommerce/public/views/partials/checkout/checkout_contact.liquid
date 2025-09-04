@@ -15,7 +15,6 @@ metadata: {
     <div class="large-7 medium-12 small-12 cell">
         {%- if context.current_user -%}
             {% comment %} The user is logged in: Get user info {% endcomment %}
-            {% function user = 'modules/ecommerce/user/get_current_user' %}
             {% assign crm_contact = user.current_user.crm_contact[0] %}
             {% session company_uuid = crm_contact.crm_company.uuid %}        
 

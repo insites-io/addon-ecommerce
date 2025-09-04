@@ -4,7 +4,7 @@ metadata: {
 }
 ---
 {% graphql orders = "modules/ecommerce/orders/get_orders_to_receive", 
-    order_contact_uuid: context.session.user_uuid | dig: "items" %}
+    order_contact_uuid: context.current_user.external_id | dig: "items" %}
 
 <section>
     <h2>Overview</h2>
