@@ -26,13 +26,8 @@ metadata: {
 {% assign cart = data.cart %}
 {% assign guest_user = data.guest_user %}
 
-{% assign order_uuid = order.uuid | default: '' %}
-{% assign order_id = order.id %}
-{% assign order_reference = order.order_reference %}
-{% assign order_number = order_id %}
-
 {%- capture cta_link -%}
-    {{ platform_context.host }}/order-history/{{ order_id }}
+    {{ platform_context.host }}/order-history/{{ order.id }}
 {%- endcapture -%}
 
 {% parse_json billing_data %}
@@ -267,7 +262,7 @@ data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10
             height="100%" valign="top" bgcolor="" role="module-content">
             <div>
             <div style="font-family: inherit; text-align: left"><span
-                style="font-size: 24px; color: #0d0d0d"><strong>Order Number: {{ order_number }}</strong></span></div>
+                style="font-size: 24px; color: #0d0d0d"><strong>Order Number: {{ order.id }}</strong></span></div>
             <div></div>
             </div>
         </td>

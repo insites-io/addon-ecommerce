@@ -3,70 +3,46 @@ metadata: {
     partial_name: 'Ecommerce | Checkout | Callback Email Notification'
 }
 ---
-{%- assign status = status | downcase -%}
 
-{%- case status -%}
-  {%- when 'success' -%}
-    {%- assign email_name = "modules/ecommerce/order_success" -%}
-    {%- assign workflow_name = "modules/ecommerce/order_success_workflow" -%}
-  {%- when 'refund' -%}
-    {%- assign email_name = "modules/insites_ecommerce/insites_order_refunded" -%}
-    {%- assign workflow_name = "modules/insites_ecommerce/insites_order_refunded_workflow" -%}
-  {%- else -%}
-    {%- assign email_name = "modules/insites_ecommerce/insites_order_failed" -%}
-    {%- assign workflow_name = "modules/insites_ecommerce/insites_order_failed_workflow" -%}
-{%- endcase -%}
-
-{% comment %} Autoresponder / Email notification {% endcomment %}
-{% log email_name, type: "==== Trigger autoresponder notification: email_name ====" %}
-{%- graphql trigger = "modules/ecommerce/system/trigger_email_notification", 
-    name: email_name, 
-    data: data -%}
-
-{% comment %} Workflow notification {% endcomment %}
-{% log workflow_name, type: "==== Trigger workflow notification: workflow_name ====" %}
-{%- graphql trigger = "modules/ecommerce/system/trigger_email_notification", 
-    name: workflow_name, 
-    data: data -%}
-
-
-{%- comment %}
-    /**
-    * Trigger the pre-order success email notification.
-    * 
-    * This trigger is responsible for sending an email to the customer when:
-    * 1. The product(s) in their cart are out of stock (stock level < 1).
-    * 2. The order status is 'success', indicating the payment was successfully processed.
-    */
+{% comment %}  
+  Required params from parent:
+  - status
+  - total_preorder_items
+  - data
 {% endcomment %}
 
-{%- assign pre_order_products = '' | split: ',' -%}
-
-{%- for product in data.products -%}
-  {%- if product.stock_level < 1 -%}
-    {%- for cart_item in data.cart -%}
-      {%- if product.uuid == cart_item.product_uuid -%}
-        {%- assign product_with_quantity = product | add_hash_key: "quantity", cart_item.quantity -%}
-        {%- assign pre_order_products = pre_order_products | array_add: product_with_quantity -%}
-      {%- endif -%}
-    {%- endfor -%}
-  {%- endif -%}
-{%- endfor -%}
+{%- assign status = status | downcase -%}
 
 
-{%- if pre_order_products != '' and status == 'success' -%}
-  {%- for product in pre_order_products -%}
-    {% parse_json data %}
-    {
-        "product": {{ product }},
-        "customer_info": {{ data.customer_info  }}
-    }
-    {% endparse_json %}
+{% comment %} Autoresponder / Email notification {% endcomment %}
 
-    {%- graphql trigger = "modules/ecommerce/system/trigger_email_notification", 
+{% comment %}  
+  The cart can be composed of in-stock and pre-order items.
+  If the total items in the cart is greater than the total preorder items, then trigger order_success notification.
+{% endcomment %}
+{% if data.cart.size > total_preorder_items and status == 'success' %} 
+  {% log "==== Trigger autoresponder order_success notification ====" %}
+  {%- graphql trigger = "modules/ecommerce/system/trigger_email_notification", 
+      name: 'modules/ecommerce/order_success', 
+      data: data -%}
+{% endif %}
+
+{% comment %} 
+  Pre-order success email notification
+  If there is at least one pre-order item, then trigger pre_order_success notification.
+{% endcomment %}
+{%- if total_preorder_items > 0 and status == 'success' -%}
+  {% log "==== Trigger autoresponder pre_order_success notification ====" %}
+  {%- graphql trigger = "modules/ecommerce/system/trigger_email_notification", 
         name: "modules/ecommerce/pre_order_success", 
-        data: data -%} 
-
-    {% log "Pre-Order Checkout: Send autoresponder", type: "Pre-Order Checkout" %}
-  {%- endfor -%}
+        data: data -%}
 {%- endif -%}
+
+
+{% comment %} Workflow notification {% endcomment %}
+{% if status == 'success' %} 
+  {% log  "==== Trigger workflow notification ====" %}
+  {%- graphql trigger = "modules/ecommerce/system/trigger_email_notification", 
+      name: 'modules/ecommerce/order_success_workflow', 
+      data: data -%}
+{% endif %}

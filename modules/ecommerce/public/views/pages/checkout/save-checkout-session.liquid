@@ -146,7 +146,6 @@ searchable: false
     {% comment %} Update Sessions for Billing Details {% endcomment %}
     {% if context.params.type == 'billing' %}
         {%  liquid
-            log session_shipping, type: "SEssion op da Shipping"
 
             if context.params.billing_same_with_shipping == true or context.params.billing_same_with_shipping == 'true' 
                 assign data = session_shipping

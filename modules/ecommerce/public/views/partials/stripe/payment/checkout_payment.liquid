@@ -13,8 +13,7 @@ metadata: {
 
 {% comment %} Get Email {% endcomment %}
 {%- liquid
-    function has_profile = "modules/website/layout/check_if_user_has_profile" 
-    if has_profile
+    if context.current_user.email and context.current_user.email != ''
         assign customer_email = context.current_user.email
     else
         assign customer_email = context.session.contact_email
@@ -45,7 +44,7 @@ metadata: {
     {
         "sk_key": "{{ stripe_settings.sk_key }}",
         "stripe_account_id": "{{ stripe_settings.account_id }}",
-        "sk_key_insites": "{{ stripe_settings.sk_key }}",
+        "sk_key_insites": "{{ stripe_settings.sk_key_insites }}",
         "idempotency_key": "{{ '' | uuid }}",
         "currency": "{{ currency }}",
         "amount": "{{ stripe_amount | advanced_format: '%.0f' }}",

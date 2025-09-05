@@ -5,53 +5,56 @@ metadata: {
 ---
 {% log "================ START CALLBACK INIT: Processing checkout and payment ================" %}
 
-{%- comment -%}GET Cart data{%- endcomment -%}
-{% include 'modules/ecommerce/checkout/compute_order_summary' %}
-
 {% comment %} Manually set gateway and currency value for now {% endcomment %}
 {%- assign gateway = 'stripe' -%}
 {%- assign currency = 'AUD' -%}
 
 {%- if gateway == 'stripe' -%}
     
-    {%- comment -%}Step 1-A: Stripe payment process{%- endcomment -%}
+    {%- comment -%} 
+        Stripe payment process. 
+        Export: payment_response 
+    {%- endcomment -%}
     {%- include 'modules/ecommerce/stripe/payment/checkout_payment', form, currency -%}
-
     {% assign payment_response = context.exports.payment_response %}
 
 {%- else -%}
         {% comment %} If new / other payment gateways are supported, insert process here: {% endcomment %}
 {%- endif -%}
 
-    {%- comment -%}
-    Capture gateway reposnse and set status
-    {%- endcomment -%}
-    {%- assign status = payment_response.status | downcase -%}
-    {%- assign order_uuid = form.properties.uuid | downcase -%}
-    {%- if status == 'succeeded' -%}
-        {%- assign status = 'success' -%}
-        {%- assign order_payment_status = "Paid" -%}
-        {%- assign order_status = "Completed" -%}
-    {%- else -%}
-        {%- assign status = 'failed' -%}
-        {%- assign order_payment_status = "Failed" -%}
-        {%- assign order_status = "Open" -%}
-    {%- endif -%}
 
-{%- comment -%}
-Step 2: (optional) Create address models
-{%- endcomment -%}
+{%- comment -%} Capture gateway reposnse and set status {%- endcomment -%}
+{%- assign status = payment_response.status | downcase -%}
+{%- assign order_uuid = form.properties.uuid | downcase -%}
+{%- if status == 'succeeded' -%}
+    {%- assign status = 'success' -%}
+    {%- assign order_payment_status = "Paid" -%}
+    {%- assign order_status = "Completed" -%}
+{%- else -%}
+    {%- assign status = 'failed' -%}
+    {%- assign order_payment_status = "Failed" -%}
+    {%- assign order_status = "Open" -%}
+{%- endif -%}
+
+
 {%- if context.current_user.id -%}
     {% assign guest_user = false %}    
 {% else %}
     {% assign guest_user = true %}   
 {%- endif -%}
 
-{% assign products = context.exports.cart_items.products  %}
-{% assign cart = context.exports.cart_items.carts  %}
 
 {%- comment -%}
-Step 3: Update inventory, cart and order models.
+    - Create payment record
+    - Create Order Items
+    - Update Order record
+    - Create Discount records
+    - Update Discount usage_count
+    - Delete Cart and Cart Items
+    - Update Product stock_level
+    - Add Order Event
+    - Add Pre-order Event
+    - Export: updated_order, total_preorder_items
 {%- endcomment -%}
 {% include 'modules/ecommerce/checkout/callback_update_records'
     payment_response: payment_response,
@@ -61,12 +64,17 @@ Step 3: Update inventory, cart and order models.
     order_uuid: order_uuid,
     form: form,
     gateway: gateway,
-    currency: currency
-    %}
+    currency: currency %}
 
-{%- comment -%}
-Step 4: Trigger autoresponder, workflow email & API 
-{%- endcomment -%}
+{% assign total_preorder_items = context.exports.total_preorder_items %}
+
+
+
+{%- comment -%} Autoresponder & Workflow Email Notification {%- endcomment -%}
+
+{% assign products = context.exports.cart_items.products  %}
+{% assign cart = context.exports.cart_items.carts  %}
+
 {% parse_json customer_info %}
 {
     "email": "{{ form.properties.billing_contact_email }}",
@@ -79,18 +87,15 @@ Step 4: Trigger autoresponder, workflow email & API
 {
     "payment_response": {{ payment_response | default: '[]' }},
     "customer_info": {{ context.current_user | default: customer_info }},
-    "cart_ids": {{ context.exports.order.cart_ids | default: 0 }},
     "cart": {{ cart | default: '[]' }},
     "products": {{ products | default: '[]' }},
     "order_info": {{ context.exports.updated_order | default: '[]' }},
-    "total_discounted_amount": {{ context.exports.order.total_discount_amount | default: 0 }}, 
     "form": {{ form | default: '' }},
     "guest_user": {{ guest_user | default: false }}
-
 }
 {% endparse_json %}
 
-{%- comment -%}Step 4.1 Workflow & Email Notification{%- endcomment -%}
 {% include 'modules/ecommerce/checkout/callback_email_notifications', 
     status: status,
+    total_preorder_items: total_preorder_items,
     data: data %}

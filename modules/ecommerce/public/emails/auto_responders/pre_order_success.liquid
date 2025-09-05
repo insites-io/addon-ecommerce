@@ -109,25 +109,8 @@ data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10
 <hr style="margin-left: 40px;margin-right: 40px;border-top: 1px solid #DFDFDF;">
 {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
 
-{% parse_json cart %}
-[
-    {
-        "product_uuid": "{{ product.uuid }}",
-        "quantity": "{{ product.quantity }}",
-        "product_sku": "{{ product.product_sku }}"
-    }
-]
-
-{% endparse_json %}
-
-{% parse_json products %}
-[
-    {{ product }}
-]
-{% endparse_json %}
-
 {% comment %} <!-- Product List --> {% endcomment %}
-{% include 'modules/ecommerce/emails/product_list', products: products, cart: cart %}
+{% include 'modules/ecommerce/emails/product_list', products: data.products, cart: data.cart, preorder: true %}
 
 {% comment %} <!-- Spacer --> {% endcomment %}
 {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 40 %}

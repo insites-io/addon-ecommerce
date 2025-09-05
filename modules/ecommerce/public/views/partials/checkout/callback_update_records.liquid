@@ -46,15 +46,18 @@ metadata: {
 {% assign payment_data = payment_data | add_hash_key: "computed", temp_computed %}
 {%- graphql add_payment = 'modules/ecommerce/system/trigger_api_call', name: "modules/portal/add_payment", data: payment_data | dig: 'items','response','body' | parse_json -%}   
 
-{% comment %} Create Order Items {% endcomment %}
+{% comment %} 
+    Create Order Items 
+    Export: cart, total_preorder_items
+{% endcomment %}
 {%- include 'modules/ecommerce/order_items/create_order_items', order_uuid -%}
 {% assign cart = context.exports.cart %}
 {% assign total_preorder_items = context.exports.total_preorder_items %}
+{% comment %} Export total_preorder_items again so it can be accessed in the callback_email_notifications {% endcomment %}
+{% export total_preorder_items %}
 
 {% comment %} ? GET COMPANY FROM ORDER_CONTACT {% endcomment %}
 {% graphql company = 'modules/ecommerce/account/get_company', uuid: form.properties.order_company_uuid | dig: 'items', 'results' | first %}
-{% log form, type: "FORM ===" %}
-{% log company, type: "COMPANY ===" %}
 
 {% comment %} ? COMPARE CONTACT INFORMATION COMPANY AND SHIPPING/BILLING COMPANY {% endcomment %}
 {% comment %} Set shipping company details {% endcomment %}
@@ -117,12 +120,10 @@ metadata: {
     "billing_company_phone_number": "{{ billing_company_phone_number }}"
 }
 {%- endparse_json -%}
-{% log order_update_data, type: "order_update_data" %}
 {%- graphql updated_order = 'modules/ecommerce/system/trigger_api_call', 
     name: "modules/portal/update_order", 
     data: order_update_data | dig: 'items','response','body' | parse_json -%}
 
-{% log updated_order, type: "updated_order" %}
 {% export updated_order %}
 
 

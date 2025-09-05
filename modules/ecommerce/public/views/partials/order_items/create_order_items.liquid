@@ -22,21 +22,16 @@ metadata: {
 
 {% comment %} Create data for order_items  {% endcomment %}
 {%  liquid   
-    comment
-    assign order_items = '' | split: ','
-    endcomment
+
     assign order_items = '[]' | parse_json
+
+    ## This variable is use in creating preorder events and preorder email notification
     assign total_preorder_items = 0
 
     for cart_item in cart_items
 
         assign product = products | array_detect: uuid: cart_item.product_uuid
-        assign product_name = product.product_name
-
-        ## This variable is use in creating preorder events
-        if product.stock_level < 1
-            assign total_preorder_items = total_preorder_items | plus: 1
-        endif
+        assign product_name = product.product_name                
 
         ## Check if the cart_item is a product or a variant of the product
         if cart_item.variant_uuid == '' or cart_item.variant_uuid == null
@@ -51,6 +46,12 @@ metadata: {
             endfor
         endif            
 
+        ## Stock level / Pre-order items
+        if selected_prop.stock_level < 1
+            assign total_preorder_items = total_preorder_items | plus: 1
+        endif
+
+        ## Price
         if selected_prop.is_on_sale == true 
             assign price = selected_prop.sale_price
         else 
@@ -86,9 +87,6 @@ metadata: {
         assign line_item_total = price | times: cart_item.quantity | times: 1.00
         assign properties = properties | add_hash_key: 'line_item_total', line_item_total
 
-        comment
-        assign order_items = order_items | array_add: properties
-        endcomment
         assign order_items = order_items | array_add: properties
     endfor
 

@@ -172,17 +172,10 @@ default_payload: >
 callback_actions: >
     {%- comment -%}
     These actions are made intentionally on `callback_actions` and not on `async_callback_action` bec.
-    confirmation page needs to be able to see the 'payment details' & cart summary. 
-     
-    START: Checkout callback process
-        - API call to Stripe (Payment)
-        - Create / Update records
-        - Trigger Email & API callback via GraphQL    
+    confirmation page needs to be able to see the 'payment details' & cart summary.   
     {%- endcomment -%}
-    
-    {%- include 'modules/ecommerce/checkout/callback_init', 
-        form: form
-        context: context -%}
+
+    {%- include 'modules/ecommerce/checkout/callback_init', form: form -%}
     {%- comment -%}END: Checkout callback process{%- endcomment -%}
 
     {%- session latest_step = 5 -%}
