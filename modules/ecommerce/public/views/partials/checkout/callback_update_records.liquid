@@ -217,8 +217,12 @@ metadata: {
     "module_source": "insites_ecommerce",
     "administrator_uuid": "",
     "uuid": "{{ '' | uuid }}",
-    "details": "",
-    "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id.id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> from <a href='/admin/insites#/crm/companies/{{updated_order.order_company.uuid}}'>{{ updated_order.order_company_name }}</a> created order <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>."
+    {% if updated_order.order_company.uuid and updated_order.order_company.uuid != '' and updated_order.order_company_name and updated_order.order_company_name != '' %}
+        "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id.id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> from <a href='/admin/insites#/crm/companies/{{updated_order.order_company.uuid}}'>{{ updated_order.order_company_name }}</a> created order <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
+    {% else %}
+        "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id.id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> created order <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
+    {% endif %}
+    "details": ""
     }
     {% endparse_json %}
     {%- graphql add_event = 'modules/website/trigger_api_call', 
@@ -247,8 +251,12 @@ metadata: {
     "module_source": "insites_ecommerce",
     "administrator_uuid": "",
     "uuid": "{{ '' | uuid }}",
-    "details": "",
-    "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id.id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> from <a href='/admin/insites#/crm/companies/{{updated_order.order_company.uuid}}'>{{ updated_order.order_company_name }}</a> created a pre-order for <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>."
+    {% if updated_order.order_company.uuid and updated_order.order_company.uuid != '' and updated_order.order_company_name and updated_order.order_company_name != '' %}
+        "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id.id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> from <a href='/admin/insites#/crm/companies/{{updated_order.order_company.uuid}}'>{{ updated_order.order_company_name }}</a> created a pre-order for <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
+    {% else %}
+        "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id.id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> created a pre-order for <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
+    {% endif %}
+    "details": ""
     }
     {% endparse_json %}
     {%- graphql add_event = 'modules/website/trigger_api_call', 
