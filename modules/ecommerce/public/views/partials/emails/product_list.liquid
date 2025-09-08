@@ -41,14 +41,10 @@ metadata: {
     %}
 
 
-    {% comment %} Skip items depending on the preorder flag {% endcomment %}
+    {% comment %} Skip in-stock items if pre-order email {% endcomment %}
     {% liquid
         if preorder == true 
             if selected_prop.stock_level > 0 
-                continue
-            endif
-        else
-            if selected_prop.stock_level < 1 or selected_prop.stock_level == nil
                 continue
             endif
         endif        
