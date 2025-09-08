@@ -178,6 +178,7 @@ callback_actions: >
     {%- include 'modules/ecommerce/checkout/callback_init', form: form -%}
     {%- comment -%}END: Checkout callback process{%- endcomment -%}
 
+    {%- session order_id = form.id -%}
     {%- session latest_step = 5 -%}
 ---    
 
