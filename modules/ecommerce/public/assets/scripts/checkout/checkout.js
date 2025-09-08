@@ -316,6 +316,8 @@ let Checkout = (function () {
                         if(companies?.data.uuid){
                             contactPayload['company.uuid'] = companies?.data.uuid;
                         }
+
+                        contactPayload.uuid = emailStatus.user_uuid;
                         var contacts = await apiServices.processRequest('put','/update-contact.json',contactPayload);
 
                         // Submit
