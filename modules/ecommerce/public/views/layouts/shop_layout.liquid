@@ -110,7 +110,7 @@ metadata: {
 
                         {%- if product.category.slug -%}
                             <i class="icon-chevron-right"></i>
-                            <a href="/products/{{ product.category.slug }}">{{ product.category.category_name }}</a>
+                            <a href="/products/{{ product.category.parent_category.slug }}?category={{ product.category.slug }}">{{ product.category.category_name }}</a>
                         {%- endif -%}
 
                         <i class="icon-chevron-right"></i>
