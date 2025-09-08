@@ -31,12 +31,12 @@ metadata: {
         {%- if context.params.slug2 -%}
             {%- assign slug_type = 'category' -%}
             {% comment %} Check if slug2 is a category {% endcomment %}
-            {%- graphql category_exist = 'modules/ecommerce/categories/is_category_exist', slug: context.params.slug2 | dig: 'items','total_entries' -%}    
-            {%- if category_exist < 1 -%}
+            {%- graphql categories = 'modules/ecommerce/categories/is_category_exist', slug: context.params.slug2 | dig: 'items','results' -%}    
+            {%- if categories.size < 1 -%}
                 {%- assign slug_type = 'product' -%}
                 {% comment %} Check if slug2 is a product {% endcomment %}
-                {%- graphql product_exist = 'modules/ecommerce/products/is_product_exist', slug: context.params.slug2 | dig: 'items','total_entries' -%}
-                {%- if product_exist == 0 -%}
+                {%- graphql products = 'modules/ecommerce/products/is_product_exist', slug: context.params.slug2 | dig: 'items','results' -%}
+                {%- if products.size == 0 -%}
                     {% redirect_to '/404' %}
                 {%- endif -%}    
             {%- endif -%}
@@ -71,11 +71,8 @@ metadata: {
 
         {%- if context.params.slug2 -%}
 
-            {%- graphql category = 'modules/ecommerce/categories/is_category_exist', slug: context.params.slug2 | dig: 'items','results' | first -%}    
-            
-            {%- unless category.id -%}
-            {%- graphql product = 'modules/ecommerce/products/is_product_exist', slug: context.params.slug2 | dig: 'items','results' | first -%}       
-            {%- endunless -%}
+            {% assign category = categories.first %}
+            {% assign product = products.first %}            
 
             <div class="breadbrumbs__wrapper">
                 <div class="breadcrumbs grid-x">

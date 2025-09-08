@@ -28,12 +28,12 @@ URL Structures:
 {%- if context.params.slug2 -%}
     {%- assign slug_type = 'category' -%}
     {% comment %} Check if slug2 is a category {% endcomment %}
-    {%- graphql category_exist = 'modules/ecommerce/categories/is_category_exist', slug: context.params.slug2 | dig: 'items','total_entries' -%}    
-    {%- if category_exist < 1 -%}
+    {%- graphql categories = 'modules/ecommerce/categories/is_category_exist', slug: context.params.slug2 | dig: 'items','results' -%}    
+    {%- if categories.size < 1 -%}
         {%- assign slug_type = 'product' -%}
         {% comment %} Check if slug2 is a product {% endcomment %}
-        {%- graphql product_exist = 'modules/ecommerce/products/is_product_exist', slug: context.params.slug2 | dig: 'items','total_entries' -%}
-        {%- if product_exist == 0 -%}
+        {%- graphql products = 'modules/ecommerce/products/get_product', slug: context.params.slug2 | dig: 'items','results' -%}
+        {%- if products.size == 0 -%}
             {% redirect_to '/404' %}
         {%- endif -%}    
     {%- endif -%}
@@ -51,13 +51,15 @@ URL Structures:
     }
     {% endparse_json %}
 
-    {% graphql all_categories = 'modules/ecommerce/categories/get_categories' sort_by: sort_by | dig: 'items','results'  %}
+    {% if slug_type == 'category' %}
+        {% graphql all_categories = 'modules/ecommerce/categories/get_categories' sort_by: sort_by | dig: 'items','results'  %}
+    {% endif %}
 
     {% assign is_product_detail = false %}
     {%- if context.params.slug2 -%}
         {%- if slug_type == 'product' -%}
             {% assign is_product_detail = true %}
-            {%- include 'modules/ecommerce/products/detail' -%}
+            {%- include 'modules/ecommerce/products/detail', product: products[0] -%}
         {%- else -%}        
             <div class="spacer small"></div>
             {%- include 'modules/ecommerce/products/list', all_categories -%}
