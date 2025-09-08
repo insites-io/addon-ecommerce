@@ -34,9 +34,12 @@
   - Close the cart drawer when in /shopping-cart or /products page, else go to /products page
 - Shopping Cart
   - Show variant (if there is) in list
+  - The guest cart will be carried over to their account when they log in.
 - Discounts
   - Consider discount.minimum_cart_value in the validation
   - Validate the discount code twice: first when adding it in /shopping-cart, and second on the /checkout-payment page.
+- Taxes
+  - variant has is now having its own settings for computing taxes, previously it is dependent to main product settings
 - Checkout
   - Contact
     - Add 'Contact information' form steps for guest user

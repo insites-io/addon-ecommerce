@@ -51,5 +51,11 @@ Please ensure this application is installed from the Insites Marketplace.
 --- is_featured
 
 
+## Constants
+- ecommerce_addon = true
+- insites_stripe_sk_live_key
+- insites_stripe_sk_test_key
+
+
 ## Documentation
 [Click Here](https://docs.google.com/document/d/1PwxzrroQ2Bdqj0nAkevEGdX-gxmB6-kWw_WbUpmFJgE/edit?usp=sharing)
