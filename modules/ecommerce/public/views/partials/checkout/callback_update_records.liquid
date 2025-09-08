@@ -17,11 +17,11 @@ metadata: {
 }
 {%- endparse_json -%}
 
-{% parse_json temp_computed %}
+{% comment %} {% parse_json temp_computed %}
 {
     "total_amount": {{ amount }}
 }
-{% endparse_json %}
+{% endparse_json %} {% endcomment %}
 {%- comment -%} Create payment data {%- endcomment -%}
 {% parse_json payment_data %}
 {
@@ -43,7 +43,7 @@ metadata: {
 }
 {% endparse_json %}
 {% assign payment_data = payment_data | add_hash_key: "payment_gateway_details", payment_gateway_details %}
-{% assign payment_data = payment_data | add_hash_key: "computed", temp_computed %}
+{% comment %} {% assign payment_data = payment_data | add_hash_key: "computed", temp_computed %} {% endcomment %}
 {%- graphql add_payment = 'modules/ecommerce/system/trigger_api_call', name: "modules/portal/add_payment", data: payment_data | dig: 'items','response','body' | parse_json -%}   
 
 {% comment %} 
@@ -128,46 +128,47 @@ metadata: {
 
 
 {% comment %} Discount code {% endcomment %}
-{% if cart.discount_code_uuids.size > 0 %}
+{% if status == 'success' %}
+    {% if cart.discount_code_uuids.size > 0 %}
 
-    {% comment %} Add Order Discounts {% endcomment %}
-    {% for discount in cart.discounts %}
-        {% parse_json order_discount_data %}
-        {
-            "order.uuid" : "{{ order_uuid }}",
-            "discount.uuid" : "{{ discount.uuid }}",
-            "discount_name" : "{{ discount.discount_name }}",
-            "discount_type" : "{{ discount.discount_type }}",
-            "discount_value" : {{ discount.discount_value | default: 0.00 }},
-            "discount_code" : "{{ discount.discount_code }}"
-        }
-        {% endparse_json %}
-        {%- graphql add_order_discount = 'modules/ecommerce/system/trigger_api_call', 
-            name: "modules/ecommerce/add_order_discount", data: order_discount_data 
-            | dig: 'items','response','body' | parse_json -%}
-    {% endfor %}
+        {% comment %} Add Order Discounts {% endcomment %}
+        {% for discount in cart.discounts %}
+            {% parse_json order_discount_data %}
+            {
+                "order.uuid" : "{{ order_uuid }}",
+                "discount.uuid" : "{{ discount.uuid }}",
+                "discount_name" : "{{ discount.discount_name }}",
+                "discount_type" : "{{ discount.discount_type }}",
+                "discount_value" : {{ discount.discount_value | default: 0.00 }},
+                "discount_code" : "{{ discount.discount_code }}"
+            }
+            {% endparse_json %}
+            {%- graphql add_order_discount = 'modules/ecommerce/system/trigger_api_call', 
+                name: "modules/ecommerce/add_order_discount", data: order_discount_data 
+                | dig: 'items','response','body' | parse_json -%}
+        {% endfor %}
 
 
-    {% comment %} Increment Discount usage_count {% endcomment %}
-    {% assign discount_ids = cart.discounts | map: 'id' %}
-    {% graphql increment_discount_usage_count = "modules/ecommerce/discount/increment_discount_usage_count", ids: discount_ids %}
+        {% comment %} Increment Discount usage_count {% endcomment %}
+        {% assign discount_ids = cart.discounts | map: 'id' %}
+        {% graphql increment_discount_usage_count = "modules/ecommerce/discount/increment_discount_usage_count", ids: discount_ids %}
 
+    {% endif %}
 {% endif %}
 
 
-{%- comment -%} Delete the user cart if the status is not 'failed'. {%- endcomment -%}
-{% assign tmp_order_payment_status = order_payment_status | downcase %}
-{% unless tmp_order_payment_status contains 'failed' %}
+{%- comment -%} Delete the user cart and cart items if the status is 'success'. {%- endcomment -%}
+{% if status == 'success' %}
     {% if cart.id %}
         {% comment %} Delete Cart and Cart Items {% endcomment %}
         {%- graphql delete_cart = 'modules/ecommerce/carts/delete_cart', id: cart.id -%}
         {%- graphql delete_cart_items = 'modules/ecommerce/cart_items/delete_cart_items', cart_uuid: cart.uuid | dig: 'records_delete_all' -%}
     {% endif %}
-{% endunless %}
+{% endif %}
 
 
 {%- comment -%} Inventory: Decrement Product or Variant stock_level {%- endcomment -%}
-{%- if status == 'success' -%}
+{% if status == 'success' %}
     {% for cart_item in cart.cart_items  %}
         {% if cart_item.variant_uuid == '' or cart_item.variant_uuid == null %}
             {% graphql decrement_stock_level = "modules/ecommerce/products/decrement_stock_level", 
@@ -181,85 +182,97 @@ metadata: {
                 table: 'modules/insites_ecommerce/product_variant' %}      
         {% endif %}
     {% endfor %}
-{%- endif -%}
-
-
-{% if cart.cart_items.size == total_preorder_items %}
-    {% comment %} All items are pre-order {% endcomment %}
-    {% assign order_event = false %}
-{% elsif total_preorder_items == 0 %}
-    {% comment %} No pre-order items {% endcomment %}
-    {% assign order_event = true %}
-{% else %}
-    {% comment %} Some items are pre-order {% endcomment %}
-    {% assign order_event = true %}
-{% endif %}     
-
-{% comment %} Add Order Event {% endcomment %}
-{% graphql user_id = 'modules/ecommerce/account/get_user_id', email: updated_order.order_contact.email | dig: "items", "results" | first %}
-{% if order_event %} 
-    {% parse_json order_event_data %}
-    {
-    "font_icon_color": "#6B45FF",
-    "log": {
-        "data": {
-        "created_at": "{{ updated_order.created_at }}",
-        "id": "{{ updated_order.id }}",
-        "updated_at": "{{ updated_order.updated_at }}",
-        "properties": {{ updated_order |  default: '[]'}}
-        },
-        "action": "add",
-        "order_uuid": "{{ updated_order.uuid }}"
-    },
-    "datetime": "{{ 'now' | date: '%s' }}",
-    "font_icon": "icon-settings-1",
-    "module_feature": "orders",
-    "module_source": "insites_ecommerce",
-    "administrator_uuid": "",
-    "uuid": "{{ '' | uuid }}",
-    {% if updated_order.order_company.uuid and updated_order.order_company.uuid != '' and updated_order.order_company_name and updated_order.order_company_name != '' %}
-        "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id.id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> from <a href='/admin/insites#/crm/companies/{{updated_order.order_company.uuid}}'>{{ updated_order.order_company_name }}</a> created order <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
-    {% else %}
-        "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id.id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> created order <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
-    {% endif %}
-    "details": ""
-    }
-    {% endparse_json %}
-    {%- graphql add_event = 'modules/website/trigger_api_call', 
-        name: "modules/portal/add_events", data: order_event_data 
-        | dig: 'items','response','body' | parse_json -%}
 {% endif %}
 
-{% comment %} Add Pre-order Event {% endcomment %}
-{% if total_preorder_items > 0 %} 
-    {% parse_json preorder_event_data %}
-    {
-    "font_icon_color": "#6B45FF",
-    "log": {
-        "data": {
-        "created_at": "{{ updated_order.created_at }}",
-        "id": "{{ updated_order.id }}",
-        "updated_at": "{{ updated_order.updated_at }}",
-        "properties": {{ updated_order |  default: '[]'}}
-        },
-        "action": "add",
-        "order_uuid": "{{ updated_order.uuid }}"
-    },
-    "datetime": "{{ 'now' | date: '%s' }}",
-    "font_icon": "icon-settings-1",
-    "module_feature": "orders",
-    "module_source": "insites_ecommerce",
-    "administrator_uuid": "",
-    "uuid": "{{ '' | uuid }}",
-    {% if updated_order.order_company.uuid and updated_order.order_company.uuid != '' and updated_order.order_company_name and updated_order.order_company_name != '' %}
-        "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id.id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> from <a href='/admin/insites#/crm/companies/{{updated_order.order_company.uuid}}'>{{ updated_order.order_company_name }}</a> created a pre-order for <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
+
+{% comment %} Event Stream {% endcomment %}
+{% if status == 'success' %}
+
+    {% comment %} Check if need to create order event {% endcomment %}
+    {% if cart.cart_items.size == total_preorder_items %}
+        {% comment %} All items are pre-order {% endcomment %}
+        {% assign order_event = false %}
+    {% elsif total_preorder_items == 0 %}
+        {% comment %} No pre-order items {% endcomment %}
+        {% assign order_event = true %}
     {% else %}
-        "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id.id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> created a pre-order for <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
+        {% comment %} Some items are pre-order {% endcomment %}
+        {% assign order_event = true %}
+    {% endif %}     
+
+    {% comment %} Get user_id {% endcomment %}    
+    {% if context.current_user.id %}
+        {% assign user_id = context.current_user.id %}
+    {% else %}
+        {% assign user_id = context.session.guest_id %}
     {% endif %}
-    "details": ""
-    }
-    {% endparse_json %}
-    {%- graphql add_event = 'modules/website/trigger_api_call', 
-        name: "modules/portal/add_events", data: preorder_event_data 
-        | dig: 'items','response','body' | parse_json -%}
+
+    {% comment %} Add Order Event {% endcomment %}
+    {% if order_event %} 
+        {% parse_json order_event_data %}
+        {
+        "font_icon_color": "#6B45FF",
+        "log": {
+            "data": {
+            "created_at": "{{ updated_order.created_at }}",
+            "id": "{{ updated_order.id }}",
+            "updated_at": "{{ updated_order.updated_at }}",
+            "properties": {{ updated_order |  default: '[]'}}
+            },
+            "action": "add",
+            "order_uuid": "{{ updated_order.uuid }}"
+        },
+        "datetime": "{{ 'now' | date: '%s' }}",
+        "font_icon": "icon-settings-1",
+        "module_feature": "orders",
+        "module_source": "insites_ecommerce",
+        "administrator_uuid": "",
+        "uuid": "{{ '' | uuid }}",
+        {% if updated_order.order_company.uuid and updated_order.order_company.uuid != '' and updated_order.order_company_name and updated_order.order_company_name != '' %}
+            "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> from <a href='/admin/insites#/crm/companies/{{updated_order.order_company.uuid}}'>{{ updated_order.order_company_name }}</a> created order <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
+        {% else %}
+            "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> created order <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
+        {% endif %}
+        "details": ""
+        }
+        {% endparse_json %}
+        {%- graphql add_event = 'modules/website/trigger_api_call', 
+            name: "modules/portal/add_events", data: order_event_data 
+            | dig: 'items','response','body' | parse_json -%}
+    {% endif %}
+
+    {% comment %} Add Pre-order Event {% endcomment %}
+    {% if total_preorder_items > 0 %} 
+        {% parse_json preorder_event_data %}
+        {
+        "font_icon_color": "#6B45FF",
+        "log": {
+            "data": {
+            "created_at": "{{ updated_order.created_at }}",
+            "id": "{{ updated_order.id }}",
+            "updated_at": "{{ updated_order.updated_at }}",
+            "properties": {{ updated_order |  default: '[]'}}
+            },
+            "action": "add",
+            "order_uuid": "{{ updated_order.uuid }}"
+        },
+        "datetime": "{{ 'now' | date: '%s' }}",
+        "font_icon": "icon-settings-1",
+        "module_feature": "orders",
+        "module_source": "insites_ecommerce",
+        "administrator_uuid": "",
+        "uuid": "{{ '' | uuid }}",
+        {% if updated_order.order_company.uuid and updated_order.order_company.uuid != '' and updated_order.order_company_name and updated_order.order_company_name != '' %}
+            "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> from <a href='/admin/insites#/crm/companies/{{updated_order.order_company.uuid}}'>{{ updated_order.order_company_name }}</a> created a pre-order for <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
+        {% else %}
+            "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> created a pre-order for <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
+        {% endif %}
+        "details": ""
+        }
+        {% endparse_json %}
+        {%- graphql add_event = 'modules/website/trigger_api_call', 
+            name: "modules/portal/add_events", data: preorder_event_data 
+            | dig: 'items','response','body' | parse_json -%}
+    {% endif %}
+
 {% endif %}
