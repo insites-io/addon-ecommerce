@@ -6,8 +6,7 @@ query check_user_email($email:String!){
       deleted_at: { exists:false }
       email: { value: $email }
     }
-  ){
-    total_entries
+  ){    
     results{
       id
       external_id

@@ -25,33 +25,6 @@ metadata: {
                 contact_phone_number: crm_contact.mobile_phone_number,
                 contact_phone_country_code: crm_contact.mobile_phone_country_code %}
 
-        {%- elsif context.session.contact_email -%}    
-            {% comment %}  
-                Guest user
-                - The guest has already submitted their Contact Information on the /checkout page.  
-                    Therefore, a record now exists in CRM (contact and company), and context.session.contact_email is set.  
-                - After submitting the /checkout page, the guest is redirected to the next step: /checkout/shipping.  
-                - At any checkout step, if the guest returns to the /checkout page (Contact Information),  
-                    they will fall under this condition: "elsif context.session.contact_email"
-            {% endcomment %}
-            {%  liquid    
-                ## Use sessions if exists, else save to sessions 
-                ## This is to avoid multiple calls to the database.            
-                if context.session.guest_id and context.session.guest_id != ''
-                    assign guest_id = context.session.guest_id
-                else
-                    graphql guest = "modules/ecommerce/account/check_user_email", email: context.session.contact_email | dig: 'items','results' | first
-                    assign guest_id = guest.id
-                    session guest_id = guest_id
-                    session guest_uuid = guest.external_id
-                endif
-            %}
-            {% comment %} Edit guest CRM contact & company {% endcomment %}
-            {% include_form 'modules/ecommerce/checkout_user_update', 
-                id: guest_id, 
-                company_name: context.session.contact_company_name,
-                contact_phone_number: context.session.contact_phone_number,
-                contact_phone_country_code: context.session.contact_phone_country_code %}
         {%- else -%}
             {% include 'modules/ecommerce/checkout/checkout_user_create', company_name: context.session.contact_company_name %}
         {%- endif -%}

@@ -91,7 +91,11 @@ searchable: false
 
 
 {%  liquid    
-    ## guest_uuid
+    ## Guest id & uuid    
+    if context.params.guest_id
+        session guest_id = context.params.guest_id
+    endif 
+
     if context.params.guest_uuid
         session guest_uuid = context.params.guest_uuid
     endif 

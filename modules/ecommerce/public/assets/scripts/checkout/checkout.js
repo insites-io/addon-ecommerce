@@ -17,6 +17,7 @@ const billingPhone = {
 
 
 // Order contact
+let guest_id = '';
 let guest_uuid = '';
 const contactCompanyNameEl = document.getElementById('contact-company-name');
 const contactFirstNameEl = document.getElementById('contact-first-name');
@@ -106,7 +107,7 @@ let Checkout = (function () {
                 }
             },
             checkUserEmail(emailElem, data){
-                if(data.items.total_entries > 0){
+                if(data.items.results.length > 0){
                     // If the existing email has a 'guest' note, allow it to update the data
                     if(data.items.results[0]?.profiles[0]?.properties.notes == 'guest'){
                         emailElem.hasError = false;
@@ -322,6 +323,7 @@ let Checkout = (function () {
 
                         // Submit
                         if(contacts?.data?.email){
+                            guest_id = contacts?.data?.id;
                             guest_uuid = contacts?.data?.uuid;
                             if(Checkout.events.saveSessionApi('virtual-contact')){
                                 //Add delay to allow the session to be saved
@@ -347,6 +349,7 @@ let Checkout = (function () {
 
                         // Submit
                         if(contacts?.data?.email){
+                            guest_id = contacts?.data?.id;
                             guest_uuid = contacts?.data?.uuid;
                             if(Checkout.events.saveSessionApi('virtual-contact')){
                                 //Add delay to allow the session to be saved
@@ -427,7 +430,7 @@ let Checkout = (function () {
                         contact_phone_number: contactPhone.phone.value,
                         contact_phone_country_code: contactPhone.countryCode.value,
                         latest_step: 2,
-                        ...(page === 'virtual-contact' && { guest_uuid: guest_uuid })
+                        ...(page === 'virtual-contact' && { guest_uuid: guest_uuid, guest_id: guest_id })
                     };
                 } else if (page == 'shipping') {
                     payload = {
@@ -710,7 +713,7 @@ let Checkout = (function () {
             }, 
             initPaymentPage(){
                 // For the page /checkout/payment: Show notice if the discount code becomes invalid
-                if( total_discount_item_deleted > 0 ) {
+                if (typeof total_discount_item_deleted !== "undefined" && total_discount_item_deleted > 0) {
                     App.events.notyf("error", "Discount code is not found or has been deleted.");
                 }   
             }
