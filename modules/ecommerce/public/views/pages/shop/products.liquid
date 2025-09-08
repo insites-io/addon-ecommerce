@@ -17,8 +17,12 @@ metadata: {
 ---
 {% comment -%} 
 URL Structures: 
-    /products/living-room
-    /products/living-room/cabinet
+    - Products List: /products
+    - Products Detail: /products/{product-slug}
+    - Products List by Category: /products/{category-slug}
+    -- sample: /products/living-room
+    - Products List by Sub-Category: /products/{category-slug}?category={sub-category-slug}
+    -- sample: /products/living-room?category=storage
 {% endcomment -%}
 
 {% comment %} Check if slug2 is a category or a product {% endcomment %}
