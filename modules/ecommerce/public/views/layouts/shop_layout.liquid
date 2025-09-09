@@ -108,9 +108,12 @@ metadata: {
                             <a href="/products/{{ product.category.parent_category.slug }}">{{ product.category.parent_category.category_name }}</a>
                         {%- endif -%}
 
-                        {%- if product.category.slug -%}
+                        {%- if product.category.parent_category.slug and product.category.slug -%}
                             <i class="icon-chevron-right"></i>
                             <a href="/products/{{ product.category.parent_category.slug }}?category={{ product.category.slug }}">{{ product.category.category_name }}</a>
+                        {%- elsif product.category.slug -%}
+                            <i class="icon-chevron-right"></i>
+                            <a href="/products/{{ product.category.slug }}">{{ product.category.category_name }}</a>
                         {%- endif -%}
 
                         <i class="icon-chevron-right"></i>
