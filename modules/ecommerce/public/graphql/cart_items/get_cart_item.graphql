@@ -18,7 +18,6 @@ query get_cart_item (
       ] 
     }
   ) {
-    total_entries    
     results {
       id
       uuid: property(name: "uuid")
@@ -26,7 +25,6 @@ query get_cart_item (
       product_uuid: property(name: "product_uuid")
       variant_uuid: property(name: "variant_uuid")
       quantity: property_int(name: "quantity")   
-      #properties
     }
   }
 }

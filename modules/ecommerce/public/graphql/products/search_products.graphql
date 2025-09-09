@@ -30,10 +30,6 @@ query search_products(
     }
     sort: $sort
   ){
-    total_entries
-    total_pages
-    current_page
-    per_page
     results {
       id
       updated_at

@@ -26,9 +26,6 @@ query get_order_items (
       created_at: { order: ASC}
     }
   ) {
-    total_entries  
-    total_pages
-    current_page  
     results {
       id             
       created_at

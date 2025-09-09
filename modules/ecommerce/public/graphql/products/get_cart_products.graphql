@@ -14,9 +14,6 @@ query get_cart_products(
       ]
     }
   ){
-    total_entries
-    total_pages
-    current_page
     results {
       id
       uuid: property(name: "uuid")

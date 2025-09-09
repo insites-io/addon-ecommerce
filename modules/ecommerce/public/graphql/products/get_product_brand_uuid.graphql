@@ -23,9 +23,6 @@ query get_product_brand_uuid(
       }
     }
   ){
-     total_entries
-     total_pages
-     current_page
      per_page
      results {      
           brand_uuid: property(name: "brand_uuid")

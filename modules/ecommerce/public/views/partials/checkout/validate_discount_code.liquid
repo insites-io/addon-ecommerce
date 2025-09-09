@@ -72,7 +72,7 @@ payload: {
                     order_contact_email: order_contact_email, discount_code_uuids: discount.uuid
                     | dig: 'items' %}
 
-            {%- if used_discounts.total_entries >= discount.usage_limit_per_user  -%}
+            {%- if used_discounts.results.size >= discount.usage_limit_per_user  -%}
                 {% assign message = "Sorry, you have reached the limit of using this discount code." %}
                 {% assign is_valid = "limited use per user" %}
             {%- endif -%}

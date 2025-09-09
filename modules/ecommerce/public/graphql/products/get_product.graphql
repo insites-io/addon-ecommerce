@@ -17,7 +17,6 @@ query get_product (
       ] 
     }
   ) {
-    total_entries
     results {
       id        
       updated_at

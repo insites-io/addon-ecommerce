@@ -18,8 +18,6 @@ query get_address(
       ]
     }
   ){
-    total_entries
-    total_pages
     results{
       id
       uuid: property(name: "uuid")

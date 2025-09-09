@@ -16,7 +16,6 @@ query get_cart_discount (
       ] 
     }
   ) {
-    total_entries    
     results {
       id 
       contact_uuid: property(name: "contact_uuid")

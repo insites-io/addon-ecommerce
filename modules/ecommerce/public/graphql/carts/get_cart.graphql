@@ -15,7 +15,6 @@ query get_cart (
       ] 
     }
   ) {
-    total_entries    
     results {
       id
       uuid: property(name: "uuid")

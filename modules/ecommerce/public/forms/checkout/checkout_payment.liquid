@@ -214,7 +214,7 @@ callback_actions: >
                 {% if has_profile %}
                 <div class="spacer small"></div>
                 <div id="add-credit-card-button-holder">
-                    <ins-button type="button" class="add-card-btn {% if cards.total_entries < 1 %}hide{% endif %}" icon="icon-plus" label="Add credit card">
+                    <ins-button type="button" class="add-card-btn {% if cards.results.size < 1 %}hide{% endif %}" icon="icon-plus" label="Add credit card">
                     </ins-button>
                 </div>
                 {% endif %}
@@ -268,7 +268,7 @@ callback_actions: >
             </div>
 
             {%- if has_profile -%}
-                <div id="no-card" class="empty-box {% if cards.total_entries > 0 %}hide{% endif %}">
+                <div id="no-card" class="empty-box {% if cards.results.size > 0 %}hide{% endif %}">
                     <p class="body-large bold">No card added.</p>
                     <div class="spacer"></div>
                     <ins-button solid type="button" class="add-card-btn" icon="icon-plus" label="Add credit card"></ins-button>
@@ -276,7 +276,7 @@ callback_actions: >
             {%- else -%}
                 {% comment %} Use block stripe form for Guest Chackout {% endcomment %}
                 <div class="spacer x-small"></div>
-                <div id="guest-add-card-form" class="temp {% if cards.total_entries > 0 %}hide{% endif %}">
+                <div id="guest-add-card-form" class="temp {% if cards.results.size > 0 %}hide{% endif %}">
                     {% include 'modules/ecommerce/forms/stripe_form', cards: cards %}
                 </div>
             {%- endif -%}
@@ -309,7 +309,7 @@ callback_actions: >
                             {%- endif -%}
                         </div>
                         <div class="show-for-small-only spacer xxx-large"></div> 
-                        <div id="submit-buttons" class="large-6 medium-6 small-12 cell text-right {% if cards.total_entries < 1 or cards == null %} hide {% endif %}">
+                        <div id="submit-buttons" class="large-6 medium-6 small-12 cell text-right {% if cards.results.size < 1 or cards == null %} hide {% endif %}">
                             <ins-button solid type="submit" icon="icon-task-completed" id="checkout-submit-btn" class="w-100 checkout-btn" label="Purchase order"></ins-button>
                         </div>
                     </div>

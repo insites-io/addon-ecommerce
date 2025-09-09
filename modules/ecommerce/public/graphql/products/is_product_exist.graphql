@@ -15,7 +15,6 @@ query is_product_exist (
       ] 
     }
   ) {
-    total_entries
     results {
       id
       slug: property(name: "slug")  
