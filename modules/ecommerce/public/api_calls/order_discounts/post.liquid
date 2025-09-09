@@ -5,5 +5,9 @@ format: http
 request_type: POST
 request_headers: >
     {% include 'modules/portal/api_headers' %}
+metadata: {
+    "status": "published",
+    "api_endpoint_name": "add_order_discount"
+}
 ---
 {{ data }}

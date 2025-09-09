@@ -3,6 +3,10 @@ slug: api/create-company
 format: json
 method: post
 searchable: false
+metadata: {
+    "status": "published",
+    "api_endpoint_name": "create-company"
+}
 ---
 
 {%- assign payload = context.params | parse_json -%}

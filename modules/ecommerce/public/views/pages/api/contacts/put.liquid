@@ -3,6 +3,10 @@ slug: api/update-contact
 format: json
 method: put
 searchable: false
+metadata: {
+    "status": "published",
+    "api_endpoint_name": "update-contact"
+}
 ---
 
 {%- assign payload = context.params | parse_json -%}
