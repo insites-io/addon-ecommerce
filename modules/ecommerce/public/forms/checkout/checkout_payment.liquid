@@ -192,6 +192,7 @@ callback_actions: >
 {%- endif -%}
 
 {% function stripe_settings = "modules/portal/stripe/get_stripe_settings" %}
+{%- assign stripe_account_id = stripe_settings.account_id -%}
 
 {% form 
     html-id: "checkout-form"
@@ -267,19 +268,21 @@ callback_actions: >
                     value="{{ selected_card }}"></ins-input>
             </div>
 
-            {%- if has_profile -%}
-                <div id="no-card" class="empty-box {% if cards.results.size > 0 %}hide{% endif %}">
-                    <p class="body-large bold">No card added.</p>
-                    <div class="spacer"></div>
-                    <ins-button solid type="button" class="add-card-btn" icon="icon-plus" label="Add credit card"></ins-button>
-                </div>
-            {%- else -%}
-                {% comment %} Use block stripe form for Guest Chackout {% endcomment %}
-                <div class="spacer x-small"></div>
-                <div id="guest-add-card-form" class="temp {% if cards.results.size > 0 %}hide{% endif %}">
-                    {% include 'modules/ecommerce/forms/stripe_form', cards: cards %}
-                </div>
-            {%- endif -%}
+            {% if stripe_account_id and stripe_account_id != '' %}
+                {%- if has_profile -%}
+                    <div id="no-card" class="empty-box {% if cards.results.size > 0 %}hide{% endif %}">
+                        <p class="body-large bold">No card added.</p>
+                        <div class="spacer"></div>
+                        <ins-button solid type="button" class="add-card-btn" icon="icon-plus" label="Add credit card"></ins-button>
+                    </div>
+                {%- else -%}
+                    {% comment %} Use block stripe form for Guest Chackout {% endcomment %}
+                    <div class="spacer x-small"></div>
+                    <div id="guest-add-card-form" class="temp {% if cards.results.size > 0 %}hide{% endif %}">
+                        {% include 'modules/ecommerce/forms/stripe_form', cards: cards %}
+                    </div>
+                {%- endif -%}
+            {% endif %}
 
         </div>
         {% comment %}END: Credit Cards {% endcomment %}
@@ -290,14 +293,10 @@ callback_actions: >
 
         {%- comment -%} Check if stripe settings are configured {%- endcomment -%}
         <div class="grid-x grid-padding-x">
-            <div class="large-12 medium-12 small-12 cell">                             
-                            
-                {%- assign stripe_account_id = stripe_settings.account_id -%}
+            <div class="large-12 medium-12 small-12 cell">                                                         
                 
                 {%- if stripe_account_id == '' or stripe_account_id == null -%}
-                    <ins-button disabled color="negative"
-                        label="Payment settings not configured, please contact website administrator.">
-                    </ins-button>
+                    <p class="error">Payment settings not configured, please contact website administrator.</p>
                 {%- else -%}
                 
                     <div class="grid-x grid-padding-x">  
