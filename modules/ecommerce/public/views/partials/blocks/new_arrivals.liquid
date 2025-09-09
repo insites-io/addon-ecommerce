@@ -3,13 +3,14 @@ metadata: {
     partial_name: 'Ecommerce | Blocks | New Arrivals'
 }
 ---
+
+{% graphql products = "modules/ecommerce/products/get_products", size: 8 | dig: 'items','results' %}
+
+{% if products.size > 0 %}
 <section class="wrapper">
     <div class="spacer xxxx-large"></div>
     <div class="product-carousel">
-
-        {% graphql products = "modules/ecommerce/products/get_products", size: 8 | dig: 'items','results' %}        
         
-
         <!-- desktop carousel -->
         <ins-carousel 
             id="newArrivalsCarouselDesktop"
@@ -99,3 +100,4 @@ newArrivalsCarousel.forEach(carousel => {
     });          
 });
 </script>
+{% endif %}
