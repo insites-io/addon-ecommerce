@@ -100,7 +100,7 @@ metadata: {
     {%- for item in discounts -%}
         {%- if is_ordered_items != true -%}
              {% comment %} Run function to re-validate & auto delete invalid discount codes {% endcomment %}
-             {%- if context.params.slug2 == 'payment' or context.params.slug == 'checkout' -%}
+             {%- if context.params.slug2 == 'payment' -%}
                 {%- parse_json payload -%}
                 {
                     "check_duplicates": false,
