@@ -13,6 +13,9 @@ cc:
 bcc: 
 subject: New ecommerce order
 layout: modules/insites_core/insites_internal_email_layout
+metadata: {
+    "email_name": "Success Order | Workflow"
+}
 ---
 {% assign order_uuid = data.order_info.uuid | default: '' %}
 {% assign order_id = data.order_info.id %}
