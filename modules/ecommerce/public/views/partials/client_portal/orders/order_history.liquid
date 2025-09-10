@@ -66,6 +66,12 @@ metadata: {
         assign has_filter = true
     endif
 
+    ## Note: We need to get the total_entries and results separately to optimize the performance
+
+    ## Get Orders total_entries
+    graphql orders_total_entries = 'modules/ecommerce/orders/get_orders_total_entries', args: filters
+
+    ## Get Orders results
     graphql orders = 'modules/ecommerce/orders/get_orders', args: filters
     
     function localisation_date_format = 'modules/ecommerce/localisation/get_localisation'
@@ -120,8 +126,8 @@ metadata: {
 <script>
     let date_format = "{{ localisation_date_format | default: 'DD/MM/YYYY' }}";
     let hasFilter =  {{ has_filter | default: false }};
-    let maxCount = {{ orders.items.total_entries }};
-    let maxPages = {{ orders.items.total_pages }}
+    let maxCount = {{ orders_total_entries.items.total_entries }};
+    let maxPages = {{ orders_total_entries.items.total_pages }}
     let currentURL = window.location.href;
     let sortOrder = "{{ context.params.sort_order | default: 'DESC' }}";
     let sortType = "date_time"

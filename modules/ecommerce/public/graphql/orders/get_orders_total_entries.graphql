@@ -1,4 +1,4 @@
-query get_orders (
+query get_orders_total_entries (
   $page: Int = 1,
   $size: Int = 100,
   $order_company_uuid: String,
@@ -30,14 +30,8 @@ query get_orders (
     },
     sort: $sort
   ) {            
-    results {
-      id             
-      uuid: property(name: "uuid")
-      order_number: property(name: "order_number")
-      date_time: property(name: "date_time")
-      total_amount: property_float(name: "total_amount") 
-      order_status: property(name: "order_status") 
-      order_shipping_status: property(name: "order_shipping_status")               
-    }
+    total_entries
+    current_page
+    total_pages
   }
 }
