@@ -35,7 +35,7 @@ metadata: {
             {%- if categories.size < 1 -%}
                 {%- assign slug_type = 'product' -%}
                 {% comment %} Check if slug2 is a product {% endcomment %}
-                {%- graphql products = 'modules/ecommerce/products/is_product_exist', slug: context.params.slug2 | dig: 'items','results' -%}
+                {%- graphql products = 'modules/ecommerce/products/is_product_existing', slug: context.params.slug2 | dig: 'items','results' -%}
                 {%- if products.size == 0 -%}
                     {% redirect_to '/404' %}
                 {%- endif -%}    
