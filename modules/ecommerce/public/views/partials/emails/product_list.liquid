@@ -3,69 +3,53 @@ metadata: {
     partial_name: 'Ecommerce | Emails | Product List'
 }
 ---
-{%- for cart_product in cart -%}
-    {%- comment %} 
-        * Assign the cart quantity to a variable. If no quantity is found, set it as 'invalid'.
-    {% endcomment %}
-    {% assign quantity = cart_product.quantity | default: 'invalid' %}
+{%- for cart_item in cart -%}       
 
-    {%- comment %} 
-        * Find the product from the "products" collection that matches the cart product UUID.
-    {% endcomment %}
-    {% assign matched_product = products | where: "uuid", cart_product.product_uuid | first %}
+    {% liquid
+        assign product = products | array_detect: uuid: cart_item.product_uuid
+        assign product_name = product.product_name
 
-    {%- if matched_product -%}
-        {%- comment %} 
-            * Determine the product price based on whether it's on sale or not.
-            * If it's on sale, use the sale price; otherwise, use the regular price.
-        {% endcomment %}
-        {% if matched_product.is_on_sale %}
-            {% assign price = matched_product.sale_price %}
-        {% else %}
-            {% assign price = matched_product.regular_price %}
-        {% endif %}
+        ## Check if the cart_item is a product or a variant of the product
+        if cart_item.variant_uuid == '' or cart_item.variant_uuid == null
+            ## item is NOT a variant
+            assign selected_prop = product
+            assign imgsrc = product.product_image.url
+            assign is_variant = false
+        else 
+            ## cart_item is a variant                
+            for variant in product.variants
+                if cart_item.variant_uuid == variant.uuid
+                    assign selected_prop = variant
+                endif
+            endfor
 
-        {% assign product_name = matched_product.product_name | default: 'invalid' %}
-        {% assign product_image = matched_product.product_image | default: 'invalid' %}
-        {% assign product_sku = matched_product.product_sku | default: 'invalid' %}
-        {% assign options = '' | split: ',' %}
+            ## Image: Use the variant image; if not exists, use the main product image.
+            assign imgsrc = selected_prop.product_image.url
+            if imgsrc == '' or imgsrc == blank 
+                assign imgsrc = product.product_image.url
+            endif
 
-        {%- comment %} 
-            * Check if the cart's product SKU differs from the current product SKU.
-            * If it differs, handle variants accordingly.
-        {% endcomment %}
-        {% if matched_product.product_sku != cart_product.product_sku %}
-            {% assign variants = matched_product.variants %}
-            {% if variants.size > 0 %}
-                {%- comment %} 
-                    * If variants exist, find the variant that matches the cart's SKU.
-                {% endcomment %}
-                {% assign matched_variant = variants | where: "product_sku", cart_product.product_sku | first %}
-                
-                {% if matched_variant %}
-                    {% assign product_image = matched_variant.product_image | default: 'invalid' %}
-                    {% assign product_sku = matched_variant.product_sku | default: 'invalid' %}
+            assign is_variant = true
+        endif 
 
-                    {%- comment %} 
-                        * Parse and store the options for the matched variant.
-                    {% endcomment %}
-                    {% for option in matched_variant.product_options %}
-                        {% assign option_json = option | parse_json %}
-                        {% assign options = options | array_add: option_json %}
-                    {% endfor %}
+        ## Price
+        if selected_prop.is_on_sale == true 
+            assign price = selected_prop.sale_price
+        else 
+            assign price = selected_prop.regular_price
+        endif          
+    %}
 
-                    {%- comment %} 
-                        * Determine the price of the matched variant (sale or regular price).
-                    {% endcomment %}
-                    {% if matched_variant.is_on_sale %}
-                        {% assign price = matched_variant.sale_price %}
-                    {% else %}
-                        {% assign price = matched_variant.regular_price %}
-                    {% endif %}
-                {% endif %} 
-            {% endif %}
-        {% endif %}
-    {%- endif %}
+
+    {% comment %} Skip in-stock items if pre-order email {% endcomment %}
+    {% liquid
+        if preorder == true 
+            if selected_prop.stock_level > 0 
+                continue
+            endif
+        endif        
+    %}
+
 
     {%- comment %} 
         * Render the product details: image, name, SKU, options (if any), and price/quantity.
@@ -73,21 +57,34 @@ metadata: {
     {% endcomment %}
     <div style="font-family: inherit; font-size: 16px; display: flex; padding: 8px 24px 8px 40px;">
         
-        <div style="width:50%; max-width: 238px; padding-right:24px; line-height: 0px;">
-            <img src="{{ product_image.url }}" alt="{{ product_image }}" style="width: 100%; height:auto;">
+        <div style="width: 100px; padding-right:24px; line-height: 0px;">
+            {% if imgsrc != '' and imgsrc != blank %}
+                <img  src="{{ imgsrc | replace: ' ', '%20' | escape }}" style="width: 100px; height:auto;" alt="{{ product_name }}" >
+            {% else %}
+                {% include 'modules/website/layout/placeholder_image', size: 'medium' %}
+            {% endif %}
         </div>
 
         <div style="flex: 1;">
-            <p style="font-weight: bold; color: #0d0d0d; margin-bottom: 5px;">{{ matched_product.product_name }}</p>
-            <p style="margin-bottom: 5px;">SKU {{ product_sku }}</p>
+            <p style="font-weight: bold; color: #0d0d0d; margin-bottom: 5px;">{{ product_name }}</p>
+            {% if selected_prop.product_sku and selected_prop.product_sku != '' %}
+                <p style="margin-bottom: 5px;">SKU {{ selected_prop.product_sku }}</p>
+            {% endif %}
 
-            {% if options and options != '' %}
-                {% comment %}
-                    * Display product options (e.g., size, color) for the matched variant.
-                {% endcomment %}
+            {% comment %} Variant Options {% endcomment %}
+            {% if is_variant == true %}
+                {%  liquid 
+                    ## Convert an array of strings into an array of objects
+                    assign options = '' | split: ',' 
+                    for option in selected_prop.product_options
+                        assign option_json = option | parse_json
+                        assign options = options | array_add: option_json
+                    endfor
+                %}
                 {% for option in options %}
                     <p style="margin-bottom: 5px">
-                        <span class="body-x-small">{{ option.product_option_value | titleize }}</span>
+                        <span>{{ option.product_option_label | titleize }}:</span>
+                        <span>{{ option.product_option_value | titleize }}</span>
                     </p>
                 {% endfor %}
             {% endif %}
@@ -96,7 +93,7 @@ metadata: {
                 * Display the quantity and price of the product in the cart.
                 * Format the price using the "pricify" filter and display in AUD.
             {% endcomment %}
-            <p style="margin: 0;">{{ quantity }} x {{ price | pricify }} AUD</p> 
+            <p style="margin: 0;">{{ cart_item.quantity | plus: 0 }} x {{ price | pricify }} AUD</p> 
         </div>
     </div>
 

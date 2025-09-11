@@ -78,6 +78,9 @@ let productList = (function () {
                 let tmpVal = event.detail;
                 productFilter.brand = tmpVal;
 
+                // Reset to page 1
+                productFilter.page = "1";
+
                 window.location.href = productList.methods.buildURLLink();
             },
             showValueSelected(event){
@@ -85,12 +88,19 @@ let productList = (function () {
                 let tmpVal = event.detail;
                 productFilter.show = tmpVal;
 
+                // Reset to page 1
+                productFilter.page = "1";
+
                 window.location.href = productList.methods.buildURLLink();
             },
             sortValueSelected(event){
                 //Function to update sort of products
                 let tmpVal = event.detail;
                 productFilter.sort = tmpVal;
+
+                // Reset to page 1
+                productFilter.page = "1";
+                
                 window.location.href = productList.methods.buildURLLink();
             },
             clearFilterToList(){
@@ -104,7 +114,7 @@ let productList = (function () {
                 let entries = Object.entries(productFilter);
                 let tmpParamArr = [];
                 for(let a = 0; a < entries.length; a++){
-                    if(entries[a][1] != ""){
+                    if(entries[a][0] != "" && entries[a][1] != ""){
                         tmpParamArr.push(entries[a].join('='));
                     }
                 }
@@ -166,15 +176,19 @@ let productList = (function () {
                     sortSelect.addEventListener('insChange', productList.methods.sortValueSelected);
                 }
 
+                
                 let mobileCategoryToggle = document.getElementById('mobile-category-button');
                 if(mobileCategoryToggle){
-                    let sidebarCategoriesHtml = document.getElementById('sidebar-categories').innerHTML;
+                    //let sidebarCategoriesHtml = document.getElementById('sidebar-categories').innerHTML;
+                    //console.log("sidebarCategoriesHtml",sidebarCategoriesHtml);
                     // Replace 'id' with 'data'
-                    let modifiedHTML = sidebarCategoriesHtml.replace(/\bid="([^"]+)"/g, 'data="$1"');
-                    let mobileFilterWrap = document.querySelector('#mobile-filter-drawer .wrap');                
-                    mobileFilterWrap.innerHTML = modifiedHTML;
+                    //let modifiedHTML = sidebarCategoriesHtml.replace(/\bid="([^"]+)"/g, 'data="$1"');
+                    //console.log("modifiedHTML",modifiedHTML);
+                    //let mobileFilterWrap = document.querySelector('#mobile-filter-drawer .wrap');                
+                    //mobileFilterWrap.innerHTML = modifiedHTML;
                     mobileCategoryToggle.addEventListener('insClick', productList.methods.openMobileFilterDrawer);
                 }
+                    
             }
             
         }

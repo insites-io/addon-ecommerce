@@ -1,0 +1,45 @@
+query get_cart_discounts (
+  $page: Int=1
+  $size: Int=1
+  $contact_uuid: String!
+) {
+  items: records(
+    page: $page
+    per_page: $size
+    filter: {
+      deleted_at: { exists: false }
+      table: { value: "modules/insites_ecommerce/cart" }
+      properties: [
+        { name: "contact_uuid", value: $contact_uuid }
+      ] 
+    }
+  ) {
+    results {
+      #id
+      #uuid: property(name: "uuid")
+      contact_uuid: property(name: "contact_uuid")
+      discount_code_uuids: property_array(name: "discount_code_uuids")    
+      discounts: related_records(
+        table: "modules/insites_ecommerce/discount"
+        join_on_property: "discount_code_uuids"
+        foreign_property: "uuid"
+      ){
+        id
+        uuid: property(name: "uuid")
+        usage_count: property_int(name: "usage_count")
+        usage_limit: property_int(name: "usage_limit")
+        usage_limit_per_user: property_int(name: "usage_limit_per_user")
+        minimum_cart_value: property_float(name: "minimum_cart_value")
+        discount_code: property(name: "discount_code")
+        discount_name: property(name: "discount_name")
+        discount_type: property(name: "discount_type")
+        discount_value: property_float(name: "discount_value")
+        product_uuids: property_array(name: "product_uuids")
+        category_uuids: property_array(name: "category_uuids")
+        applicable_to: property(name: "applicable_to")
+        is_applicable_to_all_products: property_boolean(name: "is_applicable_to_all_products")
+        is_applicable_to_all_categories: property_boolean(name: "is_applicable_to_all_categories")        
+      }
+    }
+  }
+}

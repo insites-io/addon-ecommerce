@@ -21,9 +21,6 @@ query get_subcategories (
     }
     sort: $sort_by
   ) {
-    total_entries
-    total_pages
-    current_page
     results {
       id             
 			uuid: property(name: "uuid")

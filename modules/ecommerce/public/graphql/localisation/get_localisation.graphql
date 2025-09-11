@@ -11,7 +11,6 @@ query get_localisation (
       },
     }
   ) {            
-    total_entries
     results {
       id            
       date_format: property(name: "date_format")

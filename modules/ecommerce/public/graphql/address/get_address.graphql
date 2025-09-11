@@ -1,5 +1,5 @@
 query get_address(
-  $user_uuid: String!,
+  $related_uuid: [String!],
   $related_type: String,
   $page: Int = 1,
   $size: Int = 50
@@ -13,16 +13,15 @@ query get_address(
       table: { value: "modules/insites_core/crm_address" } 
       deleted_at: { exists: false }
       properties:[
-        { name:"related_uuid", value: $user_uuid }
+        { name:"related_uuid", value_in: $related_uuid }
         { name:"related_type", value: $related_type }
       ]
     }
   ){
-    total_entries
-    total_pages
     results{
       id
       uuid: property(name: "uuid")
+      address_label: property(name: "address_label")
       address_1: property(name: "address_1")
       address_2: property(name: "address_2") 
       address_3: property(name: "address_3") 

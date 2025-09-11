@@ -1,0 +1,57 @@
+---
+slug: api/create-contact
+format: json
+method: post
+searchable: false
+metadata: {
+    "status": "published",
+    "api_endpoint_name": "Create contact"
+}
+---
+
+{%- assign payload = context.params | parse_json -%}
+{%- assign status = 400 -%}
+
+{% comment %} Use Insites V2 API {% endcomment %}
+{%- graphql add_contact = 'modules/website/trigger_api_call', 
+     name: 'modules/portal/add_contact', 
+     data: payload 
+     | dig: 'items','response','body' | parse_json -%}            
+
+{% comment %} Set Status {% endcomment %}
+{%- liquid
+     if add_contact.id 
+          assign status = 200
+     endif
+-%}
+{% comment %} Add event {% endcomment %}
+{% parse_json event_data %}
+{
+  "font_icon_color": "#FA38A1",
+  "log": {
+    "data": {
+      "created_at": "{{ add_contact.created_at }}",
+      "id": "{{ add_contact.id }}",
+      "updated_at": "{{ add_contact.updated_at }}",
+      "properties": {{ add_contact |  default: '[]'}}
+    },
+    "action": "add_contact",
+    "contact_uuid": "{{ add_contact.uuid }}"
+  },
+  "datetime": "{{ 'now' | date: '%s' }}",
+  "font_icon": "icon-settings-1",
+  "module_feature": "crm_contact",
+  "module_source": "insites_core",
+  "administrator_uuid": "",
+  "uuid": "{{ '' | uuid }}",
+  "details": "",
+  "description": "<a target='_blank' href='/admin/insites/#/crm/contacts/{{add_contact.id}}'>{{add_contact.first_name}} {{add_contact.last_name}}</a> from <a target='_blank' href='/admin/insites/#/crm/companies/{{add_contact.company.uuid}}'>{{add_contact.company.company_name}}</a> was created"
+}
+{% endparse_json %}
+{%- graphql add_event = 'modules/website/trigger_api_call', 
+     name: "modules/portal/add_events", data: event_data 
+     | dig: 'items','response','body' | parse_json -%}
+
+
+{{ add_contact  }}
+{%- response_status status -%}

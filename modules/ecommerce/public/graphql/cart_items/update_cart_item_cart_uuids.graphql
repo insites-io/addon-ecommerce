@@ -1,0 +1,21 @@
+mutation update_cart_item_cart_uuids (
+  $current_cart_uuid: String!
+  $new_cart_uuid: String!
+) {
+  items: records_update_all (
+    sync: true
+    table: "modules/insites_ecommerce/cart_item",
+    filter: {
+      properties: [
+        {name: "cart_uuid", value: $current_cart_uuid}
+      ]
+    }    
+    record: {      
+      properties: [
+        { name: "cart_uuid", value: $new_cart_uuid }        
+      ]
+    }
+  ) {
+    count
+  }
+}

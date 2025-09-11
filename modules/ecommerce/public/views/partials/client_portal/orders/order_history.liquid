@@ -3,27 +3,79 @@ metadata: {
     partial_name: 'Ecommerce | Client Portal | Order History'
 }
 ---
-<h1 id="order-history-title">Order History</h1>
+<h1 id="order-history-title">Order history</h1>
 <div class="spacer small"></div>
 <p>Check the status of your order and review your order history.</p>
 <div class="spacer x-large"></div>
 
+{% graphql company_uuid = 'modules/ecommerce/account/get_current_user' 
+    | dig: 'current_user','crm_contact' | first |dig: 'company_uuid' %}
 
-{%- assign page_num = context.params.page | default: 1 -%}
-{%- assign page_size = context.params.per_page | default: 100 -%}
+{%-
+    liquid
 
-{%- parse_json filters -%}
-{
-    "order_contact_uuid": "{{ context.current_user.external_id }}",
-    "page": {{page_num}},
-    "size": {{page_size}}
-}
-{%- endparse_json -%}
+    assign has_filter = false
 
-{%- graphql orders = 'modules/ecommerce/orders/get_orders', args: filters -%}
+    assign page_num = context.params.page | default: 1 | plus: 0
+    assign page_size = context.params.per_page | default: 10 | plus: 0
 
+    assign filters = '{}' | parse_json
 
-{%- if orders.items.total_entries > 0 -%}
+    ## Use this filter when showing orders from logged in user only
+    #assign filters = filters | add_hash_key: "order_contact_uuid", context.current_user.external_id 
+
+    ## The list displays orders placed by any user within the company of the logged-in account.
+    assign filters = filters | add_hash_key: "order_company_uuid", company_uuid
+
+    assign filters = filters | add_hash_key: "page", page_num
+    assign filters = filters | add_hash_key: "size", page_size
+
+    if context.params.search
+        assign filters = filters | add_hash_key: "keyword", context.params.search
+        assign has_filter = true
+    endif
+
+    assign sort_order = context.params.sort_order | upcase | default: "DESC"
+    assign sort_by = '{}' | parse_json
+    assign sort_properties = '[]' | parse_json
+    assign sort_properties_item = '{}' | parse_json
+    assign sort_properties_item = sort_properties_item | add_hash_key: "name", "date_time"
+    assign sort_properties_item = sort_properties_item | add_hash_key: "order", sort_order
+    assign sort_properties = sort_properties | add_to_array: sort_properties_item
+    assign sort_by = sort_by | add_hash_key: "properties", sort_properties
+    assign filters = filters | add_hash_key: "sort", sort_by
+
+    if context.params.status
+        comment
+            ** Handle 'completed' and 'Completed' strings
+        endcomment
+        assign statFilter = '[]' | parse_json
+        assign statFilter = statFilter | add_to_array: context.params.status
+        assign tempStat = context.params.status | downcase | capitalize 
+        assign statFilter = statFilter | add_to_array: tempStat
+        assign filters = filters | add_hash_key: "orderStatus", statFilter
+        assign has_filter = true
+    endif
+
+    if context.params.from
+        assign filters = filters | add_hash_key: "dateFrom", context.params.from
+        assign has_filter = true
+    endif
+    if context.params.to
+        assign filters = filters | add_hash_key: "dateTo", context.params.to
+        assign has_filter = true
+    endif
+
+    ## Note: We need to get the total_entries and results separately to optimize the performance
+
+    ## Get Orders total_entries
+    graphql orders_total_entries = 'modules/ecommerce/orders/get_orders_total_entries', args: filters
+
+    ## Get Orders results
+    graphql orders = 'modules/ecommerce/orders/get_orders', args: filters
+    
+    function localisation_date_format = 'modules/ecommerce/localisation/get_localisation'
+-%}
     
     <div class="grid-x">
         <div class="large-7 medium-12 small-12 cell order-filter-wrap">
@@ -31,11 +83,26 @@ metadata: {
                 id="order-filter"
                 label="Filter by:"
                 with-date-filter 
-                date-title="Date">
+                date-title="Date"
+                {%- if context.params.from -%}
+                    date-from='{{context.params.from}}'
+                {%- endif -%}
+                {%- if context.params.to -%}
+                    date-to='{{context.params.to}}'
+                {%- endif -%}
+                {%- if context.params.search -%}
+                    search-keyword="{{ context.params.search }}"
+                {%- endif -%}
+                >
 
                 <ins-filter-item
-                    name="Order Status"
-                    options='["All", "Open", "Processing", "Cancelled", "Completed"]'>
+                    name="Order status"
+                    id="order-filter-status"
+                    options='["All", "Back ordered", "Cancelled", "Completed", "For collection", "For delivery", "Open", "On hold", "Other", "Parked", "Placed", "Processing", "Refunded", "Subscription active"]'
+                    {%- if context.params.status -%}
+                        selected='{{context.params.status | capitalize | replace: "_", " " }}'
+                    {%- endif -%}
+                    >
                 </ins-filter-item>
             </ins-filter>
             <div class="spacer hide-for-large"></div>
@@ -46,218 +113,59 @@ metadata: {
         id="order-table"     
         class="ecommerce"    
         sort-keyword="order-number"
-        searchbar-placeholder="Search by order number">         
-    </ins-table>
-
-{%- else -%}
-
-    <ins-card class="empty-state full" steady>
-        <p>No Order History</p>
-    </ins-card>
-
-{%- endif -%}
+        searchbar-placeholder="Search by order number"
+        initial-search="{{ context.params.search }}"
+        {%- if context.params.search -%}
+            initial-search="{{ontext.params.search}}"
+        {%- endif -%}
+        >         
+    </ins-table> 
 
 
-
-{%- if orders.items.total_entries > 0 -%}
-
-{% function localisation_date_format = 'modules/ecommerce/localisation/get_localisation' %}
-<script src="{{ 'modules/ecommerce/scripts/table.min.js' | asset_url }}"></script>
+<script src="{{ 'modules/ecommerce/scripts/table.min.js' | asset_url }}" ></script>
 <script>
     let date_format = "{{ localisation_date_format | default: 'DD/MM/YYYY' }}";
-    let maxCount = {{ orders.items.total_entries }};
-    let pageNumber = 1;
-    let pageSize = 10;
-    let searchKeyword = '';
-    let sortedKeyword = 'id';
+    let hasFilter =  {{ has_filter | default: false }};
+    let maxCount = {{ orders_total_entries.items.total_entries }};
+    let maxPages = {{ orders_total_entries.items.total_pages }}
+    let currentURL = window.location.href;
+    let sortOrder = "{{ context.params.sort_order | default: 'DESC' }}";
+    let sortType = "date_time"
+    let currentPage = {{ page_num }};
+    let pageSize = {{ page_size }};
+
+    // Used for checking if needs to revert to the first page
+    let currentFilter = {
+        "searchKeyword": "{{ context.params.search | default: "" }}",
+        "filterStatus" : "{{ context.params.status | default: '' | capitalize | replace: '_', ' ' }}",
+        "filterDateTo": "{{ context.params.to | default: '' }}",
+        "filterDateFrom" : "{{ context.params.from | default: '' }}"        
+    };
+
+    let searchKeyword = "{{ context.params.search | default: "" }}";
+    let filterStatus = "{{ context.params.status | default: '' | capitalize | replace: '_', ' ' }}"
+    let filterDateTo = "{{ context.params.to | default: '' }}"
+    let filterDateFrom = "{{ context.params.from | default: '' }}"
+
     let orderListTable = document.getElementById('order-table');
     let orderFilter = document.getElementById('order-filter');
+    let orderFilterStatus = document.getElementById('order-filter-status');
 
     let tableContent = {{ orders.items.results }};
+    console.log(tableContent);
     let tableHeaders = [
-        { label: 'Order Number', type: "string" },
-        { label: 'Date Ordered', type: "string" },
-        { label: 'Total Amount', type: "currency" },
-        { label: 'Order Status', type: "string", hasTag: true },
-        { label: 'Shipping Status', type: "string", hasTag: true}
+        { label: 'Order number', type: "string" },
+        { label: 'Date ordered', type: "string", sortable: true },
+        { label: 'Total amount', type: "currency", textAlign: "left" },
+        { label: 'Order status', type: "string", hasTag: true },
+        { label: 'Shipping status', type: "string", hasTag: true}
     ];
-
-    
-    function initOrderTableContents(){
-        orderListTable.tableHeaders = tableHeaders;
-        orderListTable.rowActions = ['View Order'];        
-        processTableData(tableContent);
-
-        orderListTable.addEventListener('insTableRowAction', event => {
-            window.location.href = '/order-history/' + event.detail.data.id;
-        });
-    }
-
-    function mapData(tableData) {
-        return tableData.map(data => {                 
-            let toDateOnly = TableScript.methods.toDateOnly(data.date_time);                
-            let formatDate = TableScript.methods.formatDate(toDateOnly, date_format);
-            let dateOrdered = changeDateFormat(formatDate);
-            let shipping_status = data.order_shipping_status || 'Processing';
-            let order_status = TableScript.methods.toTitleCase(resolveStatus(data.order_status));
-
-            return {
-                id: data.id,
-                "Order Number": data.id,
-                "Date Ordered": dateOrdered,
-                "Total Amount": TableScript.methods.pricify(data.total_amount),
-                "Order Status": order_status,
-                "Shipping Status": shipping_status
-            }
-        });
-    }
-    
 
     function changeDateFormat(dateString) {
         // Split the input date string
         const [month, day, year] = dateString.split('/');
         // Rearrange into DD/MM/YYYY
         return `${day}/${month}/${year}`;
-    }
-
-
-    function tablePaginationHandler(event){
-        pageNumber = event.detail.pageNumber;
-        pageSize = event.detail.pageSize;
-        processTableData();
-        document.getElementById('order-history-title').scrollIntoView({ behavior: 'smooth' });
-    }
-
-
-    function processTableData(){
-        var last_index = pageNumber * pageSize;
-        var first_index = (last_index - pageSize);        
-
-        displayedData = [];
-        tableData = (searchKeyword)? filteredData : tableContent;
-    
-        tableData.forEach((value, index) => {                
-            if (index >= first_index && index < last_index) {
-                displayedData.push(value);
-            }
-        });
-        orderListTable.totalCount = tableData.length;
-        
-        if (sortedKeyword && displayedData.length > 1) {
-            //Sort
-            //displayedData.sort(TableScript.methods.dynamicKeySort(sortedKeyword));
-            //Descending order
-            //if(sortedKeyword == "id") displayedData.reverse();
-        }
-
-        orderListTable.tableData = mapData(displayedData);
-        orderListTable.loadingScreen = false;
-    }
-
-    
-    function tableSearchHandler(event){
-        filterData(event.detail.value, ["id"]);
-    }
-
-
-    function filterData(searchKey, filterKey=["id"]){
-
-        orderListTable.loadingScreen = true;
-        
-        let dateFrom, dateTo;
-
-        if(filterKey.includes("order_status") && filterKey.includes("date_time")){
-            searchKeyword = searchKey["Order Status"];
-            dateFrom = new Date(searchKey["Date"].from);
-            dateTo = new Date(searchKey["Date"].to);
-        } else {
-            searchKeyword = searchKey;
-            if(filterKey == "date_time"){
-                dateFrom = new Date(searchKey.from);
-                dateTo = new Date(searchKey.to);
-            }
-        }
-
-        if(dateFrom || dateTo){
-            dateFrom.setHours(0, 0, 0, 0);
-            dateTo.setHours(23, 59, 59, 999);
-        }        
-
-        if (!searchKeyword) {
-            processTableData();
-            return;
-        }
-
-        filteredData = [];
-        tableContent.forEach((value) => {
-            is_date_time_matched = false; 
-            is_value_matched = false;
-            Object.keys(value).forEach((key) => {
-                if (filterKey.includes(key)){                    
-                    if(key == "date_time"){                               
-                        dateSelected = TableScript.methods.toDateOnly(value.date_time);                                       
-                        if (dateSelected >= dateFrom && dateSelected <= dateTo) is_date_time_matched = true;
-                    } else {
-                        match = resolveStatus(value[key]);  
-                        if (match.toLowerCase().includes(searchKeyword.toLowerCase())) is_value_matched = true;
-                    }
-                }            
-            });
-
-            if(filterKey.includes("order_status") && filterKey.includes("date_time")){
-                if(is_value_matched && is_date_time_matched) 
-                    filteredData.push(value);
-            } else if(filterKey.includes("date_time")){
-                if(is_date_time_matched) 
-                    filteredData.push(value);
-            } else if(is_value_matched){
-                filteredData.push(value);
-            }
-        });
-
-        
-        orderListTable.pageNumber = pageNumber = 1;
-        processTableData();
-
-        if (!filteredData.length) {
-            orderListTable.loadingScreen = true;
-            orderListTable.loaderTitle = '';
-            orderListTable.loaderMessage = 'No results were found for the selected status and date.';
-            orderListTable.loaderIcon = '';
-        }
-    }
-
-
-    function filterHandler(event){
-        let dateSelected = event.detail["Date"];
-        let orderStatus = event.detail["Order Status"];
-
-        if(dateSelected == "All" && orderStatus == "All"){
-            searchKeyword = '';
-            processTableData();
-        } else if(dateSelected == "All"){
-            filterData(orderStatus, ["order_status"]);
-        } else if(orderStatus == "All"){
-            filterData(dateSelected, ["date_time"]);
-        } else {
-            filterData(event.detail, ["order_status","date_time"]);
-        }
-    }
-
-
-    function initOrderTable(){
-        if(orderListTable){
-            initOrderTableContents();
-            orderListTable.addEventListener('insPaginationChange', tablePaginationHandler);
-            orderListTable.addEventListener('insTableSearch', tableSearchHandler);
-        }
-    }
-
-
-    function initFilter(){
-        if(orderFilter){
-            orderFilter.addEventListener('insFilterApply', filterHandler);
-        }
     }
 
     function resolveStatus(status){
@@ -267,14 +175,155 @@ metadata: {
         } 
         return status;
     }
-    
 
+    function mapData(tableData) {
+        return tableData.map(data => {                 
+            let toDateOnly = TableScript.methods.toDateOnly(data.date_time);                
+            let formatDate = TableScript.methods.formatDate(toDateOnly, date_format);
+            let dateOrdered = changeDateFormat(formatDate);
+            let shipping_status = data.order_shipping_status || 'Processing';
+            const statusMap = {
+                'not_applicable': 'Not Applicable',
+                'picked_up': 'Picked up',
+                'packed': 'Packed',
+                'in_transit': 'In Transit',
+                'delivered': 'Delivered'
+            };
+            shipping_status = statusMap[shipping_status] || shipping_status;
+            let tmp_order_status = "";
+             
+            if(data.order_status.includes("_")){
+                tmp_order_status = data.order_status.replaceAll("_"," ");
+            } else {
+                tmp_order_status = data.order_status;
+            }
+            let order_status = TableScript.methods.toTitleCase(resolveStatus(tmp_order_status));
+
+            return {
+                id: data.id,
+                "Order number": data.id,
+                "Date ordered": dateOrdered,
+                "Total amount": TableScript.methods.pricify(data.total_amount),
+                "Order status": order_status,
+                "Shipping status": shipping_status
+            }
+        });
+    }
+
+
+    function processTableData(){
+        orderListTable.totalCount = maxCount;
+        orderListTable.pageNumber = currentPage;
+        orderListTable.pageSize = pageSize;
+        if (maxCount <= 0) {
+            orderListTable.loadingScreen = true;
+            orderListTable.loaderTitle = '';
+            orderListTable.loaderIcon = '';
+            if(hasFilter){
+                orderListTable.loaderMessage = 'No order history.';
+            } else{ 
+                orderListTable.loaderMessage = 'No results were found for the selected status and date.';
+            }
+        } else {
+            orderListTable.tableData = mapData(tableContent);
+            orderListTable.loadingScreen = false;  
+        }
+    }
+ 
+    function buildFilterParameter(){
+        let urlWithParams = new URL(window.location.origin + window.location.pathname);
+
+        if(sortOrder != 'DESC' && sortOrder != 'desc'){ urlWithParams.searchParams.append('sort_order', sortOrder); }
+        if(pageSize > 10){ urlWithParams.searchParams.append('per_page', pageSize); }
+
+        let searchKey = searchKeyword.trim();
+        if(searchKeyword != ''){ urlWithParams.searchParams.append('search', searchKey); }
+        let statusKey = filterStatus.trim().toLowerCase().replace(" ", "_");
+        if(statusKey != ''){ urlWithParams.searchParams.append('status', statusKey); }
+        if(filterDateTo != ''){ urlWithParams.searchParams.append('to', filterDateTo + 'T23:59:59'); }
+        if(filterDateFrom != ''){ urlWithParams.searchParams.append('from', filterDateFrom + 'T00:00:00'); }
+        //check if any filter needs to reset the current page number
+        let resetPage = false;
+
+        if(searchKeyword != currentFilter.searchKeyword){ resetPage = true; }
+        if(filterStatus != currentFilter.filterStatus){ resetPage = true; }
+        if(filterDateTo != currentFilter.filterDateTo){ resetPage = true; }
+        if(filterDateFrom != currentFilter.filterDateFrom){ resetPage = true; }
+
+        if(resetPage){
+            urlWithParams.searchParams.delete('page');
+        } else {
+            if(currentPage > 1){ urlWithParams.searchParams.append('page', currentPage); }
+        }
+        
+        window.location.href = urlWithParams.href;
+    }
+
+    function filterHandler(event){
+        let dateSelected = event.detail["Date"];
+        let orderStatus = event.detail["Order status"];
+
+        if(orderStatus == "All"){ filterStatus = ''; } 
+        else { filterStatus = orderStatus; }  
+
+        if(dateSelected == "All"){
+            filterDateTo = '';
+            filterDateFrom = '';
+        } else {
+            filterDateTo = dateSelected.to;
+            filterDateFrom = dateSelected.from;
+        }       
+        buildFilterParameter()             
+    }
+
+    function tableSortHandler(event){
+        sortOrder = event.detail.order;
+        buildFilterParameter();
+    }
+
+    function tableSearchHandler(event){
+        if(event.detail.keyCode == 13){
+            searchKeyword = event.detail.value;
+            let searchKey = searchKeyword.trim();
+            if(searchKeyword != ''){
+                buildFilterParameter();
+            } else if(searchKeyword == '' && hasFilter){
+                buildFilterParameter();
+            }
+        }
+    }
+
+    function tablePaginationHandler(event){
+        currentPage = event.detail.pageNumber;
+        pageSize = event.detail.pageSize;
+        buildFilterParameter();
+    }
+
+    function initFilter(){
+        if(orderFilter){
+            orderFilter.addEventListener('insFilterApply', filterHandler);
+        }
+    }
+
+    function initOrderTable(){
+        if(orderListTable){
+            orderListTable.sortKeyword = "Date Ordered";
+            orderListTable.tableHeaders = tableHeaders;
+            orderListTable.rowActions = ['View order'];
+
+            processTableData(tableContent);
+            orderListTable.addEventListener('insPaginationChange', tablePaginationHandler);
+            orderListTable.addEventListener('insTableSearch', tableSearchHandler);
+            orderListTable.addEventListener('insTableSort', tableSortHandler);
+            orderListTable.addEventListener('insTableRowAction', event => {
+                window.location.href = '/order-history/' + event.detail.data.id;
+            });
+        }
+    }
+    
     setTimeout(() => {
         initOrderTable();
         initFilter();
 }, 200);
-
-
-
 </script>
-{%- endif -%}
+

@@ -5,18 +5,11 @@ metadata: {
 ---
 {% comment %} 
     Parameters from parent: 
-        - user_uuid
         - user_cart
         - carts
         - products
+        - discounts
 {% endcomment %}
-
-
-{%- assign user_id = context.current_user.id | default: null -%}
-{%- function has_profile = "modules/website/layout/check_if_user_has_profile" -%}
-{%- unless has_profile -%}
-    {%- assign user_id = null -%}
-{%- endunless -%}
 
 
 {% comment %} Initialize Variables {% endcomment %}
@@ -29,37 +22,8 @@ metadata: {
     assign used_discounts = '' | split: ','
 %}
 
-{% if user_id == null %}
-    {% comment %} Guest user {% endcomment %}
-    
-    {% unless guest_discounts %} 
-        {% if context.session.discount_uuids %}
-            {% graphql discounts = 'modules/ecommerce/discount/get_discount_by_uuids', 
-                uuids: context.session.discount_uuids | dig: 'items', 'results' %}
-        {% endif %}
-    {% endunless %} 
 
-    {% assign carts = context.session.guest_cart %}
-
-    {% comment %} Get product info {% endcomment %}
-    {%  liquid  
-        assign product_uuids = carts | array_map: 'product_uuid' | array_flatten
-        graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: carts.size | dig: 'items','results'
-    %}    
-
-    {% parse_json guest_cart_items %}
-    {
-        "carts": {{ carts | default: '[]' }},
-        "products": {{ products | default: '[]' }}
-    }
-    {% endparse_json %}
-
-    {% export guest_cart_items %}
-{% else %}
-
-    {% comment %} Logged in user {% endcomment %}
-
-    {% if user_uuid and user_cart and carts and products %}
+    {% if user_cart and carts and products %}
         {% comment %} Do nothing {% endcomment %}
     {% else %}
         {% include 'modules/ecommerce/carts/cart_items' %}
@@ -67,20 +31,32 @@ metadata: {
         {% assign user_cart = cart_items.user_cart %}
         {% assign carts = cart_items.carts %}
         {% assign products = cart_items.products %}
+        {% assign discounts = user_cart.discounts %}
     {% endif %}
 
-    {% assign discounts = user_cart.discounts %}
-    
-{% endif %}
 
 {% if carts.size > 0 %}
 
     {% for item in carts %}
                     
-        {% include 'modules/ecommerce/carts/cart_details', products, item, user_uuid %}
+        {% include 'modules/ecommerce/carts/cart_details', products, item %}
         {% assign cart = context.exports.cart %}    
         {% assign item_total_price = cart.item_total_price %}
         {% assign sub_total_amount = sub_total_amount | plus: item_total_price %}
+
+
+        {% comment %} 
+            Make sure that is_on_sale value is either true or false only
+            This is to avoid issues when the cart.selected_prop.is_on_sale = null
+        {% endcomment %}
+        {% liquid
+            if cart.selected_prop.is_on_sale == true
+                assign is_on_sale = true
+            else
+                assign is_on_sale = false
+            endif
+        %}
+
 
         {% comment %} Shipping Fee {% endcomment %}
         {%  liquid
@@ -94,38 +70,36 @@ metadata: {
             assign sub_total_shipping = sub_total_shipping | plus: sub_freight_amount
         %}
         
+
         {% comment %} Tax {% endcomment %}
         {% comment %} 
             when is_tax_included = true, the tax is already included in the price of the product
         {% endcomment %}
-        {%  liquid                
+        {%  liquid                              
+
             if cart.selected_prop.is_fixed_tax_amount == true
                 assign tax = cart.selected_prop.tax_amount | times: item.quantity
-            else 
-                if cart.selected_prop.is_tax_included == true
-                    ## tax = (Price x Tax Rate​) / (1 + Tax Rate​)
-                    assign tax_rate = cart.selected_prop.tax_amount | divided_by: 100
-                    assign temp_val = cart.price | times: tax_rate
-                    assign temp_val2 = 1 | plus: tax_rate
-                    assign tax = temp_val | divided_by: temp_val2 | times: item.quantity
-                else 
-                    assign tax = cart.price | times: cart.selected_prop.tax_amount | divided_by: 100 | times: item.quantity
-                endif
+            else                
+                assign tax = cart.price | times: cart.selected_prop.tax_amount | divided_by: 100 | times: item.quantity
             endif
             
             assign sub_total_tax = sub_total_tax | plus: tax
 
-            if cart.selected_prop.is_tax_included == true                   
-                ## save the tax that is already included in the price of the product 
-                ## we will use this to subtract in the total amount
+            ## save the tax that is already included in the price of the product 
+            ## we will use this to subtract in the total amount
+            if is_on_sale == false and cart.selected_prop.is_tax_included == true
                 assign sub_total_tax_included = sub_total_tax_included | plus: tax
-                assign tax_label = 'Includes Tax'
+                assign tax_label = 'Includes tax'
+            elsif is_on_sale == true and cart.selected_prop.is_sale_price_tax_included == true
+                assign sub_total_tax_included = sub_total_tax_included | plus: tax
+                assign tax_label = 'Includes tax'
             elsif sub_total_tax_included > 0
-                assign tax_label = 'Includes Tax'
+                assign tax_label = 'Includes tax'
             else 
                 assign tax_label = 'Tax'
             endif
         %}
+        
 
         {% comment %} Discounts {% endcomment %}
         {% function sub_total_discount = 'modules/ecommerce/checkout/compute_discount', 
@@ -160,7 +134,7 @@ metadata: {
 {% assign processing_fee = temp_total | times: 0.017 %}
 {% assign total_amount = temp_total | plus: processing_fee %}
 
-{% comment %} tax_included_in_price represents the sum of taxes that are already included in the product price {% endcomment %}
+
 {% parse_json computed %}
 {
     "sub_total_amount": {{ sub_total_amount | default: 0 }},
@@ -169,7 +143,6 @@ metadata: {
     "processing_fee": {{ processing_fee | default: 0 }},
     "tax_label": "{{ tax_label }}",
     "tax_amount": {{ sub_total_tax | default: 0 }},
-    "tax_included_in_price": {{ sub_total_tax_included | default: 0 }},
     "total_amount": {{ total_amount | default: 0 }},
     "sub_total_tax_not_included": {{ sub_total_tax_not_included | times: 1 | default: 0 }},
     "sub_total_tax_included": {{ sub_total_tax_included | times: 1 | default: 0 }},

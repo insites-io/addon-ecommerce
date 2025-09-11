@@ -3,8 +3,10 @@ slug: api/remove-to-cart
 format: json
 method: post
 searchable: false
+metadata: {
+    "status": "published",
+    "api_endpoint_name": "Remove to cart"
+}
 ---
-{%- assign params = context.params -%}
-
 
 {% include 'modules/ecommerce/carts/remove_to_cart', print: true %}

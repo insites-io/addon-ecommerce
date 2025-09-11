@@ -3,122 +3,99 @@ slug: api/add-to-cart
 format: json
 method: post
 searchable: false
+metadata: {
+    "status": "published",
+    "api_endpoint_name": "Add to cart"
+}
 ---
-{%- assign params = context.params -%}
 
+{%- liquid
+    assign params = context.params
+    assign contact_uuid = params.contact_uuid
+    assign type = params.type
+    assign quantity = params.quantity
+    assign product_uuid = params.product_uuid
+    assign variant_uuid = params.variant_uuid
+-%}
 
-{%- comment -%} Check if the user already has a cart {%- endcomment -%}
-{%- graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
-    contact_uuid: params.contact_uuid | dig: 'items','results' | first -%}
+{%- if contact_uuid != blank and contact_uuid != '' -%}
 
+    {%- comment -%} Check if the user already has a cart {%- endcomment -%}
+    {%- graphql cart = 'modules/ecommerce/carts/get_cart', 
+        contact_uuid: params.contact_uuid | dig: 'items','results' | first -%}
 
-{%- if user_cart.id -%}
-    {%- comment -%} The user already exists: Update Cart {%- endcomment -%}
-
-    {%- comment -%} Convert array values from string to object {%- endcomment -%}
-    {%-  liquid
-        assign item_array = '' | split: ',' 
-
-        for item in user_cart.items
-            assign item_json = item | parse_json
-            assign item_array = item_array | array_add: item_json
-
-            ## Check if the product to be added already exists
-            if item_json.product_uuid == params.product_uuid and item_json.product_sku == params.product_sku
-                assign is_item_exist = true
-                assign item_exist_index = forloop.index0
-                assign product = item_json
-            endif
-        endfor
-    -%}
-    
-
-    {%- comment -%} Check if the product to be added already exists. {%- endcomment -%}    
-    {%- if is_item_exist == true -%}
-        
-        {%- liquid
-            if params.type == 'stepper'
-                assign quantity = params.quantity
-            else 
-                assign quantity = product.quantity | plus: 1
-            endif
-        -%}
-        {%- parse_json updated_item -%}
-        {
-            "product_uuid": "{{ params.product_uuid }}",
-            "quantity": "{{ quantity }}",
-            "product_sku": "{{ params.product_sku }}"
-        }        
-        {%- endparse_json -%}
-
-        {%- comment -%} Delete existing {%- endcomment -%}        
-        {%- assign item_array = item_array | array_delete_at: item_exist_index  -%}                
-
-        {%- if item_array.size == 0 -%}
-            {%- assign item_array = '' | split: ',' -%}
+    {%- if cart.uuid -%}
+        {%- comment -%} This user already has a cart. {%- endcomment -%}                
+        {%- comment -%} Check if the product is already added in the cart_item {%- endcomment -%}
+        {%- if variant_uuid != null and variant_uuid != '' -%}
+            {%- assign product_exist = cart.cart_items | array_detect: variant_uuid: variant_uuid -%}
+        {%- else -%}
+            {%- assign product_exist = cart.cart_items | array_detect: product_uuid: product_uuid -%}
         {%- endif -%}
 
-        {%- comment -%} Then add the updated quantity {%- endcomment -%}        
-        {%- assign item_array = item_array | array_add: updated_item  -%}
-        
+        {%- if product_exist.id -%}
+            {% comment %} Update the quantity only {% endcomment %}
+            {%- liquid
+                if type == 'stepper'
+                    assign new_quantity = quantity
+                else
+                    assign new_quantity = product_exist.quantity | plus: 1 
+                endif
+            -%}
+            {%- parse_json cart_item_data -%}
+            {
+                "id": {{ product_exist.id }},
+                "quantity": {{ new_quantity }}
+            }
+            {%- endparse_json -%}
+            {%- graphql add_cart_item = 'modules/ecommerce/cart_items/update_cart_item', args: cart_item_data -%}
+        {%- else -%}
+            {% comment %} Add new item in the cart_item {% endcomment %}                
+            {%- parse_json cart_item_data -%}
+            {
+                "uuid": "{{ '' | uuid }}",
+                "cart_uuid": "{{ cart.uuid }}",
+                "quantity": {{ quantity | default: 1 }},
+                "product_uuid": "{{ product_uuid }}",
+                "variant_uuid": "{{ variant_uuid }}"
+            }
+            {%- endparse_json -%}
+            {%- graphql add_cart_item = 'modules/ecommerce/cart_items/add_cart_item', args: cart_item_data -%}
+        {%- endif -%}
+
     {%- else -%}
-    
-        {% comment %} The product item doesn't exist in the cart yet. {% endcomment %}
 
-        {%- parse_json new_item -%}
+        {%- comment -%} The user does not have a cart yet {%- endcomment -%} 
+        {%- comment -%} Step 1: Add cart {%- endcomment -%}
+        {%- parse_json cart_data -%}
         {
-            "product_uuid": "{{ params.product_uuid }}",
-            "quantity": "{{ params.quantity }}",
-            "product_sku": "{{ params.product_sku }}"
-        }        
-        {%- endparse_json -%}        
-        {%- assign item_array = item_array | array_add: new_item  -%}
+            "uuid": "{{ '' | uuid }}",
+            "contact_uuid": "{{ contact_uuid }}"
+        }
+        {%- endparse_json -%}
+        {%- graphql add_cart = 'modules/ecommerce/carts/add_cart', args: cart_data | dig: 'items' -%}
 
+        {%- comment -%} Step 2: Add cart_item {%- endcomment -%}
+        {%- parse_json cart_item_data -%}
+        {
+            "uuid": "{{ '' | uuid }}",
+            "cart_uuid": "{{ add_cart.uuid }}",
+            "quantity": {{ quantity | default: 1 }},
+            "product_uuid": "{{ product_uuid }}",
+            "variant_uuid": "{{ variant_uuid }}"
+        }
+        {%- endparse_json -%}
+        {%- graphql add_cart_item = 'modules/ecommerce/cart_items/add_cart_item', args: cart_item_data -%}
+        
     {%- endif -%}
 
-    {%- comment -%} Convert the object back to string {%- endcomment -%}
-    {%-  liquid
-        assign tmp_array = '' | split: ',' 
-        for item in item_array
-            assign tmp_item = item | json
-            assign tmp_array = tmp_array | array_add: tmp_item
-        endfor
-        assign item_array = tmp_array
-    -%}
-
-    {%- parse_json args -%}
-    {
-        "id": {{ user_cart.id | default: 0 }},
-        "items": {{ item_array | default: '[]' }}
-    }
-    {%- endparse_json -%}
-    {%- graphql cart = 'modules/ecommerce/carts/edit_cart_items', args: args -%}
+    {{add_cart_item}}
 
 {%- else -%}
-
-    {%- comment -%} The user doesn't exist: Add Cart {%- endcomment -%}
-    {%- parse_json item -%}    
     {
-        "product_uuid": "{{ params.product_uuid }}",
-        "quantity": "{{ params.quantity }}",
-        "product_sku": "{{ params.product_sku }}"
+        "error": "contact_uuid is required"
     }
-    {%- endparse_json -%}
-
-    {%- assign item = item | json -%}
-    {%- assign item_array = '' | split: ',' -%}
-    {%- assign item_array = item_array | array_add: item -%}
-    
-    {%- parse_json args -%}
-    {
-        "uuid": "{{ '' | uuid }}",
-        "contact_uuid": "{{ params.contact_uuid }}",
-        "items": {{ item_array | default: '[]' }}
-    }
-    {%- endparse_json -%}
-    {%- graphql cart = 'modules/ecommerce/carts/add_cart', args: args -%}
-
 {%- endif -%}
 
-{{cart}}
+
 {%- response_status 200 -%}

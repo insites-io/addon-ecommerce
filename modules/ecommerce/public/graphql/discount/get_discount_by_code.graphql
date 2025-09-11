@@ -2,6 +2,7 @@ query get_discount_by_code (
   $page: Int = 1
   $size: Int = 1
   $discount_code: String!
+  $status: String = "enabled"
 ) {
   items: records (
     page: $page
@@ -10,20 +11,19 @@ query get_discount_by_code (
       deleted_at: { exists: false }
       table: { value: "modules/insites_ecommerce/discount" }
       properties: [
-        {name: "status", value: "enabled"}
+        {name: "status", value: $status}
         {name: "discount_code", value: $discount_code}
       ]
     }
   ) {
-    total_entries
-    total_pages
-    current_page
     results {
       id 
       uuid: property(name: "uuid")
+      status: property(name: "status")
       usage_count: property_int(name: "usage_count")
       usage_limit: property_int(name: "usage_limit")
       usage_limit_per_user: property_int(name: "usage_limit_per_user")
+      minimum_cart_value: property_float(name: "minimum_cart_value")
       applicable_to: property(name: "applicable_to")
       discount_code: property(name: "discount_code")
       discount_name: property(name: "discount_name")

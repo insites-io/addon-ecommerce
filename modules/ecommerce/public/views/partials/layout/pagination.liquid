@@ -4,136 +4,52 @@ metadata: {
 }
 ---
 
-{% comment %} Ensure that the variable is an integer {% endcomment %}
-{% assign per_page = per_page | times: 1 %}
-{% assign default_per_page = default_per_page | default: 9 %}
+{% comment %} 
+    Required parameters from parent:
+    - data
+    - label
+{% endcomment %}
 
-{% if data.total_entries > 0 %}
-        <div class="paginations grid-x align-right align-middle">
-            <span class="per__page form-label">{{label | default: 'Items'}} per page:</span>            
-            <ins-select id="pagination" class="form-placeholder"
-                placeholder="Select Size" 
-                drop-up small>               
-                {% if per_page != 15 and per_page != 30 %}
-                    <ins-select-option label="{{ per_page }}" value="{{ per_page }}" default></ins-select-option>
-                    <ins-select-option label="15" value="15"></ins-select-option>
-                    <ins-select-option label="30" value="30"></ins-select-option>
-                {% else %}
-                    <ins-select-option label="{{ default_per_page }}" value="{{ default_per_page }}" ></ins-select-option>
-                    <ins-select-option label="15" value="15"  {% if per_page == 15 %}default{% endif %}></ins-select-option>
-                    <ins-select-option label="30" value="30"  {% if per_page == 30 %}default{% endif %}></ins-select-option>
-                {% endif %}
-            </ins-select>
-
-            {%- assign tmp_start_count = data.current_page | times: per_page -%}
-            {%- assign tmp_start_minus = per_page | minus: 1 -%}
-            {%- assign tmp_start = tmp_start_count | minus: tmp_start_minus -%}
-            {%- assign tmp_end_count = data.current_page | times: per_page -%}
-            {%- if tmp_end_count > data.total_entries -%}
-            {%- assign end_count = data.total_entries -%}
-            {%- else -%}
-            {%- assign end_count = tmp_end_count -%}
-            {%- endif -%}
-
-            <div class="form-placeholder">
-                <span>{{ tmp_start }}</span>
-                <span>-</span>
-                <span>{{ end_count }}</span>
-                <span>of</span>
-                <span>{{ data.total_entries }}</span>
-            </div>
-                
-            <div>
-                {%- if data.current_page > 1 -%}
-                <ins-button 
-                    class="previous"
-                    label=""
-                    data="previous"
-                    icon="icon-angle-left">
-                </ins-button>
-                {%- endif -%}
-            </div>
-            <div>
-                {%- if data.current_page < data.total_pages -%}
-                <ins-button 
-                    label=""
-                    data="next"
-                    class="btn-icon-right next"
-                    icon="icon-angle-right">
-                </ins-button>
-                {%- endif -%}
-            </div>
-
-        </div>
-
-{% endif %}
+<ins-table no-wrap
+    static-table
+    class="for-pagination-only"
+    id="insBaseTable"
+    without-search>    
+</ins-table>
 
 <script>
-    let pagination = document.getElementById("pagination");
-    let nextBtn = document.querySelectorAll(".next"); 
-    let previousBtn = document.querySelectorAll(".previous"); 
+    var insBaseTable = document.getElementById('insBaseTable');
 
-    if (typeof filters === "undefined") {
-        var filters = {
-            "page": {{ context.params.page | default: 1}},
-            "per_page": {{ per_page | default: 10}}
-        };
-    }    
+    insBaseTable.pageSizeOptions = [9,15,30];
+    insBaseTable.totalCount = {{ data.total_entries }};
+    insBaseTable.pageNumber = {{ data.current_page }};
+    insBaseTable.pageSize = {{ data.per_page |  default: 10}};
+    insBaseTable.paginationText = "{{ label }}";    
+    
+    insBaseTable.addEventListener('insPaginationChange', tablePaginationHandler);
 
-    if(pagination) pagination.addEventListener('insValueChange', paginationHandler);
+    function tablePaginationHandler(event) {
+        const pageSize = event.detail.pageSize;
+        const pageNumber = event.detail.pageNumber;
 
-    if(previousBtn){
-        previousBtn.forEach(btn => {
-            btn.addEventListener('insClick', paginationHandler);
-        });
+        // Use URL object for robust parsing
+        const url = new URL(window.location.href);
+
+        // Get current query parameters
+        const params = url.searchParams;
+
+        // Remove existing page and per_page params
+        params.delete('page');
+        params.delete('per_page');
+
+        // Set new pagination params
+        params.set('page', pageNumber);
+        params.set('per_page', pageSize);
+
+        // Set the updated search params back to the URL object
+        url.search = params.toString();
+
+        // Redirect to the new URL
+        window.location.href = url.toString();
     }
-
-    if(nextBtn){
-        nextBtn.forEach(btn => {
-            btn.addEventListener('insClick', paginationHandler);
-        });
-    }
-
-    function paginationHandler(e){
-        if(e.detail.data == "previous"){
-            filters.page = filters.page - 1;
-            if(filters.page < 1){
-                filters.page = 1;
-            }
-        } else if(e.detail.data == "next"){
-            filters.page = filters.page + 1;
-        } else {
-            filters.page = 1;
-            filters.per_page = e.detail;
-        }
-        
-        createUrlParams(filters);        
-    }
-
-    // Debounce function
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    // Wrap createUrlParams with debounce
-    const debouncedCreateUrlParams = debounce((params) => {
-        window.location.href = '?' + params;
-    }, 300); 
-
-    if (typeof createUrlParams !== "function") {
-        function createUrlParams() {
-            let params = Object.entries(filters)
-            .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-            .join("&"); 
-            debouncedCreateUrlParams(params);
-        }
-    }
-</script>        
+</script>

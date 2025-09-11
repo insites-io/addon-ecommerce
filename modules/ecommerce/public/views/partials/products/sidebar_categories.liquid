@@ -43,48 +43,55 @@ metadata: {
     {%- endcomment -%}
         <div id="sidebar-categories" class="sub-category no-icons">
             <a href="/products" {% unless params.slug2 %}class="active"{% endunless %}>
-                <span class="ui-sidebar" >All Products</span>
+                <span class="ui-sidebar" >All products</span>
             </a>
             {%- for topCat in top_categories -%}                                        
                 {%- assign withChild = parent_with_child | array_any: topCat.uuid -%}                    
                 {%- if withChild -%}        
                     {%  liquid 
+                        assign is_active = ''
                         if topCat.slug == params.slug2
                             assign is_active = 'active'
-                        else 
-                            assign is_active = ''
                         endif
                     %}                    
                     <ins-accordion menu>
+                        {%- assign link = topCat.slug -%}
+                        {%- if paramPerPage -%}
+                            {%- assign link = topCat.slug | append: '?' | append: paramPerPage -%}
+                        {%- endif -%}
                         <ins-accordion-item id="sub-{{topCat.id}}"
                             {{ is_active }}
                             class="ui-sidebar {{ is_active }}"
-                            heading="{{topCat.category_name}}" 
-                            link="/products/{{topCat.slug}}?{{paramPerPage}}"
+                            heading="{{topCat.category_name | capitalize}}" 
+                            link="/products/{{ link }}"
                             link-target="_self" 
                             open-icon="icon-plus"
                             close-icon="icon-minus"
                             arrow-activated>
                             {%- for subCat in sub_categories -%}
                                 {%- liquid
-                                    assign urlparams = 'cat=' | append: subCat.slug | strip                                     
+                                    assign urlparams = 'category=' | append: subCat.slug | strip                                     
                                     if params.page
                                         assign urlparams =  urlparams | append: paramPerPage
                                     endif                                                                                                                                                                                                                            
                                 -%}
                                 {%- assign isChild = subCat.parent_category_uuids | array_any: topCat.uuid -%} 
                                 {%- if isChild -%}
-                                <a href="/products/{{topCat.slug}}?{{urlparams}}" {%- if subCat.slug == params.cat -%}class="active"{%- endif -%}>
-                                    <span class="ui-sidebar" id="sub-{{subCat.id}}">{{subCat.category_name}}</span>
-                                </a>
+                                    <a href="/products/{{topCat.slug}}?{{urlparams}}" {%- if subCat.slug == params.category -%}class="active"{%- endif -%}>
+                                        <span class="ui-sidebar" id="sub-{{subCat.id}}">{{subCat.category_name | capitalize}}</span>
+                                    </a>
                                 {%- endif -%}
                             {%- endfor -%}
                         </ins-accordion-item>
                     </ins-accordion>
-                {%- else -%}                
-                <a href="/products/{{topCat.slug}}?{{paramPerPage}}" {%- if topCat.slug == params.slug2 -%}class="active"{%- endif -%}>
-                    <span class="ui-sidebar" id="sub-{{topCat.id}}">{{topCat.category_name}}</span>
-                </a>
+                {%- else -%} 
+                    {%- assign link = topCat.slug -%}
+                    {%- if paramPerPage -%}
+                        {%- assign link = topCat.slug | append: '?' | append: paramPerPage -%}
+                    {%- endif -%}
+                    <a href="/products/{{ link  }}" {%- if topCat.slug == params.slug2 -%}class="active"{%- endif -%}>
+                        <span class="ui-sidebar" id="sub-{{topCat.id}}">{{topCat.category_name | capitalize}}</span>
+                    </a>
                 {%- endif -%}
             {%- endfor -%}
         </div>

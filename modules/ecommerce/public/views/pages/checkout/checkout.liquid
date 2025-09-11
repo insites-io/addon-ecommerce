@@ -1,25 +1,22 @@
 ---
 slug: checkout
-layout: modules/ecommerce/checkout-layout
+layout: modules/ecommerce/checkout_layout
 searchable: "true"
 max_deep_level: 3
-metadata: {
-    "status": "published",
-    "page_type": "content", 
-    "page_name": "Checkout",
-    "page_title": "Checkout",
-    "meta_title": "Checkout"       
+metadata: {    
+    "page_name": "Checkout - Contact Details",
+    "page_title": "Checkout - Contact Details | Insites",
+    "meta_title": "Checkout - Contact Details | Insites",
+    "is_visible_to_search_engines": false,
+    "is_sitemap_enabled": false
 }
 ---
-{%- include "modules/insites_cms/globals" -%}
-{%- assign global = context.exports.global -%}
-{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
 
-{%- if has_profile -%}
-    {%- include 'modules/ecommerce/checkout/checkout_account_info_page' -%}
-{%- elsif context.params.guest -%}
-    {%- session latest_step = 2 -%}
-    {% redirect_to '/checkout/shipping' %}
+{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
+{% assign user = context.exports.current_user.user %}
+
+{%- if has_profile or context.params.guest -%}
+    {%- include 'modules/ecommerce/checkout/checkout_contact', user: user -%}
 {%- else -%}
     {%- include 'modules/ecommerce/checkout/landing_page' -%}
 {%- endif -%}

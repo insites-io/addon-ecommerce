@@ -17,9 +17,6 @@ query get_payment_method (
     }
     sort: { updated_at: { order: DESC } }
   ) {
-    total_entries
-    total_pages
-    current_page
     results {
       id      
       card_brand: property(name: "card_brand")

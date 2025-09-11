@@ -7,33 +7,44 @@ metadata: {
 
 {%- liquid
     assign stripe_customer_id = blank
-    assign customer_name = prop.billing_contact_first_name | append: ' ' | append: prop.billing_contact_last_name
+    assign customer_name = prop.order_contact_first_name | append: ' ' | append: prop.order_contact_last_name
     assign charge_to_this_card = false
 -%}
-{%- function has_profile = "modules/website/layout/check_if_user_has_profile" -%}
 
-{% if has_profile %}
-    {%- comment -%} 
-        - STEP 1: Fetch user details and stripe customer information for logged-in users
-    {%- endcomment -%}
-    
-    {%  liquid
+{% comment %} Get Email {% endcomment %}
+{%- liquid
+    if context.current_user.email and context.current_user.email != ''
         assign customer_email = context.current_user.email
-        graphql stripe_customer = 'modules/portal/customers/get_user_stripe_id', email: customer_email | dig: 'items', 'results' | first
+    else
+        assign customer_email = context.session.contact_email
+    endif
+-%}
 
-        if stripe_customer.id 
-            assign stripe_customer_id = stripe_customer.profiles[0].stripe_id
-            assign user_uuid = stripe_customer.external_id
-            assign charge_to_this_card = prop.stripe_credit_card
-        endif 
-    %}
+{%- comment -%} 
+    - STEP 1: Fetch user details and stripe customer information for logged-in users
+{%- endcomment -%}
+{%  liquid
+    graphql stripe_customer = 'modules/portal/customers/get_user_stripe_id', email: customer_email | dig: 'items', 'results' | first
+
+    if stripe_customer.id 
+        assign stripe_customer_id = stripe_customer.profiles[0].stripe_id
+        assign user_uuid = stripe_customer.external_id
+        assign charge_to_this_card = prop.stripe_credit_card
+    endif 
+%}
+   
+
 
     {%- comment -%} 
         - STEP 2: Prepare Stripe Charge API request with relevant details
     {%- endcomment -%}
     {% assign stripe_amount = prop.total_amount | times: 100 %}
+    {% function stripe_settings = "modules/portal/stripe/get_stripe_settings" %}
     {% parse_json create_charge %}
     {
+        "sk_key": "{{ stripe_settings.sk_key }}",
+        "stripe_account_id": "{{ stripe_settings.account_id }}",
+        "sk_key_insites": "{{ stripe_settings.sk_key_insites }}",
         "idempotency_key": "{{ '' | uuid }}",
         "currency": "{{ currency }}",
         "amount": "{{ stripe_amount | advanced_format: '%.0f' }}",
@@ -72,77 +83,3 @@ metadata: {
 
     {% export payment_response %}
 
-{% else %}
-    {%- comment -%} Handle Guest Checkout {%- endcomment -%}
-    {%  liquid
-        assign user_uuid = context.session.guest_info.uuid
-        assign customer_email = context.session.billing_contact_email
-        assign card_brand = context.session.guest_info.card_brand
-    %}                    
-
-    {%- comment -%} 
-        - STEP 1: Prepare Stripe Payment Intent API request for guest users
-    {%- endcomment -%}
-    {% assign stripe_amount = prop.total_amount | times: 100 %}
-    {% parse_json payment_intent %}
-    {
-        "idempotency_key": "{{ '' | uuid }}",
-        "currency": "{{ currency }}",
-        "amount": "{{ stripe_amount | advanced_format: '%.0f' }}",
-        "description": "Insites Order ID: {{ form.id }} (Insites Customer UUID: {{ user_uuid }})",
-        "metadata": {
-            "Insites Order ID": "{{ form.id }}",
-            "Insites Customer UUID": "{{ user_uuid }}",
-            "Insites Company Name": "{{ prop.billing_company_name }}",
-            "Insites Order": "https://{{ context.location.host }}/admin/insites#/ecommerce/orders/{{ prop.uuid }}"
-        },
-        "billing_details": {
-            "name": "{{ customer_name }}",
-            "email": "{{ customer_email }}"
-        },
-        "payment_method": "{{ card_brand }}"
-    }
-    {% endparse_json %}
-
-    {%- comment -%} 
-        - STEP 2: Trigger the Stripe API to create the payment intent for the guest
-    {%- endcomment -%}
-    {% log "=== START PROCESS: STRIPE PAYMENT INTENT ===" %}
-    {% graphql stripe_payment_intent = 'modules/ecommerce/system/trigger_api_call', 
-        name: "modules/ecommerce/payment_intent",
-        data: payment_intent 
-        | dig: "items" | dig: "response" %}
-        
-    {%- assign payment_response = stripe_payment_intent.body | parse_json -%}
-    {% log "=== END PROCESS: STRIPE PAYMENT INTENT ===" %}
-   
-    {%- comment -%} 
-       - STEP 3: Handle payment confirmation 
-    {%- endcomment -%}
-    {% if payment_response.status == 'requires_confirmation' and card_brand != null %}
-        {%- comment -%} 
-            - If the payment requires confirmation, prepare and confirm the payment intent 
-        {%- endcomment -%}
-        {% log "=== START PROCESS: STRIPE PAYMENT INTENT CONFIRMATION ===" %}
-        {% parse_json confirm_payment_intent %}
-        {
-            "payment_intent_id": "{{ payment_response.id }}",
-            "payment_method": "{{ card_brand }}"
-        }
-        {% endparse_json %}
-
-        {% graphql stripe_confirm_payment_intent = 'modules/ecommerce/system/trigger_api_call', 
-            name: "modules/ecommerce/payment_intent_confirm",
-            data: confirm_payment_intent 
-            | dig: "items" | dig: "response" %}
-            
-        {%- assign payment_response = stripe_confirm_payment_intent.body | parse_json -%}
-
-        {% log "=== END PROCESS: STRIPE PAYMENT CONFIRMATION ===" %}
-    {% else %}
-        {% log "Fail to proceed in payment confirmation"%}
-    {% endif %}
-
-    {% export payment_response %}
-
-{% endif %}

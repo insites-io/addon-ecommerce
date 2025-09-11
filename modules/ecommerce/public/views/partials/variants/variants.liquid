@@ -1,0 +1,21 @@
+{% comment %} 
+     Required parameteres from parent:
+     - item
+     - selected_prop
+{% endcomment %}
+{% if item.variant_uuid != '' and item.variant_uuid != null %}
+     {%  liquid 
+         ## Convert an array of strings into an array of objects
+         assign options = '' | split: ',' 
+         for option in selected_prop.product_options
+             assign option_json = option | parse_json
+             assign options = options | array_add: option_json
+         endfor
+     %}
+     {% for option in options %}
+         <p>
+             <span class="body-x-small-bold">{{ option.product_option_label | titleize }}:</span>
+             <span class="body-x-small">{{ option.product_option_value | titleize }}</span>
+         </p>
+     {% endfor %}
+ {% endif %}

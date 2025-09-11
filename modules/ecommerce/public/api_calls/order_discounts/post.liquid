@@ -1,0 +1,13 @@
+---
+name: add_order_discount
+to: 'https://{{context.location.host}}/ecommerce/api/v2/order-discounts'
+format: http
+request_type: POST
+request_headers: >
+    {% include 'modules/portal/api_headers' %}
+metadata: {
+    "status": "published",
+    "api_endpoint_name": "Add order discount"
+}
+---
+{{ data }}

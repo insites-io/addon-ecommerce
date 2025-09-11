@@ -1,0 +1,20 @@
+mutation update_cart_timestamp (
+  $uuid: String!
+  $now: JSONDate!
+) {
+  ## Use records_update_all instead of record_update so we do not need to pass the id
+  items: records_update_all (
+    sync: true
+    table: "modules/insites_ecommerce/cart",
+    filter: {
+      properties: [
+        {name: "uuid", value: $uuid}
+      ]
+    }    
+    record: {      
+      updated_at: $now
+    }
+  ) {
+    count
+  }
+}

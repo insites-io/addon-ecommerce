@@ -16,7 +16,6 @@ query get_order_discounts (
       ] 
     }
   ) {
-    total_entries    
     results {
       id 
       order_contact_email: property(name: "order_contact_email")      

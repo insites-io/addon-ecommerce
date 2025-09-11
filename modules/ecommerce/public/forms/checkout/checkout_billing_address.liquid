@@ -3,26 +3,39 @@ name: checkout_billing_address
 resource: modules/insites_core/crm_address
 resource_owner: anyone
 redirect_to: checkout/payment
-flash_alert: "Error-UserAddress-{{ form.properties.submit_type }}"
-flash_notice: "Success-UserAddress-{{ form.properties.submit_type }}"
+flash_alert: "Error-UserAddressBilling"
+flash_notice: "Success-UserAddressBilling"
 fields:
   properties:
     uuid:
     related_uuid:
     related_type: 
-    address_label:
-    address_1:
-    address_2:
-    suburb:
-    state:
-    postcode:
-    country:  
-    submit_type:
+      property_options:
+        default: "contact"
+    #Do not edit any address properties for logged in user.
+    #use virtual property instead of original; sample: used address_1_ instead of address_1
+    #The Add address modal form is responsible for adding new address.
+    address_1_:
+      property_options:
+        virtual: true
+    address_2_:
+      property_options:
+        virtual: true
+    suburb_:
+      property_options:
+        virtual: true
+    state_:
+      property_options:
+        virtual: true
+    postcode_:
+      property_options:
+        virtual: true
+    country_:     
       property_options:
         virtual: true
     billing_same_with_shipping:
       property_options:
-        virtual: true
+        virtual: true   
     billing_company_name:
       property_options:
         virtual: true
@@ -43,278 +56,73 @@ fields:
         virtual: true
     billing_address_id:
       property_options:
-        virtual: true
-default_payload: >
-  {
-    "properties_attributes": {
-        "related_type": "contact",
-        "address_label": "Billing"
-    }
-  }
+        virtual: true        
+    
 callback_actions: |-    
 
-  {%- session billing_address_id = form.id -%}
+  {%- session billing_address_id = form.properties.billing_address_id -%}
   {%- session latest_step = 4 -%}
 
 ---
 
-{% comment %} 
-  This form will be check first by Checkout.events.billingSubmit()
-  If the billing is same with the shipping address:
-    - form submission will be skipped
-    - we will copy the shipping address to billing address then save it in sessions
-    - then redirect to checkout/payment
-  If not, then the form will be submitted and new billing address will be added/updated.
-{% endcomment %}
+{% assign prop = form.fields.properties %}
 
-{% assign user_uuid = context.current_user.external_id %}
-{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
-{%- unless has_profile -%}
-  {%- assign user_uuid = null -%}
-{%- endunless -%}
-
-{%- assign statusClass = "hide" -%}
-{%- assign addressIdUsed = context.session.billing_address_id | default: "" -%}
-
-{% if context.session.billing_address_id == blank or context.session.shipping_address_id == context.session.billing_address_id  %}
-{%- assign statusClass = "un-hide" -%}
-{%- assign addressIdUsed = context.session.shipping_address_id -%}
-{% endif %}
-
-{% assign prop = form.fields.properties %}      
 {%- form 
   html-id: "billing-address-form"
   html-novalidate: true
   html-enctype="multipart/form-data"
-  html-onsubmit:"return Checkout.events.billingSubmit(event);" -%}
+  html-onsubmit:"return Checkout.events.billingSubmit(event);" -%}  
 
-  <input type="hidden" id="temp-address-uuid" name="temp_uuid" value="{{ '' | uuid }}">
-  <input type="hidden" id="address-uuid" name="{{ prop.uuid.name }}" value="{{ '' | uuid }}">
-  <input type="hidden" id="address-related-uuid" name="{{ prop.related_uuid.name }}" value="{{ user_uuid }}">
 
-  <input type="hidden" id="hidden-billing_company_name" value="{{ context.session.billing_company_name }}">
-  <input type="hidden" id="hidden-billing_contact_first_name" value="{{ context.session.billing_contact_first_name }}">
-  <input type="hidden" id="hidden-billing_contact_last_name"  value="{{ context.session.billing_contact_last_name }}">
-  <input type="hidden" id="hidden-billing_contact_email"  value="{{ context.session.billing_contact_email }}">
+    {% include 'modules/ecommerce/checkout/checkout_billing_contacts', prop %}
 
-  <input type="hidden" id="hidden-billing_contact_phone_number" 
-    name="{{ prop.billing_contact_phone_number.name }}" 
-    value="{{ context.session.billing_contact_phone_number }}">
-  <input type="hidden" id="hidden-billing_contact_phone_country_code" 
-    name="{{ prop.billing_contact_phone_country_code.name }}" 
-    value="{{ context.session.billing_contact_phone_country_code }}">
+    <div class="hide-for-small-only spacer large"></div>
+    <div class="show-for-small-only spacer small"></div>
 
-  <input type="hidden" id="hidden-shipping-first-name" value="{{ context.session.shipping_contact_first_name }}" >
-  <input type="hidden" id="hidden-shipping-last-name" value="{{ context.session.shipping_contact_last_name }}" >
-  <input type="hidden" id="hidden-shipping-email" value="{{ context.session.shipping_contact_email }}" >
-  <input type="hidden" id="hidden-shipping-company-name"value="{{ context.session.shipping_company_name }}" >
-  <input type="hidden" id="hidden-shipping-country-code"value="{{ context.session.shipping_contact_phone_country_code }}" >
-  <input type="hidden" id="hidden-shipping-mobile-number"value="{{ context.session.shipping_contact_phone_number }}" >
-  <input type="hidden" id="hidden-shipping-address-1"value="{{ context.session.shipping_address_1 }}" >
-  <input type="hidden" id="hidden-shipping-address-2"value="{{ context.session.shipping_address_2 }}" >
-  <input type="hidden" id="hidden-shipping-suburb"value="{{ context.session.shipping_suburb }}" >
-  <input type="hidden" id="hidden-shipping-state"value="{{ context.session.shipping_state }}" >
-  <input type="hidden" id="hidden-shipping-postcode"value="{{ context.session.shipping_postcode }}" >
-  <input type="hidden" id="hidden-shipping-country"value="{{ context.session.shipping_country }}" >
-  <input type="hidden" id="hidden-current-user-id" value="{{ current_user.id }}" >
+    <div id="billing-address-fields" class="wrap {% if context.session.billing_same_with_shipping == true %} hide {% endif %}">
+      <div class="grid-x">        
+        <h4>Billing address</h4>
+        <div class="cell show-for-small-only spacer small"></div>
+        {% comment %} Add new address {% endcomment %}
+        <div id="billing-address-fields" class="text-right flex-child-grow" id="address-toggle">
+          <ins-button 
+            type="button" 
+            id="add-address-btn"
+            name="billing-address-fields" 
+            icon="icon-plus" 
+            label="Add new address">
+          </ins-button>
+        </div> 
+      </div>
 
-    
-  <div id="billing-details">
-    <div class="validate-address">
-
-      <h2 class="heading-2">Billing Address</h2>
-      <div class="spacer x-large"></div>
-
-      <ins-checkbox class="inline"
-        id="billing-same-with-shipping"
-        name="{{ prop.billing_same_with_shipping.name }}"
-        {% if context.session.billing_same_with_shipping == 'true' %} checked {% endif %}
-        value="{{ context.session.billing_same_with_shipping | default: false }}"
-        label="My billing address is the same as my shipping address">
-      </ins-checkbox>
-      
-      <div class="spacer"></div>
       <div class="spacer xx-small"></div>
-      
-      
-      <p class="error-message hide">Billing address is required.</p>
 
-      <div id="billing-contact-fields" class="billing-fields {% if context.session.billing_same_with_shipping == 'true' %} hide {% endif %}">
-        <div class="grid-x grid-padding-x">
-          <div class="large-12 medium-12 small-12 cell">
-            <ins-input
-              label="Company Name" 
-              id="billing_company_name"
-              placeholder="Company Name" 
-              name="{{ prop.billing_company_name.name }}"
-              value="{{ context.session.billing_company_name }}"
-              {% if form.errors['properties.billing_company_name'] %} has-error {% endif %}
-              error-message="{{ prop.billing_company_name.validation.rules.presence.message }}">
-            </ins-input>
-          </div>
-          <div class="large-6 medium-6 small-12 cell">
-            <ins-input required validate 
-              label="First Name*" 
-              name="{{ prop.billing_contact_first_name.name }}"
-              id="billing_contact_first_name"
-              placeholder="First Name" 
-              value="{{ context.session.billing_contact_first_name | default: '' }}"
-              {% if form.errors['properties.billing_contact_first_name'] %} has-error {% endif %}
-              error-message="{{ prop.billing_contact_first_name.validation.rules.presence.message }}">
-            </ins-input>
-          </div>
-          <div class="large-6 medium-6 small-12 cell">
-            <ins-input required validate 
-              label="Last Name*" 
-              name="{{ prop.billing_contact_last_name.name }}"
-              id="billing_contact_last_name"
-              placeholder="Last Name" 
-              value="{{ context.session.billing_contact_last_name | default: '' }}"
-              {% if form.errors['properties.billing_contact_last_name'] %} has-error {% endif %}
-              error-message="{{ prop.billing_contact_last_name.validation.rules.presence.message }}">
-            </ins-input>
-          </div>
-          <div class="large-6 medium-6 small-12 cell">
-            <ins-input required validate 
-              label="Email Address*" 
-              name="{{ prop.billing_contact_email.name }}"
-              id="billing_contact_email"
-              placeholder="Email Address" 
-              value="{{ context.session.billing_contact_email | default: '' }}"
-              {% if form.errors['properties.billing_contact_email'] %} has-error {% endif %}
-              error-message="{{ prop.billing_contact_email.validation.rules.presence.message }}">
-            </ins-input>
-          </div>
-          <div class="large-6 medium-6 small-12 cell">
-            <ins-input-tel 
-              class="label-input" 
-              id="billing-phone" 
-              label="Phone Number"
-              country-code="{{ context.session.billing_contact_phone_country_code | default: '61'}}"
-              phonenum-value="{{ context.session.billing_contact_phone_number  | default: ''}}"
-              phonenum-placeholder="Phone Number" no-areacode>
-            </ins-input-tel>
-          </div>
-        </div>
-      </div>        
+      {% comment %} Selected address {% endcomment %}
+      <ins-input validate required
+        id="billing_address_id" 
+        class="hidden-input"
+        value="{{ context.session.billing_address_id }}"
+        name="{{ prop.billing_address_id.name }}"
+        error-message="Billing address is required. Please select from the list below or add new address.">
+      </ins-input> 
+                
+      {%- comment -%} Address cards {%- endcomment -%}
+      {%- include 'modules/ecommerce/layout/address_cards', addresses: addresses, selected_card: context.session.billing_address_id | default: "", type: 'billing' -%}
 
-      {% comment %} Search Address {% endcomment %}              
-      <div id="billing-address-fields" class="address-fields {% if context.session.billing_same_with_shipping == 'true' %} hide {% endif %}">
-        <div class="grid-x grid-padding-x">                                                 
-          <div class="large-12 medium-12 small-12 cell">
-            <ins-input address-lookup label="Search Address" 
-              id="billing-address-search" name="billing"
-              placeholder="Search Address" icon="icon-map-pin">
-            </ins-input>
-            <input type="hidden" data-billing-address-field id="billing_address_id"
-              value="{{ addressIdUsed }}"
-              name="{{ prop.billing_address_id.name }}" >
-          </div>
-          <div class="large-6 medium-6 small-12 cell">
-            <ins-input data-billing-address-field required validate 
-              label="Address 1*" 
-              id="billing_address_1"
-              placeholder="Address 1" 
-              name="{{ prop.address_1.name }}"
-              value="{{ context.session.billing_address_1 }}"
-              {% if form.errors['properties.address_1'] %} has-error {% endif %}
-              error-message="{{ prop.address_1.validation.rules.presence.message }}">
-            </ins-input>
-          </div>
-          <div class="large-6 medium-6 small-12 cell">
-            <ins-input data-billing-address-field 
-              label="Address 2" 
-              id="billing_address_2" 
-              placeholder="Address 2"
-              name="{{ prop.address_2.name }}"
-              value="{{ context.session.billing_address_2 }}"
-              {% if form.errors['properties.address_2'] %} has-error {% endif %}
-              error-message="{{ prop.address_2.validation.rules.presence.message }}">
-            </ins-input>
-          </div>
-          <div class="large-6 medium-6 small-12 cell">
-            <ins-input data-billing-address-field validate
-              label="Suburb*" 
-              id="billing_suburb" 
-              placeholder="Suburb"
-              name="{{ prop.suburb.name }}"
-              value="{{ context.session.billing_suburb }}" 
-              {% if form.errors['properties.suburb'] %} has-error {% endif %}
-              error-message="{{ prop.suburb.validation.rules.presence.message }}">
-            </ins-input>
-          </div>
-          <div class="large-6 medium-6 small-12 cell">
-            <ins-input data-billing-address-field required validate 
-              label="State*" 
-              id="billing_state" 
-              placeholder="State"
-              name="{{ prop.state.name }}"
-              value="{{ context.session.billing_state }}"
-              {% if form.errors['properties.state'] %} has-error {% endif %}
-              error-message="{{ prop.state.validation.rules.presence.message }}">
-            </ins-input>
-          </div>
-          <div class="large-6 medium-6 small-12 cell">
-            <ins-input data-billing-address-field required validate 
-              label="Postcode*" 
-              id="billing_postcode"
-              placeholder="Postcode" 
-              name="{{ prop.postcode.name }}"
-              value="{{ context.session.billing_postcode }}"
-              {% if form.errors['properties.postcode'] %} has-error {% endif %}
-              error-message="{{ prop.postcode.validation.rules.presence.message }}">
-            </ins-input>
-          </div>
-          <div class="large-6 medium-6 small-12 cell">
-            <ins-input data-billing-address-field required validate 
-              label="Country*" 
-              id="billing_country"
-              placeholder="Country" 
-              name="{{ prop.country.name }}"
-              value="{{ context.session.billing_country }}"
-              {% if form.errors['properties.country'] %} has-error {% endif %}
-              error-message="{{ prop.country.validation.rules.presence.message }}">
-            </ins-input>
-          </div>
-        </div>
-      </div>
-      {% comment %}END:billing Address Fields {% endcomment %}
-    </div>  
-
-    {%- assign submitLabel = 'Proceed to Payment' -%}
-    {% if addresses.size <= 0 %}
-      {%- assign submitLabel = 'Save and Proceed' -%}
-    {% endif %}
-
-    <div class="spacer x-small"></div>
-    <div class="spacer x-small"></div>
-    <div class="grid-x grid-padding-x">    
-      <div class="large-6 medium-6 small-12 cell">
-        <a href="/checkout/shipping">
-          <ins-button solid type="button" label="Back" outlined></ins-button>
-        </a>
-      </div>
-      <div class="show-for-small-only spacer xxx-large"></div> 
-      <div class="large-6 medium-6 small-12 cell text-right">        
-        <ins-button solid 
-          id="billing-submit-button" 
-          type="submit" 
-          class="checkout-step-btn w-100 checkout-btn" 
-          label="{{submitLabel}}">
-        </ins-button>
-      </div>
     </div>
 
-  </div>
+     
 
+    
+      
+    
+        
+
+    {% comment %} Buttons {% endcomment %}
+    {% include 'modules/ecommerce/checkout/checkout_billing_buttons' %}
+         
 {%- endform -%}
 
-<script>
-  let shipping_address_id = "{{ context.session.shipping_address_id }}";
-  let shipping_company_name = "{{ context.session.shipping_address_id }}";
-  let shipping_contact_first_name = "{{ context.session.shipping_contact_first_name }}";
-  let shipping_contact_last_name = "{{ context.session.shipping_contact_last_name }}";
-  let shipping_contact_email = "{{ context.session.shipping_contact_email }}";
-  let shipping_contact_phone_number = "{{ context.session.shipping_contact_phone_number }}";
-  let shipping_contact_phone_country_code = "{{ context.session.shipping_contact_phone_country_code }}";
-</script>
+{% comment %} Add new address modal {% endcomment %}
+{% comment %} Do not put this modal inside <form>, it has it's own validation. {% endcomment %}
+{% include 'modules/ecommerce/checkout/add_address_modal', page: 'billing' %}

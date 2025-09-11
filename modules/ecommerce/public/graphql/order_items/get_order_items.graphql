@@ -23,18 +23,17 @@ query get_order_items (
       }
     }
     sort: {
-      created_at: { order: DESC}
+      created_at: { order: ASC}
     }
   ) {
-    total_entries  
-    total_pages
-    current_page  
     results {
-      id       
+      id             
       created_at
       product_uuid: property(name: "product_uuid")
+      product_variant_uuid: property(name: "product_variant_uuid")
       sku: property(name: "sku")
       quantity: property_int(name: "quantity")
+      item_price: property_float(name: "item_price")
       unit_price: property_float(name: "unit_price")
       is_fixed_tax_amount: property_boolean(name: "is_fixed_tax_amount")  
       tax_amount: property_float(name: "tax_amount")
@@ -51,6 +50,7 @@ query get_order_items (
       ) {
         id
         uuid: property(name: "uuid")
+        status: property(name: "status")
         slug: property(name: "slug")
         sku: property(name: "sku")
         product_name: property(name: "product_name")
@@ -69,7 +69,8 @@ query get_order_items (
           foreign_property: "product_uuid"
         ){
           id
-          is_on_sale: property_boolean(name: "is_product_on_sale")
+          uuid: property(name: "uuid")
+          is_on_sale: property_boolean(name: "is_on_sale")
           sale_price: property_float(name: "sale_price")  
           regular_price: property_float(name: "regular_price") 
           stock_level: property_int(name: "stock_level") 

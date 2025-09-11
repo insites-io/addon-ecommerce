@@ -5,12 +5,12 @@ metadata: {
 ---
 {% comment %} This partial is not a form at all but it has input fields and a button for user to enter a discount code. {% endcomment %}
 
-{%  assign user_uuid =  context.current_user.external_id %}
+{% function user_uuid = 'modules/ecommerce/user/get_user_uuid' %}
 
 <ins-accordion>
     <ins-accordion-item 
         class="discount-code-form"
-        heading="Have a Discount Code?" 
+        heading="Have a discount code?" 
         open-icon="icon-plus"
         close-icon="icon-minus">
         
@@ -22,9 +22,9 @@ metadata: {
                     <ins-input 
                         id="discount-code-input"
                         class="flex-child-auto"
-                        error-message="Discount Code is required"
+                        error-message="Discount code is required"
                         label=""
-                        placeholder="Enter Discount Code" >
+                        placeholder="Enter discount code" >
                     </ins-input>
                     <ins-button 
                         id="apply-discount-btn"
@@ -39,40 +39,22 @@ metadata: {
 </ins-accordion>
 
 <script>
-     let contact_uuid = '{{ user_uuid }}';
-     let discountCodeForm = document.getElementById('discount-code-form');
-     let applyDiscountBtn = document.getElementById('apply-discount-btn');
-     let discountCodeInput = document.getElementById('discount-code-input');
-
-     // getCartFromLocalStorage already exists in cart_drawer.liquid but not accessible here yet, 
-     // use this function instead
-     function getCartFromLocalStorage_(){
-        let carts = localStorage.getItem('carts');
-        if (carts) {
-            carts = JSON.parse(carts);
-        }
-        return carts;     
-     }
-
-     function getDiscountUuidsFromLocalStorage(){
-          let discount_uuids = JSON.parse(localStorage.getItem('discount_uuids')) ?? [];
-          return discount_uuids; 
-     }
-
-     let local_cart = contact_uuid == '' ? getCartFromLocalStorage_() : '';
-     let local_discount_uuids = contact_uuid == '' ? getDiscountUuidsFromLocalStorage() : '';     
+     var contact_uuid = contact_uuid || '{{ user_uuid }}';
+     var total_cart_value = {{ total_cart_value | default: 0 }};
+     const discountCodeForm = document.getElementById('discount-code-form');
+     const applyDiscountBtn = document.getElementById('apply-discount-btn');
+     const discountCodeInput = document.getElementById('discount-code-input');     
      
      applyDiscountBtn.addEventListener('insClick', async function(event) {
-          applyDiscountBtn.loading = true;
-          let discountCode = await discountCodeInput.getValue();
-          let payload = {
-                        contact_uuid: contact_uuid,
-                        discount_code: discountCode,
-                        check_duplicates: true,
-                        local_cart: local_cart,
-                        local_discount_uuids: local_discount_uuids,
-                        type: 'add_discount_code'
-                    }          
-          shoppingCart.methods.validateDiscountCode(payload, discountCodeForm);
+        applyDiscountBtn.loading = true;
+        let discountCode = await discountCodeInput.getValue();
+        let payload = {
+                contact_uuid: contact_uuid,
+                discount_code: discountCode,
+                check_duplicates: true,
+                type: 'add',
+                total_cart_value: total_cart_value
+            }          
+        shoppingCart.methods.validateDiscountCode(payload, discountCodeForm);
      });
 </script>

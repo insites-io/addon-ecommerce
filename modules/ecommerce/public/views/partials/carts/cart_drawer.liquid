@@ -3,122 +3,128 @@ metadata: {
     partial_name: 'Ecommerce | Carts | Cart Drawer'
 }
 ---
-{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
 
-{%- if has_profile -%}
-    {% comment %} Get the user uuid {% endcomment %}
-    {%  liquid
-        if context.session.user_uuid and context.session.user_uuid != ''
-            assign user_uuid = context.session.user_uuid
-        else
-            graphql user = 'modules/portal/account/get_current_user'
-            session user_uuid = user.current_user.external_id
-            assign user_uuid = user.current_user.external_id
-        endif
-    %}
+{% function user_uuid = 'modules/ecommerce/user/get_user_uuid' %}
 
-    {% comment %} Get the user's cart(s) {% endcomment %}
-    {% if user_uuid != '' %}
-        {% graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
+{% if user_uuid and user_uuid != '' %}
+    {% graphql user_cart = 'modules/ecommerce/carts/get_cart', 
             contact_uuid: user_uuid | dig: 'items','results' | first %}
-    {% endif %}
 {% endif %}
 
-{% if user_cart.items.size > 0 %}
+
+{% if user_cart.cart_items.size > 0 %}
 
     {% comment %} Get the product info {% endcomment %}
     {%  liquid
 
-        ## Convert an array of strings into an array of objects
-        assign item_obj = '' | split: ',' 
-        for item in user_cart.items
-            assign item_json = item | parse_json
-            assign item_obj = item_obj | array_add: item_json
-        endfor
-
-        assign product_uuids = item_obj | array_map: 'product_uuid' | array_flatten
-        graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: user_cart.items.size | dig: 'items','results'
+        assign product_uuids = user_cart.cart_items | map: 'product_uuid' | array_uniq
+        graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: user_cart.cart_items.size | dig: 'items','results'
     %}
 
 {% endif %}
 
 {% comment %} 
-    Add class 'hide' to this ins-drawer component to prevent glitch in the UI, 
+    - Add class 'hide' to this ins-drawer component to prevent glitch in the UI, 
     then remove the class 'hide' when the drawer has loaded.
+    - The width of the #cartDrawer is 440px, but we added an additional 11px to accommodate the scrollbar.
 {% endcomment %}
 <ins-drawer 
-  label="Cart ({{ user_cart.items.size | default: 0 }})" 
-  custom-width="390px" 
+  label="Cart ({{ user_cart.cart_items.size | default: 0 }})" 
+  custom-width="451px" 
   position="right" 
   id="cartDrawer"
   class="cart-drawer hide">
 
+    {% comment %} Empty cart {% endcomment %}
+    <div id="empty-cart-wrap" class="empty-cart-wrap {% if user_cart.cart_items.size > 0 %}hide{% endif %}">
+        <h5 class="text-center">Your cart is empty!</h5>
+        <div class="spacer x-small"></div>
+        <p class="text-center">Don't miss out on the best deals!</p>
+    </div>
+
+
+    {% comment %} Cart items - keep the #cart-items-wrap displaying even in zero item  {% endcomment %}
     <div id="cart-items-wrap">
 
-    {% if user_cart.items.size > 0 %}
+    {% if user_cart.cart_items.size > 0 %}
     
-        {% assign subtotal = 0 %}
+        {% assign subtotal = 0 %}        
+        {% assign recount_cart = false %}
+        {% assign recount_total_items = 0 %}
 
-        {% for item in item_obj %}
+        {% for item in user_cart.cart_items %}
 
-        {% liquid 
-            assign product = products | array_detect: uuid: item.product_uuid
-            assign product_name = product.product_name
+            {% liquid 
+                assign product = products | array_detect: uuid: item.product_uuid
+                assign product_name = product.product_name
 
-            ## to fix issues in comparing '' versus null
-            if product.product_sku == null 
-                assign product = product | add_hash_key: 'product_sku', ''
-            endif
-            
-            ## Check if the item is a product or a variant of the product
-            if item.product_sku == product.product_sku
-                ## item is NOT a variant
-                assign selected_prop = product
-            else 
-                ## item is a variant                
-                for variant in product.variants
-                    if item.product_sku == variant.product_sku
-                        assign selected_prop = variant
+                ## Automatically delete the item from the cart if there is no match in the products — probably because the product has been archived, disabled, or deleted.
+                if product.uuid == '' or product.uuid == blank 
+                    include 'modules/ecommerce/carts/remove_to_cart', id: item.id, uuid: item.uuid, cart_uuid: item.cart_uuid
+                    assign recount_cart = true                    
+                    continue
+                endif
+                assign recount_total_items = recount_total_items | plus: 1
+                
+                ## Check if the item is a product or a variant of the product
+                if item.variant_uuid == '' or item.variant_uuid == null
+                    ## item is NOT a variant
+                    assign selected_prop = product
+                    assign imgsrc = product.product_image.url
+                else 
+                    ## item is a variant                
+                    for variant in product.variants
+                        if item.variant_uuid == variant.uuid
+                            assign selected_prop = variant
+                        endif
+                    endfor
+
+                    ## Image: Use the variant; if none exists, use the main product image.
+                    assign imgsrc = selected_prop.product_image.url
+                    if imgsrc == '' or imgsrc == blank 
+                        assign imgsrc = product.product_image.url
                     endif
-                endfor
-            endif             
+                endif             
 
-            if selected_prop.is_on_sale == true 
-                assign price = selected_prop.sale_price
-                assign price_strikethrough = selected_prop.regular_price
-            else 
-                assign price = selected_prop.regular_price
-                assign price_strikethrough = ''
-            endif          
+                if selected_prop.is_on_sale == true 
+                    assign price = selected_prop.sale_price
+                    assign price_strikethrough = selected_prop.regular_price
+                else 
+                    assign price = selected_prop.regular_price
+                    assign price_strikethrough = ''
+                endif          
 
-            assign product_id = selected_prop.id
-            assign item_total = price | times: item.quantity
-            assign subtotal = subtotal | plus: item_total
-        %}
+                assign product_id = selected_prop.id
+                assign item_total = price | times: item.quantity
+                assign subtotal = subtotal | plus: item_total
+            %}
 
         <div id="cart-item-{{product_id}}" class="cart-item-wrap">
             <div class="grid-x" >
-                <div class="cell grid-y large-7 medium-7 small-7">
-                    <h6>{{ product_name }}</h6>
-                    <p class="body-x-small">SKU {{ item.product_sku }}</p>
-                    <div class="spacer x-small"></div>
-                    {% comment %} Get variant info {% endcomment %}
-                    {% if item.product_sku != product.product_sku %}
-                        {%  liquid 
-                            ## Convert an array of strings into an array of objects
-                            assign options = '' | split: ',' 
-                            for option in selected_prop.product_options
-                                assign option_json = option | parse_json
-                                assign options = options | array_add: option_json
-                            endfor
-                        %}
-                        {% for option in options %}
-                            <p>
-                                <span class="body-x-small-bold">{{ option.product_option_label | titleize }}:</span>
-                                <span class="body-x-small">{{ option.product_option_value | titleize }}</span>
-                            </p>
-                        {% endfor %}
+
+                <div class="image_wrap">
+                    <a href="/products/{{product.slug}}">
+                    {% if imgsrc != '' and imgsrc != blank %}
+                        <img src="{{ imgsrc | replace: ' ', '%20' | escape }}" width="66" height="66" alt="img-{{product_id}}">
+                    {% else %}
+                        {% include 'modules/website/layout/placeholder_image', size: 'small' %}
                     {% endif %}
+                    </a>
+                </div>
+
+                <div class="grid-y cart-details flex-child-auto">
+                    <a href="/products/{{product.slug}}"><h6>{{ product_name }}</h6></a>
+                    {% if selected_prop.stock_level < item.quantity %}
+                        <p>
+                            <ins-tag label="Pre-order" class='preorder-tag body-x-small' ></ins-tag>
+                        </p>
+                    {% endif %}
+                    <p class="body-x-small">SKU {{ selected_prop.product_sku }}</p>
+                    <div class="spacer x-small"></div>
+
+                    {% comment %} Print variant info {% endcomment %}
+                    {% include 'modules/ecommerce/variants/variants', item: item, selected_prop: selected_prop %}
+                    
                     <p>
                         <span class="body-x-small-bold">Price:</span>
                         <span class="body-x-small item-price">{{ price | plus: 0 | pricify: 'USD', no_cents_if_whole: false }}</span>
@@ -127,28 +133,32 @@ metadata: {
                         {% endif %}
                     </p>
                 </div>
-                <div class="cell grid-y large-5 medium-5 small-5 text-right">
+
+                <div class="cell spacer small show-for-small-only"></div>
+
+                <div class="grid-y flex-child-auto text-right">
                     <p class="cart-price compute-price">{{ item_total | plus: 0 | pricify: 'USD', no_cents_if_whole: false }}</p>
                     <div class="spacer x-small"></div>
                     <ins-input-stepper
+                        name="cart-stepper"
                         class="cart-stepper" 
                         data-id="{{ item.id }}"
                         data-product_uuid="{{ item.product_uuid }}"
-                        data-product_sku="{{ item.product_sku }}"
+                        data-variant_uuid="{{ item.variant_uuid }}"
                         data-product_name="{{ item.product_name }}"
+                        data-stock_level="{{ selected_prop.stock_level | default: 0 }}"
                         value="{{ item.quantity }}" 
-                        step="1" min="1" 
-                        {% if selected_prop.stock_level > 0 %}
-                            max="{{ selected_prop.stock_level }}" 
-                        {% endif %}
+                        step="1" min="1"                         
                         small>
                     </ins-input-stepper>
                     <div class="spacer small"></div>
                     <div class="text-right" >
+                        {% comment %} Use these IDs as a check to allow item deletion, since the API does not use an auth policy. {% endcomment %}
                         {% parse_json remove_item %}
                         {
-                            "product_uuid": "{{ item.product_uuid }}",
-                            "product_sku": "{{ item.product_sku }}"
+                            "id": "{{ item.id }}",
+                            "uuid": "{{ item.uuid }}",
+                            "cart_uuid": "{{ item.cart_uuid }}"
                         }
                         {% endparse_json %}
                         <ins-button label="Remove" icon="icon-trash-2" size="small" class="cart-remove-btn" data='{{ remove_item }}' ></ins-button>
@@ -157,35 +167,31 @@ metadata: {
             </div>               
             <div class="spacer x-large"></div>
         </div>
-        {% endfor %}    
+        {% endfor %}
+
+        {% assign total_cart_value = subtotal %}
+        {% export total_cart_value %}
 
     {% endif %}
 
-    </div>
+    </div>        
     
     {% comment %} user_cart = blank if the user has a guest account {% endcomment %}
-    <div id="empty-cart-wrap" class="empty-cart-wrap {% if user_cart.items.size > 0 %}hide{% endif %}">
-        <h3 class="text-center">Your cart is empty!</h3>
-        <div class="spacer x-small"></div>
-        <p class="text-center">Don't miss out on the best deals!</p>
-    </div>
-    
-    {% comment %} user_cart = blank if the user has a guest account {% endcomment %}
-    <div id="bottom-wrap" class="bottom-wrap {% if user_cart.items.size <= 0 or user_cart == blank %}hide{% endif %}">
+    <div id="bottom-wrap" class="bottom-wrap {% if user_cart.cart_items.size <= 0 or user_cart == blank %}hide{% endif %}">
         <div class="wrap">
             <div class="spacer"></div>
             <div class="grid-x align-justify" >
-                <p class="heading-3-small font-color-head">Sub Total</p>
+                <p class="heading-3-small font-color-head">Subtotal</p>
                 <p id="cart-subtotal" class="heading-3-small font-color-head">{{ subtotal | plus: 0 | pricify: 'USD', no_cents_if_whole: false }}</p>
             </div>
             <div class="spacer"></div>
-            <ins-button id="go-to-cart" label="Go to Cart" icon="icon-shopping-cart" solid class="full" 
+            <ins-button id="go-to-cart" label="Go to cart" icon="icon-shopping-cart" solid class="full" 
                 onclick="goToShoppingCartPage()">
             </ins-button>
             <div class="spacer x-small"></div>
-            <ins-button label="Continue Shopping" icon="icon-arrow-back" id="continue-shopping-btn" class="full"></ins-button>
+            <ins-button label="Continue shopping" icon="icon-arrow-back" id="continue-shopping-btn" class="full"></ins-button>
             <div class="spacer"></div>
-            <p class="body-small text-center">Shipping calculated at checkout</p>
+            <p class="body-small text-center shipping-note">Shipping calculated at checkout</p>
         </div>
     </div>    
     
@@ -193,10 +199,11 @@ metadata: {
 </ins-drawer>
 
 
-
 <script>
     var page = "{{ context.params.slug }}";
     var user_uuid = "{{ user_uuid }}";  
+    var recount_cart = {{ recount_cart | default: false }};
+    var recount_total_items = {{ recount_total_items | default: 0 }};    
 </script>
 {%- if context.environment == "staging" -%}
     <script src="{{ 'modules/ecommerce/scripts/cart-drawer.js' | asset_url }}"></script>

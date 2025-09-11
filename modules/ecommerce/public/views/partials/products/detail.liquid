@@ -3,8 +3,11 @@ metadata: {
     partial_name: 'Ecommerce | Products | Detail'
 }
 ---
-{%- graphql product = 'modules/ecommerce/products/get_product', 
-    slug: context.params.slug2 | dig: 'items','results' | first -%}
+
+{% comment %}  
+    Required from parent
+    - product
+{% endcomment %}
     
 {% liquid
 
@@ -12,78 +15,123 @@ metadata: {
     assign galleries = '' | split: ','    
     assign gallery_indexes = '{}' | parse_json 
     assign index = 0
-    if product.gallery_1.size > 0
-        for gallery in product.gallery_1
-            assign galleries = galleries | array_add: gallery.file.url
-            assign gallery_indexes = gallery_indexes | add_hash_key: variant.id, index
-            assign index = index | plus: 1
-        endfor
-    elsif product.product_image.url
-        assign galleries = galleries | array_add: product.product_image.url    
-        assign gallery_indexes = gallery_indexes | add_hash_key: variant.id, index  
+
+    ## Main Product Image
+    assign main_image = product.product_image.url | replace: ' ', '%20' | escape | default: ''
+    if main_image and main_image != ''
+        assign galleries = galleries | array_add: main_image  
         assign index = index | plus: 1
     endif
 
+    ## Gallery_1
+    if product.gallery_1.size > 0
+        for gallery in product.gallery_1
+            assign gallery_url = gallery.file.url | replace: ' ', '%20' | escape | default: ''
+            if gallery_url and gallery_url != ''
+                assign galleries = galleries | array_add: gallery_url
+                assign gallery_indexes = gallery_indexes | add_hash_key: gallery.id, index
+                assign index = index | plus: 1
+            endif
+        endfor
+    endif
 
-    if product.is_product_variant_enabled
-        assign selected_prop = product.variants[0]          
-        
-        ## Variant Galleries        
-        for variant in product.variants
-            assign galleries = galleries | array_add: variant.product_image.url
-            assign gallery_indexes = gallery_indexes | add_hash_key: variant.id, index
+    ## Gallery_2
+    if product.gallery_2.size > 0        
+        for gallery in product.gallery_2
+            assign galleries = galleries | array_add: gallery.file.url
             assign index = index | plus: 1
         endfor
-    else 
-        assign selected_prop = product        
     endif
-
-    if selected_prop.is_on_sale == true 
-        assign price = selected_prop.sale_price
-        assign price_strikethrough = selected_prop.regular_price
-    else 
-        assign price = selected_prop.regular_price
-        assign price_strikethrough = ''
-    endif
-
-    assign variants = '[]'
     
+    
+    if product.is_product_variant_enabled
+        ## The product has variants
+        assign selected_prop = product.variants[0] 
+        assign variant_id = selected_prop.id
+        assign variant_uuid = selected_prop.uuid 
+        assign disabledBtn = 'disabled'
+        ## Variant Images        
+        for variant in product.variants
+            if variant.product_image.url
+                assign galleries = galleries | array_add: variant.product_image.url
+                assign gallery_indexes = gallery_indexes | add_hash_key: variant.id, index
+                assign index = index | plus: 1
+            endif
+        endfor
+    else 
+        ## The product doesn't have variant
+        assign selected_prop = product    
+        assign variant_id = null
+        assign variant_uuid = null    
+        assign disabledBtn = ''
+    endif
+
+    ## Pricing
+    ## Use product details here even if variant is enabled
+    include 'modules/ecommerce/products/pricing', product: product
+    assign price = context.exports.price
+    assign price_strikethrough = context.exports.price_strikethrough
+    
+    assign variants = '[]'    
 %}
 
 
-<ins-button label="Go Back" icon="icon-angle-left" size="large" class="inline button-large go-back" onclick=window.history.back();></ins-button>
+<ins-button label="Go back" icon="icon-angle-left" class="inline go-back" onclick=window.history.back();></ins-button>
 <div class="spacer"></div>
 
 <div class="product-detail grid-x grid-padding-x">
     <div class="large-7 medium-12 small-12 cell">                
         <div class="gallery">   
 
-            {% comment %} ON SALE {% endcomment %}
+            {% comment %} On sale {% endcomment %}
             <div id="on-sale-tag" class="on-sale-tag {% unless selected_prop.is_on_sale == true %}hide{% endunless %}">ON SALE</div>
+
+
+            {% comment %} Out of Stock {% endcomment %}
+            {%  liquid 
+                assign btnLabel = 'Pre-order'
+                if product.is_product_variant_enabled 
+                    ## Initially hide the out-of-stock overlay when a variant is enabled
+                    assign hideOutOfStock = 'hide'
+                    assign btnLabel = 'Buy now'
+                elsif product.stock_level > 0
+                    assign hideOutOfStock = 'hide'
+                    assign btnLabel = 'Buy now'
+                else
+                    assign hideOutOfStock = ''
+                endif
+            %}
+            <div id="out-of-stock-overlay" class="out-of-stock {{hideOutOfStock}}"></div>
 
             {% comment %} Use gallery or product_image {% endcomment %}
             {%- if galleries.size > 0 -%}                  
                 <div class="main-gallery variant-gallery">                       
-                    <ins-gallery with-indicator slidable id="product-galleries">
+                    <ins-gallery  
+                        with-indicator 
+                        slidable 
+                        slidable-thumbs 
+                        thumbnail-layout="slider"
+                        id="product-galleries">
                         {%- for gallery in galleries -%}
-                         <ins-gallery-image
-                            thumbnail="{{ gallery }}"
-                            image="{{ gallery }}">
-                        </ins-gallery-image>
+                            <ins-gallery-image
+                                thumbnail="{{ gallery }}"
+                                image="{{ gallery }}">
+                            </ins-gallery-image>
                         {%- endfor -%}
                     </ins-gallery>
                 </div>
-                                
             {%- else -%}
                 {%- include 'modules/website/layout/placeholder_image', size: 'large' -%}
             {%- endif -%}
         </div>
-        <div class="spacer xx-large"></div>
+        <div class="spacer xx-large hide-for-small-only"></div>
+
+        {% comment %} Desktop: Long Description {% endcomment %}
         <div class="show-for-large">
             {%- if product.long_description != blank -%}
-            <h2>Key Features</h2>
+            <h4>Key features</h4>
             <div class="spacer"></div>
-            <div>
+            <div class="body description">                
                 {{ product.long_description  | html_safe }}
             </div>
             {%- endif -%}
@@ -91,48 +139,37 @@ metadata: {
     </div>
 
     <div class="large-4 medium-12 small-12 large-offset-1 cell">
-        <div class="hide-for-large spacer xxx-large"></div>
+        <div class="hide-for-large spacer x-large"></div>
 
         <div class="grid-y grid-padding-y product-details-column-2">
             {% comment %} Text heading {% endcomment %}
             <div>
-                <h1 class="heading-1">{{ product.product_name }}</h1>                
-                <p class="body-paragraph">SKU: <span id="product-sku">{% if product.is_product_variant_enabled != true %}{{ product.sku }}{% endif %}</p>
-            </div>
-            
-            {% comment %} Price {% endcomment %}
-            <div>                                                
-                <p id="product-price" class="heading-4">{{ price | pricify: 'USD', no_cents_if_whole: false }}</p>
-                {% if price_strikethrough != '' %}
-                <p id="regular-product-price" class="strikethrough">{{ price_strikethrough | pricify: 'USD', no_cents_if_whole: false }}</p>
+                <h1 class="heading-1">{{ product.product_name }}</h1>       
+                {% if product.sku != '' %}
+                    <p>SKU: <span id="product-sku">{{ product.sku }}</span></p>
                 {% endif %}
             </div>
+            
+            {% comment %} Price {% endcomment %}            
+            {% if price == '' or price == blank %}                                
+                {% assign hidePrice = 'hide' %}
+            {% endif %}
+            <div id="pricing-wrap" class="wrap {{hidePrice}}">                                                
+                <h5 id="product-price" class="heading-5-small">{{ price | pricify: 'USD', no_cents_if_whole: false }}</h5>                
+                <p id="regular-product-price" class="strikethrough">{{ price_strikethrough }}</p>                
+            </div>
 
-            {% comment %} Description {% endcomment %}
+            {% comment %} Short Description {% endcomment %}
             {% if product.short_description %}
             <div>
-                {{ product.short_description }}
+                <p>{{ product.short_description }}</p>
             </div>
             {% endif %}
-        
-            {% comment %} Out of Stock {% endcomment %}
-            {%  liquid 
-                assign btnLabel = 'Pre-Order'
-                if product.is_product_variant_enabled 
-                    assign hideOutOfStock = 'hide'
-                    assign btnLabel = 'Buy Now'
-                elsif product.stock_level > 0
-                    assign hideOutOfStock = 'hide'
-                    assign btnLabel = 'Buy Now'
-                else
-                    assign hideOutOfStock = ''
-                endif
-            %}
-            <div id="out-of-stock-wrap" class="wrap {{ hideOutOfStock }}">  
-                <div class="out-of-stock-notice">            
-                    <p>We're currently out of stock on this product, but you can secure yours by placing a pre-order now!</p>
-                    <p>We will notify you when your pre-order becomes available for delivery.</p>
-                </div>
+                    
+            {% comment %} Out of Stock Notice {% endcomment %}
+            <div id="out-of-stock-notice" class="out-of-stock-notice {{ hideOutOfStock }}">    
+                <p class="bold">Sorry, this product is currently out of stock.</p>                         
+                <p>You can secure yours by placing a pre-order now! We will notify you when your pre-order becomes available for delivery.</p>            
             </div>
 
             {% comment %} Variants {% endcomment %}
@@ -141,7 +178,7 @@ metadata: {
                     <div class="small-12 cell">
                         
                         {% comment %} Get variant info {% endcomment %}
-                        {% assign variants = '' | split: ',' %}
+                        {% assign variants = '' | split: ',' %}                        
                         {%- for variant in product.variants -%}
                             {%  liquid 
                                 ## Convert an array of strings into an array of objects
@@ -154,46 +191,41 @@ metadata: {
                                 assign variants = variants | array_add:variant
                             %}
                         {%- endfor -%}
-                
-    
-                        {% comment %} Get variant options {% endcomment %}
-                        {% graphql variant_options = 'modules/ecommerce/products/variant_options/get_product_variant_options', 
-                                product_uuid: product.uuid | dig: 'items','results' %}
+                                           
 
-                        {%- for option in variant_options -%}
-                            <ins-select 
-                                class="variant-select" 
-                                label="{{ option.product_option_label | capitalize }}"
-                                label-key="{{ option.product_option_label }}"
-                                placeholder="Select Variant"
-                                error-message="Please select a variant"
-                                small>
-                        
-                                {%- for value in option.product_option_values -%}
-                                    {% comment %}
-                                        - Check if the value exists in the product variants, and render the option if found
-                                    {% endcomment %}
-                                    {%- assign value_exists = false -%}
-                                    {%- for variant_option in product.variants -%}
-                                        {%- if variant_option.options[0].product_option_value == value -%}
-                                            {%- assign value_exists = true -%}
-                                        {%- endif -%}
-                                    {%- endfor -%}
-                        
-                                    {%- if value_exists -%}
-                                        {%- if forloop.first -%}
-                                            <ins-select-option label="{{ value }}" value="{{ value }}" default ></ins-select-option>
-                                        {%- else -%}
-                                            <ins-select-option label="{{ value }}" value="{{ value }}"></ins-select-option>
-                                        {%- endif -%}
-                                    {%- endif -%}
-                                {%- endfor -%}
-                        
-                            </ins-select>
-                            {% unless forloop.last %}
-                            <div class="spacer"></div>
-                            {% endunless %}
-                        {%- endfor -%}
+                        {% if variants.size > 0 %}
+                            {% assign first_option_label = '' %}
+                            {% assign first_option_values = '' | split: ',' %}
+                            
+                            {% for variant in product.variants %}
+                                {% assign first_opt = variant.product_options[0] | parse_json %}
+                                {% if first_option_label == '' %}
+                                    {% assign first_option_label = first_opt.product_option_label %}
+                                {% endif %}
+                                {% unless first_option_values contains first_opt.product_option_value %}
+                                    {% assign first_option_values = first_option_values | array_add: first_opt.product_option_value %}
+                                {% endunless %}
+                            {% endfor %}
+
+                            <div id="product-options">
+                                <ins-select 
+                                    id="option-0"
+                                    class="variant-select2" 
+                                    label="{{ first_option_label }}"
+                                    label-key="{{ first_option_label }}"
+                                    placeholder="Select Variant"
+                                    error-message="Please select a variant"
+                                    small> 
+                                    {% for value in first_option_values %}
+                                    <ins-select-option label="{{ value }}" value="{{ value }}" ></ins-select-option>
+                                    {% endfor %}
+                                </ins-select>
+                                
+                                {% comment %} Dynamic select will be inserted here {% endcomment %}
+                                <div id="next-selects"></div>
+                            </div>
+                        {% endif %}
+
                     </div>
                 </div>
             {%- endif -%} 
@@ -202,6 +234,7 @@ metadata: {
             <div>                                                    
                 <p class="form-label">Quantity</p>
                 <ins-input-stepper
+                    name="cart-quantity"
                     id="cart-quantity" 
                     value="1" 
                     step="1" min="1" 
@@ -210,36 +243,45 @@ metadata: {
                 </ins-input-stepper>                
             </div>
     
-            {% comment %} Buttons {% endcomment %}
+            {% comment %} Buttons {% endcomment %}            
             {% parse_json add_to_cart_data %}
             {
+                "detail_page": true,
                 "id": "{{ product.id }}",
+                "slug": "{{ product.slug }}",
                 "product_uuid": "{{ product.uuid }}",
-                "product_sku": "{{ selected_prop.sku }}",
                 "product_name": "{{ product.product_name | replace: "'", "`" }}",
-                "price": "{{ price | default: 0 }}"
+                "price": "{{ price | default: 0 }}",
+                "product_sku": "{{ product.sku }}",
+                "stock_level": "{{ product.stock_level | default: 0 }}"
             }
             {% endparse_json %}
-            <div>
-                <ins-button id="add-to-cart-btn-{{ add_to_cart_data.id }}"  class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid></ins-button>
+            {% if galleries.size > 0 %}
+                {% assign add_to_cart_data = add_to_cart_data | add_hash_key: 'image', galleries[0] %}
+            {% endif %}                     
+            <div id="product-details-btn">
+                <ins-button id="add-to-cart-btn-{{ add_to_cart_data.id }}"  class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid {{disabledBtn}}></ins-button>
                 <div class="spacer small"></div>
-                <ins-button class="full add-to-cart-btn" label="Add to Cart" data='{{ add_to_cart_data }}' outlined></ins-button>
+                <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ add_to_cart_data }}' icon="icon-shopping-cart" outlined {{disabledBtn}}></ins-button></ins-button>
             </div>
             
         </div>
         
     </div>
 
+    {% comment %} Mobile: Long Description {% endcomment %}
     <div class="hide-for-large">        
         {%- if product.long_description != blank -%}
          <div class="spacer x-large"></div>
-        <h2>Key Features</h2>
+        <h4>Key features</h4>
         <div class="spacer large"></div>
-        <div>
+        <div class="body description">
             {{ product.long_description  | html_safe }}
         </div>
         {%- endif -%}
     </div>
+
+    <div class="cell show-for-large spacer xxxx-large"></div>
 
     <div class="cell">
         {% include 'modules/ecommerce/blocks/you_may_also_like', not_uuid: product.uuid %}
@@ -248,119 +290,202 @@ metadata: {
 </div>
 
 <script>
-    let variants = {{ variants }};
-    let galleryIndexes = {{ gallery_indexes | default: '[]' }};
-    let onSaleTag = document.getElementById('on-sale-tag');
-    let productGalleries = document.getElementById('product-galleries');    
+    const variants = {{ variants }};
+    const main_image = "{{ product.product_image.url }}";
+    const galleryIndexes = {{ gallery_indexes | default: '[]' }};
+    let selected_variant = {
+            "product_name": "{{ product.product_name }}"
+        }; 
+    
+    const productGalleries = document.getElementById('product-galleries');    
+    const productSKU = document.getElementById("product-sku");
+    const pricingWrap = document.getElementById("pricing-wrap");
+    const productPrice = document.getElementById("product-price");
+    const regularProductPrice = document.getElementById("regular-product-price");
+    const onSaleTag = document.getElementById('on-sale-tag');
+    const ourOfStockNotice = document.getElementById("out-of-stock-notice");
+    const outOfStockOverlay = document.getElementById("out-of-stock-overlay");
 
-    //variantID <-- This is already set in cart_drawer.liquid
-    //variantPrice <-- This is already set in cart_drawer.liquid
-    //productSKU = document.getElementById("product-sku"); //this is already set in cart_drawer.liquid
-    let productPrice = document.getElementById("product-price");
-    let regularProductPrice = document.getElementById("regular-product-price");
-    let ourOfStockWrap = document.getElementById("out-of-stock-wrap");
-    let variantSelect = document.querySelectorAll(".variant-select");
+    if(variants.length > 0) {        
+        const nextSelectsWrap = document.getElementById('next-selects');
 
-    if (variants.length > 0){
-        //Extracts and processes the first product option to update the content
-        document.addEventListener("DOMContentLoaded", function() {
-                let productOption = JSON.parse(variants[0].product_options[0]);
-                options = [
-                    {
-                        product_option_label: productOption.product_option_label,
-                        product_option_value: productOption.product_option_value
-                    }
+        // Helper to parse all variant options once at the start
+        const parsedVariants = variants.map(v => ({
+            ...v,
+            product_options: v.product_options.map(JSON.parse)
+        }));
 
-                ]
-                // Call the 'updateContent' function with the 'options' array as an argument
-                updateContent(options);
-            });
-    }
+        async function getUserSelections() {
+            const selects = document.querySelectorAll('#product-options ins-select, #next-selects ins-select');
+            const selections = [];
 
-    variantSelect.forEach(el => {
-        el.addEventListener('insValueChange', event => { 
-            getSelectedVariant();
-        });
-    });
-
-    function getSelectedVariant(){
-        let options = [];
-        for (let i = 0; i < variantSelect.length; i++) {               
-            let el = variantSelect[i];   
-            let label =  el.getAttribute("label-key");              
-
-            el.getValue().then(result => {                
-                options.push({product_option_label: label, product_option_value: result});
-                //end of loop
-                if (i === variantSelect.length - 1) {
-                    updateContent(options);
-                } 
-            }).catch(error => {
-                console.error(error); 
-            });
-        };        
-    }
-
-    function updateContent(options){
-        let selectedVariant = {};
-        variants.forEach(variant => {                
-            if(arraysEqual(variant.options, options)){
-                selectedVariant = variant;                
-            } 
-        });
-
-
-        //Update active view in galleries based on selected variant
-        productGalleries.activate(galleryIndexes[selectedVariant.id]); 
-
-        if(selectedVariant.id){
-            //ID
-            variantID = selectedVariant.id;
-            //SKU
-            productSKU.textContent = `${selectedVariant.sku}`;
-            //Product Price
-            if(selectedVariant.is_on_sale){
-                variantPrice = selectedVariant.sale_price;
-                productPrice.textContent = `$${selectedVariant.sale_price}`;
-                regularProductPrice.textContent = `$${selectedVariant.regular_price}`;                
-            } else {
-                variantPrice = selectedVariant.regular_price;
-                productPrice.textContent = `$${selectedVariant.regular_price}`;
-                if (regularProductPrice) {
-                    regularProductPrice.textContent = "";
-                }
-            
-            }
-            //Out of Stock Notice
-            if(selectedVariant.stock_level < 1){
-                ourOfStockWrap.classList.remove("hide");
-            } else {
-                ourOfStockWrap.classList.add("hide");
-            }
-            //Sale tag
-            if(onSaleTag){
-                if(selectedVariant.is_on_sale == true){
-                    onSaleTag.classList.remove("hide");
-                } else {
-                    onSaleTag.classList.add("hide");
+            for (const select of selects) {
+                const label = select.getAttribute('label');
+                const value = await select.getValue();
+                if (value) {
+                    selections.push({ label, value });
                 }
             }
-        } else {
-            productSKU.textContent = "";
-            productPrice.textContent = "$--";
-            regularProductPrice.textContent = "";
-            ourOfStockWrap.classList.remove("hide");
+
+            return selections;
         }
-    }
 
-    function arraysEqual(arr1, arr2) {
-        if (arr1.length !== arr2.length) return false;
 
-        // Stringify each object and sort arrays
-        let arr1Sorted = arr1.map(obj => JSON.stringify(obj)).sort();
-        let arr2Sorted = arr2.map(obj => JSON.stringify(obj)).sort();
+        function findMatchingVariant(selections, variants) {
+            return variants.find(variant => {
+                const options = variant.product_options.map(JSON.parse);
 
-        // Compare each stringified object
-        return arr1Sorted.every((value, index) => value === arr2Sorted[index]);
+                return selections.every(selection => {
+                    return options.some(opt =>
+                        opt.product_option_label === selection.label &&
+                        opt.product_option_value === selection.value
+                    );
+                });
+            });
+        }
+
+        function updateSelectionDetails(selectedVariant) {
+            console.log('selectedVariant',selectedVariant);
+
+            if(selectedVariant.id){
+                //Identifiers
+                selected_variant.id = selectedVariant.id;
+                selected_variant.variant_uuid = selectedVariant.uuid;                
+                //SKU
+                selected_variant.sku = selectedVariant.sku;
+                productSKU.textContent = `${selectedVariant.sku}`;
+                //Product Price
+                pricingWrap.classList.remove('hide');
+                if(selectedVariant.is_on_sale){
+                    selected_variant.price = selectedVariant.sale_price;
+                    productPrice.textContent = `$${selectedVariant.sale_price}`;
+                    regularProductPrice.textContent = `$${selectedVariant.regular_price}`;                
+                } else {
+                    selected_variant.price = selectedVariant.regular_price;
+                    productPrice.textContent = `$${selectedVariant.regular_price}`;
+                    if (regularProductPrice) {
+                        regularProductPrice.textContent = "";
+                    }
+                }
+                //Image
+                selected_variant.image = selectedVariant.product_image.url || main_image;
+                //Out of Stock Notice
+                if(selectedVariant.stock_level < 1){
+                    ourOfStockNotice.classList.remove("hide");
+                    outOfStockOverlay.classList.remove("hide");
+                } else {
+                    ourOfStockNotice.classList.add("hide");
+                    outOfStockOverlay.classList.add("hide");
+                }
+                selected_variant.stock_level = selectedVariant.stock_level;
+                //Sale tag
+                if(onSaleTag){
+                    if(selectedVariant.is_on_sale == true){
+                        onSaleTag.classList.remove("hide");
+                    } else {
+                        onSaleTag.classList.add("hide");
+                    }
+                }
+                //product_options
+                selected_variant.product_options = selectedVariant.product_options;
+            } else {
+                productSKU.textContent = "";
+                productPrice.textContent = "$--";
+                regularProductPrice.textContent = "";
+                ourOfStockNotice.classList.remove("hide");
+                outOfStockOverlay.classList.remove("hide");
+            }
+        }
+
+
+        // Recursive function to render select
+        async function renderSelect(level, selectedPath = []) {
+
+            // Remove any selects deeper than current level
+            [...nextSelectsWrap.children].forEach(child => {
+                if (parseInt(child.dataset.level, 10) >= level) {
+                    child.remove();
+                }
+            });
+
+            // Filter variants matching all selected values so far
+            const filtered = parsedVariants.filter(variant => {
+                return selectedPath.every((selected, i) => {
+                    const opt = variant.product_options[i];
+                    return opt &&
+                        opt.product_option_label === selected.label &&
+                        opt.product_option_value === selected.value;
+                });
+            });
+
+            // Find the next option label
+            const nextLabel = filtered[0]?.product_options[selectedPath.length]?.product_option_label;
+
+            // No more dropdowns to generate
+            if (!nextLabel) {
+                const selections = await getUserSelections();
+                const matchedVariant = findMatchingVariant(selections, variants);
+
+                if (matchedVariant) {
+                    console.log('Matching variant:', matchedVariant);
+                    updateSelectionDetails(matchedVariant);
+
+                    //Update active view in galleries based on selected variant
+                    productGalleries?.activate(galleryIndexes[matchedVariant.id]);
+
+                    //Activate add-to-cart button
+                    document.querySelectorAll('#product-details-btn .add-to-cart-btn').forEach(btn => {
+                        btn.disabled = false;
+                    });
+                } else {
+                    console.log('No matching variant found');
+                }
+
+                return; 
+            } 
+
+            // Collect unique values for next label
+            const values = new Set();
+            filtered.forEach(v => {
+                const opt = v.product_options[selectedPath.length];
+                if (opt?.product_option_label === nextLabel) {
+                    values.add(opt.product_option_value);
+                }
+            });
+
+            // Create new ins-select
+            const wrapper = document.createElement('div');
+            wrapper.dataset.level = level;
+
+            const selectId = `option-${level}`;
+            wrapper.innerHTML = `
+                <div class="spacer"></div>
+                <ins-select 
+                id="${selectId}" 
+                label="${nextLabel}" 
+                placeholder="Select ${nextLabel}" 
+                validate>
+                ${[...values].map(val => `
+                    <ins-select-option label="${val}" value="${val}"></ins-select-option>
+                `).join('')}
+                </ins-select>
+            `;
+
+            nextSelectsWrap.appendChild(wrapper);
+
+            // Add listener to new select
+            const newSelect = wrapper.querySelector('ins-select');
+            newSelect.addEventListener('insValueChange', (e) => {
+                const newPath = [...selectedPath, { label: nextLabel, value: e.detail }];
+                renderSelect(level + 1, newPath);
+            });
+        }
+
+        // Add listener to first variant option
+        const firstSelect = document.getElementById('option-0');
+        const firstLabel = firstSelect.getAttribute('label');
+        firstSelect.addEventListener('insValueChange', (e) => {
+            renderSelect(1, [{ label: firstLabel, value: e.detail }]);
+        });
     }
 </script>

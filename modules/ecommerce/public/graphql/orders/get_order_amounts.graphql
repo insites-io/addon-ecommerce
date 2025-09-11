@@ -13,7 +13,6 @@ query get_order_amounts (
       ]
     }
   ) {
-    total_entries
     results {
       id
       order_uuid: property(name: "order_uuid")

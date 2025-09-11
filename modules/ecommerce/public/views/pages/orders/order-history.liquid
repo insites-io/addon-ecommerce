@@ -1,26 +1,21 @@
 ---
 slug: order-history
-layout: modules/portal/default
+layout: modules/portal/portal_default
 searchable: false
 max_deep_level: 2
 metadata: {
-    "status": "published",
-    "page_type": "content", 
     "page_name": "Order History",
-    "page_title": "Order History",
-    "meta_title": "Order History",
-    "heading": "Order History"    
+    "page_title": "Order History | Insites Portal",
+    "meta_title": "Order History | Insites Portal",
+    "is_visible_to_search_engines": false,
+    "is_sitemap_enabled": false 
 }
 authorization_policies:
   - modules/portal/is_user_logged_in 
 ---
-
+    
 {% if context.params.slug2 %} 
-
     {% include 'modules/ecommerce/client_portal/orders/order_history_tabs' %}
-
 {% else %}
-
     {% include 'modules/ecommerce/client_portal/orders/order_history' %}
-
 {% endif %}

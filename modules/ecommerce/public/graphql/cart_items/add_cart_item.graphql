@@ -1,0 +1,27 @@
+mutation add_cart_item (
+  $uuid: String!
+  $cart_uuid: String!
+  $quantity: Int!
+  $product_uuid: String!
+  $variant_uuid: String
+) {
+  items: record_create(
+    record: {
+      table: "modules/insites_ecommerce/cart_item"
+      properties: [
+        { name: "uuid", value: $uuid }
+        { name: "cart_uuid", value: $cart_uuid }
+        { name: "quantity", value_int: $quantity }
+        { name: "product_uuid", value: $product_uuid }
+        { name: "variant_uuid", value: $variant_uuid }
+      ]
+    }
+  ) {
+    id
+    uuid: property(name: "uuid")
+    cart_uuid: property(name: "cart_uuid")
+    product_uuid: property(name: "product_uuid")
+    variant_uuid: property(name: "variant_uuid")
+    quantity: property_int(name: "quantity")   
+  }
+}

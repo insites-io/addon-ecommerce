@@ -1,0 +1,96 @@
+---
+slug: shopping-cart
+layout: modules/ecommerce/shop_layout
+max_deep_level: 3
+metadata: {
+    "page_name": "Shopping cart",
+    "page_title": "Shopping cart | Insites",
+    "meta_title": "Shopping cart | Insites",
+    "is_visible_to_search_engines": true,
+    "is_sitemap_enabled": true,
+    "sitemap_priority": "1.0",
+    "sitemap_order": "1", 
+    "sitemap_change_frequency": "monthly"  
+}
+---
+{% function user_uuid = 'modules/ecommerce/user/get_user_uuid' %}
+
+{% if user_uuid %}
+
+    {% graphql user_cart = 'modules/ecommerce/carts/get_cart', 
+            contact_uuid: user_uuid, show_discount_details: true | dig: 'items','results' | first %}
+
+{% endif %}
+
+
+{% if user_cart.cart_items.size > 0 %}
+
+    {% comment %} Get the product info {% endcomment %}
+    {%  liquid
+        assign carts = user_cart.cart_items
+        assign product_uuids = carts | array_map: 'product_uuid' | array_flatten
+        graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: user_cart.cart_items.size | dig: 'items','results'
+    %}
+
+{% endif %}
+
+
+<div class="ecommerce-wrapper grid-container">
+    <div class="grid-x grid-padding-x">
+        <div class="small-12 cell spacer xxxx-large hide-for-small-only"></div>
+        <div class="small-12 cell spacer xxx-large show-for-small-only"></div>
+        <div class="small-12 cell">
+            <h1 class="heading-1">Review your cart</h1>
+        </div>
+        <div class="small-12 cell spacer x-large hide-for-small-only"></div>
+        <div class="small-12 cell spacer show-for-small-only"></div>
+        <div class="large-7 small-12 cell">
+            {% include 'modules/ecommerce/shop/shopping_cart', user_uuid, carts, products %}
+            <div class="spacer x-large hide-for-large-only"></div>
+        </div>
+
+        {% comment %} 
+            Include carts/cart_drawer here rather than in shop_layout, 
+            as we need to retrieve context.exports.total_cart_value before calling the layout/order_summary
+            but place this code after including the 'modules/ecommerce/shop/shopping_cart' 
+        {% endcomment %}
+        {% include 'modules/ecommerce/carts/cart_drawer' %}
+        {% assign total_cart_value = context.exports.total_cart_value %}
+
+        <div class="large-4 large-offset-1 small-12 cell">
+            {% include 'modules/ecommerce/layout/order_summary', 
+                show_product: false, 
+                show_discount_list: true,
+                form_update: true,
+                form_delete: true,
+                user_cart, carts, products,
+                total_cart_value: total_cart_value %}
+            <div class="spacer x-large"></div>  
+            
+            <div class="hide-for-small-only">
+            {%- liquid
+                ## Check if has cart
+                if user_cart.id
+                    assign cart_id = user_cart.id   
+                endif
+
+                include 'modules/ecommerce/discounts/add_discount_code_form', total_cart_value: total_cart_value
+            -%}
+            </div>
+
+            <div class="spacer x-large"></div>
+
+            <div id="proceed-to-checkout" class="show-for-medium text-right {% if context.exports.computed.sub_total_amount <= 0 %}hide{% endif %}">
+                <ins-button label="Proceed to checkout" solid color="blue" class="checkoutBtn proceed-to-checkout-btn" onclick="document.location.href = '/checkout';"></ins-button>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+
+{%- if context.environment == "staging" -%}
+    <script src="{{ 'modules/ecommerce/scripts/shopping-cart.js' | asset_url }}"></script>
+{%- else -%}
+    <script src="{{ 'modules/ecommerce/scripts/shopping-cart.min.js' | asset_url }}"></script>
+{%- endif -%}

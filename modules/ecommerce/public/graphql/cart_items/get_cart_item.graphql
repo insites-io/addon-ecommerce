@@ -1,0 +1,30 @@
+query get_cart_item (
+  $id: ID
+  $page: Int=1
+  $size: Int=1
+  $uuid: String
+  $cart_uuid: String
+) {
+  items: records(
+    page: $page
+    per_page: $size
+    filter: {
+      deleted_at: { exists: false }
+      table: { value: "modules/insites_ecommerce/cart_item" }
+      id: {value: $id}
+      properties: [
+        { name: "uuid", value: $uuid }
+        { name: "cart_uuid", value: $cart_uuid }
+      ] 
+    }
+  ) {
+    results {
+      id
+      uuid: property(name: "uuid")
+      cart_uuid: property(name: "cart_uuid")
+      product_uuid: property(name: "product_uuid")
+      variant_uuid: property(name: "variant_uuid")
+      quantity: property_int(name: "quantity")   
+    }
+  }
+}

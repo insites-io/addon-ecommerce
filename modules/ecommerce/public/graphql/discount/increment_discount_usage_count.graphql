@@ -1,0 +1,18 @@
+mutation increment_discount_usage_count (
+  $ids: [ID!]
+) {
+  items: records_update_all (
+    sync: true
+    table: "modules/insites_ecommerce/discount"
+    filter: {
+      id: { value_in: $ids }
+    }
+    record: {
+      properties: [
+        { name: "usage_count", increment: 1 }
+      ]
+    }
+  ) {
+    count
+  }
+}

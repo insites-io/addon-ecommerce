@@ -3,11 +3,12 @@ metadata: {
     partial_name: 'Ecommerce | Blocks | Whats Hot'
 }
 ---
-<section class="bg-color-ui-01">
-    <div class="spacer xxxx-large"></div>
-    <div class="product-carousel large-offset-1">
+{% graphql products = "modules/ecommerce/products/get_products", is_featured: true, size: 8 | dig: 'items','results' %}
 
-        {% graphql products = "modules/ecommerce/products/get_products", is_featured: true, size: 8 | dig: 'items','results' %}        
+{% if products.size > 0 %}
+<section class="wrapper">
+    <div class="spacer xxxx-large"></div>
+    <div class="product-carousel">
 
         <!-- desktop carousel -->
         <ins-carousel 
@@ -18,7 +19,7 @@ metadata: {
             no-pagination=true
             bind-to="whatsHotCardsDesktop">
 
-            <h2>What's Hot</h2>     
+            <h4>What's hot</h4>     
             <div class="spacer xx-large"></div>
             <div id="whatsHotCardsDesktop" class="product-cards">
                 {% for product in products %}
@@ -39,7 +40,7 @@ metadata: {
 
             <div class="grid-container">
                 <div class="grid-x">
-                    <h2>What's Hot</h2>    
+                    <h4>What's hot</h4>    
                 </div>
             </div>
                
@@ -62,7 +63,7 @@ metadata: {
                 no-pagination=true
                 bind-to="whatsHotCardsMobile">
                 
-                <h2>What's Hot</h2>
+                <h4>What's hot</h4>
 
                 <div class="spacer"></div>
                 <div id="whatsHotCardsMobile" class="product-cards">
@@ -89,7 +90,7 @@ whatsHotCarousel.forEach(carousel => {
         if(carouselCtrlBtns && showAllLink[carouselID] !== true){            
             var newLink = document.createElement('a');
                 newLink.href = "/products";
-                newLink.textContent = "Shop All";
+                newLink.textContent = "Shop all";
                 newLink.className = "shop-all-link"; 
             carouselCtrlBtns.appendChild(newLink);  
             showAllLink[carouselID] = true;           
@@ -97,3 +98,4 @@ whatsHotCarousel.forEach(carousel => {
     });          
 });
 </script>
+{% endif %}

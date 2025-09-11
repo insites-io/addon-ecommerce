@@ -1,11 +1,15 @@
 ---
 name: add_order_items
-to: 'https://{{context.location.host}}/ecommerce/api/v1/orders/order-items'
+to: 'https://{{context.location.host}}/ecommerce/api/v2/order-items/bulk'
 format: http
 request_type: POST
 callback: >
   {% assign response_hash = response.body | parse_json %}
 request_headers: >
     {% include 'modules/portal/api_headers' %}
+metadata: {
+    "status": "published",
+    "api_endpoint_name": "Add order items"
+}
 ---
-{{ data }}
+{{ data.payload }}

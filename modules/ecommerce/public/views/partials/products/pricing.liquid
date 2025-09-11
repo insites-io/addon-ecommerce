@@ -1,0 +1,14 @@
+{%   liquid 
+     ## Use product details here even if variant is enabled
+     assign price_strikethrough = ''
+     if product.is_on_sale == true 
+          assign price = product.sale_price
+          if product.regular_price > 0
+               assign price_strikethrough = product.regular_price | pricify: 'USD', no_cents_if_whole: false
+          endif
+     else 
+          assign price = product.regular_price        
+     endif
+
+     export price, price_strikethrough
+%}

@@ -5,7 +5,7 @@ query search_products(
   $category_uuids: [String!],
   $brand: String,
   $is_on_sale: Boolean,
-  $not_number: Int,
+  $not_number: String,
   $sort:[RecordsSortInput!] = [
     { updated_at: { order: DESC } }
   ]
@@ -14,17 +14,12 @@ query search_products(
     page: $page
     per_page: $size
     filter:{
-      table:{
-        value_in:["modules/insites_ecommerce/product"]
-      }
+      table:{ value:"modules/insites_ecommerce/product" }
       properties:[
-      	{ name: "status", 
-          #value: "enabled" 
-          not_value_in: ["archived","disabled"]
-        }
+      	{ name: "status", not_value_in: ["archived","disabled"] }
         { name: "category_uuids", value_in: $category_uuids }
         { name: "is_on_sale", value_boolean: $is_on_sale }
-        { name: "stock_level", not_value_int: $not_number }
+        { name: "stock_level", range: { gt: $not_number } }
         { name: "brand_name", contains: $brand }
       ]
       fulltext:{
@@ -35,11 +30,9 @@ query search_products(
     }
     sort: $sort
   ){
-    total_entries
-    total_pages
-    current_page
     results {
       id
+      updated_at
       uuid: property(name: "uuid")      
       product_name: property(name: "product_name")
       slug: property(name: "slug")
@@ -60,9 +53,15 @@ query search_products(
         table: "modules/insites_ecommerce/product_variant"
         join_on_property: "uuid"
         foreign_property: "product_uuid"
+        filter:{
+          properties:[
+            { name: "stock_level", range: { gt: $not_number } }
+          ]
+        }
       ){
         id
-        is_on_sale: property_boolean(name: "is_product_on_sale")
+        uuid: property(name: "uuid")
+        is_on_sale: property_boolean(name: "is_on_sale")
         sale_price: property_float(name: "sale_price")  
         regular_price: property_float(name: "regular_price") 
         stock_level: property_int(name: "stock_level") 
