@@ -6,9 +6,11 @@
 - Text headings and labels ( except for Product Name )
   - Use sentence case ( Sample title ) instead of title case ( Sample Title )
 - New design for loader - https://cbo.d.pr/i/D0lLrp
+- Seed data
+  - Added seed data for category_custom_field. This will display the featured categories in the Mega Menu
 - Mega Menu
   - Added max-width to align with the navbar width
-  - Add background to main categories
+  - Added background to main categories
 - Cart Drawer
   - Clickable items in the cart drawer
   - Pre-order tag in the cart drawer
