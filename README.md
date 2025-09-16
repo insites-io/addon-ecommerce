@@ -3,11 +3,7 @@ Latest `v1.1.0`
 
 
 ## Overview
-The Ecommerce Template provides a starting point for building the ecommerce section of the website, including product listing, product details, shopping cart, checkout process, payment, and order history.
-
-This addon requires Portal Application to be installed first.
-
-The Ecommerce Template is stored in the public folder: modules/ecommerce/.
+The Ecommerce Add-on is a powerful solution that transforms your website into a full-fledged online store by providing two key components: the public-facing Website for your customers and a secure Portal that serves as your private command center for managing everything behind the scenes.
 
 
 ## Tech Stack
@@ -25,15 +21,15 @@ It is assumed that the developers or users have knowledge of using these tech st
 
 ## Application Dependencies
 Please ensure this application is installed from the Insites Marketplace.
- 
- - Portal
+
+ - Website and Portal `v1.3.0`
 
 
  ## Module Dependencies
- - API 5.10
+ - API 5.1.0
  - CMS 5.6.0
- - CRM 5.12.3
- - Ecommerce 5.10.2
+ - CRM 5.12.4
+ - Ecommerce 5.10.4
  - Events 5.5.1
 
 
@@ -53,8 +49,27 @@ Please ensure this application is installed from the Insites Marketplace.
 
 ## Constants
 - ecommerce_addon = true
+
+
+## Manuall add Constants after installation
 - insites_stripe_sk_live_key
 - insites_stripe_sk_test_key
+
+
+## Instalation steps
+1. Install the `Website and Portal` application from the Marketplace.
+2. Install the `Ecommerce` addon from the Marketplace.
+3. Login to IIA via console.insites.io SSO
+ - Go to Ingtegration->Google Maps then add the `Google Maps API Key`
+ - Go to Integration->Stripe then setup the Stripe Account ID and keys
+
+
+## Google Maps API Key
+This is used for adding addresses in the shipping and billing address forms.
+
+
+## Stripe
+We use Stripe as a third-party payment gateway to securely handle payments during checkout.
 
 
 ## Documentation
