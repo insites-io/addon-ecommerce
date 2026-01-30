@@ -51,9 +51,9 @@ URL Structures:
     }
     {% endparse_json %}
 
-    {% if slug_type == 'category' %}
-        {% graphql all_categories = 'modules/ecommerce/categories/get_categories' sort_by: sort_by | dig: 'items','results'  %}
-    {% endif %}
+    
+    {% graphql all_categories = 'modules/ecommerce/categories/get_categories' sort_by: sort_by | dig: 'items','results'  %}
+    
 
     {% assign is_product_detail = false %}
     {%- if context.params.slug2 -%}
