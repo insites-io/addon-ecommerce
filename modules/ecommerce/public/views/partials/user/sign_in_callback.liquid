@@ -26,9 +26,9 @@
                {% comment %} There is an existing cart and cart_item. {% endcomment %}
                
                {% assign user_product_uuids = user_cart.cart_items | map: 'product_uuid' | array_uniq %}
-               {% assign user_variant_uuids = user_cart.cart_items | map: 'variant_uuid' | array_uniq %}
+               {% assign user_variant_uuids = user_cart.cart_items | map: 'product_variant_uuid' | array_uniq %}
                {% assign guest_product_uuids = guest_cart.cart_items | map: 'product_uuid' | array_uniq %}
-               {% assign guest_variant_uuids = guest_cart.cart_items | map: 'variant_uuid' | array_uniq %}
+               {% assign guest_variant_uuids = guest_cart.cart_items | map: 'product_variant_uuid' | array_uniq %}
                
                {% comment %} Non-variant product(s) {% endcomment %}
                {% if guest_product_uuids.size > 0 and user_product_uuids.size > 0 %}
@@ -54,7 +54,7 @@
                          "cart_uuid": "{{ user_cart.uuid }}",
                          "quantity": {{ quantity | default: 1 }},
                          "product_uuid": "{{ product_uuid }}",
-                         "variant_uuid": ""
+                         "product_variant_uuid": ""
                     }
                     {%- endparse_json -%}
                     {%- graphql add_cart_item = 'modules/ecommerce/cart_items/add_cart_item', args: cart_item_data -%}
@@ -62,15 +62,15 @@
 
 
                {% comment %} Variant product(s) {% endcomment %}
-               {% for variant_uuid in new_variant_uuids %}
-                    {% assign quantity = guest_cart.cart_items | array_detect: variant_uuid: variant_uuid | dig: 'quantity' %}
+               {% for product_variant_uuid in new_variant_uuids %}
+                    {% assign quantity = guest_cart.cart_items | array_detect: product_variant_uuid: product_variant_uuid | dig: 'quantity' %}
                     {%- parse_json cart_item_data -%}
                     {
                          "uuid": "{{ '' | uuid }}",
                          "cart_uuid": "{{ user_cart.uuid }}",
                          "quantity": {{ quantity | default: 1 }},
                          "product_uuid": "",
-                         "variant_uuid": "{{ variant_uuid }}"
+                         "product_variant_uuid": "{{ product_variant_uuid }}"
                     }
                     {%- endparse_json -%}
                     {%- graphql add_cart_item = 'modules/ecommerce/cart_items/add_cart_item', args: cart_item_data -%}

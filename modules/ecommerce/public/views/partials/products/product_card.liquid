@@ -20,11 +20,11 @@ metadata: {
     elsif product.is_product_variant_enabled
         assign class_add_to_cart_btn = ''
         assign selected_prop = product.variant
-        assign variant_uuid = product.variant.uuid
+        assign product_variant_uuid = product.variant.uuid
     else 
         assign class_add_to_cart_btn = 'add-to-cart-btn'
         assign selected_prop = product
-        assign variant_uuid = null
+        assign product_variant_uuid = null
     endif
     
 
@@ -92,7 +92,7 @@ metadata: {
                         "slug": "{{ product.slug }}",
                         "product_uuid": "{{ product.uuid }}",
                         "product_sku": "{{ selected_prop.sku }}",
-                        "variant_uuid": "{{ variant_uuid }}",
+                        "product_variant_uuid": "{{ product_variant_uuid }}",
                         "product_name": "{{ product.product_name | replace: "'", "`"}}",
                         "price": "{{ price | default: 0 | advanced_format: '%.2f' }}",
                         "image": "{{ image_url }}",

@@ -34,13 +34,13 @@ metadata: {
         assign product_name = product.product_name                
 
         ## Check if the cart_item is a product or a variant of the product
-        if cart_item.variant_uuid == '' or cart_item.variant_uuid == null
+        if cart_item.product_variant_uuid == '' or cart_item.product_variant_uuid == null
             ## item is NOT a variant
             assign selected_prop = product
         else 
             ## cart_item is a variant                
             for variant in product.variants
-                if cart_item.variant_uuid == variant.uuid
+                if cart_item.product_variant_uuid == variant.uuid
                     assign selected_prop = variant
                 endif
             endfor
@@ -89,13 +89,10 @@ metadata: {
 
         assign order_items = order_items | array_add: properties
     endfor
+    
+    function create_order_item = "ecommerce/controller/order_items/add_bulk", params: order_items
 
-    assign order_items_payload = '{}' | parse_json
-    assign order_items_payload = order_items_payload | add_hash_key: 'payload', order_items
 %}
 
-{% graphql create_order_item = 'modules/ecommerce/system/trigger_api_call', 
-    name: "modules/ecommerce/add_order_items", 
-    data: order_items_payload %}
 
 {% export cart, total_preorder_items %}

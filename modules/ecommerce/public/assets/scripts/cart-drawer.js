@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
 let addToCartBtn = document.querySelectorAll(".add-to-cart-btn");
 addToCartBtn.forEach(btn => {
     btn.addEventListener('insClick', event => {  
+        console.log("cart-drawwer.js addToCartPreProcess");
         addToCartPreProcess(event);
     });
 });
@@ -83,7 +84,7 @@ async function addToCartPreProcess(event, type){
         data.id = selected_variant.id;        
         data.price = selected_variant.price;
         data.product_name = selected_variant.product_name;
-        data.variant_uuid = selected_variant.variant_uuid; 
+        data.product_variant_uuid = selected_variant.product_variant_uuid; 
         data.product_sku = selected_variant.sku;
         data.image = selected_variant.image;  
         data.stock_level = selected_variant.stock_level;
@@ -153,7 +154,7 @@ function cartStepperEventListener(step){
                 "id": stepperData.id,
                 "product_name": stepperData.product_name,
                 "product_uuid": stepperData.product_uuid,
-                "variant_uuid": stepperData.variant_uuid,
+                "product_variant_uuid": stepperData.product_variant_uuid,
                 "price": priceData.price,  
                 "item_total_price": priceData.item_total_price,
                 "quantity": event.detail
@@ -361,7 +362,7 @@ function cartItemHtml(data, cart_item){
 
     // Variant Options
     let optionsHtml = '';
-    if (data.variant_uuid != '' && data.variant_uuid != null && data.product_options.length > 0) {
+    if (data.product_variant_uuid != '' && data.product_variant_uuid != null && data.product_options.length > 0) {
         for (const optionStr of data.product_options) {
             const option = JSON.parse(optionStr);
             optionsHtml += `

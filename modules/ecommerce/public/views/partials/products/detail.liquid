@@ -48,7 +48,7 @@ metadata: {
         ## The product has variants
         assign selected_prop = product.variants[0] 
         assign variant_id = selected_prop.id
-        assign variant_uuid = selected_prop.uuid 
+        assign product_variant_uuid = selected_prop.uuid 
         assign disabledBtn = 'disabled'
         ## Variant Images        
         for variant in product.variants
@@ -62,7 +62,7 @@ metadata: {
         ## The product doesn't have variant
         assign selected_prop = product    
         assign variant_id = null
-        assign variant_uuid = null    
+        assign product_variant_uuid = null    
         assign disabledBtn = ''
     endif
 
@@ -350,7 +350,7 @@ metadata: {
             if(selectedVariant.id){
                 //Identifiers
                 selected_variant.id = selectedVariant.id;
-                selected_variant.variant_uuid = selectedVariant.uuid;                
+                selected_variant.product_variant_uuid = selectedVariant.uuid;                
                 //SKU
                 selected_variant.sku = selectedVariant.sku;
                 productSKU.textContent = `${selectedVariant.sku}`;

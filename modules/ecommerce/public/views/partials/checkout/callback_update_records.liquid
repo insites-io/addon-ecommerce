@@ -132,6 +132,7 @@ metadata: {
     {% if cart.discount_code_uuids.size > 0 %}
 
         {% comment %} Add Order Discounts {% endcomment %}
+        {%- assign discount_array = '[]' | parse_json -%}
         {% for discount in cart.discounts %}
             {% parse_json order_discount_data %}
             {
@@ -143,11 +144,10 @@ metadata: {
                 "discount_code" : "{{ discount.discount_code }}"
             }
             {% endparse_json %}
-            {%- graphql add_order_discount = 'modules/ecommerce/system/trigger_api_call', 
-                name: "modules/ecommerce/add_order_discount", data: order_discount_data 
-                | dig: 'items','response','body' | parse_json -%}
+            {%-  assign discount_array = discount_array | add_to_array: order_discount_data -%}
         {% endfor %}
 
+        {%- function data = "ecommerce/controller/order_discount/add_bulk", params: discount_array -%}
 
         {% comment %} Increment Discount usage_count {% endcomment %}
         {% assign discount_ids = cart.discounts | map: 'id' %}
@@ -170,14 +170,14 @@ metadata: {
 {%- comment -%} Inventory: Decrement Product or Variant stock_level {%- endcomment -%}
 {% if status == 'success' %}
     {% for cart_item in cart.cart_items  %}
-        {% if cart_item.variant_uuid == '' or cart_item.variant_uuid == null %}
+        {% if cart_item.product_variant_uuid == '' or cart_item.product_variant_uuid == null %}
             {% graphql decrement_stock_level = "modules/ecommerce/products/decrement_stock_level", 
                 uuid: cart_item.product_uuid,
                 ordered_qty: cart_item.quantity,
                 table: 'modules/insites_ecommerce/product' %}
         {% else %}
             {% graphql decrement_stock_level = "modules/ecommerce/products/decrement_stock_level", 
-                uuid: cart_item.variant_uuid,
+                uuid: cart_item.product_variant_uuid,
                 ordered_qty: cart_item.quantity,
                 table: 'modules/insites_ecommerce/product_variant' %}      
         {% endif %}

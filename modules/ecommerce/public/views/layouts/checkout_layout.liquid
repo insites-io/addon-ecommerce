@@ -82,7 +82,9 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
 
     {% include 'modules/website/layout/footer' %}
 
+    {% comment %}
     {% include 'modules/website/layout/foot' %}
+     {% endcomment %}
 
     {%- if context.environment == "staging" -%}
         <script src="{{ 'modules/ecommerce/scripts/checkout/checkout-steps.js' | asset_url }}" defer></script>
