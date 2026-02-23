@@ -30,7 +30,7 @@ metadata: {
 {%- elsif sort == "price-ascending" -%}
     {%- parse_json sort_by -%}
     [{ "properties": [
-        { "name" : "regular_price", "order": "ASC" },
+        { "name" : "effective_price", "order": "ASC" },
         { "name" : "name", "order": "ASC" }
     ]
     }]
@@ -38,7 +38,7 @@ metadata: {
 {%- elsif sort == "price-descending" -%}
     {%- parse_json sort_by -%}
     [{ "properties": [ 
-        { "name" : "regular_price", "order": "DESC" },
+        { "name" : "effective_price", "order": "DESC" },
         { "name" : "name", "order": "ASC" } 
     ] 
     }]
