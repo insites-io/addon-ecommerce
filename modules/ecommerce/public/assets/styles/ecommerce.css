@@ -519,6 +519,7 @@ ins-carousel .product-cards>div {
 }
 
 .product-cards .cell:hover h6,
+.product-cards .cell:hover h2.heading-6,
 .purchase-again .grid-x:hover h6 {
     color: var(--color-main);
 }

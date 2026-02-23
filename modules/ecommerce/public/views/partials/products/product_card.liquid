@@ -69,7 +69,11 @@ metadata: {
             <div class="spacer medium"></div>
             <div class="container grid-y flex-grow-1">
                 <div class="details">
-                    <h6>{{ product.product_name }}</h6>
+                    {% if heading_level == 'h2' %}
+                        <h2 class="heading-6">{{ product.product_name }}</h2>
+                    {% else %}
+                        <h6>{{ product.product_name }}</h6>
+                    {% endif %}
                     <div class="spacer x-small"></div>
                     {% assign category = all_categories | array_detect: uuid: product.category_uuids[0] %}
                     <p class="body-x-small">{{ category.category_name | default: 'Category' | capitalize }}</p>
