@@ -5,7 +5,11 @@ metadata: {
 ---
 <section class="bg-color-ui-01">
     <div class="spacer xxxx-large"></div>
-    <h5>You may also like</h5>     
+    {% if heading_level == 'h2' %}
+        <h2 class="heading-5">You may also like</h2>
+    {% else %}
+        <h5>You may also like</h5>
+    {% endif %}  
     <div class="spacer x-large"></div>
 
     {% graphql products = "modules/ecommerce/products/get_products", not_uuid: not_uuid, size: 4 | dig: 'items','results' %}    

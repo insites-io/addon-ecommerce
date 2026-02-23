@@ -129,7 +129,7 @@ metadata: {
         {% comment %} Desktop: Long Description {% endcomment %}
         <div class="show-for-large">
             {%- if product.long_description != blank -%}
-            <h4>Key features</h4>
+            <p class="heading-4">Key features</p>
             <div class="spacer"></div>
             <div class="body description">                
                 {{ product.long_description  | html_safe }}
@@ -155,7 +155,7 @@ metadata: {
                 {% assign hidePrice = 'hide' %}
             {% endif %}
             <div id="pricing-wrap" class="wrap {{hidePrice}}">                                                
-                <h5 id="product-price" class="heading-5-small">{{ price | pricify: 'USD', no_cents_if_whole: false }}</h5>                
+                <p id="product-price" class="heading-5-small">{{ price | pricify: 'USD', no_cents_if_whole: false }}</p>                
                 <p id="regular-product-price" class="strikethrough">{{ price_strikethrough }}</p>                
             </div>
 
@@ -272,7 +272,7 @@ metadata: {
     <div class="hide-for-large">        
         {%- if product.long_description != blank -%}
          <div class="spacer x-large"></div>
-        <h4>Key features</h4>
+        <p class="heading-4">Key features</p>
         <div class="spacer large"></div>
         <div class="body description">
             {{ product.long_description  | html_safe }}
@@ -283,7 +283,7 @@ metadata: {
     <div class="cell show-for-large spacer xxxx-large"></div>
 
     <div class="cell">
-        {% include 'modules/ecommerce/blocks/you_may_also_like', not_uuid: product.uuid %}
+        {% include 'modules/ecommerce/blocks/you_may_also_like', not_uuid: product.uuid, heading_level: 'h2' %}
     </div>
     
 </div>
