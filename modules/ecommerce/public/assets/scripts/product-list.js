@@ -47,10 +47,6 @@ let productList = (function () {
                 if(productFilter.keyword != ""){
                     keywordInput.value = decodeURI(productFilter.keyword);
                 }
-                if(productFilter.sub_category != ""){
-                    let tmpId = "sub-" + productFilter.sub_category;
-                    document.getElementById(tmpId).classList.add('active');
-                }
             },
             toggleProductView(e){
                 //Function to toggle view of products

@@ -59,7 +59,7 @@ metadata: {
                         {%- if paramPerPage -%}
                             {%- assign link = topCat.slug | append: '?' | append: paramPerPage -%}
                         {%- endif -%}
-                        <ins-accordion-item id="sub-{{topCat.id}}"
+                        <ins-accordion-item
                             {{ is_active }}
                             class="ui-sidebar {{ is_active }}"
                             heading="{{topCat.category_name | capitalize}}" 
@@ -78,7 +78,7 @@ metadata: {
                                 {%- assign isChild = subCat.parent_category_uuids | array_any: topCat.uuid -%} 
                                 {%- if isChild -%}
                                     <a href="/products/{{topCat.slug}}?{{urlparams}}" {%- if subCat.slug == params.category -%}class="active"{%- endif -%}>
-                                        <span class="ui-sidebar" id="sub-{{subCat.id}}">{{subCat.category_name | capitalize}}</span>
+                                        <span class="ui-sidebar">{{subCat.category_name | capitalize}}</span>
                                     </a>
                                 {%- endif -%}
                             {%- endfor -%}
@@ -90,7 +90,7 @@ metadata: {
                         {%- assign link = topCat.slug | append: '?' | append: paramPerPage -%}
                     {%- endif -%}
                     <a href="/products/{{ link  }}" {%- if topCat.slug == params.slug2 -%}class="active"{%- endif -%}>
-                        <span class="ui-sidebar" id="sub-{{topCat.id}}">{{topCat.category_name | capitalize}}</span>
+                        <span class="ui-sidebar">{{topCat.category_name | capitalize}}</span>
                     </a>
                 {%- endif -%}
             {%- endfor -%}
