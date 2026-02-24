@@ -4,6 +4,15 @@ mutation add_cart_item (
   $quantity: Int!
   $product_uuid: String!
   $product_variant_uuid: String
+  $sub_total: Float
+  $item_tax: Float
+  $line_item_total: Float
+  $product_name: String
+  $product_sku: String
+  $product_price: Float
+  $product_price_includes_tax: Boolean
+  $tax_type: String
+  $tax_amount: Float
 ) {
   items: record_create(
     record: {
@@ -14,6 +23,16 @@ mutation add_cart_item (
         { name: "quantity", value_int: $quantity }
         { name: "product_uuid", value: $product_uuid }
         { name: "product_variant_uuid", value: $product_variant_uuid }
+        { name: "product_variant_uuid", value: $product_variant_uuid }
+        { name: "sub_total", value_float: $sub_total }
+        { name: "item_tax", value_float: $item_tax }
+        { name: "line_item_total", value_float: $line_item_total }
+        { name: "product_name", value: $product_name }
+        { name: "product_sku", value: $product_sku }
+        { name: "product_price", value_float: $product_price }
+        { name: "product_price_includes_tax", value_boolean: $product_price_includes_tax }
+        { name: "tax_type", value: $tax_type }
+        { name: "tax_amount", value_float: $tax_amount }
       ]
     }
   ) {
@@ -23,5 +42,14 @@ mutation add_cart_item (
     product_uuid: property(name: "product_uuid")
     product_variant_uuid: property(name: "product_variant_uuid")
     quantity: property_int(name: "quantity")   
+    sub_total: property_float(name: "sub_total")
+    item_tax: property_float(name: "item_tax")
+    line_item_total: property_float(name: "line_item_total")
+    product_name: property(name: "product_name")
+    product_sku: property(name: "product_sku")
+    product_price: property_float(name: "product_price")
+    product_price_includes_tax: property_boolean(name: "product_price_includes_tax")
+    tax_type: property(name: "tax_type")
+    tax_amount: property_float(name: "tax_amount")
   }
 }

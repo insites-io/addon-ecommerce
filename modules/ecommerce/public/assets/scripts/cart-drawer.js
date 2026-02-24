@@ -63,7 +63,7 @@ addToCartBtn.forEach(btn => {
 });
 
 async function addToCartPreProcess(event, type){
-   
+    console.log("addToCartPreProcess");
     //show hide
     emptyCartWrap.classList.add("hide");
     bottomWrap.classList.remove("hide");
@@ -74,13 +74,21 @@ async function addToCartPreProcess(event, type){
     } 
 
     data = JSON.parse(event.detail.data);
+    console.log("data", data);
     
     if(type != "reorder"){
         data.quantity = cartQuantity;    
         type = event.detail.label 
     }            
-        
+    
+
+    // compute item tax
+    data.sub_total = data.price * data.quantity;
+    // compute sub_total
+    //
+    
     if(data.detail_page === true && typeof selected_variant !== 'undefined' && selected_variant.id){
+        console.log("selected_variant", selected_variant);
         data.id = selected_variant.id;        
         data.price = selected_variant.price;
         data.product_name = selected_variant.product_name;
@@ -88,17 +96,29 @@ async function addToCartPreProcess(event, type){
         data.product_sku = selected_variant.sku;
         data.image = selected_variant.image;  
         data.stock_level = selected_variant.stock_level;
-        data.product_options = selected_variant.product_options;  
+        data.product_options = selected_variant.product_options; 
+
+        data.tax_amount = selected_variant.tax_amount;
+
+        /*
+        sub_total
+        item_tax
+        line_item_total, 
+        product_price_includes_tax, 
+        tax_type, 
+        tax_amount.
+        */
+
     }
    
     let cartItem = document.getElementById(`cart-item-${data.id}`);
  
     // Clicking the Add-to-cart button will add the item only if it is not already in the cart.
     if(cartItem == null){
+        console.log("cartItem - data", data);
       
         let cart_item = await addToCart(data, type);
         if(cart_item){        
-
             if (!emptyCartWrap.classList.contains('hide')) {
                 emptyCartWrap.classList.add('hide');
                 bottomWrap.classList.remove('hide');
