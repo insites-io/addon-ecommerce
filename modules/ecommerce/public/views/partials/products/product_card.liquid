@@ -21,10 +21,12 @@ metadata: {
         assign class_add_to_cart_btn = ''
         assign selected_prop = product.variant
         assign product_variant_uuid = product.variant.uuid
+        assign is_sale_price_tax_included = product.variant.is_variant_sale_price_tax_included
     else 
         assign class_add_to_cart_btn = 'add-to-cart-btn'
         assign selected_prop = product
         assign product_variant_uuid = null
+        assign is_sale_price_tax_included = product.is_sale_price_tax_included
     endif
     
 
@@ -90,6 +92,7 @@ metadata: {
                     {% endif %}
                 </div>
                 <div class="buttons">
+                    {{ product }}
                     {% parse_json data %}
                     {
                         "id": "{{ selected_prop.id }}",
@@ -100,7 +103,11 @@ metadata: {
                         "product_name": "{{ product.product_name | replace: "'", "`"}}",
                         "price": "{{ price | default: 0 | advanced_format: '%.2f' }}",
                         "image": "{{ image_url }}",
-                        "stock_level": "{{ selected_prop.stock_level | default: 0 }}"
+                        "stock_level": "{{ selected_prop.stock_level | default: 0 }}",
+                        "tax_amount": "{{ selected_prop.tax_amount | default: 0 }}",
+                        "is_tax_included": "{{ selected_prop.is_tax_included | default: false }}",
+                        "is_fixed_tax_amount": "{{ selected_prop.is_fixed_tax_amount | default: false }}",
+                        "is_sale_price_tax_included": "{{ is_sale_price_tax_included | default: false }}"
                     }
                     {% endparse_json %}
 

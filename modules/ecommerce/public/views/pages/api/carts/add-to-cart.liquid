@@ -16,6 +16,14 @@ metadata: {
     assign quantity = params.quantity
     assign product_uuid = params.product_uuid
     assign product_variant_uuid = params.product_variant_uuid
+    assign product_sku = params.product_sku
+    assign product_price = params.price 
+    assign product_name = params.product_name
+    
+    assign tax_amount =  params.tax_amount | default: 0
+    assign is_tax_included = params.is_tax_included
+    assign is_fixed_tax_amount = params.is_fixed_tax_amount
+    assign is_sale_price_tax_included = params.is_sale_price_tax_included
 -%}
 
 {%- if contact_uuid != blank and contact_uuid != '' -%}
@@ -57,7 +65,16 @@ metadata: {
                 "cart_uuid": "{{ cart.uuid }}",
                 "quantity": {{ quantity | default: 1 }},
                 "product_uuid": "{{ product_uuid }}",
-                "product_variant_uuid": "{{ product_variant_uuid }}"
+                "product_variant_uuid": "{{ product_variant_uuid }}",
+                "product_sku": "{{ product_sku }}", 
+                "product_price": "{{ product_price }}", 
+                "product_name": ""{{ product_name }}, 
+                "sub_total": "", 
+                "item_tax": "{{  }}", 
+                "line_item_total": "", 
+                "product_price_includes_tax": "", 
+                "tax_type": "", 
+                "tax_amount": "{{ tax_amount }}"
             }
             {%- endparse_json -%}
             {%- graphql add_cart_item = 'modules/ecommerce/cart_items/add_cart_item', args: cart_item_data -%}

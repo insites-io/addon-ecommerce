@@ -1139,6 +1139,7 @@ ins-drawer#mobile-menu .menu .ins-accordion-item_content .sign-out-wrapper {
     }
     .product-list .filter ins-button-select .ins-button-select.ins-select-wrap.buttonise.small .ins-select-label-wrap {
         width: 100%;
+        margin-bottom: 0px !important;
     }
     .product-list .filter .form-label {
         margin-bottom: 8px;
@@ -2026,6 +2027,7 @@ ins-tag.tagged.Processing span,
 }
 
 ins-tag.tagged.Back.Ordered span,
+ins-tag.tagged.Back.ordered span,
 ins-tag.tagged.On.Hold span,
 ins-tag.tagged.Unpaid span,
 ins-tag.tagged.Part.Paid span,

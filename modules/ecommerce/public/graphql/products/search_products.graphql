@@ -48,6 +48,10 @@ query search_products(
         url
       }
       is_product_variant_enabled: property_boolean(name: "is_product_variant_enabled") 
+      tax_amount: property_float( name: "tax_amount")
+      is_tax_included: property_boolean(name: "is_tax_included")
+      is_fixed_tax_amount: property_boolean(name: "is_fixed_tax_amount")
+      is_sale_price_tax_included: property_boolean(name: "is_sale_price_tax_included")   
       ## Get only the first variant
       variant: related_record(
         table: "modules/insites_ecommerce/product_variant"
@@ -66,7 +70,11 @@ query search_products(
         regular_price: property_float(name: "regular_price") 
         stock_level: property_int(name: "stock_level") 
         sku: property(name: "product_sku")
-        product_options: property_array(name: "product_options")  
+        product_options: property_array(name: "product_options")
+        tax_amount: property_float( name: "tax_amount")
+        is_tax_included: property_boolean(name: "is_tax_included")
+        is_fixed_tax_amount: property_boolean(name: "is_fixed_tax_amount")
+        is_variant_sale_price_tax_included: property_boolean(name: "is_variant_sale_price_tax_included")  
       }
     }
   }

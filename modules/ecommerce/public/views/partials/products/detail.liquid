@@ -241,7 +241,7 @@ metadata: {
                     small>
                 </ins-input-stepper>                
             </div>
-    
+            <div style="word-break: break-all;">{{ product }}</div>
             {% comment %} Buttons {% endcomment %}            
             {% parse_json add_to_cart_data %}
             {
@@ -252,7 +252,11 @@ metadata: {
                 "product_name": "{{ product.product_name | replace: "'", "`" }}",
                 "price": "{{ price | default: 0 }}",
                 "product_sku": "{{ product.sku }}",
-                "stock_level": "{{ product.stock_level | default: 0 }}"
+                "stock_level": "{{ product.stock_level | default: 0 }}",
+                "tax_amount": "{{ product.tax_amount | default: 0 }}",
+                "is_tax_included": "{{ product.is_tax_included | default: false }}",
+                "is_fixed_tax_amount": "{{ product.is_fixed_tax_amount | default: false }}",
+                "is_sale_price_tax_included": "{{ product.is_sale_price_tax_included | default: false }}"
             }
             {% endparse_json %}
             {% if galleries.size > 0 %}
@@ -387,6 +391,8 @@ metadata: {
                 }
                 //product_options
                 selected_variant.product_options = selectedVariant.product_options;
+
+                console.log('selected_variant',selected_variant);
             } else {
                 productSKU.textContent = "";
                 productPrice.textContent = "$--";

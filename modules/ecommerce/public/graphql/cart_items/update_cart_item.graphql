@@ -18,4 +18,4 @@ mutation update_cart_item (
     product_variant_uuid: property(name: "product_variant_uuid")
     quantity: property_int(name: "quantity")      
   }
-}
+} 
