@@ -83,12 +83,11 @@ fields:
         subtotal_amount: ## Float!
         total_tax_amount: ## Float!
         total_shipping_amount: ## Float!
-        total_discount_amount:
+        total_discount_amount: ## Float!
+        order_total: ## Float!
         total_amount: ## Float!
         total_amount_paid:
-        processing_fee:
-            property_options:
-                virtual: true
+        processing_fee: ## Float!
         discount_code_uuids:     
             property_options:
                 virtual: true   
@@ -159,12 +158,14 @@ default_payload: >
             "date_time": "", 
             "notes": "", 
             "currency": "{{ settings.currency | default: 'AUD' }}", 
+            "processing_fee": "{{ computed.processing_fee }}",
             "subtotal_amount": "{{ computed.sub_total_amount }}",
             "total_tax_amount": "{{ computed.tax_amount }}",
             "total_shipping_amount": "{{ computed.shipping_amount  }}",
             "total_discount_amount": "{{ computed.total_discount_amount }}",
             "total_amount_paid": "{{ computed.total_amount }}",
             "processing_fee": {{ computed.processing_fee }},
+            "order_total": "{{ computed.total_amount }}",
             "total_amount": "{{ computed.total_amount }}",
             "uuid": "{{ '' | uuid }}"                       
         }
