@@ -112,6 +112,7 @@ default_payload: >
     {%- comment -%} Compute order values {%- endcomment -%}
     {%- include 'modules/ecommerce/checkout/compute_order_summary' -%}
     {%- assign computed = context.exports.computed -%}
+    {%- assign subtotal_amount = computed.sub_total_amount | minus: computed.sub_total_tax_included -%}
     {
         "properties_attributes": {
             "shipping_company_name": "{{context.session.shipping_company_name | default: ''}}",
@@ -159,7 +160,7 @@ default_payload: >
             "notes": "", 
             "currency": "{{ settings.currency | default: 'AUD' }}", 
             "processing_fee": "{{ computed.processing_fee }}",
-            "subtotal_amount": "{{ computed.sub_total_amount }}",
+            "subtotal_amount": "{{ subtotal_amount }}",
             "total_tax_amount": "{{ computed.tax_amount }}",
             "total_shipping_amount": "{{ computed.shipping_amount  }}",
             "total_discount_amount": "{{ computed.total_discount_amount }}",
