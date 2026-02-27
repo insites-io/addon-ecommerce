@@ -71,6 +71,7 @@ metadata: {
     include 'modules/ecommerce/products/pricing', product: product
     assign price = context.exports.price
     assign price_strikethrough = context.exports.price_strikethrough
+    assign is_tax_included = context.exports.is_tax_included
     
     assign variants = '[]'    
 %}
@@ -253,9 +254,8 @@ metadata: {
                 "product_sku": "{{ product.sku }}",
                 "stock_level": "{{ product.stock_level | default: 0 }}",
                 "tax_amount": "{{ product.tax_amount | default: 0 }}",
-                "is_tax_included": "{{ product.is_tax_included | default: false }}",
-                "is_fixed_tax_amount": "{{ product.is_fixed_tax_amount | default: false }}",
-                "is_sale_price_tax_included": "{{ product.is_sale_price_tax_included | default: false }}"
+                "is_tax_included": "{{ is_tax_included | default: false }}",
+                "is_fixed_tax_amount": "{{ product.is_fixed_tax_amount | default: false }}"
             }
             {% endparse_json %}
             {% if galleries.size > 0 %}

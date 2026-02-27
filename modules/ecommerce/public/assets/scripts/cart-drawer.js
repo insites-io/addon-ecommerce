@@ -177,7 +177,10 @@ function cartStepperEventListener(step){
                 "product_variant_uuid": stepperData.product_variant_uuid,
                 "price": priceData.price,  
                 "item_total_price": priceData.item_total_price,
-                "quantity": event.detail
+                "quantity": event.detail,
+                "tax_amount": stepperData.tax_amount,
+                "is_tax_included": stepperData.is_tax_included,
+                "is_fixed_tax_amount": stepperData.is_fixed_tax_amount
             };   
 
             if(addToCart(data, 'stepper')){                

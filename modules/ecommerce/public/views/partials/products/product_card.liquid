@@ -21,12 +21,10 @@ metadata: {
         assign class_add_to_cart_btn = ''
         assign selected_prop = product.variant
         assign product_variant_uuid = product.variant.uuid
-        assign is_sale_price_tax_included = product.variant.is_variant_sale_price_tax_included
     else 
         assign class_add_to_cart_btn = 'add-to-cart-btn'
         assign selected_prop = product
         assign product_variant_uuid = null
-        assign is_sale_price_tax_included = product.is_sale_price_tax_included
     endif
     
 
@@ -35,6 +33,7 @@ metadata: {
     include 'modules/ecommerce/products/pricing', product: product
     assign price = context.exports.price
     assign price_strikethrough = context.exports.price_strikethrough
+    assign is_tax_included = context.exports.is_tax_included
 
     ## If price is empty and the item is a variant, then use the variant pricing
     if price == '' or price == blank
@@ -96,17 +95,16 @@ metadata: {
                     {
                         "id": "{{ selected_prop.id }}",
                         "slug": "{{ product.slug }}",
-                        "product_uuid": "{{ product.uuid }}",
-                        "product_sku": "{{ selected_prop.sku }}",
-                        "product_variant_uuid": "{{ product_variant_uuid }}",
                         "product_name": "{{ product.product_name | replace: "'", "`"}}",
-                        "price": "{{ price | default: 0 | advanced_format: '%.2f' }}",
                         "image": "{{ image_url }}",
-                        "stock_level": "{{ selected_prop.stock_level | default: 0 }}",
-                        "tax_amount": "{{ selected_prop.tax_amount | default: 0 }}",
-                        "is_tax_included": "{{ selected_prop.is_tax_included | default: false }}",
-                        "is_fixed_tax_amount": "{{ selected_prop.is_fixed_tax_amount | default: false }}",
-                        "is_sale_price_tax_included": "{{ is_sale_price_tax_included | default: false }}"
+                        "product_sku": "{{ selected_prop.sku }}",
+                        "product_uuid": "{{ product.uuid }}",                        
+                        "product_variant_uuid": "{{ product_variant_uuid }}",                     
+                        "price": {{ price | default: 0 | advanced_format: '%.2f' }},                        
+                        "stock_level": {{ selected_prop.stock_level | default: 0 }},
+                        "tax_amount": {{ product.tax_amount | default: 0 }},
+                        "is_tax_included": {{ is_tax_included | default: false }},
+                        "is_fixed_tax_amount": {{ product.is_fixed_tax_amount | default: false }}                        
                     }
                     {% endparse_json %}
 

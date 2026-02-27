@@ -9,24 +9,70 @@ metadata: {
 }
 ---
 
+{% comment %}
+  The final computation of prices is done in compute_order_summary,
+  so it is safe to use the payload here instead of fetching product details from the database.
+  This avoids redundant database queries that could cause performance issues.
+{% endcomment %}
+
 {%- liquid
+    # use plus filter to make sure the value is a number
     assign params = context.params
     assign contact_uuid = params.contact_uuid
     assign type = params.type
-    assign quantity = params.quantity
+    assign quantity = params.quantity | plus: 0
     assign product_uuid = params.product_uuid
     assign product_variant_uuid = params.product_variant_uuid
     assign product_sku = params.product_sku
-    assign product_price = params.price 
+    assign product_price = params.price | plus: 0 | default: 0
     assign product_name = params.product_name
-    
-    assign tax_amount =  params.tax_amount | default: 0
+
+    ## Tax    
+    assign tax_amount =  params.tax_amount | plus: 0 | default: 0
     assign is_tax_included = params.is_tax_included
     assign is_fixed_tax_amount = params.is_fixed_tax_amount
-    assign is_sale_price_tax_included = params.is_sale_price_tax_included
+    assign is_product_price_includes_tax = is_tax_included
+
+    if is_fixed_tax_amount == true or is_fixed_tax_amount == 'true'
+        assign tax_type = 'fixed'
+        assign item_tax = tax_amount | times: quantity      
+    else
+        assign tax_type = 'percentage'
+        assign item_tax = product_price | times: tax_amount | divided_by: 100 | times: quantity         
+    endif
+
+    
+    # sub_total  = //should not exist in cart_item, need to confirm with insites   
+
+    ## line_item_total
+    if is_tax_included == true or is_tax_included == 'true'
+        assign line_item_total = product_price | times: quantity
+    else
+        assign line_item_total = product_price | times: quantity | plus: item_tax      
+    endif
+    
 -%}
 
 {%- if contact_uuid != blank and contact_uuid != '' -%}
+
+    {% comment %} Add cart item data {% endcomment %}
+    {%- parse_json add_cart_item_data -%}
+    {          
+        "uuid": "{{ '' | uuid }}",
+        "quantity": {{ quantity | default: 1 }},
+        "product_uuid": "{{ product_uuid }}",
+        "product_variant_uuid": "{{ product_variant_uuid }}",
+        "product_sku": "{{ product_sku }}", 
+        "product_price": {{ product_price | advanced_format: '%.2f' | default: 0 }}, 
+        "product_name": "{{ product_name }}",                  
+        "tax_amount": {{ tax_amount | advanced_format: '%.2f' | default: 0 }},
+        "item_tax": {{ item_tax | advanced_format: '%.2f'| default: 0 }},                  
+        "product_price_includes_tax": {{ is_product_price_includes_tax | default: false }}, 
+        "tax_type": "{{ tax_type }}",
+        "line_item_total": {{ line_item_total | advanced_format: '%.2f' | default: 0 }},
+        "sub_total": {{ sub_total | advanced_format: '%.2f' | default: 0 }}
+    }
+    {%- endparse_json -%}
 
     {%- comment -%} Check if the user already has a cart {%- endcomment -%}
     {%- graphql cart = 'modules/ecommerce/carts/get_cart', 
@@ -42,7 +88,7 @@ metadata: {
         {%- endif -%}
 
         {%- if product_exist.id -%}
-            {% comment %} Update the quantity only {% endcomment %}
+            {% comment %} Update other fields not just the quantity, product data may have changed {% endcomment %}
             {%- liquid
                 if type == 'stepper'
                     assign new_quantity = quantity
@@ -53,31 +99,23 @@ metadata: {
             {%- parse_json cart_item_data -%}
             {
                 "id": {{ product_exist.id }},
-                "quantity": {{ new_quantity }}
+                "quantity": {{ new_quantity }},                
+                "product_sku": "{{ product_sku }}", 
+                "product_price": {{ product_price | advanced_format: '%.2f' | default: 0 }}, 
+                "product_name": "{{ product_name }}",                  
+                "tax_amount": {{ tax_amount | advanced_format: '%.2f' | default: 0 }},
+                "item_tax": {{ item_tax | advanced_format: '%.2f'| default: 0 }},                  
+                "product_price_includes_tax": {{ is_product_price_includes_tax | default: false }}, 
+                "tax_type": "{{ tax_type }}",
+                "line_item_total": {{ line_item_total | advanced_format: '%.2f' | default: 0 }},
+                "sub_total": {{ sub_total | advanced_format: '%.2f' | default: 0 }}
             }
             {%- endparse_json -%}
             {%- graphql add_cart_item = 'modules/ecommerce/cart_items/update_cart_item', args: cart_item_data -%}
         {%- else -%}
             {% comment %} Add new item in the cart_item {% endcomment %}                
-            {%- parse_json cart_item_data -%}
-            {
-                "uuid": "{{ '' | uuid }}",
-                "cart_uuid": "{{ cart.uuid }}",
-                "quantity": {{ quantity | default: 1 }},
-                "product_uuid": "{{ product_uuid }}",
-                "product_variant_uuid": "{{ product_variant_uuid }}",
-                "product_sku": "{{ product_sku }}", 
-                "product_price": "{{ product_price }}", 
-                "product_name": ""{{ product_name }}, 
-                "sub_total": "", 
-                "item_tax": "{{  }}", 
-                "line_item_total": "", 
-                "product_price_includes_tax": "", 
-                "tax_type": "", 
-                "tax_amount": "{{ tax_amount }}"
-            }
-            {%- endparse_json -%}
-            {%- graphql add_cart_item = 'modules/ecommerce/cart_items/add_cart_item', args: cart_item_data -%}
+            {%- assign add_cart_item_data = add_cart_item_data | add_hash_key: 'cart_uuid', cart.uuid -%}
+            {%- graphql add_cart_item = 'modules/ecommerce/cart_items/add_cart_item', args: add_cart_item_data -%}
         {%- endif -%}
 
     {%- else -%}
@@ -93,16 +131,9 @@ metadata: {
         {%- graphql add_cart = 'modules/ecommerce/carts/add_cart', args: cart_data | dig: 'items' -%}
 
         {%- comment -%} Step 2: Add cart_item {%- endcomment -%}
-        {%- parse_json cart_item_data -%}
-        {
-            "uuid": "{{ '' | uuid }}",
-            "cart_uuid": "{{ add_cart.uuid }}",
-            "quantity": {{ quantity | default: 1 }},
-            "product_uuid": "{{ product_uuid }}",
-            "product_variant_uuid": "{{ product_variant_uuid }}"
-        }
-        {%- endparse_json -%}
-        {%- graphql add_cart_item = 'modules/ecommerce/cart_items/add_cart_item', args: cart_item_data -%}
+        {%- assign add_cart_item_data = add_cart_item_data | add_hash_key: 'cart_uuid', add_cart.uuid -%}
+        {% log add_cart_item_data, type: '===TEST add_cart_item_data New user cart' %}
+        {%- graphql add_cart_item = 'modules/ecommerce/cart_items/add_cart_item', args: add_cart_item_data -%}
         
     {%- endif -%}
 

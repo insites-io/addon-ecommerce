@@ -89,9 +89,11 @@ metadata: {
                 if selected_prop.is_on_sale == true 
                     assign price = selected_prop.sale_price
                     assign price_strikethrough = selected_prop.regular_price
+                    assign is_tax_included = selected_prop.is_sale_price_tax_included
                 else 
                     assign price = selected_prop.regular_price
                     assign price_strikethrough = ''
+                    assign is_tax_included = selected_prop.is_tax_included
                 endif          
 
                 assign product_id = selected_prop.id
@@ -143,10 +145,14 @@ metadata: {
                         name="cart-stepper"
                         class="cart-stepper" 
                         data-id="{{ item.id }}"
+                        data-product_sku="{{ item.sku }}"
                         data-product_uuid="{{ item.product_uuid }}"
                         data-variant_uuid="{{ item.product_variant_uuid }}"
                         data-product_name="{{ item.product_name }}"
                         data-stock_level="{{ selected_prop.stock_level | default: 0 }}"
+                        data-tax_amount={{ product.tax_amount | default: 0 }}                            
+                        data-is_fixed_tax_amount={{ product.is_fixed_tax_amount | default: false }}
+                        data-is_tax_included={{ is_tax_included | default: false }}
                         value="{{ item.quantity }}" 
                         step="1" min="1"                         
                         small>
