@@ -49,29 +49,39 @@ metadata: {
 {%- if context.params.status == 'payment-error' -%}
     {%- if context.params.type == blank or context.params.type == 'missing' -%}
     <script>
-        setTimeout(() => {
-            Swal.fire({
-                html: `
-                    <ins-loader state-icon="error" icon-color="error" state-title="Failed to process your order."></ins-loader>
-                    <p class="ins-loader-wrap--message">There was an error in processing your order. <br>
-                    Please contact notifications@insites.io or try again.</p>`,
-                    showCancelButton: false,
-                    confirmButtonText: 'Close'
-            })
-        }, 250);
+        function showPaymentError() {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    html: `
+                        <ins-loader state-icon="error" icon-color="error" state-title="Failed to process your order."></ins-loader>
+                        <p class="ins-loader-wrap--message">There was an error in processing your order. <br>
+                        Please contact notifications@insites.io or try again.</p>`,
+                        showCancelButton: false,
+                        confirmButtonText: 'Close'
+                });
+            } else {
+                setTimeout(showPaymentError, 100);
+            }
+        }
+        setTimeout(showPaymentError, 250);
     </script>
     {%- else -%}
     <script>
-        setTimeout(() => {
-            var errType = "Card Declined";
-            Swal.fire({
-                html: `
-                    <ins-loader state-icon="error" icon-color="error" state-title="Failed to process your order."></ins-loader>
-                    <p class="ins-loader-wrap--message">Your payment failed with error code: <span>`+ errType +`</span> <br>Please review your payment details and try again.</p>`,
-                    showCancelButton: false,
-                    confirmButtonText: 'Close'
-            })
-        }, 250);
+        function showPaymentError() {
+            if (typeof Swal !== 'undefined') {
+                var errType = "Card Declined";
+                Swal.fire({
+                    html: `
+                        <ins-loader state-icon="error" icon-color="error" state-title="Failed to process your order."></ins-loader>
+                        <p class="ins-loader-wrap--message">Your payment failed with error code: <span>`+ errType +`</span> <br>Please review your payment details and try again.</p>`,
+                        showCancelButton: false,
+                        confirmButtonText: 'Close'
+                });
+            } else {
+                setTimeout(showPaymentError, 100);
+            }
+        }
+        setTimeout(showPaymentError, 250);
     </script>
     {%- endif -%}
 {%- endif -%}
