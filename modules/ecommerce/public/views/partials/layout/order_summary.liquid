@@ -14,12 +14,12 @@ metadata: {
         ## Get Order Summary for already purchased item(s) 
         graphql cart_items = 'modules/ecommerce/order_items/get_order_items', order_uuid: order_uuid  | dig: 'items','results'
     else
-        ## Get Cart Items
+        ## Get Cart, Cart Items and Products
         include 'modules/ecommerce/carts/cart_data'
-        assign cart_items_export = context.exports.cart_items_export
-        assign cart = cart_items_export.cart
-        assign cart_items = cart_items_export.cart_items
-        assign products = cart_items_export.products
+        assign cart_data = context.exports.cart_data
+        assign cart = cart_data.cart
+        assign cart_items = cart_data.cart_items
+        assign products = cart_data.products
         comment Map cart_discounts to discounts format for compatibility
             if cart.cart_discounts
                 assign discounts = cart.cart_discounts
@@ -128,10 +128,10 @@ metadata: {
     {%- endfor -%}
     {% if total_discount_item_deleted > 0 %}
         {% comment %} Get the updated discounts {% endcomment %}
-        {% graphql cart_data = 'modules/ecommerce/carts/get_cart_discounts', contact_uuid: user_uuid | dig: 'items','results' | first %}
+        {% graphql cart_discounts = 'modules/ecommerce/carts/get_cart_discounts', contact_uuid: user_uuid | dig: 'items','results' | first %}
         {% comment %} Extract cart_discounts which have both denormalized fields and nested discount table data {% endcomment %}
-        {% if cart_data.cart_discounts %}
-            {% assign discounts = cart_data.cart_discounts %}
+        {% if cart_discounts.cart_discounts %}
+            {% assign discounts = cart_discounts.cart_discounts %}
         {% else %}
             {% assign discounts = '' | split: ',' %}
         {% endif %}

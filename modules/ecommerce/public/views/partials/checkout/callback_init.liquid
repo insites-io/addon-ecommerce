@@ -72,8 +72,8 @@ metadata: {
 
 {%- comment -%} Autoresponder & Workflow Email Notification {%- endcomment -%}
 
-{% assign products = context.exports.cart_items_export.products  %}
-{% assign cart_items_array = context.exports.cart_items_export.cart_items  %}
+{% assign products = context.exports.cart_data.products  %}
+{% assign cart_items_array = context.exports.cart_data.cart_items  %}
 
 {% parse_json customer_info %}
 {

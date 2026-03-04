@@ -26,10 +26,10 @@ metadata: {
         {% comment %} Do nothing {% endcomment %}
     {% else %}
         {% include 'modules/ecommerce/carts/cart_data', cart, cart_items, products %}
-        {% assign cart_items_export = context.exports.cart_items_export %}        
-        {% assign cart = cart_items_export.cart %}
-        {% assign cart_items = cart_items_export.cart_items %}
-        {% assign products = cart_items_export.products %}
+        {% assign cart_data = context.exports.cart_data %}        
+        {% assign cart = cart_data.cart %}
+        {% assign cart_items = cart_data.cart_items %}
+        {% assign products = cart_data.products %}
         {% comment %} Map cart_discounts to discounts format for compatibility {% endcomment %}
         {% if cart.cart_discounts %}
             {% assign discounts = cart.cart_discounts %}

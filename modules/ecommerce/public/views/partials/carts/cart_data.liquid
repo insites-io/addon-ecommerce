@@ -40,7 +40,7 @@ metadata: {
     {%- endif -%}
 {% endif %}
 
-{% parse_json cart_items_export %}
+{% parse_json cart_data %}
 {
     "cart": {{ cart | default: '[]' }},
     "cart_items": {{ cart_items | default: '[]' }},
@@ -48,4 +48,4 @@ metadata: {
 }
 {% endparse_json %}
 
-{% export cart_items_export %}
+{% export cart_data %}
