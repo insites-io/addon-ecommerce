@@ -41,12 +41,17 @@ payload: {
     {% comment %} Step 2-A: If valid, check if code is already been used to avoid duplicate{% endcomment %}
     {%- if check_duplicates -%}
         {%- if contact_uuid != '' and contact_uuid != blank -%}
-            {% graphql current_codes = 'modules/ecommerce/carts/get_cart_discount',
-                    contact_uuid: contact_uuid, discount_code_uuids: discount.uuid
-                    | dig: 'items','results' %}      
-            {%- if current_codes.size > 0 -%} 
-                {% assign is_duplicate = true %}
-            {%- endif -%}
+            {% comment %} Get cart first to get cart_uuid {% endcomment %}
+            {% graphql user_cart = 'modules/ecommerce/carts/get_cart', 
+                contact_uuid: contact_uuid | dig: 'items','results' | first %}
+            {% if user_cart.uuid %}
+                {% graphql current_codes = 'modules/ecommerce/carts/get_cart_discount',
+                        cart_uuid: user_cart.uuid, discount_code_uuids: discount.uuid
+                        | dig: 'items','results' %}      
+                {%- if current_codes.size > 0 -%} 
+                    {% assign is_duplicate = true %}
+                {%- endif -%}
+            {% endif %}
         {%- endif -%}
     {%- endif -%}
 
@@ -67,14 +72,25 @@ payload: {
         
 
         {% comment %} Step 3.2: If valid, validate if discount code # of uses per user has not been reached {% endcomment %}  
-        {%- if contact_uuid != '' -%}      
-            {% graphql used_discounts = 'modules/ecommerce/orders/get_order_discounts',
-                    order_contact_email: order_contact_email, discount_code_uuids: discount.uuid
-                    | dig: 'items' %}
+        {%- if contact_uuid != '' -%}
+            {%- assign order_contact_email = context.session.contact_email | default: context.current_user.email | default: '' -%}
+            {%- if order_contact_email != '' and order_contact_email != blank -%}
+                {% graphql used_discounts_query = 'modules/ecommerce/orders/get_order_discounts',
+                        order_contact_email: order_contact_email, discount_code_uuids: discount.uuid
+                        | dig: 'items','results' %}
+                
+                {%- comment -%} Filter results to only count order_discounts where the order belongs to this contact_email {%- endcomment -%}
+                {%- assign used_discounts_count = 0 -%}
+                {%- for order_discount in used_discounts_query -%}
+                    {%- if order_discount.order and order_discount.order.order_contact_email == order_contact_email -%}
+                        {%- assign used_discounts_count = used_discounts_count | plus: 1 -%}
+                    {%- endif -%}
+                {%- endfor -%}
 
-            {%- if used_discounts.results.size >= discount.usage_limit_per_user  -%}
-                {% assign message = "Sorry, you have reached the limit of using this discount code." %}
-                {% assign is_valid = "limited use per user" %}
+                {%- if used_discounts_count >= discount.usage_limit_per_user  -%}
+                    {% assign message = "Sorry, you have reached the limit of using this discount code." %}
+                    {% assign is_valid = "limited use per user" %}
+                {%- endif -%}
             {%- endif -%}
         {%- endif -%}
         
@@ -172,7 +188,7 @@ payload: {
 
 {% comment %} 
     Steps taken in the Order Summary to list and compute discounts.
-     - Auto delete invalid discount_code_uuid from modules/insites_ecommerce/cart's discount_code_uuids
+     - Auto delete invalid discount_code_uuid from modules/insites_ecommerce/cart_discount table
 {% endcomment %}
 {% assign deleted_item = 0 %}
 {%- if delete_invalid == true and is_valid != true and discount_code and discount_code != '' -%}

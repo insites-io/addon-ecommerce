@@ -12,21 +12,32 @@ metadata: {
 
     if is_ordered_items == true and order_uuid != ''
         ## Get Order Summary for already purchased item(s) 
-        graphql carts = 'modules/ecommerce/order_items/get_order_items', order_uuid: order_uuid  | dig: 'items','results'
+        graphql cart_items = 'modules/ecommerce/order_items/get_order_items', order_uuid: order_uuid  | dig: 'items','results'
     else
         ## Get Cart Items
         include 'modules/ecommerce/carts/cart_items'
-        assign cart_items = context.exports.cart_items
-        assign user_cart = cart_items.user_cart
-        assign carts = cart_items.carts
-        assign products = cart_items.products
-        assign discounts = user_cart.discounts
+        assign cart_items_export = context.exports.cart_items_export
+        assign cart = cart_items_export.cart
+        assign cart_items = cart_items_export.cart_items
+        assign products = cart_items_export.products
+        comment Map cart_discounts to discounts format for compatibility
+            if cart.cart_discounts
+                assign discounts = cart.cart_discounts
+            else
+                assign discounts = '' | split: ','
+            endif
+        endcomment
+        if cart.cart_discounts
+            assign discounts = cart.cart_discounts
+        else
+            assign discounts = '' | split: ','
+        endif
     endif
 
     comment
         No items in the Cart: Do not allow user to enter checkout pages 
     endcomment
-    if carts == null or carts.size <= 0
+    if cart_items == null or cart_items.size <= 0
         if context.params.slug == 'checkout'
             redirect_to '/products'
         endif
@@ -44,7 +55,7 @@ metadata: {
     {% endunless %}
     <div id="order-summary-cart-wrap" class="order-summary">  
         {%- if show_product -%}   
-            {%- for item in carts -%}
+            {%- for item in cart_items -%}
                 {% comment %} ? TAX LABEL {% endcomment %}
                 {%- if item.is_fixed_tax_amount -%}
                     {%- assign tax_label = "Includes tax" -%}
@@ -88,7 +99,7 @@ metadata: {
         {%- endif -%}
     </div>
 
-    {%- if show_product and carts.size > 0 -%}
+    {%- if show_product and cart_items.size > 0 -%}
         <div class="spacer"></div>
         <hr>
         <div class="spacer"></div>
@@ -117,7 +128,13 @@ metadata: {
     {%- endfor -%}
     {% if total_discount_item_deleted > 0 %}
         {% comment %} Get the updated discounts {% endcomment %}
-        {% graphql discounts = 'modules/ecommerce/carts/get_cart_discounts' | dig: 'items','results' %}
+        {% graphql cart_data = 'modules/ecommerce/carts/get_cart_discounts', contact_uuid: user_uuid | dig: 'items','results' | first %}
+        {% comment %} Extract cart_discounts which have both denormalized fields and nested discount table data {% endcomment %}
+        {% if cart_data.cart_discounts %}
+            {% assign discounts = cart_data.cart_discounts %}
+        {% else %}
+            {% assign discounts = '' | split: ',' %}
+        {% endif %}
     {% endif %} 
 
     
@@ -125,7 +142,7 @@ metadata: {
     {%- if is_ordered_items == true and order_uuid != '' -%}
         {% include 'modules/ecommerce/checkout/compute_completed_order_amounts', uuid: order_uuid %}
     {%- else -%}
-        {%- include 'modules/ecommerce/checkout/compute_order_summary', user_cart, carts, products, discounts -%}
+        {%- include 'modules/ecommerce/checkout/compute_order_summary', cart, cart_items, products, discounts -%}
     {%- endif -%}
     {%- assign computed = context.exports.computed -%}
 
@@ -207,13 +224,15 @@ metadata: {
                     -%}
                 {%- endunless -%}
                 
-                <div class="list-discount-codes--item" data-id="{{ item.id }}" data-uuid="{{ item.uuid }}" data-contact-uuid="{{ user_uuid }}">
+                <div class="list-discount-codes--item" data-id="{{ item.id }}" data-uuid="{{ item.discount_uuid }}" data-contact-uuid="{{ user_uuid }}">
                     <div class="body-medium">
                         <p class="font-color-head bold">{{ value }}</p>
                         <p>{{ item.discount_name }}</p>
-                        {%- if item.minimum_cart_value > 0 -%}
+                        {%- comment -%} Get minimum_cart_value from nested discount object {%- endcomment -%}
+                        {%- assign minimum_cart_value = item.discount.minimum_cart_value | plus: 0 | default: blank -%}
+                        {%- if minimum_cart_value and minimum_cart_value > 0 -%}
                             <div class="spacer xx-small"></div>
-                            <p>Minimum ${{ item.minimum_cart_value | advanced_format: "%.2f" }} Purchase</p>
+                            <p>Minimum ${{ minimum_cart_value | advanced_format: "%.2f" }} Purchase</p>
                         {%- endif -%}
                     </div>
                     <div class="icon-close"></div>
@@ -364,7 +383,7 @@ metadata: {
                 <li>Tax and processing fees may be adjusted based on the shipping cost.</li>
             </ul>
         </div>
-    {%- endif -%}    
+    {%- endif -%} 
 
 </div>
 

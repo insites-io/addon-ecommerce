@@ -1,0 +1,36 @@
+query get_discount_by_uuid (
+  $page: Int = 1
+  $size: Int = 1
+  $discount_uuid: String!
+) {
+  items: records (
+    page: $page
+    per_page: $size
+    filter: {
+      deleted_at: { exists: false }
+      table: { value: "modules/insites_ecommerce/discount" }
+      properties: [
+        {name: "uuid", value: $discount_uuid}
+      ]
+    }
+  ) {
+    results {
+      id 
+      uuid: property(name: "uuid")
+      status: property(name: "status")
+      usage_count: property_int(name: "usage_count")
+      usage_limit: property_int(name: "usage_limit")
+      usage_limit_per_user: property_int(name: "usage_limit_per_user")
+      minimum_cart_value: property_float(name: "minimum_cart_value")
+      applicable_to: property(name: "applicable_to")
+      discount_code: property(name: "discount_code")
+      discount_name: property(name: "discount_name")
+      discount_type: property(name: "discount_type")
+      product_uuids: property_array(name: "product_uuids")
+      category_uuids: property_array(name: "category_uuids")
+      discount_value: property_float(name: "discount_value")
+      is_applicable_to_all_products: property_boolean(name: "is_applicable_to_all_products")
+      is_applicable_to_all_categories: property_boolean(name: "is_applicable_to_all_categories")
+    }
+  }
+}

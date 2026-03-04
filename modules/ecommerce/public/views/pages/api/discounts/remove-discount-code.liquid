@@ -17,25 +17,39 @@ metadata: {
 
 {%- if user_uuid and discount_uuid -%}
     {%- comment -%} Check if the code being removed belongs to the customer {%- endcomment -%}
+    {%- comment -%} Get cart first to get cart_uuid {%- endcomment -%}
+    {%- graphql user_cart = 'modules/ecommerce/carts/get_cart', 
+        contact_uuid: user_uuid | dig: 'items','results' | first -%}
+    
+    {%- if user_cart.uuid -%}
+        {%- graphql user_cart_discount = 'modules/ecommerce/carts/get_cart_discount',
+                cart_uuid: user_cart.uuid, discount_code_uuids: discount_uuid | dig: 'items' -%}
 
-    {%- graphql user_cart_discount = 'modules/ecommerce/carts/get_cart_discount',
-            contact_uuid: user_uuid, discount_code_uuids: discount_uuid | dig: 'items' -%}
-
-    {%- comment -%} Step 2: If it is valid, update user cart, remove the discount_code_uuid {%- endcomment -%}
-    {%- if user_cart_discount.results.size > 0 -%}
-        {%- include 'modules/ecommerce/discounts/update_discount', 
-            user_uuid: user_uuid,
-            type: 'remove',
-            discount_uuid: discount_uuid -%}
+        {%- comment -%} Step 2: If it is valid, update user cart, remove the discount_code_uuid {%- endcomment -%}
+        {%- if user_cart_discount.results.size > 0 -%}
+            {%- include 'modules/ecommerce/discounts/update_discount', 
+                user_uuid: user_uuid,
+                type: 'remove',
+                discount_uuid: discount_uuid -%}
+            {% assign data = context.exports.update_cart_discount %}
+        {%- else -%}
+            {%- assign status = 400 -%}
+            {%- assign data = '{"error": "Discount code not found in cart"}' | parse_json -%}
+        {%- endif -%}
+    {%- else -%}
+        {%- assign status = 400 -%}
+        {%- assign data = '{"error": "Cart not found"}' | parse_json -%}
     {%- endif -%}
-
-    {% assign data = context.exports.update_cart_discount %}
+{%- else -%}
+    {%- assign status = 400 -%}
+    {%- assign data = '{"error": "Missing required parameters"}' | parse_json -%}
 {%- endif -%}
 
 
 {%- comment -%}Status code 400: API or GraphQL error{%- endcomment -%}
-{%- if data == blank -%}
+{%- if data == blank or data == '' -%}
   {%- assign status = 400 -%}
+  {%- assign data = '{"error": "Failed to remove discount code"}' | parse_json -%}
 {%- endif -%}
 
 {{- data -}}

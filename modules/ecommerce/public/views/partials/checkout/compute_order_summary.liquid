@@ -5,8 +5,8 @@ metadata: {
 ---
 {% comment %} 
     Parameters from parent: 
-        - user_cart
-        - carts
+        - cart (previously user_cart)
+        - cart_items (previously carts)
         - products
         - discounts
 {% endcomment %}
@@ -21,28 +21,33 @@ metadata: {
     assign sub_total_tax_included = 0 
     assign used_discounts = '' | split: ','
 %}
-
-
-    {% if user_cart and carts and products %}
+    
+    {% if cart and cart_items and products %}
         {% comment %} Do nothing {% endcomment %}
     {% else %}
-        {% include 'modules/ecommerce/carts/cart_items' %}
-        {% assign cart_items = context.exports.cart_items %}        
-        {% assign user_cart = cart_items.user_cart %}
-        {% assign carts = cart_items.carts %}
-        {% assign products = cart_items.products %}
-        {% assign discounts = user_cart.discounts %}
+        {% include 'modules/ecommerce/carts/cart_items', cart, cart_items, products %}
+        {% assign cart_items_export = context.exports.cart_items_export %}        
+        {% assign cart = cart_items_export.cart %}
+        {% assign cart_items = cart_items_export.cart_items %}
+        {% assign products = cart_items_export.products %}
+        {% comment %} Map cart_discounts to discounts format for compatibility {% endcomment %}
+        {% if cart.cart_discounts %}
+            {% assign discounts = cart.cart_discounts %}
+        {% else %}
+            {% assign discounts = '' | split: ',' %}
+        {% endif %}
     {% endif %}
 
 
-{% if carts.size > 0 %}
 
-    {% for item in carts %}
+{% if cart_items.size > 0 %}
+
+    {% for item in cart_items %}
                     
         {% include 'modules/ecommerce/carts/cart_details', products, item %}
         {% assign cart = context.exports.cart %}    
         {% assign item_total_price = cart.item_total_price %}
-        {% assign sub_total_amount = sub_total_amount | plus: item_total_price %}
+        {% assign sub_total_amount = sub_total_amount | plus: item_total_price %}        
 
 
         {% comment %} 
@@ -110,7 +115,8 @@ metadata: {
             sub_total_discount: sub_total_discount,
             is_free_shipping: is_free_shipping,
             freight_amount: freight_amount,
-            sub_freight_amount : sub_freight_amount
+            sub_freight_amount : sub_freight_amount,
+            sub_total_amount: sub_total_amount
         %}        
         {% assign used_discounts = context.exports.used_discounts %}
                     

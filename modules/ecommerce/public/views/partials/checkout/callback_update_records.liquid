@@ -129,19 +129,23 @@ metadata: {
 
 {% comment %} Discount code {% endcomment %}
 {% if status == 'success' %}
-    {% if cart.discount_code_uuids.size > 0 %}
+    {% comment %} Get cart with discount details {% endcomment %}
+    {% graphql cart_with_discounts = 'modules/ecommerce/carts/get_cart', 
+        contact_uuid: cart.contact_uuid, show_discount_details: true | dig: 'items','results' | first %}
+    
+    {% if cart_with_discounts.cart_discounts and cart_with_discounts.cart_discounts.size > 0 %}
 
         {% comment %} Add Order Discounts {% endcomment %}
         {%- assign discount_array = '[]' | parse_json -%}
-        {% for discount in cart.discounts %}
+        {% for cart_discount in cart_with_discounts.cart_discounts %}
             {% parse_json order_discount_data %}
             {
                 "order.uuid" : "{{ order_uuid }}",
-                "discount.uuid" : "{{ discount.uuid }}",
-                "discount_name" : "{{ discount.discount_name }}",
-                "discount_type" : "{{ discount.discount_type }}",
-                "discount_value" : {{ discount.discount_value | default: 0.00 }},
-                "discount_code" : "{{ discount.discount_code }}"
+                "discount.uuid" : "{{ cart_discount.discount_uuid }}",
+                "discount_name" : "{{ cart_discount.discount_name }}",
+                "discount_type" : "{{ cart_discount.discount_type }}",
+                "discount_value" : {{ cart_discount.discount_value | default: 0.00 }},
+                "discount_code" : "{{ cart_discount.discount_code }}"
             }
             {% endparse_json %}
             {%-  assign discount_array = discount_array | add_to_array: order_discount_data -%}
@@ -150,8 +154,15 @@ metadata: {
         {%- function data = "ecommerce/controller/order_discount/add_bulk", params: discount_array -%}
 
         {% comment %} Increment Discount usage_count {% endcomment %}
-        {% assign discount_ids = cart.discounts | map: 'id' %}
-        {% graphql increment_discount_usage_count = "modules/ecommerce/discount/increment_discount_usage_count", ids: discount_ids %}
+        {%- assign discount_ids_array = '' | split: ',' -%}
+        {%- for cart_discount in cart_with_discounts.cart_discounts -%}
+            {%- if cart_discount.discount and cart_discount.discount.id -%}
+                {%- assign discount_ids_array = discount_ids_array | add_to_array: cart_discount.discount.id -%}
+            {%- endif -%}
+        {%- endfor -%}
+        {%- if discount_ids_array.size > 0 -%}
+            {% graphql increment_discount_usage_count = "modules/ecommerce/discount/increment_discount_usage_count", ids: discount_ids_array %}
+        {%- endif -%}
 
     {% endif %}
 {% endif %}

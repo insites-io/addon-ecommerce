@@ -18,27 +18,40 @@ query get_cart_discounts (
       #id
       #uuid: property(name: "uuid")
       contact_uuid: property(name: "contact_uuid")
-      discount_code_uuids: property_array(name: "discount_code_uuids")    
-      discounts: related_records(
-        table: "modules/insites_ecommerce/discount"
-        join_on_property: "discount_code_uuids"
-        foreign_property: "uuid"
+      uuid: property(name: "uuid")
+      cart_discounts: related_records(
+        table: "modules/insites_ecommerce/cart_discount"
+        join_on_property: "uuid"
+        foreign_property: "cart_uuid"
       ){
         id
-        uuid: property(name: "uuid")
-        usage_count: property_int(name: "usage_count")
-        usage_limit: property_int(name: "usage_limit")
-        usage_limit_per_user: property_int(name: "usage_limit_per_user")
-        minimum_cart_value: property_float(name: "minimum_cart_value")
+        cart_uuid: property(name: "cart_uuid")
+        discount_uuid: property(name: "discount_uuid")
         discount_code: property(name: "discount_code")
         discount_name: property(name: "discount_name")
         discount_type: property(name: "discount_type")
         discount_value: property_float(name: "discount_value")
-        product_uuids: property_array(name: "product_uuids")
-        category_uuids: property_array(name: "category_uuids")
-        applicable_to: property(name: "applicable_to")
-        is_applicable_to_all_products: property_boolean(name: "is_applicable_to_all_products")
-        is_applicable_to_all_categories: property_boolean(name: "is_applicable_to_all_categories")        
+        discount: related_record(
+          table: "modules/insites_ecommerce/discount"
+          foreign_property: "uuid"
+          join_on_property: "discount_uuid"
+        ){
+          id
+          uuid: property(name: "uuid")
+          usage_count: property_int(name: "usage_count")
+          usage_limit: property_int(name: "usage_limit")
+          usage_limit_per_user: property_int(name: "usage_limit_per_user")
+          minimum_cart_value: property_float(name: "minimum_cart_value")
+          discount_code: property(name: "discount_code")
+          discount_name: property(name: "discount_name")
+          discount_type: property(name: "discount_type")
+          discount_value: property_float(name: "discount_value")
+          product_uuids: property_array(name: "product_uuids")
+          category_uuids: property_array(name: "category_uuids")
+          applicable_to: property(name: "applicable_to")
+          is_applicable_to_all_products: property_boolean(name: "is_applicable_to_all_products")
+          is_applicable_to_all_categories: property_boolean(name: "is_applicable_to_all_categories")
+        }
       }
     }
   }

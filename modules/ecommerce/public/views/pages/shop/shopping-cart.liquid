@@ -17,19 +17,19 @@ metadata: {
 
 {% if user_uuid %}
 
-    {% graphql user_cart = 'modules/ecommerce/carts/get_cart', 
+    {% graphql cart = 'modules/ecommerce/carts/get_cart', 
             contact_uuid: user_uuid, show_discount_details: true | dig: 'items','results' | first %}
 
 {% endif %}
 
 
-{% if user_cart.cart_items.size > 0 %}
+{% if cart.cart_items.size > 0 %}
 
     {% comment %} Get the product info {% endcomment %}
     {%  liquid
-        assign carts = user_cart.cart_items
-        assign product_uuids = carts | array_map: 'product_uuid' | array_flatten
-        graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: user_cart.cart_items.size | dig: 'items','results'
+        assign cart_items = cart.cart_items
+        assign product_uuids = cart_items | array_map: 'product_uuid' | array_flatten
+        graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: cart.cart_items.size | dig: 'items','results'
     %}
 
 {% endif %}
@@ -45,7 +45,7 @@ metadata: {
         <div class="small-12 cell spacer x-large hide-for-small-only"></div>
         <div class="small-12 cell spacer show-for-small-only"></div>
         <div class="large-7 small-12 cell">
-            {% include 'modules/ecommerce/shop/shopping_cart', user_uuid, carts, products %}
+            {% include 'modules/ecommerce/shop/shopping_cart', user_uuid, cart_items, products %}
             <div class="spacer x-large hide-for-large-only"></div>
         </div>
 
@@ -63,15 +63,15 @@ metadata: {
                 show_discount_list: true,
                 form_update: true,
                 form_delete: true,
-                user_cart, carts, products,
+                cart, cart_items, products,
                 total_cart_value: total_cart_value %}
             <div class="spacer x-large"></div>  
             
             <div class="hide-for-small-only">
             {%- liquid
                 ## Check if has cart
-                if user_cart.id
-                    assign cart_id = user_cart.id   
+                if cart.id
+                    assign cart_id = cart.id   
                 endif
 
                 include 'modules/ecommerce/discounts/add_discount_code_form', total_cart_value: total_cart_value
