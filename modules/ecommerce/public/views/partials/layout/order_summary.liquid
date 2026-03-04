@@ -15,7 +15,7 @@ metadata: {
         graphql cart_items = 'modules/ecommerce/order_items/get_order_items', order_uuid: order_uuid  | dig: 'items','results'
     else
         ## Get Cart Items
-        include 'modules/ecommerce/carts/cart_items'
+        include 'modules/ecommerce/carts/cart_data'
         assign cart_items_export = context.exports.cart_items_export
         assign cart = cart_items_export.cart
         assign cart_items = cart_items_export.cart_items

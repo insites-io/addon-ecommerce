@@ -25,7 +25,7 @@ metadata: {
     {% if cart and cart_items and products %}
         {% comment %} Do nothing {% endcomment %}
     {% else %}
-        {% include 'modules/ecommerce/carts/cart_items', cart, cart_items, products %}
+        {% include 'modules/ecommerce/carts/cart_data', cart, cart_items, products %}
         {% assign cart_items_export = context.exports.cart_items_export %}        
         {% assign cart = cart_items_export.cart %}
         {% assign cart_items = cart_items_export.cart_items %}
