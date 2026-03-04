@@ -71,7 +71,7 @@ metadata: {
                         assign cart = cart | add_hash_key: 'price', item.unit_price
                     -%}
                 {%- else -%}
-                    {%- include 'modules/ecommerce/carts/cart_details', products, item -%}
+                    {%- include 'modules/ecommerce/carts/cart_item_details', products, item -%}
                     {%- assign cart = context.exports.cart -%}
                 {%- endif -%}
 

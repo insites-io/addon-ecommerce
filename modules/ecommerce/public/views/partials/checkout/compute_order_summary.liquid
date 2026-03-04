@@ -44,7 +44,7 @@ metadata: {
 
     {% for item in cart_items %}
                     
-        {% include 'modules/ecommerce/carts/cart_details', products, item %}
+        {% include 'modules/ecommerce/carts/cart_item_details', products, item %}
         {% assign cart = context.exports.cart %}    
         {% assign item_total_price = cart.item_total_price %}
         {% assign sub_total_amount = sub_total_amount | plus: item_total_price %}        

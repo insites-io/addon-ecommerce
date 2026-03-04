@@ -11,7 +11,7 @@ metadata: {
 
         {%- for item in cart_items -%}          
 
-            {% include 'modules/ecommerce/carts/cart_details', products, item %}
+            {% include 'modules/ecommerce/carts/cart_item_details', products, item %}
             {% assign cart = context.exports.cart %}
             
                                                 
