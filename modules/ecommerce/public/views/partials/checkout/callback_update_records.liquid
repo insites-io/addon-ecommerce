@@ -120,9 +120,7 @@ metadata: {
     "billing_company_phone_number": "{{ billing_company_phone_number }}"
 }
 {%- endparse_json -%}
-{%- graphql updated_order = 'modules/ecommerce/system/trigger_api_call', 
-    name: "modules/portal/update_order", 
-    data: order_update_data | dig: 'items','response','body' | parse_json -%}
+{% function updated_order = "ecommerce/controller/order/update", uuid: order_uuid, params: order_update_data %}
 
 {% export updated_order %}
 
