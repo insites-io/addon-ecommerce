@@ -216,8 +216,8 @@ metadata: {
             "module_feature": "orders",
             "module_source": "insites_ecommerce",
             "datetime": "{{ 'now' | date: '%s' }}",
-            "description": "<a target='_blank' href='/admin/insites/#/crm/contacts/{{ user_id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> added an order - <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a> - CFW",
-            "details": "Order for {{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }} has been created.",
+            "description": "<a target='_blank' href='/admin/insites/#/crm/contacts/{{ user_id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> added an order - <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a> - via CFW",
+            "details": "Order for {{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }} has been created via CFW.",
             "entity": "orders"  
         }
         {%- endparse_json -%}
@@ -249,8 +249,8 @@ metadata: {
             "module_feature": "orders",
             "module_source": "insites_ecommerce",
             "datetime": "{{ 'now' | date: '%s' }}",
-            "description": "<a target='_blank' href='/admin/insites/#/crm/contacts/{{ user_id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> added a pre-order - <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a> - CFW",
-            "details": "Order for {{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }} has been created.",
+            "description": "<a target='_blank' href='/admin/insites/#/crm/contacts/{{ user_id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> added a pre-order - <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a> - via CFW",
+            "details": "Order for {{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }} has been created via CFW.",
             "entity": "orders"  
         }
         {%- endparse_json -%}
