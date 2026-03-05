@@ -33,6 +33,15 @@ query get_cart (
         product_uuid: property(name: "product_uuid")
         product_variant_uuid: property(name: "product_variant_uuid")
         quantity: property_int(name: "quantity")
+        sub_total: property_float(name: "sub_total")
+        item_tax: property_float(name: "item_tax")
+        line_item_total: property_float(name: "line_item_total")
+        product_name: property(name: "product_name")
+        product_sku: property(name: "product_sku")
+        product_price: property_float(name: "product_price")
+        product_price_includes_tax: property_boolean(name: "product_price_includes_tax")
+        tax_type: property(name: "tax_type")
+        tax_amount: property_float(name: "tax_amount")
         #properties
       }
     },
