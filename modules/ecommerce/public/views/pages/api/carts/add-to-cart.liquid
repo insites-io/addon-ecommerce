@@ -132,7 +132,6 @@ metadata: {
 
         {%- comment -%} Step 2: Add cart_item {%- endcomment -%}
         {%- assign add_cart_item_data = add_cart_item_data | add_hash_key: 'cart_uuid', add_cart.uuid -%}
-        {% log add_cart_item_data, type: '===TEST add_cart_item_data New user cart' %}
         {%- graphql add_cart_item = 'modules/ecommerce/cart_items/add_cart_item', args: add_cart_item_data -%}
         
     {%- endif -%}

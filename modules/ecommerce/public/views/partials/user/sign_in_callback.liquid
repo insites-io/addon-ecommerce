@@ -18,7 +18,7 @@
      {% comment %} If there is item in the guest cart {% endcomment %}
      {% if guest_cart.cart_items.size > 0 %}
 
-          {% comment %} Get the user cart {% endcomment %}
+          {% comment %} Get the logged-in user's cart {% endcomment %}
           {% graphql user_cart = 'modules/ecommerce/carts/get_cart', contact_uuid: contact_uuid | dig: 'items', 'results' | first %}
           
           {% comment %} Check first if the user_cart already exists for the logged-in user {% endcomment %}
@@ -32,7 +32,8 @@
                
                {% comment %} Non-variant product(s) {% endcomment %}
                {% if guest_product_uuids.size > 0 and user_product_uuids.size > 0 %}
-                    {% assign new_product_uuids = guest_product_uuids | array_subtract: user_product_uuids  %}               
+                    {% assign new_product_uuids = guest_product_uuids | array_subtract: user_product_uuids  %} 
+                    {% assign existing_product_uuids = guest_product_uuids | array_intersect: user_product_uuids  %}              
                {% elsif guest_product_uuids.size > 0 %}
                     {% assign new_product_uuids = guest_product_uuids %}
                {% endif %}
@@ -40,12 +41,13 @@
                {% comment %} Variant product(s) {% endcomment %}
                {% if guest_variant_uuids.size > 0 and user_variant_uuids.size > 0 %}
                     {% assign new_variant_uuids = guest_variant_uuids | array_subtract: user_variant_uuids  %}
+                    {% assign existing_variant_uuids = guest_variant_uuids | array_intersect: user_variant_uuids  %}
                {% elsif guest_variant_uuids.size > 0 %}
                     {% assign new_variant_uuids = guest_variant_uuids %}
                {% endif %}
 
 
-               {% comment %} Non-variant product(s) {% endcomment %}
+               {% comment %} New Non-variant product(s) {% endcomment %}
                {% for product_uuid in new_product_uuids %}
                     {% assign quantity = guest_cart.cart_items | array_detect: product_uuid: product_uuid | dig: 'quantity' %}
                     {%- parse_json cart_item_data -%}
@@ -60,8 +62,33 @@
                     {%- graphql add_cart_item = 'modules/ecommerce/cart_items/add_cart_item', args: cart_item_data -%}
                {% endfor %}
 
+               {% comment %} Existing Non-variant product(s) {% endcomment %}                                        
+               {% comment %} Update existing user cart_item(s), use data from guest cart_item(s) {% endcomment %}
+               {% if existing_product_uuids.size > 0 %}
+                    {% for product_uuid in existing_product_uuids %}
+                         {% assign user_cart_item_id = user_cart.cart_items | array_detect: product_uuid: product_uuid | dig: 'id' %}
+                         {% assign item = guest_cart.cart_items | array_detect: product_uuid: product_uuid %}
+                         {%- parse_json cart_item_data -%}
+                         {
+                              "id": {{ user_cart_item_id }},
+                              "quantity": {{ item.quantity }},                
+                              "product_sku": "{{ item.product_sku }}", 
+                              "product_price": {{ item.product_price | advanced_format: '%.2f' | default: 0 }}, 
+                              "product_name": "{{ item.product_name }}",                  
+                              "tax_amount": {{ item.tax_amount | advanced_format: '%.2f' | default: 0 }},
+                              "item_tax": {{ item.item_tax | advanced_format: '%.2f'| default: 0 }},                  
+                              "product_price_includes_tax": {{ item.is_product_price_includes_tax | default: false }}, 
+                              "tax_type": "{{ item.tax_type }}",
+                              "line_item_total": {{ item.line_item_total | advanced_format: '%.2f' | default: 0 }},
+                              "sub_total": {{ item.sub_total | advanced_format: '%.2f' | default: 0 }}
+                         }
+                         {%- endparse_json -%}
+                         {%- graphql update_cart_item = 'modules/ecommerce/cart_items/update_cart_item', args: cart_item_data -%}                         
+                    {% endfor %}
+               {% endif %}
 
-               {% comment %} Variant product(s) {% endcomment %}
+
+               {% comment %} New Variant product(s) {% endcomment %}
                {% for product_variant_uuid in new_variant_uuids %}
                     {% assign quantity = guest_cart.cart_items | array_detect: product_variant_uuid: product_variant_uuid | dig: 'quantity' %}
                     {%- parse_json cart_item_data -%}
@@ -75,6 +102,32 @@
                     {%- endparse_json -%}
                     {%- graphql add_cart_item = 'modules/ecommerce/cart_items/add_cart_item', args: cart_item_data -%}
                {% endfor %}
+
+               {% comment %} Existing Variant product(s) {% endcomment %}                                        
+               {% comment %} Update existing user cart_item(s), use data from guest cart_item(s) {% endcomment %}
+               {% if existing_variant_uuids.size > 0 %}
+                    {% for product_variant_uuid in existing_variant_uuids %}
+                         {% assign user_cart_item_id = user_cart.cart_items | array_detect: product_variant_uuid: product_variant_uuid | dig: 'id' %}
+                         {% assign item = guest_cart.cart_items | array_detect: product_variant_uuid: product_variant_uuid %}
+                         {%- parse_json cart_item_data -%}
+                         {
+                              "id": {{ user_cart_item_id }},
+                              "quantity": {{ item.quantity }},   
+                              "product_variant_uuid": "{{ item.product_variant_uuid }}",
+                              "product_sku": "{{ item.product_sku }}", 
+                              "product_price": {{ item.product_price | advanced_format: '%.2f' | default: 0 }}, 
+                              "product_name": "{{ item.product_name }}",                  
+                              "tax_amount": {{ item.tax_amount | advanced_format: '%.2f' | default: 0 }},
+                              "item_tax": {{ item.item_tax | advanced_format: '%.2f'| default: 0 }},                  
+                              "product_price_includes_tax": {{ item.is_product_price_includes_tax | default: false }}, 
+                              "tax_type": "{{ item.tax_type }}",
+                              "line_item_total": {{ item.line_item_total | advanced_format: '%.2f' | default: 0 }},
+                              "sub_total": {{ item.sub_total | advanced_format: '%.2f' | default: 0 }}
+                         }
+                         {%- endparse_json -%}
+                         {%- graphql update_cart_item = 'modules/ecommerce/cart_items/update_cart_item', args: cart_item_data -%}                         
+                    {% endfor %}
+               {% endif %}
 
 
                {% comment %} Delete the guest cart {% endcomment %}
