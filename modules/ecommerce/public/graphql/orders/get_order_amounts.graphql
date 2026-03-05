@@ -22,6 +22,7 @@ query get_order_amounts (
       total_shipping_amount: property_float(name: "total_shipping_amount")
       total_amount: property_float(name: "total_amount")      
       total_amount_paid: property_float(name: "total_amount_paid")
+      order_total: property_float(name: "order_total")
     }
   }
 }

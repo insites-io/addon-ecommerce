@@ -68,7 +68,6 @@ metadata: {
     {% endparse_json %}
 
     {% log "=== START PROCESS: STRIPE PAYMENT ===" %} 
-    {% log create_charge, type: "=== STRIPE PAYMENT PAYLOAD ===" %} 
 
     {%- comment -%} 
         - STEP 3: Trigger the Stripe API to create the charge 
@@ -79,7 +78,6 @@ metadata: {
         | dig: "items" | dig: "response" %}
         
     {%- assign payment_response = stripe_create_charge.body | parse_json -%}
-    {% log payment_response, type: "=== STRIPE PAYMENT RESPONSE ===" %} 
 
     {% log "=== END PROCESS: STRIPE PAYMENT ===" %} 
 
