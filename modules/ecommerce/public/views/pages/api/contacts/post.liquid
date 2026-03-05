@@ -25,7 +25,7 @@ metadata: {
 {% comment %} Add Item in Event Stream {% endcomment %}
 {%- parse_json event_payload-%}
 {
-     "font_icon": "icon-settings-1",
+     "font_icon": "icon-users",
      "font_icon_color": "#FA38A1",
      "module_source": "insites_core",
      "module_feature": "crm_contact",
@@ -37,8 +37,9 @@ metadata: {
 {%- endparse_json -%}
 {%- parse_json log_data-%}
 {
-     "action": "create",
-     "entity": "crm_contact"
+     "action": "add_contact",
+     "entity": "crm_contact",
+     "contact_uuid": "{{add_contact.uuid}}"
 }
 {%- endparse_json -%}
 {%- assign log_data = log_data | add_hash_key: "data", add_contact -%}

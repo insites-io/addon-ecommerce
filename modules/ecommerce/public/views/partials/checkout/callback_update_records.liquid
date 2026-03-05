@@ -208,56 +208,17 @@ metadata: {
     {% endif %}
 
     {% comment %} Add Order Event {% endcomment %}
-    {% if order_event %} 
-        {% comment %}
-        {% parse_json order_event_data %}
-        {
-        "font_icon_color": "#6B45FF",
-        "log": {
-            "data": {
-            "created_at": "{{ updated_order.created_at }}",
-            "id": "{{ updated_order.id }}",
-            "updated_at": "{{ updated_order.updated_at }}",
-            "properties": {{ updated_order |  default: '[]'}}
-            },
-            "action": "add",
-            "order_uuid": "{{ updated_order.uuid }}"
-        },
-        "datetime": "{{ 'now' | date: '%s' }}",
-        "font_icon": "icon-settings-1",
-        "module_feature": "orders",
-        "module_source": "insites_ecommerce",
-        "administrator_uuid": "",
-        "uuid": "{{ '' | uuid }}",
-        {% if updated_order.order_company.uuid and updated_order.order_company.uuid != '' and updated_order.order_company_name and updated_order.order_company_name != '' %}
-            "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> from <a href='/admin/insites#/crm/companies/{{updated_order.order_company.uuid}}'>{{ updated_order.order_company_name }}</a> created order <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
-        {% else %}
-            "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> created order <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
-        {% endif %}
-        "details": ""
-        }
-        {% endparse_json %}
-        {%- graphql add_event = 'modules/website/trigger_api_call', 
-            name: "modules/portal/add_events", data: order_event_data 
-            | dig: 'items','response','body' | parse_json -%}
-        {% endcomment %}
-    
-
+    {% if order_event %}
         {%- parse_json event_payload-%}
         {
-             "font_icon": "icon-settings-1",
-             "font_icon_color": "#6B45FF",
-             "datetime": "{{ 'now' | date: '%s' }}",
-             "module_source": "insites_ecommerce",
-             "module_feature": "orders",
-             "request_type": "internal",     
-             "administrator_uuid": "",
-            {% if updated_order.order_company.uuid and updated_order.order_company.uuid != '' and updated_order.order_company_name and updated_order.order_company_name != '' %}
-                "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> from <a href='/admin/insites#/crm/companies/{{updated_order.order_company.uuid}}'>{{ updated_order.order_company_name }}</a> created order <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
-            {% else %}
-                "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> created order <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
-            {% endif %}
-            "details": "Order for {{add_contact.first_name}} {{add_contact.last_name}} has been created."
+            "font_icon": "icon-check-2",
+            "font_icon_color": "#048801",
+            "module_feature": "orders",
+            "module_source": "insites_ecommerce",
+            "datetime": "{{ 'now' | date: '%s' }}",
+            "description": "<a target='_blank' href='/admin/insites/#/crm/contacts/{{ user_id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> added an order - <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a> - CFW",
+            "details": "Order for {{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }} has been created.",
+            "entity": "orders"  
         }
         {%- endparse_json -%}
         {%- parse_json log_data-%}
@@ -266,10 +227,12 @@ metadata: {
             "entity": "orders",
             "order_uuid": "{{ updated_order.uuid }}",
             "data": {
-                "created_at": "{{ updated_order.created_at }}",
-                "id": "{{ updated_order.id }}",
-                "updated_at": "{{ updated_order.updated_at }}",
-                "properties": {{ updated_order |  default: '[]'}}
+                "items": {
+                    "created_at": "{{ updated_order.created_at }}",
+                    "updated_at": "{{ updated_order.updated_at }}",
+                    "id": "{{ updated_order.id }}",
+                    "properties": {{ updated_order |  default: '[]'}}
+                }
             }
         }
         {%- endparse_json -%}
@@ -279,36 +242,35 @@ metadata: {
 
     {% comment %} Add Pre-order Event {% endcomment %}
     {% if total_preorder_items > 0 %} 
-        {% parse_json preorder_event_data %}
+        {%- parse_json event_payload-%}
         {
-        "font_icon_color": "#6B45FF",
-        "log": {
-            "data": {
-            "created_at": "{{ updated_order.created_at }}",
-            "id": "{{ updated_order.id }}",
-            "updated_at": "{{ updated_order.updated_at }}",
-            "properties": {{ updated_order |  default: '[]'}}
-            },
-            "action": "add",
-            "order_uuid": "{{ updated_order.uuid }}"
-        },
-        "datetime": "{{ 'now' | date: '%s' }}",
-        "font_icon": "icon-settings-1",
-        "module_feature": "orders",
-        "module_source": "insites_ecommerce",
-        "administrator_uuid": "",
-        "uuid": "{{ '' | uuid }}",
-        {% if updated_order.order_company.uuid and updated_order.order_company.uuid != '' and updated_order.order_company_name and updated_order.order_company_name != '' %}
-            "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> from <a href='/admin/insites#/crm/companies/{{updated_order.order_company.uuid}}'>{{ updated_order.order_company_name }}</a> created a pre-order for <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
-        {% else %}
-            "description": "<a href='/admin/insites/#/crm/contacts/{{ user_id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> created a pre-order for <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a>.",
-        {% endif %}
-        "details": ""
+            "font_icon": "icon-check-2",
+            "font_icon_color": "#048801",
+            "module_feature": "orders",
+            "module_source": "insites_ecommerce",
+            "datetime": "{{ 'now' | date: '%s' }}",
+            "description": "<a target='_blank' href='/admin/insites/#/crm/contacts/{{ user_id }}'>{{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }}</a> added a pre-order - <a target='_blank' href='/admin/insites/#/ecommerce/orders/{{ updated_order.uuid }}'>{{ updated_order.id }}</a> - CFW",
+            "details": "Order for {{ updated_order.order_contact_first_name }} {{ updated_order.order_contact_last_name }} has been created.",
+            "entity": "orders"  
         }
-        {% endparse_json %}
-        {%- graphql add_event = 'modules/website/trigger_api_call', 
-            name: "modules/portal/add_events", data: preorder_event_data 
-            | dig: 'items','response','body' | parse_json -%}
+        {%- endparse_json -%}
+        {%- parse_json log_data-%}
+        {
+            "action": "add",
+            "entity": "orders",
+            "order_uuid": "{{ updated_order.uuid }}",
+            "data": {
+                "items": {
+                    "created_at": "{{ updated_order.created_at }}",
+                    "updated_at": "{{ updated_order.updated_at }}",
+                    "id": "{{ updated_order.id }}",
+                    "properties": {{ updated_order |  default: '[]'}}
+                }
+            }
+        }
+        {%- endparse_json -%}
+        {%- assign event_payload = event_payload | add_hash_key: "log", log_data -%}
+        {% function add_events = "crm/controller/event-streams/create", params: event_payload %}
     {% endif %}
 
 {% endif %}
