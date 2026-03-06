@@ -10,13 +10,11 @@ metadata: {
 ---
 
 {%- assign payload = context.params | parse_json -%}
+{%- assign user_uuid = payload.uuid -%}
 {%- assign status = 400 -%}
 
-{% comment %} Use Insites V2 API {% endcomment %}
-{%- graphql update_contact = 'modules/website/trigger_api_call', 
-     name: 'modules/portal/update_contact', 
-     data: payload 
-     | dig: 'items','response','body' | parse_json -%}            
+{% comment %} Use Insites V2 API Controller{% endcomment %}
+{% function update_contact = "crm/controller/contacts/update", uuid: user_uuid, params: payload %}
 
 {% comment %} Set Status {% endcomment %}
 {%- liquid
@@ -25,5 +23,5 @@ metadata: {
      endif
 -%}
 
-{{ update_contact  }}
+{{ update_contact }}
 {%- response_status status -%}

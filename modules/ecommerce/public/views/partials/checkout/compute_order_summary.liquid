@@ -85,7 +85,14 @@ metadata: {
             if cart.selected_prop.is_fixed_tax_amount == true
                 assign tax = cart.selected_prop.tax_amount | times: item.quantity
             else                
-                assign tax = cart.price | times: cart.selected_prop.tax_amount | divided_by: 100 | times: item.quantity
+                if is_on_sale == false and cart.selected_prop.is_tax_included == true
+                    assign tax_rate = cart.selected_prop.tax_amount | divided_by: 100.00 | plus: 1.00
+                    assign price_ex_tax = cart.price | divided_by: tax_rate
+                    assign tax_amount = cart.price | minus: price_ex_tax
+                    assign tax = tax_amount | times: item.quantity
+                else
+                    assign tax = cart.price | times: cart.selected_prop.tax_amount | divided_by: 100 | times: item.quantity
+                endif
             endif
             
             assign sub_total_tax = sub_total_tax | plus: tax

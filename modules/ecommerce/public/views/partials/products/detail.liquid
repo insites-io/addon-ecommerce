@@ -76,7 +76,6 @@ metadata: {
     assign variants = '[]'    
 %}
 
-
 <ins-button label="Go back" icon="icon-angle-left" class="inline go-back" onclick=window.history.back();></ins-button>
 <div class="spacer"></div>
 
@@ -192,7 +191,6 @@ metadata: {
                                 assign variants = variants | array_add:variant
                             %}
                         {%- endfor -%}
-                                           
 
                         {% if variants.size > 0 %}
                             {% assign first_option_label = '' %}
@@ -347,7 +345,6 @@ metadata: {
         }
 
         function updateSelectionDetails(selectedVariant) {
-            console.log('selectedVariant',selectedVariant);
 
             if(selectedVariant.id){
                 //Identifiers
@@ -391,7 +388,6 @@ metadata: {
                 //product_options
                 selected_variant.product_options = selectedVariant.product_options;
 
-                console.log('selected_variant',selected_variant);
             } else {
                 productSKU.textContent = "";
                 productPrice.textContent = "$--";
@@ -421,6 +417,7 @@ metadata: {
                         opt.product_option_value === selected.value;
                 });
             });
+
 
             // Find the next option label
             const nextLabel = filtered[0]?.product_options[selectedPath.length]?.product_option_label;
