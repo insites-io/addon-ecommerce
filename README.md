@@ -26,11 +26,10 @@ Please ensure this application is installed from the Insites Marketplace.
 
 
  ## Module Dependencies
- - API 5.1.0
- - CMS 5.6.0
- - CRM 5.12.4
- - Ecommerce 5.10.4
- - Events 5.5.1
+ - API 5.2.1
+ - CMS 5.7.0
+ - CRM 5.13.2
+ - Ecommerce 5.11.1
 
 
  ## Features
@@ -38,6 +37,7 @@ Please ensure this application is installed from the Insites Marketplace.
 - Cart
 - Discounts
 - Checkout
+- Pre-order
 - Order History
 
 

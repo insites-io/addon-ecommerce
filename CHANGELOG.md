@@ -1,6 +1,24 @@
  ## Change Log
- 
-- Prerequisite module: Portal v1.3.0
+ ## App - Add-on Ecommerce V1.1.1
+
+- Module Updates
+  - Events
+    - Events is now Event Stream.
+    - Event Module has been repackaged as a Module that handles details for events and ticket sales.
+    - Event Stream has been moved to CRM Module so Event Module is no longer a pre-requesite.
+  - API
+    - Controllers are now availables
+    - Replace the usage of APIs to controllers.
+      - Triggering the API call by using GraphQL is not necessary.
+      - Controllers are used like liquid partials by calling the liquid 'function'.
+- Changes in Insites Module prerequisite
+  - API v5.2.1
+  - CMS 5.7.0
+  - CRM 5.13.2
+  - Ecommerce 5.11.1
+
+
+- Prerequisite app: Portal v1.3.0
   - Rounded buttons
   - Gradient background color for solid buttons
 - Text headings and labels ( except for Product Name )
@@ -48,3 +66,5 @@
       - save user data in CRM
   - Shipping & Billing
     - Use modal form in adding new address
+  
+
