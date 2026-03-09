@@ -14,7 +14,7 @@ query search_products_total_entries(
     filter:{
       table:{ value:"modules/insites_ecommerce/product" }
       properties:[
-      	{ name: "status", not_value_in: ["archived","disabled"] }
+      	{ name: "status", value: "enabled"}
         { name: "category_uuids", value_in: $category_uuids }
         { name: "is_on_sale", value_boolean: $is_on_sale }
         { name: "stock_level", range: { gt: $not_number } }
