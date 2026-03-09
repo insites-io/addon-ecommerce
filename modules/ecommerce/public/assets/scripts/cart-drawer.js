@@ -183,6 +183,15 @@ function cartStepperEventListener(step){
                 "is_fixed_tax_amount": stepperData.is_fixed_tax_amount
             };   
 
+            // Notify other parts of the page (e.g., product detail quantity stepper) about the update
+            window.dispatchEvent(new CustomEvent('ecommerce:cartQuantityChange', {
+                detail: {
+                    product_uuid: data.product_uuid,
+                    product_variant_uuid: data.product_variant_uuid,
+                    quantity: data.quantity
+                }
+            }));
+
             if(addToCart(data, 'stepper')){                
                 computeSubTotal();
             }                  
