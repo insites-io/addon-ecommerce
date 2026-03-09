@@ -13,6 +13,18 @@ metadata: {
     "sitemap_order": "1", 
     "sitemap_change_frequency": "monthly"    
 }
+dynamic_cache:
+  layout: false
+  key: |-
+    {%- parse_json models -%}
+    [
+      "modules/insites_ecommerce/category",
+      "modules/insites_ecommerce/product",
+      "modules/insites_ecommerce/product_variant"
+    ]
+    {%- endparse_json -%}   
+    {%- include "modules/website/cache/generate_cache_key", models: models -%}
+    {{ context.current_user.id }} 
 ---
 {% comment -%} 
 URL Structures: 
