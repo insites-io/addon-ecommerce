@@ -66,9 +66,13 @@ metadata: {
 {
     "page": {{page_num}},
     "size": {{per_page}},
+    "brand": "{{brand}}", 
     "keyword": "{{keyword}}",
-    "brand": "{{brand}}",    
 
+    {%- if keyword and keyword != '' -%}
+        "keywords": ["{{keyword}}"],
+    {%- endif -%}
+       
     {%- if category_uuids.size > 0 -%}
         "category_uuids": {{ category_uuids }},
     {%- endif -%}
