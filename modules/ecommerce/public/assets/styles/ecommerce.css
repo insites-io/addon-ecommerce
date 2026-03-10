@@ -2096,6 +2096,7 @@ ins-button button[type=submit].blue.solid,
 ins-button button[type=submit].primary.solid {
     display: inline-block;
     min-height: 40px;
+    height: initial;
     padding: 11px 24px;
     border-radius: 14px;
     background: var(--Gradient---color-gradient1, linear-gradient(95deg, #0095FF 6.51%, #3044FF 94.43%));
@@ -2110,6 +2111,7 @@ ins-button button[type=reset].primary.outlined,
 ins-button button[type=submit].blue.outlined,
 ins-button button[type=submit].primary.outlined {
     min-height: 40px;
+    height: initial;
     padding: 11px 24px;
     border-radius: 14px;
 }
