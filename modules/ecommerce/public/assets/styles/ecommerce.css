@@ -803,7 +803,7 @@ ins-carousel .product-cards .placeholder-img {
 #mobile-filter-drawer .open .ins-accordion-item_header>.inner-head a,
 #mobile-filter-drawer .icon-minus {
     color: var(--color-main);
-    font-family: var(--font-family-02);
+    font-family: var(--font-family-01);
 }
 
 #mobile-filter-drawer .ins-drawer-wrap .ins-content.left {
@@ -891,6 +891,9 @@ ins-carousel .product-cards .placeholder-img {
     background: var(--color-main-hover-light);
 }
 
+#mobile-filter-drawer .ui-sidebar {
+    font-family: var(--font-family-01);
+}
 #mobile-filter-drawer a.active .ui-sidebar {
     color: var(--color-main);
     font-weight: 700;
