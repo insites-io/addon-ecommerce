@@ -1195,6 +1195,7 @@ ins-button.view-button button {
 #cartDrawer .ins-content,
 #order-summary-drawer .ins-content {
     max-width: 100%;
+    padding-bottom: 0px;
 }
 
 ins-drawer.cart-drawer .ins-drawer-wrap {
@@ -1216,6 +1217,7 @@ ins-drawer.cart-drawer .ins-drawer-wrap .ins-content::-webkit-scrollbar {
     width: 451px;
     max-width: 100%;
     padding: 24px 16px;
+    padding-bottom: 0px;
 }
 
 #cartDrawer .icon-close-1 {
