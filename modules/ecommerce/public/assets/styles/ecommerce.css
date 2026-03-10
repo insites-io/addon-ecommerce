@@ -829,8 +829,12 @@ ins-carousel .product-cards .placeholder-img {
 }
 
 #mobile-filter-drawer .ins-accordion-item_header>.inner-head,
-#mobile-filter-drawer a span {
+#mobile-filter-drawer a span,
+ins-drawer#mobile-menu .menu li>a,
+ins-drawer#mobile-menu .ins-accordion-item>.ins-accordion-item_header>.inner-head,
+ins-drawer#mobile-menu .menu .ins-accordion-item_content .ins-accordion-link>a {
     padding: 16px 24px;
+    line-height: 34px;
 }
 
 #mobile-filter-drawer .ins-accordion-item_header>.inner-head {
