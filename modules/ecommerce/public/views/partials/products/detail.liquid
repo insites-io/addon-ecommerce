@@ -326,33 +326,94 @@ metadata: {
     const onSaleTag = document.getElementById('on-sale-tag');
     const ourOfStockNotice = document.getElementById("out-of-stock-notice");
     const outOfStockOverlay = document.getElementById("out-of-stock-overlay");
-    //cartQuantityInput already declaired in cart-drawer.js
+    const detailCartQuantityInput = document.getElementById('cart-quantity');
 
-    // Keep the product detail quantity stepper in sync with cart drawer stepper changes
-    window.addEventListener('ecommerce:cartQuantityChange', (e) => {
-        if (!cartQuantityInput || !e?.detail) return;
+    // Keep the cart drawer stepper in sync with product detail quantity stepper changes
+    if (detailCartQuantityInput) {
+        let isUpdatingFromCartDrawer = false;
+        
+        // Keep the product detail quantity stepper in sync with cart drawer stepper changes
+        window.addEventListener('ecommerce:cartQuantityChange', (e) => {
+            if (!detailCartQuantityInput || !e?.detail) return;
 
-        const changedProductUuid = e.detail.product_uuid;
-        const changedVariantUuid = e.detail.product_variant_uuid;
-        const changedQty = e.detail.quantity;
+            const changedProductUuid = e.detail.product_uuid;
+            const changedVariantUuid = e.detail.product_variant_uuid;
+            const changedQty = e.detail.quantity;
 
-        if (!changedProductUuid || changedQty == null) return;
-        if (changedProductUuid !== product_uuid) return;
+            if (!changedProductUuid || changedQty == null) return;
+            if (changedProductUuid !== product_uuid) return;
 
-        // If the product has variants, only sync when the current (selected/initial) variant matches.
-        if (is_variant_enabled) {
-            const currentVariantUuid = (typeof selected_variant !== 'undefined' && selected_variant?.product_variant_uuid)
-                ? selected_variant.product_variant_uuid
-                : initial_variant_uuid;
+            // If the product has variants, only sync when the current (selected/initial) variant matches.
+            if (is_variant_enabled) {
+                const currentVariantUuid = (typeof selected_variant !== 'undefined' && selected_variant?.product_variant_uuid)
+                    ? selected_variant.product_variant_uuid
+                    : initial_variant_uuid;
 
-            if (!changedVariantUuid || !currentVariantUuid) return;
-            if (changedVariantUuid !== currentVariantUuid) return;
-        }
+                if (!changedVariantUuid || !currentVariantUuid) return;
+                if (changedVariantUuid !== currentVariantUuid) return;
+            }
 
-        // Web component safety: set both property and attribute
-        cartQuantityInput.value = changedQty;
-        cartQuantityInput.setAttribute('value', changedQty);
-    });
+            // Set flag to prevent loop when updating from cart drawer
+            isUpdatingFromCartDrawer = true;
+            
+            // Web component safety: set both property and attribute
+            detailCartQuantityInput.value = changedQty;
+            detailCartQuantityInput.setAttribute('value', changedQty);
+            
+            // Clear flag after a short delay
+            setTimeout(() => {
+                isUpdatingFromCartDrawer = false;
+            }, 100);
+        });
+        
+        detailCartQuantityInput.addEventListener('insValueChange', async (e) => {
+            // Prevent infinite loop: ignore updates that come from cart drawer sync
+            if (isUpdatingFromCartDrawer) return;
+            
+            if (!e?.detail) return;
+
+            const newQuantity = e.detail;
+            if (newQuantity == null) return;
+
+            // Get the current variant UUID (if applicable)
+            let currentVariantUuid = '';
+            if (is_variant_enabled) {
+                currentVariantUuid = (typeof selected_variant !== 'undefined' && selected_variant?.product_variant_uuid)
+                    ? selected_variant.product_variant_uuid
+                    : initial_variant_uuid;
+            }
+
+            // Find the matching cart drawer stepper
+            const cartSteppers = document.querySelectorAll('#cartDrawer .cart-stepper');
+            for (const stepper of cartSteppers) {
+                const stepperProductUuid = stepper.dataset.product_uuid;
+                const stepperVariantUuid = stepper.dataset.variant_uuid || '';
+
+                // Match product UUID
+                if (stepperProductUuid !== product_uuid) continue;
+
+                // If variant enabled, also match variant UUID
+                if (is_variant_enabled) {
+                    if (!currentVariantUuid || stepperVariantUuid !== currentVariantUuid) continue;
+                } else {
+                    // For non-variant products, ensure variant_uuid is empty/null
+                    if (stepperVariantUuid && stepperVariantUuid !== '') continue;
+                }
+
+                // Found matching stepper - update its value
+                stepper.value = newQuantity;
+                stepper.setAttribute('value', newQuantity);
+                
+                // Manually trigger the insValueChange event so cart-drawer.js handles the cart update
+                stepper.dispatchEvent(new CustomEvent('insValueChange', {
+                    detail: newQuantity,
+                    bubbles: true
+                }));
+                
+                break;
+            }
+        });
+    }
 
     if(variants.length > 0) {        
         const nextSelectsWrap = document.getElementById('next-selects');
