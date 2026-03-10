@@ -1572,7 +1572,7 @@ ins-tag.preorder-tag span.ins-tag {
 }
 
 #order-summary-drawer .ins-drawer-header.sticky+.ins-drawer-body {
-    margin-top: 66px;
+    margin-top: 24px;
     padding-top: 0px;
     padding-bottom: 40px;
 }
