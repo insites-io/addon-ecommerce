@@ -4,7 +4,7 @@ metadata: {
 }
 ---
 {%- if cart_items.size > 0 -%}
-    <h4>Cart items</h4>
+    <h2 class="heading-4">Cart items</h2>
     <div class="spacer x-large"></div>    
     <div id="shopping-cart-list">
         <div class="wrap shopping-cart grid-y">
@@ -30,14 +30,14 @@ metadata: {
                     </div>
                     <div class="text-wrap">
                         <a href="/products/{{ cart.slug }}">
-                            <h6>
+                            <h3 class="heading-6">
                                 {{ cart.product_name }} 
 
                                 {% comment %} Pre-order Tag {% endcomment %}                                
                                 {% if cart.selected_prop.stock_level < item.quantity %}
                                     <ins-tag label="Pre-order" class='preorder-tag body-x-small' ></ins-tag>
                                 {% endif %}
-                            </h6> 
+                            </h3> 
                         </a>
                         <p class="body-small font-color-body">SKU: {{ cart.product_sku }}</p>                        
                         <div class="spacer small"></div>

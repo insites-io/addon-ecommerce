@@ -115,7 +115,7 @@ metadata: {
                 </div>
 
                 <div class="grid-y cart-details flex-child-auto">
-                    <a href="/products/{{product.slug}}"><h6>{{ product_name }}</h6></a>
+                    <a href="/products/{{product.slug}}"><span class="heading-6">{{ product_name }}</span></a>
                     {% if selected_prop.stock_level < item.quantity %}
                         <p>
                             <ins-tag label="Pre-order" class='preorder-tag body-x-small' ></ins-tag>

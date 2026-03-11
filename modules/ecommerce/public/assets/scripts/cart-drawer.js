@@ -413,7 +413,7 @@ function cartItemHtml(data, cart_item){
                     <a href="/products/${data.slug}">${ img }</a>
                 </div>
                 <div class="grid-y cart-details flex-child-auto">
-                    <a href="/products/${data.slug}"><h6>${ data.product_name }</h6></a>
+                    <a href="/products/${data.slug}"><span class="heading-6">${ data.product_name }</span></a>
                     ${preorder_tag}
                     <p class="body-x-small">SKU ${ data.product_sku }</p>
                     <div class="spacer x-small"></div>

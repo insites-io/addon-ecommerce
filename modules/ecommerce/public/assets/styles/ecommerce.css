@@ -48,7 +48,7 @@ h5.heading-5-small {
 h6,
 .heading-6 {
     font-family: var(--font-family-01);
-    font-size: 16px;
+    font-size: 16px !important;
     font-style: normal;
     font-weight: 700;
     line-height: 120%;
