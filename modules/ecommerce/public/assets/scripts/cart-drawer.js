@@ -428,7 +428,6 @@ function cartItemHtml(data, cart_item){
                     <p class="cart-price compute-price">$${ item_total_price }</p>
                     <div class="spacer x-small"></div>
                     <ins-input-stepper
-                        name="cart-stepper"
                         class="cart-stepper" 
                         data-id="${ data.id }"
                         data-product_uuid="${ data.product_uuid }"

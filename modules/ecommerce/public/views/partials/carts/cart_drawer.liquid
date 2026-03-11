@@ -142,7 +142,6 @@ metadata: {
                     <p class="cart-price compute-price">{{ item_total | plus: 0 | pricify: 'USD', no_cents_if_whole: false }}</p>
                     <div class="spacer x-small"></div>
                     <ins-input-stepper
-                        name="cart-stepper"
                         class="cart-stepper" 
                         data-id="{{ item.id }}"
                         data-product_sku="{{ item.sku }}"
