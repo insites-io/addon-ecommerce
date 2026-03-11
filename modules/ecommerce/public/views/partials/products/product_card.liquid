@@ -72,6 +72,12 @@ metadata: {
                 <div class="details">
                     {% if heading_level == 'h2' %}
                         <h2 class="heading-6">{{ product.product_name }}</h2>
+                    {% elsif heading_level == 'h3' %}
+                        <h3 class="heading-6">{{ product.product_name }}</h3>  
+                    {% elsif heading_level == 'h4' %}
+                        <h4 class="heading-6">{{ product.product_name }}</h4>  
+                    {% elsif heading_level == 'h5' %}
+                        <h5 class="heading-6">{{ product.product_name }}</h5>  
                     {% else %}
                         <h6>{{ product.product_name }}</h6>
                     {% endif %}
