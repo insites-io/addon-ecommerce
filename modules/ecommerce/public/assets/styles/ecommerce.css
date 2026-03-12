@@ -753,6 +753,15 @@ ins-carousel .product-cards .placeholder-img {
     margin-bottom: 0px;
 }
 
+.product-list .ins-select-wrap .ins-select-label-wrap {
+    font-family: var(--font-family-02) !important;
+    font-size: 12px !important;
+    font-style: normal !important;
+    font-weight: 700 !important;
+    line-height: 16px !important; 
+    margin-bottom: 0px !important;
+}
+
 .sidebar-categories input[type=number]::-webkit-inner-spin-button,
 .sidebar-categories input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
