@@ -91,11 +91,3 @@ URL Structures:
         <script src="{{ 'modules/ecommerce/scripts/product-list.min.js' | asset_url }}" defer></script>
     {% endif %}
 {% endif %}
-
-{%- if context.flash and context.flash.notice == "Success-OutStockNotify" -%}
-<script>
-setTimeout(() => {
-    App.events.notyf('success', "Your inquiry has been sent!");
-}, 200);
-</script>
-{% endif -%} 
