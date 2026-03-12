@@ -62,9 +62,9 @@ metadata: {
                 {%- capture img_cache_key -%} product_image-{{ product.id }}-{{ product.updated_at }} {%- endcapture -%}
                 {% cache img_cache_key %}
                 {% if fetchpriority == 'high' %}
-                <img src="{{ image_url }}" alt="{{ product.product_name }}" fetchpriority="high">
+                <img src="{{ image_url }}" alt="{{ product.product_name }}" fetchpriority="high" width="300" height="286">
                 {% else %}
-                <img src="{{ image_url }}" alt="{{ product.product_name }}" loading="lazy">
+                <img src="{{ image_url }}" alt="{{ product.product_name }}" loading="lazy" width="300" height="286">
                 {% endif %}
                 {% endcache %}
             {% else %}
