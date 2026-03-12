@@ -61,7 +61,11 @@ metadata: {
                 {% assign image_url = product.product_image.url | replace: ' ', '%20' | escape %}                               
                 {%- capture img_cache_key -%} product_image-{{ product.id }}-{{ product.updated_at }} {%- endcapture -%}
                 {% cache img_cache_key %}
+                {% if fetchpriority == 'high' %}
+                <img src="{{ image_url }}" alt="{{ product.product_name }}" fetchpriority="high">
+                {% else %}
                 <img src="{{ image_url }}" alt="{{ product.product_name }}" loading="lazy">
+                {% endif %}
                 {% endcache %}
             {% else %}
                 {% include 'modules/website/layout/placeholder_image', size: 'medium' %}

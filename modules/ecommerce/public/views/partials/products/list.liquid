@@ -153,7 +153,11 @@ metadata: {
         <div id="product-grid" class="product-cards products-grid grid-x grid-padding-x grid-padding-y medium-up-3 small-up-1">
             
             {%- for product in products.items.results -%}
-                {% include "modules/ecommerce/products/product_card", product, all_categories, heading_level: 'h2' %}
+                {% assign fetchpriority = null %}
+                {% if forloop.index < 4 %}
+                    {% assign fetchpriority = 'high' %}
+                {% endif %}
+                {% include "modules/ecommerce/products/product_card", product, all_categories, heading_level: 'h2', fetchpriority: fetchpriority %}
             {%- endfor -%}
 
         </div>
