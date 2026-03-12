@@ -1,3 +1,6 @@
+// Checkout Steps Navigation
+const checkoutStepEl = Array.from(document.getElementsByClassName('checkout-step'));
+
 // Phone Numbers
 const contactPhone = {
     insInput: document.getElementById('contact-phone'),
@@ -619,12 +622,22 @@ let Checkout = (function () {
                 this.initCardsEventListener();
                 this.initCheckNavigation();
                 this.initAddressListener();    
+                this.initNavigation();
                 if(addCardBtns) {
                     addCardBtns.forEach(btn => {
                         btn.addEventListener('insClick',() => cardModal.open());
                     });
                 }            
                 this.initPaymentPage();
+            },
+            initNavigation() {
+                if(checkoutStepEl) {
+                    checkoutStepEl.forEach(step => {
+                        step.addEventListener('insStepClick', async(event) => {
+                            window.location.href = event.target.dataset.page;
+                        });
+                    });
+                }
             },
             initAddressListener() {
                 if(addAddressBtn && addressCancelBtn && addressSubmitBtn) {
