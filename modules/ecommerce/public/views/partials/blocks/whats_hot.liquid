@@ -3,6 +3,9 @@ metadata: {
     partial_name: 'Ecommerce | Blocks | Whats Hot'
 }
 ---
+
+{% comment %} This partial is used in the app-portal {% endcomment %}
+ 
 {% graphql products = "modules/ecommerce/products/get_products", is_featured: true, size: 8 | dig: 'items','results' %}
 
 {% if products.size > 0 %}

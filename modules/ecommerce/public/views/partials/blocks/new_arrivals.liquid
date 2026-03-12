@@ -4,6 +4,8 @@ metadata: {
 }
 ---
 
+{% comment %} This partial is used in the app-portal {% endcomment %}
+
 {% graphql products = "modules/ecommerce/products/get_products", size: 8 | dig: 'items','results' %}
 
 {% if products.size > 0 %}
