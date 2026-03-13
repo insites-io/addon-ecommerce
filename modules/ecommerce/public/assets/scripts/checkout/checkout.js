@@ -136,15 +136,16 @@ let Checkout = (function () {
                     };
                 }
             },
-            createAddressCard(data) {
+            createAddressCard(data, type = 'shipping') {
                 const suburbState = [data.suburb, data.state].filter(Boolean).join(' ');
                 let streetAddress = data.address_1;
                 if(data.address_2){
                     streetAddress += `, ${data.address_2}`;
                 }
+                const cardName = `${type}-address-cards`;
                 let cardHtml = `
                 <div class="large-6 medium-6 small-12 cell">
-                    <ins-checkbox-card data-equalizer-watch="" name="shipping-address-cards" selected-color="blue" value="${data.id}" data-address="${data.address_1}" data-address_1="${data.address_1}" data-address_2="${data.address_2}" data-suburb="${data.suburb}" data-state="${data.state}" data-postcode="${data.postcode}" data-country="${data.country}">                    
+                    <ins-checkbox-card data-equalizer-watch="" name="${cardName}" selected-color="blue" value="${data.id}" data-address="${data.address_1}" data-address_1="${data.address_1}" data-address_2="${data.address_2}" data-suburb="${data.suburb}" data-state="${data.state}" data-postcode="${data.postcode}" data-country="${data.country}">                    
                         <div>
                             <p class="form-label">${streetAddress}</p>
                             <div class="spacer small"></div>
@@ -488,7 +489,7 @@ let Checkout = (function () {
             selectAddressCard(addressCard) {
                 let name = addressCard.getAttribute('name');
       
-                // Remove State of address field cards
+                // Remove State of address field cards - clear all cards with the same name
                 document.getElementsByName(name).forEach(el => {
                     el.classList.remove('is-invalid');
                     el.removeAttribute('selected');
@@ -496,7 +497,7 @@ let Checkout = (function () {
                 });
 
                 // Set selected state
-                addressCard.setAttribute('selected', true);
+                addressCard.setAttribute('selected', 'true');
                 addressCard.selected = true;
                 selectedAddressId = addressCard.value;
 
@@ -514,6 +515,18 @@ let Checkout = (function () {
             async addressSubmit() {
                 let isValid = await App.validation.validateForm(addressFormModal);
                 if(isValid){
+                    // Detect page type by checking the button's name attribute
+                    let pageType = 'shipping';
+                    if(addAddressBtn){
+                        const btnName = addAddressBtn.getAttribute('name');
+                        if(btnName && btnName.includes('billing')){
+                            pageType = 'billing';
+                        }
+                    } else if(billingAddressID && !shippingAddressID){
+                        // Fallback: check which address ID field exists
+                        pageType = 'billing';
+                    }
+
                     let url = '/create-contact-address.json' ;
                     let payload = {
                             "related_uuid": contactUuid, //REQUIRED
@@ -536,11 +549,19 @@ let Checkout = (function () {
                     if(response.state && response.data.id) {            
                         addressFormModal.close();
                         App.events.notyf("success", "Address added successfully.");                        
-                        addressCards.insertAdjacentHTML('afterbegin', Checkout.methods.createAddressCard(response.data));
+                        
+                        // Clear all cards of the same type before adding the new one
+                        const cardName = `${pageType}-address-cards`;
+                        document.querySelectorAll(`ins-checkbox-card[name="${cardName}"]`).forEach(el => {
+                            el.removeAttribute('selected');
+                            el.selected = false;
+                        });
+                        
+                        addressCards.insertAdjacentHTML('afterbegin', Checkout.methods.createAddressCard(response.data, pageType));
 
                         //Select the newly added card                        
                         Checkout.events.selectAddressCard(
-                            document.querySelector(`ins-checkbox-card[value="${response.data.id}"]`)
+                            document.querySelector(`ins-checkbox-card[value="${response.data.id}"][name="${cardName}"]`)
                         );                          
 
                         // Reset value to blank
