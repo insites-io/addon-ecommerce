@@ -175,26 +175,10 @@ let Checkout = (function () {
                     // If a selected card is found, stop further processing
                     if (isSelected) {
                         selectedAddressId = card.value;
-                        //Checkout.methods.removeAddressRequiredAttribute();
                         return; 
                     }
                 });
-            },
-            addAddressRequiredAttribute() {
-                // List of input IDs to exclude
-                const excludedIds = ['shipping_address_2', 'billing_address_2'];
-            
-                // Add the 'required' and 'validate' attributes to all inputs except excluded ones
-                inputIds.forEach(id => {
-                    if (!excludedIds.includes(id)) {
-                        const inputElement = document.getElementById(id);
-                        if (inputElement) {
-                            inputElement.setAttribute('required', '');
-                            inputElement.setAttribute('validate', '');
-                        }
-                    }
-                });
-            },                     
+            },                    
             // Update shipping details based on whether shipping info is the same as account info
             updateShippingContact(sameDetails){
                 let requiredInputs = document.querySelectorAll('#shipping-contact-inputs ins-input[required]');
@@ -438,7 +422,6 @@ let Checkout = (function () {
                 } else if (page == 'shipping') {
                     payload = {
                         type: 'shipping',
-                        //shipping_address_id: shippingAddressID.value,
                         shipping_same_with_account: shippingSamewithAccountFlag,
                         shipping_instructions: document.getElementById('shipping_instructions').value,
                         shipping_company_name: shippingCompanyNameEl.value,
@@ -452,7 +435,6 @@ let Checkout = (function () {
                 } else if (page == 'billing') {
                     payload = {
                         type: 'billing',
-                        //billing_address_id: billingAddressID.value,
                         billing_same_with_shipping: billingSamewithShippingFlag,
                         billing_company_name: billingCompanyNameEl.value,
                         billing_contact_first_name: billingFirstNameEl.value,
@@ -580,21 +562,6 @@ let Checkout = (function () {
                         App.events.notyf("error", "Something went wrong. Please try again.");
                     }
                 }
-            },
-            uncheckAddressCard(){
-                let addressCards = Array.from(document.querySelectorAll('ins-checkbox-card'));
-                addressCards.forEach(address => {
-                    address.setAttribute('selected', false);
-                    address.selected = false;
-                });
-                selectedAddressId = null;
-            },
-            // Function to remove 'is-invalid' class from all form elements
-            removeInvalidClassFromForm() {
-                const invalidElements = document.querySelectorAll('.is-invalid');
-                invalidElements.forEach((element) => {
-                    element.classList.remove('is-invalid');
-                });
             },
             async paymentFormSubmit(event){
                 event.preventDefault();
