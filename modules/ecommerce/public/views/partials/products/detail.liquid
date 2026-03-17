@@ -241,7 +241,7 @@ metadata: {
                 </ins-input-stepper>                
             </div>
             {% comment %} Buttons {% endcomment %}            
-            {% parse_json add_to_cart_data %}
+            {% parse_json add_to_cart_data_old %}
             {
                 "detail_page": true,
                 "id": "{{ product.id }}",
@@ -256,9 +256,18 @@ metadata: {
                 "is_fixed_tax_amount": "{{ product.is_fixed_tax_amount | default: false }}"
             }
             {% endparse_json %}
+            {%-  comment -%}
             {% if galleries.size > 0 %}
                 {% assign add_to_cart_data = add_to_cart_data | add_hash_key: 'image', galleries[0] %}
-            {% endif %}                     
+            {% endif %}   
+            {%- endcomment -%}
+            {% parse_json add_to_cart_data %}
+            {
+                "product_uuid": "{{ product.uuid }}",
+                "product_variant_uuid": "{{ product_variant_uuid }}"
+            }
+            {% endparse_json %}
+                              
             <div id="product-details-btn">
                 <ins-button id="add-to-cart-btn-{{ add_to_cart_data.id }}"  class="full add-to-cart-btn" data='{{ add_to_cart_data }}' label="{{ btnLabel }}" solid {{disabledBtn}}></ins-button>
                 <div class="spacer small"></div>

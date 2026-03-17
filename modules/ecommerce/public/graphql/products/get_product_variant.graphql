@@ -1,0 +1,44 @@
+query get_product_variant (
+  $id: ID,
+  $page: Int = 1,
+  $size: Int = 50,
+  $uuid: String,
+) {
+  items: records(
+    page: $page
+    per_page: $size
+    filter: {
+      id: { value: $id }
+      table: { value: "modules/insites_ecommerce/product_variant" }
+      properties: [
+        { name: "uuid", value: $uuid }
+      ] 
+    }
+  ) {
+    results {
+      id         
+      updated_at
+      # properties
+      uuid: property( name: "uuid" )
+      width: property( name: "width" )
+      height: property( name: "height" )
+      length: property( name: "length" )
+      weight: property( name: "weight" )
+      cost_price: property_float( name: "cost_price" )
+      is_on_sale: property_boolean( name: "is_on_sale" )
+      sale_price: property_float( name: "sale_price" )
+      tax_amount: property_float( name: "tax_amount" )
+      product_sku: property( name: "product_sku" )
+      stock_level: property_int( name: "stock_level" )
+      product_uuid: property( name: "product_uuid" )
+      regular_price: property_float( name: "regular_price" )
+      freight_amount: property_float( name: "freight_amount" )
+      effective_price: property_float( name: "effective_price" )
+      is_tax_included: property_boolean( name: "is_tax_included" )
+      compare_at_price: property_float( name: "compare_at_price" )
+      is_free_shipping: property_boolean( name: "is_free_shipping" )
+      is_fixed_tax_amount: property_boolean( name: "is_fixed_tax_amount" )
+      is_variant_sale_price_tax_included: property_boolean( name: "is_variant_sale_price_tax_included" )
+    }
+  }
+}

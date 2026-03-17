@@ -19,10 +19,12 @@ metadata: {
         endif
     elsif product.is_product_variant_enabled
         assign class_add_to_cart_btn = ''
+        assign label_add_tocart_btn = 'Select Variant'
         assign selected_prop = product.variant
         assign product_variant_uuid = product.variant.uuid
     else 
         assign class_add_to_cart_btn = 'add-to-cart-btn'
+        assign label_add_tocart_btn = 'Add to Cart'
         assign selected_prop = product
         assign product_variant_uuid = null
     endif
@@ -91,7 +93,7 @@ metadata: {
                     {% endif %}
                 </div>
                 <div class="buttons">
-                    {% parse_json data %}
+                    {% parse_json data_old %}
                     {
                         "id": "{{ selected_prop.id }}",
                         "slug": "{{ product.slug }}",
@@ -108,7 +110,14 @@ metadata: {
                     }
                     {% endparse_json %}
 
-                    <ins-button class="full {{class_add_to_cart_btn}}" label="Add to cart" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
+                    {% parse_json data %}
+                    {
+                        "product_uuid": "{{ product.uuid }}",
+                        "product_variant_uuid": "{{ product_variant_uuid }}"
+                    }
+                    {% endparse_json %}
+
+                    <ins-button class="full {{class_add_to_cart_btn}}" label="{{ label_add_tocart_btn }}" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
                     <div class="spacer x-small"></div>
                     <a href="/products/{{ product.slug }}">
                         <ins-button class="full" label="View details" outlined icon="icon-eye"></ins-button>

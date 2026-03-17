@@ -101,7 +101,7 @@ metadata: {
                 assign subtotal = subtotal | plus: item_total
             %}
 
-        <div id="cart-item-{{product_id}}" class="cart-item-wrap">
+        <div id="cart-item-{{item.id}}" class="cart-item-wrap">
             <div class="grid-x" >
 
                 <div class="image_wrap">
@@ -180,7 +180,15 @@ metadata: {
 
     {% endif %}
 
-    </div>        
+    </div>
+    
+    <ins-loader
+        id="shopping-cart-loader"
+        class="hide"
+        state-title="" 
+        state-icon="processing" 
+        state-message="Loading">
+    </ins-loader>
     
     {% comment %} user_cart = blank if the user has a guest account {% endcomment %}
     <div id="bottom-wrap" class="bottom-wrap {% if user_cart.cart_items.size <= 0 or user_cart == blank %}hide{% endif %}">
