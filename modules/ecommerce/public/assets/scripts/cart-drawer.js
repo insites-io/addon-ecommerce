@@ -395,7 +395,7 @@ function cartItemHtml(data, cart_item){
                     <a href="/products/${prodItemDetail.slug}">${ img }</a>
                 </div>
                 <div class="grid-y cart-details flex-child-auto">
-                    <a href="/products/${prodItemDetail.slug}"><h6>${ cartItemDetail.product_name }</h6></a>
+                    <a href="/products/${prodItemDetail.slug}"><span class="heading-6">${ cartItemDetail.product_name }</span></a>
                     ${preorder_tag}
                     <p class="body-x-small">SKU ${ cartItemDetail.product_sku }</p>
                     <div class="spacer x-small"></div>
@@ -410,7 +410,6 @@ function cartItemHtml(data, cart_item){
                     <p class="cart-price compute-price">$${ item_total_price }</p>
                     <div class="spacer x-small"></div>
                     <ins-input-stepper
-                        name="cart-stepper"
                         class="cart-stepper" 
                         data-product_uuid="${ prodItemDetail.product_uuid }"
                         data-variant_uuid="${ prodItemDetail.product_variant_uuid }"

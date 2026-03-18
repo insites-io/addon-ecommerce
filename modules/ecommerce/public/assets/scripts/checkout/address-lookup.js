@@ -1,5 +1,3 @@
-let addressValueChanged = false;
-
 var AddressLookup = (function () {
     // google address lookup field
     let searchAddressElement; 
@@ -16,7 +14,6 @@ var AddressLookup = (function () {
                     AddressLookup.methods.unselectAddressCards(type);
                 if (address && address.address_components) {                    
                     AddressLookup.methods.mapGoogleAddress(address.address_components, type, geometry);
-                    addressValueChanged = true;
                 }
             },
             resetAddress(type) {

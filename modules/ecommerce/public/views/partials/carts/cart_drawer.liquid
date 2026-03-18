@@ -115,7 +115,7 @@ metadata: {
                 </div>
 
                 <div class="grid-y cart-details flex-child-auto">
-                    <a href="/products/{{product.slug}}"><h6>{{ product_name }}</h6></a>
+                    <a href="/products/{{product.slug}}"><span class="heading-6">{{ product_name }}</span></a>
                     {% if selected_prop.stock_level < item.quantity %}
                         <p>
                             <ins-tag label="Pre-order" class='preorder-tag body-x-small' ></ins-tag>
@@ -142,7 +142,6 @@ metadata: {
                     <p class="cart-price compute-price">{{ item_total | plus: 0 | pricify: 'USD', no_cents_if_whole: false }}</p>
                     <div class="spacer x-small"></div>
                     <ins-input-stepper
-                        name="cart-stepper"
                         class="cart-stepper" 
                         data-id="{{ item.id }}"
                         data-product_sku="{{ item.sku }}"

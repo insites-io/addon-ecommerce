@@ -10,6 +10,21 @@ metadata: {
     "is_visible_to_search_engines": false,
     "is_sitemap_enabled": false 
 }
+dynamic_cache:
+    layout: true
+    key: >
+        {%- parse_json models -%}
+        [
+          "modules/insites_ecommerce/order",
+          "modules/insites_ecommerce/order_item",
+          "modules/insites_ecommerce/product",
+          "modules/insites_ecommerce/product_variant",
+          "modules/insites_core/crm_contact",
+          "modules/insites_core/company"
+        ]
+        {%- endparse_json -%}
+        {%- include "modules/website/cache/generate_cache_key", models: models -%}
+        {{context.current_user.id}}
 authorization_policies:
   - modules/portal/is_user_logged_in 
 ---

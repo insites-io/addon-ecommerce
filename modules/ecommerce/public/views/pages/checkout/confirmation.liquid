@@ -35,7 +35,7 @@ metadata: {
 
     <div class="grid-x grid-padding-x confirmation_wrapper">
         <div class="large-7 medium-6 small-12 cell">
-            <h4>Order details</h4>
+            <h2 class="heading-4">Order details</h2>
             <div class="spacer x-large"></div>
        
             <div class="grid-x grid-padding-x">
@@ -44,7 +44,7 @@ metadata: {
                     <div class="grid-y">
                         {% comment %} Order contact {% endcomment %}
                         <div class="wrap">
-                            <h5 class="heading-5-small">Order contact</h5>
+                            <h3 class="heading-5-small">Order contact</h3>
                             <div class="spacer small"></div>
                             <p class="font-cabin">{{ order.order_company_name }}</p>
                             <p class="font-cabin">{{ order.order_contact_first_name }} {{ order.order_contact_last_name }}</p>
@@ -61,7 +61,7 @@ metadata: {
 
                         {% comment %} Shipping details {% endcomment %}
                         <div class="wrap">
-                            <h5 class="heading-5-small">Shipping details</h5>
+                            <h3 class="heading-5-small">Shipping details</h3>
                             <div class="spacer small"></div>
                             <p class="font-cabin">{{ order.shipping_company_name }}</p>
                             <p class="font-cabin">{{ order.shipping_contact_first_name }} {{ order.shipping_contact_last_name }}</p>
@@ -91,7 +91,7 @@ metadata: {
                         {% comment %} Shipping instructions {% endcomment %}
                         {% if order.shipping_instructions %}
                             <div class="wrap">
-                                <h5 class="heading-5-small">Shipping instructions</h5>
+                                <h3 class="heading-5-small">Shipping instructions</h3>
                                 <div class="spacer small"></div>
                                 <p class="font-cabin">{{ order.shipping_instructions | default: "Sample shipping Instruction" }}</p>
                             </div>
@@ -108,7 +108,7 @@ metadata: {
 
                         {% comment %} Billing Details {% endcomment %} 
                         <div class="wrap">
-                            <h5 class="heading-5-small">Billing details</h5>                    
+                            <h3 class="heading-5-small">Billing details</h3>                    
                             <div class="spacer small"></div>
                             <p class="font-cabin">{{ order.billing_company_name }}</p>
                             <p class="font-cabin">{{ order.billing_contact_first_name }} {{ order.billing_contact_last_name }}</p>
@@ -137,7 +137,7 @@ metadata: {
 
                         {% comment %} Payment details {% endcomment %} 
                         <div class="wrap">
-                            <h5 class="heading-5-small">Payment details</h5>                    
+                            <h3 class="heading-5-small">Payment details</h3>                    
                             <div class="spacer small"></div>
                             <p class="font-cabin">{{ order.payment.card_brand | upcase }} **** **** **** {{ order.payment.card_last_four_digits }}</p>
                             {%- assign month = order.payment.card_expiry_month -%}

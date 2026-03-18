@@ -66,9 +66,13 @@ metadata: {
 {
     "page": {{page_num}},
     "size": {{per_page}},
+    "brand": "{{brand}}", 
     "keyword": "{{keyword}}",
-    "brand": "{{brand}}",    
 
+    {%- if keyword and keyword != '' -%}
+        "keywords": ["{{keyword}}"],
+    {%- endif -%}
+       
     {%- if category_uuids.size > 0 -%}
         "category_uuids": {{ category_uuids }},
     {%- endif -%}
@@ -149,7 +153,11 @@ metadata: {
         <div id="product-grid" class="product-cards products-grid grid-x grid-padding-x grid-padding-y medium-up-3 small-up-1">
             
             {%- for product in products.items.results -%}
-                {% include "modules/ecommerce/products/product_card", product, all_categories, heading_level: 'h2' %}
+                {% assign fetchpriority = null %}
+                {% if forloop.index < 4 %}
+                    {% assign fetchpriority = 'high' %}
+                {% endif %}
+                {% include "modules/ecommerce/products/product_card", product, all_categories, heading_level: 'h2', fetchpriority: fetchpriority %}
             {%- endfor -%}
 
         </div>

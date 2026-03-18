@@ -30,8 +30,7 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
 
 
     {%- include 'modules/insites_cms/seo' -%}
-    
-    <link rel="shortcut icon" type="image/png" href="{{ global.company_icon }}">    
+     
 
     <!-- [Project Assets] -->
     {% include 'modules/website/layout/technical_head' %}
@@ -87,11 +86,9 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
      {% endcomment %}
 
     {%- if context.environment == "staging" -%}
-        <script src="{{ 'modules/ecommerce/scripts/checkout/checkout-steps.js' | asset_url }}" defer></script>
         <script src="{{ 'modules/ecommerce/scripts/checkout/address-lookup.js' | asset_url }}" defer></script>
         <script src="{{ 'modules/ecommerce/scripts/checkout/checkout.js' | asset_url }}" defer></script>
     {%- else -%}
-        <script src="{{ 'modules/ecommerce/scripts/checkout/checkout-steps.min.js' | asset_url }}" defer></script>
         <script src="{{ 'modules/ecommerce/scripts/checkout/address-lookup.min.js' | asset_url }}" defer></script>
         <script src="{{ 'modules/ecommerce/scripts/checkout/checkout.min.js' | asset_url }}" defer></script>
     {%- endif -%}
