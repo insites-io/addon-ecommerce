@@ -1,4 +1,5 @@
-var apiServices = (function () {
+//This script is included in the app-portal
+var apiServices = (function () { 
     const
         defaultApiUrl = "/api";
         request = axios.create({});

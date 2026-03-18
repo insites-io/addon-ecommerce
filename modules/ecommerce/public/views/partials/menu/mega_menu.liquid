@@ -3,6 +3,9 @@ metadata: {
     partial_name: 'Ecommerce | Menu | Mega Menu'
 }
 ---
+
+{% comment %} This partial is used in the app-portal {% endcomment %}
+
 {% parse_json sort_by %}
 {
   "properties": [
@@ -78,5 +81,14 @@ metadata: {
 
   megaMenu.addEventListener('insClose', () => {
     megaMenuBtn.classList.remove('show-modal');
+  });
+
+  // Close mega menu on scroll (also used in app-portal template)
+  window.addEventListener('scroll', function () {
+    setTimeout(function () {
+      if (megaMenu && typeof megaMenu.close === 'function') {
+        megaMenu.close();
+      }
+    }, 200); // delay in ms
   });
 </script>

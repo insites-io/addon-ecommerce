@@ -1,17 +1,3 @@
-let productInfo = {
-    "user_id" : "",
-    "quantity" : "",
-    "order_id" : "",
-    "status" : "",
-    "product_id" : "",
-    "product_name" : "",
-    "product_sku" : "",
-    "product_variant" : "",
-    "product_price" : "",
-    "tax_amount" : "",
-    "shipping_amount" : ""
-}
-let variantList = [];
 let isDeleting = false;
 
 let shoppingCart = (function () {
@@ -35,12 +21,6 @@ let shoppingCart = (function () {
                     }
                 }
             },
-            validateDiscountForm(formEl) {
-                let field = formEl.querySelector('#discount-code-input');
-                let code = field.value || false;field
-                    field.hasError = !code ? true : false;
-                return code;
-            },
             async validateDiscountCode(payload, formEl) {                                                    
                 let response = await apiServices.validateDiscountCode({ 'payload': payload });
                 this.discountCodeResponseHandler(response, formEl);
@@ -62,17 +42,6 @@ let shoppingCart = (function () {
                         window.location.reload();
                     }, 500);
                 } else formEl.querySelector('#apply-discount-btn').loading = false; 
-            },
-            async validateRemoveForm(event){
-                event ? event.preventDefault(): '';
-                let formElem = event.srcElement;
-                let confirm = await App.events.swal('warning', 
-                    'Are you sure?',
-                    'This will remove this item/s from your cart.',
-                    'Remove');
-                if(confirm) {
-                    formElem.submit(); 
-                }
             }            
         },
         init: {

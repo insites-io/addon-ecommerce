@@ -3,6 +3,9 @@ metadata: {
     partial_name: 'Ecommerce | Blocks | Whats Hot'
 }
 ---
+
+{% comment %} This partial is used in the app-portal {% endcomment %}
+ 
 {% graphql products = "modules/ecommerce/products/get_products", is_featured: true, size: 8 | dig: 'items','results' %}
 
 {% if products.size > 0 %}
@@ -19,11 +22,11 @@ metadata: {
             no-pagination=true
             bind-to="whatsHotCardsDesktop">
 
-            <h4>What's hot</h4>     
+            <h3 class="heading-4">What's hot</h3>    
             <div class="spacer xx-large"></div>
             <div id="whatsHotCardsDesktop" class="product-cards">
                 {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product %}
+                    {% include "modules/ecommerce/products/product_card", product: product, heading_level: 'h4' %}
                 {% endfor %}
             </div>
         </ins-carousel>
@@ -40,14 +43,14 @@ metadata: {
 
             <div class="grid-container">
                 <div class="grid-x">
-                    <h4>What's hot</h4>    
+                    <h3 class="heading-4">What's hot</h3>  
                 </div>
             </div>
                
             <div class="spacer xx-large"></div>
             <div id="whatsHotCardsTablet" class="product-cards">
                 {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product %}
+                    {% include "modules/ecommerce/products/product_card", product: product, heading_level: 'h4' %}
                 {% endfor %}
             </div>
         </ins-carousel>
@@ -63,12 +66,12 @@ metadata: {
                 no-pagination=true
                 bind-to="whatsHotCardsMobile">
                 
-                <h4>What's hot</h4>
+                <h3 class="heading-4">What's hot</h3> 
 
                 <div class="spacer"></div>
                 <div id="whatsHotCardsMobile" class="product-cards">
                     {% for product in products %}
-                        {% include "modules/ecommerce/products/product_card", product: product %}
+                        {% include "modules/ecommerce/products/product_card", product: product, heading_level: 'h4' %}
                     {% endfor %}
                 </div>
             </ins-carousel>
