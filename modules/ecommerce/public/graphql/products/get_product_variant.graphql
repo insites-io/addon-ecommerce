@@ -39,6 +39,7 @@ query get_product_variant (
       is_free_shipping: property_boolean( name: "is_free_shipping" )
       is_fixed_tax_amount: property_boolean( name: "is_fixed_tax_amount" )
       is_variant_sale_price_tax_included: property_boolean( name: "is_variant_sale_price_tax_included" )
+      product_options: property_array( name: "product_options" )
     }
   }
 }

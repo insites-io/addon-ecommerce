@@ -57,26 +57,23 @@ document.addEventListener('DOMContentLoaded', () => {
 let addToCartBtn = document.querySelectorAll(".add-to-cart-btn");
 addToCartBtn.forEach(btn => {
     btn.addEventListener('insClick', event => {  
-        console.log("cart-drawer.js -> addToCartPreProcess");
         addToCartPreProcess(event);
     });
 });
 
 async function addToCartPreProcess(event, type){
-    console.log("addToCartPreProcess", event);
-    console.log("shoppingCartLoaderEl",shoppingCartLoaderEl);
-
+    
+    // Show the loader and hide the cart items and shopping cart list
     if (shoppingCartLoaderEl) { shoppingCartLoaderEl.classList.remove("hide"); }
     if (cartItemsWrap) { cartItemsWrap.classList.add("hide"); }
     if (shoppingCartListEl) { shoppingCartListEl.classList.add('hide'); }
      
-    // show hide
+    // Show the empty cart wrap and remove the bottom wrap
     emptyCartWrap.classList.add("hide");
     bottomWrap.classList.remove("hide");
 
     // Get the data from connected event
     data = JSON.parse(event.detail.data);
-    console.log("Add Cart - event.detail", event.detail);
     
     if(type != "reorder"){
         data.quantity = cartQuantity;    
@@ -87,53 +84,14 @@ async function addToCartPreProcess(event, type){
     }
     
     cartDrawer.setDrawerState(true);
-
-    //let cartItem = document.getElementById(`cart-item-${data.id}`);
-    //if(cartItem != null){
-        // The item is already added in the cart, update the quantity
-        //data.quantity += 1;
-    //}
     await submitAddCart(data, type);
 
-    /*
-    // The item is not added in the cart, add it
-    console.log("cartItem empty - data", data);
-    let cart_item = await addToCart(data, type);
-    if(cart_item){ 
-        console.log("Addcart data returned", cart_item);
-        let returnData = cart_item.data;
-        // Check if Cart window has 'Empty' signage
-        if (!emptyCartWrap.classList.contains('hide')) {
-            emptyCartWrap.classList.add('hide');
-            bottomWrap.classList.remove('hide');
-        }          
-
-        //Check if there is already an entry in the cart drawer
-        let checkItemOnCart = document.getElementById(`cart-item-${returnData.items.id}`);
-        console.log("checkItemOnCart", checkItemOnCart);
-        if (checkItemOnCart){
-            checkItemOnCart.remove();  
-        } 
-        
-        // Add new item on the cart and set the needed event listener
-        cartItemsWrap.insertAdjacentHTML('afterbegin', cartItemHtml(data, returnData)); 
-        let newItemAdded = document.getElementById(`cart-item-${returnData.items.id}`);
-        console.log("newItemAdded", newItemAdded);
-        if (newItemAdded) {                   
-            let cartStepper = document.querySelector(`#cart-item-${returnData.items.id} .cart-stepper`);
-            cartStepperEventListener(cartStepper);
-            let removeCartBtn = document.querySelector(`#cart-item-${returnData.items.id} .cart-remove-btn`);
-            removeCartEventListener(removeCartBtn);
-        }         
-        computeSubTotal();
-    } 
-        */
-
-
+    // Hide the loader and show the cart items and shopping cart list
     if (shoppingCartLoaderEl) { shoppingCartLoaderEl.classList.add("hide"); }
     if (cartItemsWrap) { cartItemsWrap.classList.remove("hide"); }
     if (shoppingCartListEl) { shoppingCartListEl.classList.remove('hide'); }
 
+    // If the type is 'buy now' or 'pre-order', go to /shopping-cart page
     if(type.toLowerCase() == 'buy now' || type.toLowerCase() == 'pre-order'){
         // It is either 'buy now' or 'pre-order', go to /shopping-cart page
         window.location.href = "/shopping-cart";
@@ -144,7 +102,6 @@ async function addToCartPreProcess(event, type){
 async function submitAddCart(data, type){
     let cart_item = await addToCart(data, type);
     if(cart_item){ 
-        console.log("Addcart data returned", cart_item);
         let returnData = cart_item.data;
         // Check if Cart window has 'Empty' signage
         if (!emptyCartWrap.classList.contains('hide')) {
@@ -154,7 +111,6 @@ async function submitAddCart(data, type){
 
         //Check if there is already an entry in the cart drawer
         let checkItemOnCart = document.getElementById(`cart-item-${returnData.items.id}`);
-        console.log("checkItemOnCart", checkItemOnCart);
         if (checkItemOnCart){
             checkItemOnCart.remove();  
         } 
@@ -162,10 +118,12 @@ async function submitAddCart(data, type){
         // Add new item on the cart and set the needed event listener
         cartItemsWrap.insertAdjacentHTML('afterbegin', cartItemHtml(data, returnData)); 
         let newItemAdded = document.getElementById(`cart-item-${returnData.items.id}`);
-        console.log("newItemAdded", newItemAdded);
         if (newItemAdded) {                   
             let cartStepper = document.querySelector(`#cart-item-${returnData.items.id} .cart-stepper`);
-            cartStepperEventListener(cartStepper);
+            cartStepper.addEventListener('insValueChange', event => {
+                cartStepperEventListener(event);
+            }); 
+            //cartStepperEventListener(cartStepper);
             let removeCartBtn = document.querySelector(`#cart-item-${returnData.items.id} .cart-remove-btn`);
             removeCartEventListener(removeCartBtn);
         }         
@@ -178,49 +136,52 @@ async function submitAddCart(data, type){
 /* Increment / Decrement Cart in Drawer */
 let cartStepper = document.querySelectorAll(".cart-stepper");
 cartStepper.forEach(step => {
-    cartStepperEventListener(step);
+    step.addEventListener('insValueChange', event => {
+        cartStepperEventListener(event);
+    });   
 }); 
 
-async function cartStepperEventListener(step){
-    step.addEventListener('insValueChange', event => {   
-        goToCartButtonDisabled();
-        clearTimeout(stepperDebounceTimer);
+let debounceTimer = null;
+function cartStepperEventListener(event){ 
+    // Disable the 'Go to Cart' button
+    goToCartButtonDisabled();
+    if (debounceTimer) {
+        clearTimeout(debounceTimer);
+    }
 
-        //Add debounce timer to allow multiple click in + or - before calling the api/add-to-cart.json
-        stepperDebounceTimer = setTimeout(() => {
-
-            if (shoppingCartLoaderEl) { shoppingCartLoaderEl.classList.remove("hide"); }
-            if (cartItemsWrap) { cartItemsWrap.classList.add("hide"); }
-            if (shoppingCartListEl) { shoppingCartListEl.classList.add('hide'); }
-
-            let itemWrap = event.target.closest(".cart-item-wrap");            
-            let stepperData = event.target.closest("ins-input-stepper").dataset;
-            // Calculate the total price for the item
-            let priceData = computeItemTotal(itemWrap, event.detail);
-
-            let data = {
-                //"id": stepperData.id,
-                //"product_name": stepperData.product_name,
-                "product_uuid": stepperData.product_uuid,
-                "product_variant_uuid": stepperData.product_variant_uuid,
-                //"price": priceData.price,  
-                //"item_total_price": priceData.item_total_price,
-                "quantity": event.detail,
-                //"tax_amount": stepperData.tax_amount,
-                //"is_tax_included": stepperData.is_tax_included,
-                //"is_fixed_tax_amount": stepperData.is_fixed_tax_amount
-            };   
-
-            submitAddCart(data, 'stepper');
-            //addToCart(data, 'stepper');
-            //computeSubTotal();
-            if (shoppingCartLoaderEl) { shoppingCartLoaderEl.classList.add("hide"); }
-            if (cartItemsWrap) { cartItemsWrap.classList.remove("hide"); }
-            if (shoppingCartListEl) { shoppingCartListEl.classList.remove('hide'); }
-            
-        }, 1000); 
-    });
+    // Set a timeout to call the API after 500ms
+    debounceTimer = setTimeout(async () => {
+        try {
+            await processStepperCall(event);
+        } catch (err) {
+            console.error("API call failed:", err);
+        } finally {
+            debounceTimer = null;
+        }
+      }, 500);
 }    
+
+async function processStepperCall(event){
+    // Show the loader and hide the cart items and shopping cart list
+    if (shoppingCartLoaderEl) { shoppingCartLoaderEl.classList.remove("hide"); }
+    if (cartItemsWrap) { cartItemsWrap.classList.add("hide"); }
+    if (shoppingCartListEl) { shoppingCartListEl.classList.add('hide'); }
+    
+    // Get the data from the stepper
+    let stepperData = event.target.closest("ins-input-stepper").dataset;
+    let data = {        
+        "product_uuid": stepperData.product_uuid,
+        "product_variant_uuid": stepperData.product_variant_uuid,
+        "quantity": event.detail,
+    };
+    
+    await submitAddCart(data, 'stepper');
+
+    // Hide the loader and show the cart items and shopping cart list
+    if (shoppingCartLoaderEl) { shoppingCartLoaderEl.classList.add("hide"); }
+    if (cartItemsWrap) { cartItemsWrap.classList.remove("hide"); }
+    if (shoppingCartListEl) { shoppingCartListEl.classList.remove('hide'); }
+}
 
 
 /* Remove from Cart */
@@ -229,8 +190,8 @@ removeCartBtn.forEach(btn => {
     removeCartEventListener(btn);
 });             
 
-    
-function removeCartEventListener(btn){        
+function removeCartEventListener(btn){ 
+
     btn.addEventListener('insClick', async event => {
         let confirm = await App.events.swal("warning", 
                 "Remove item?", 
@@ -262,7 +223,6 @@ async function addToCart(data, type){
         setButtonLoadingState(data.id, true)
     }
 
-                         
     if (type == "reorder") {
         // Add items to the cart using the Reorder button from Order History.
         // Each item from the selected order will be added individually by calling the API.
@@ -395,16 +355,14 @@ function titleize(str) {
 }
 
 function cartItemHtml(data, cart_item){
-    console.log("cartItemHtml", data, cart_item);
     let cartItemDetail = cart_item.items;
     let prodItemDetail = cart_item.prod_details;
     const item_price = formatNumber(cartItemDetail.product_price);
-    const item_total_price = formatNumber(cartItemDetail.line_item_total || cartItemDetail.product_price);
+    const item_total_price = formatNumber(cartItemDetail.product_price * cartItemDetail.quantity || cartItemDetail.product_price);
     const img = prodItemDetail?.product_image?.url && prodItemDetail?.product_image?.url !== '' && prodItemDetail?.product_image?.url !== null
         ? `<img src="${prodItemDetail.product_image.url}" width="66px" height="66px">`
         : placeholderImage;
     
-    console.log("cartItemDetail", cartItemDetail)
     // Pre-order tag
     const stockLevel = parseFloat(prodItemDetail.stock_level);
     const quantity = parseFloat(cartItemDetail.quantity);    
@@ -418,8 +376,8 @@ function cartItemHtml(data, cart_item){
 
     // Variant Options - To be constructed
     let optionsHtml = '';
-    if (cartItemDetail.product_variant_uuid != '' && cartItemDetail.product_variant_uuid != null && data.product_options.length > 0) {
-        for (const optionStr of data.product_options) {
+    if (cartItemDetail.product_variant_uuid != '' && cartItemDetail.product_variant_uuid != null && prodItemDetail.product_options.length > 0) {
+        for (const optionStr of prodItemDetail.product_options) {
             const option = JSON.parse(optionStr);
             optionsHtml += `
                 <p>
@@ -454,8 +412,8 @@ function cartItemHtml(data, cart_item){
                     <ins-input-stepper
                         name="cart-stepper"
                         class="cart-stepper" 
-                        data-product_uuid="${ cartItemDetail.product_uuid }"
-                        data-variant_uuid="${ cartItemDetail.product_variant_uuid }"
+                        data-product_uuid="${ prodItemDetail.product_uuid }"
+                        data-variant_uuid="${ prodItemDetail.product_variant_uuid }"
                         data-product_name="${ cartItemDetail.product_name }"
                         value="${ cartItemDetail.quantity }"
                         step="1" min="1" 

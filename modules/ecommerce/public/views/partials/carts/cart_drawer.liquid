@@ -97,7 +97,7 @@ metadata: {
                 endif          
 
                 assign product_id = selected_prop.id
-                assign item_total = price | times: item.quantity
+                assign item_total = price | times: item.quantity 
                 assign subtotal = subtotal | plus: item_total
             %}
 
