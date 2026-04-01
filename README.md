@@ -9,7 +9,6 @@ The Ecommerce Add-on is a powerful solution that transforms your website into a 
 ## Tech Stack
 It is assumed that the developers or users have knowledge of using these tech stacks:
 
- - PlatformOS
  - Insites Components and Modules
  - Liquid
  - GraphQL
@@ -51,17 +50,17 @@ Please ensure this application is installed from the Insites Marketplace.
 - ecommerce_addon = true
 
 
-## Manuall add Constants after installation
+## Manual add Constants after installation
 - insites_stripe_sk_live_key
 - insites_stripe_sk_test_key
 
 
-## Instalation steps
+## Installation steps
 1. Install the `Website and Portal` application from the Marketplace.
 2. Install the `Ecommerce` addon from the Marketplace.
 3. Login to IIA via console.insites.io SSO
- - Go to Ingtegration->Google Maps then add the `Google Maps API Key`
- - Go to Integration->Stripe then setup the Stripe Account ID and keys
+ - Go to Integration -> Google Maps then add the `Google Maps API Key`
+ - Go to Integration -> Stripe then set up the Stripe Account ID and keys
 
 
 ## Google Maps API Key
