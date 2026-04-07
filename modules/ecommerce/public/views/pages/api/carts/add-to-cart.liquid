@@ -25,16 +25,15 @@ metadata: {
     ## Check if the contact_uuid is available
     if contact_uuid != blank and contact_uuid != ''
 
-        ## Build the data 
+        ## Build the data
         assign add_cart_item_data = '{}' | parse_json
         assign add_cart_item_data = add_cart_item_data | add_hash_key: 'product_uuid', product_uuid
 
         # Get the details of the product
         function product_data = "ecommerce/controller/product/get", uuid: product_uuid
-        assign add_cart_item_data = add_cart_item_data | add_hash_key: 'product_name', product_data.product_name
 
         ## Get current cart (if any)
-        graphql cart = 'modules/ecommerce/carts/get_cart', contact_uuid: params.contact_uuid | dig: 'items','results' | first
+        graphql cart = 'modules/ecommerce/carts/get_cart', contact_uuid: contact_uuid | dig: 'items','results' | first
 
         ## Check if the product already exist in the cart
         if cart.uuid
@@ -50,97 +49,30 @@ metadata: {
                 endunless
             endif
         endif
-        
-        
+
+        ## Resolve product SKU and price from product/variant for client-side response
         if product_variant_uuid != blank
-            ## The product is variant so get all the info from the variant
+            ## The product is a variant
             assign add_cart_item_data = add_cart_item_data | add_hash_key: 'product_variant_uuid', product_variant_uuid
             graphql product_variant_data = 'modules/ecommerce/products/get_product_variant', uuid: product_variant_uuid | dig: 'items','results' | first
-            # function product_variant_data = "ecommerce/controller/product_variant/get", uuid: product_variant_uuid
-            
-            assign add_cart_item_data = add_cart_item_data | add_hash_key: 'product_sku', product_variant_data.product_sku
 
+            assign product_sku = product_variant_data.product_sku
             if product_variant_data.is_on_sale == true or product_variant_data.is_on_sale == 'true'
                 assign product_price = product_variant_data.sale_price
-                assign product_price_includes_tax = product_variant_data.is_variant_sale_price_tax_included
             else
                 assign product_price = product_variant_data.regular_price
-                assign product_price_includes_tax = product_variant_data.is_tax_included
             endif
-
-            if product_variant_data.is_fixed_tax_amount == true or product_variant_data.is_fixed_tax_amount == 'true'
-                assign tax_type = 'fixed'
-                assign item_tax = product_variant_data.tax_amount
-                if product_price_includes_tax
-                    assign line_item_total = product_price | times: quantity
-                else
-                    assign prod_w_tax = product_price | plus: item_tax
-                    assign line_item_total = prod_w_tax | times: quantity
-                endif
-            else
-                assign tax_type = 'percentage'
-                if product_price_includes_tax
-                    assign dec_tax = product_variant_data.tax_amount | divided_by: 100.00 | plus: 1.00
-                    assign price_ex_tax = product_price | divided_by: dec_tax
-                    assign item_tax = product_price | minus: price_ex_tax
-                    assign line_item_total = product_price | times: quantity
-                else
-                    assign tax_val = product_variant_data.tax_amount | divided_by: 100.00
-                    assign item_tax = product_price | times: tax_val
-                    assign prod_w_tax = product_price | plus: item_tax
-                    assign line_item_total = prod_w_tax | times: quantity
-                endif
-            endif
-            assign tax_amount = item_tax | times: quantity
 
             assign prod_details = prod_details | add_hash_key: 'product_options', product_variant_data.product_options
-
         else
-            ## The product is NOT a variant so get all the info from the main product
-            assign add_cart_item_data = add_cart_item_data | add_hash_key: 'product_sku', product_data.sku
-
+            ## The product is NOT a variant
+            assign product_sku = product_data.sku
             if product_data.is_on_sale == true or product_data.is_on_sale == 'true'
                 assign product_price = product_data.sale_price
-                assign product_price_includes_tax = product_data.is_sale_price_tax_included
             else
                 assign product_price = product_data.regular_price
-                assign product_price_includes_tax = product_data.is_tax_included
             endif
-
-            if product_data.is_fixed_tax_amount == true or product_data.is_fixed_tax_amount == 'true'
-                assign tax_type = 'fixed'
-                assign item_tax = product_data.tax_amount
-                if product_price_includes_tax
-                    assign line_item_total = product_price | times: quantity
-                else
-                    assign prod_w_tax = product_price | plus: item_tax
-                    assign line_item_total = prod_w_tax| times: quantity
-                endif
-            else
-                assign tax_type = 'percentage'
-                if product_price_includes_tax
-                    assign dec_tax = product_data.tax_amount | divided_by: 100.00 | plus: 1.00
-                    assign price_ex_tax = product_price | divided_by: dec_tax
-                    assign item_tax = product_price | minus: price_ex_tax
-                    assign line_item_total = product_price | times: quantity
-                else
-                    assign tax_val = product_data.tax_amount | divided_by: 100.00
-                    assign item_tax = product_price | times: tax_val
-                    assign prod_w_tax = product_price | plus: item_tax
-                    assign line_item_total = prod_w_tax | times: quantity
-                endif
-            endif
-            assign tax_amount = item_tax | times: quantity
-
         endif
-
-        assign add_cart_item_data = add_cart_item_data | add_hash_key: 'product_price', product_price 
-        assign add_cart_item_data = add_cart_item_data | add_hash_key: 'tax_type', tax_type   
-        assign add_cart_item_data = add_cart_item_data | add_hash_key: 'product_price_includes_tax', product_price_includes_tax 
-        assign add_cart_item_data = add_cart_item_data | add_hash_key: 'item_tax', item_tax
-        assign add_cart_item_data = add_cart_item_data | add_hash_key: 'tax_amount', tax_amount
-        assign add_cart_item_data = add_cart_item_data | add_hash_key: 'line_item_total', line_item_total
-        assign add_cart_item_data = add_cart_item_data | add_hash_key: 'sub_total', line_item_total
 
         ## Get the cart information if possible
        
@@ -184,8 +116,14 @@ metadata: {
         
         endif
 
+        ## Augment items response with product details for client-side rendering
+        assign augmented_items = add_cart_item.items | add_hash_key: 'product_name', product_data.product_name
+        assign augmented_items = augmented_items | add_hash_key: 'product_sku', product_sku
+        assign augmented_items = augmented_items | add_hash_key: 'product_price', product_price
+        assign add_cart_item = add_cart_item | add_hash_key: 'items', augmented_items
+
         ## Send additional detail regarding main product
-        
+
         assign prod_details = prod_details | add_hash_key: 'product_slug', product_data.product_slug
         assign prod_details = prod_details | add_hash_key: 'product_image', product_data.product_image
         assign prod_details = prod_details | add_hash_key: 'stock_level', product_data.stock_level
