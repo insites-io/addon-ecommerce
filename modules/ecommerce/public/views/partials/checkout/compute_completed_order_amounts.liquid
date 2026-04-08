@@ -7,10 +7,14 @@ metadata: {
 {% graphql order_amounts = 'modules/ecommerce/orders/get_order_amounts',
     uuid: uuid | dig: 'items','results' | first %}
 
+{% comment %} Get Order items to compute tax split {% endcomment %}
+{% graphql order_items_result = 'modules/ecommerce/order_items/get_order_items',
+    order_uuid: uuid | dig: 'items','results' %}
+
 
 {% comment %} Initialize Variables {% endcomment %}
-{%  liquid 
-    assign sub_total_amount = order_amounts.subtotal_amount
+{%  liquid
+    assign sub_total_amount = order_amounts.subtotal_amount | plus: order_amounts.total_tax_amount
     assign sub_total_discount = order_amounts.total_discount_amount
     assign sub_total_shipping = order_amounts.total_shipping_amount
     assign sub_total_tax = order_amounts.total_tax_amount
@@ -18,6 +22,23 @@ metadata: {
 
     ## processing_fee = (total_amount * 0.017) / 1.017
     assign processing_fee = total_amount | times: 0.017 | divided_by: 1.017
+
+    ## Compute tax split from order items
+    assign sub_total_tax_included = 0
+    assign sub_total_tax_not_included = 0
+    for order_item in order_items_result
+        if order_item.unit_price_includes_tax == true
+            assign sub_total_tax_included = sub_total_tax_included | plus: order_item.line_item_tax
+        else
+            assign sub_total_tax_not_included = sub_total_tax_not_included | plus: order_item.line_item_tax
+        endif
+    endfor
+
+    if sub_total_tax_not_included != 0 and sub_total_tax_included != 0
+        assign tax_applied = "both"
+    else
+        assign tax_applied = "single"
+    endif
 %}
 
 {% parse_json computed %}
@@ -26,7 +47,10 @@ metadata: {
     "shipping_amount": {{ sub_total_shipping | default: 0 }},
     "total_discount_amount": {{ sub_total_discount | default: 0 }},
     "processing_fee": {{ processing_fee | default: 0 }},
-    "tax_amount": {{ sub_total_tax | default: 0 }},    
+    "tax_amount": {{ sub_total_tax | default: 0 }},
+    "sub_total_tax_included": {{ sub_total_tax_included | default: 0 }},
+    "sub_total_tax_not_included": {{ sub_total_tax_not_included | default: 0 }},
+    "tax_applied": "{{ tax_applied }}",
     "total_amount": {{ total_amount | default: 0 }}
 }
 {% endparse_json %}

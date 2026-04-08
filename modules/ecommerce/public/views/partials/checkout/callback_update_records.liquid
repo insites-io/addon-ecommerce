@@ -17,11 +17,7 @@ metadata: {
 }
 {%- endparse_json -%}
 
-{% comment %} {% parse_json temp_computed %}
-{
-    "total_amount": {{ amount }}
-}
-{% endparse_json %} {% endcomment %}
+
 {%- comment -%} Create payment data {%- endcomment -%}
 {% parse_json payment_data %}
 {
