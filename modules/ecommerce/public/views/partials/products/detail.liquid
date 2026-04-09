@@ -59,7 +59,7 @@ metadata: {
             endif
         endfor
     else 
-        ## The product doesn't have variant
+        ## The product doesnt have variant
         assign selected_prop = product    
         assign variant_id = null
         assign product_variant_uuid = null    
@@ -177,50 +177,56 @@ metadata: {
                 <div class="grid-y">
                     <div class="small-12 cell">
                         
-                        {% comment %} Get variant info {% endcomment %}
-                        {% assign variants = '' | split: ',' %}                        
+                        {% comment %} Parse and deduplicate variant options {% endcomment %}
+                        {% assign variants = '' | split: ',' %}
                         {%- for variant in product.variants -%}
-                            {%  liquid 
-                                ## Convert an array of strings into an array of objects
-                                assign item_obj = '' | split: ',' 
+                            {%  liquid
+                                assign item_obj = '' | split: ','
+                                assign seen_keys = '' | split: ','
                                 for item in variant.product_options
                                     assign item_json = item | parse_json
-                                    assign item_obj = item_obj | array_add: item_json
+                                    assign opt_key = item_json.product_option_label | append: '::' | append: item_json.product_option_value
+                                    unless seen_keys contains opt_key
+                                        assign item_obj = item_obj | array_add: item_json
+                                        assign seen_keys = seen_keys | array_add: opt_key
+                                    endunless
                                 endfor
                                 assign variant = variant | add_hash_key: 'options', item_obj
-                                assign variants = variants | array_add:variant
+                                assign variants = variants | array_add: variant
                             %}
                         {%- endfor -%}
 
                         {% if variants.size > 0 %}
                             {% assign first_option_label = '' %}
                             {% assign first_option_values = '' | split: ',' %}
-                            
-                            {% for variant in product.variants %}
-                                {% assign first_opt = variant.product_options[0] | parse_json %}
-                                {% if first_option_label == '' %}
-                                    {% assign first_option_label = first_opt.product_option_label %}
+
+                            {% for variant in variants %}
+                                {% if variant.options.size > 0 %}
+                                    {% assign first_opt = variant.options[0] %}
+                                    {% if first_option_label == '' %}
+                                        {% assign first_option_label = first_opt.product_option_label %}
+                                    {% endif %}
+                                    {% unless first_option_values contains first_opt.product_option_value %}
+                                        {% assign first_option_values = first_option_values | array_add: first_opt.product_option_value %}
+                                    {% endunless %}
                                 {% endif %}
-                                {% unless first_option_values contains first_opt.product_option_value %}
-                                    {% assign first_option_values = first_option_values | array_add: first_opt.product_option_value %}
-                                {% endunless %}
                             {% endfor %}
 
                             <div id="product-options">
-                                <ins-select 
+                                <ins-select
                                     id="option-0"
-                                    class="variant-select2" 
+                                    class="variant-select2"
                                     label="{{ first_option_label }}"
                                     label-key="{{ first_option_label }}"
-                                    placeholder="Select Variant"
-                                    error-message="Please select a variant"
-                                    small> 
+                                    placeholder="Select {{ first_option_label }}"
+                                    error-message="Please select a {{ first_option_label }}"
+                                    small>
                                     {% for value in first_option_values %}
                                     <ins-select-option label="{{ value }}" value="{{ value }}" ></ins-select-option>
                                     {% endfor %}
                                 </ins-select>
-                                
-                                {% comment %} Dynamic select will be inserted here {% endcomment %}
+
+                                {% comment %} Dynamic selects will be inserted here {% endcomment %}
                                 <div id="next-selects"></div>
                             </div>
                         {% endif %}
@@ -315,14 +321,11 @@ metadata: {
     const ourOfStockNotice = document.getElementById("out-of-stock-notice");
     const outOfStockOverlay = document.getElementById("out-of-stock-overlay");
 
-    if(variants.length > 0) {        
+    if(variants.length > 0) {
         const nextSelectsWrap = document.getElementById('next-selects');
 
-        // Helper to parse all variant options once at the start
-        const parsedVariants = variants.map(v => ({
-            ...v,
-            product_options: v.product_options.map(JSON.parse)
-        }));
+        // Use pre-parsed and deduplicated options from Liquid (v.options)
+        const parsedVariants = variants.map(v => ({ ...v, parsedOptions: v.options }));
 
         async function getUserSelections() {
             const selects = document.querySelectorAll('#product-options ins-select, #next-selects ins-select');
@@ -339,26 +342,22 @@ metadata: {
             return selections;
         }
 
-
-        function findMatchingVariant(selections, variants) {
-            return variants.find(variant => {
-                const options = variant.product_options.map(JSON.parse);
-
-                return selections.every(selection => {
-                    return options.some(opt =>
+        function findMatchingVariant(selections) {
+            return parsedVariants.find(variant =>
+                selections.every(selection =>
+                    variant.parsedOptions.some(opt =>
                         opt.product_option_label === selection.label &&
                         opt.product_option_value === selection.value
-                    );
-                });
-            });
+                    )
+                )
+            );
         }
 
         function updateSelectionDetails(selectedVariant) {
-
             if(selectedVariant.id){
                 //Identifiers
                 selected_variant.id = selectedVariant.id;
-                selected_variant.product_variant_uuid = selectedVariant.uuid;                
+                selected_variant.product_variant_uuid = selectedVariant.uuid;
                 //SKU
                 selected_variant.sku = selectedVariant.sku;
                 productSKU.textContent = `${selectedVariant.sku}`;
@@ -367,7 +366,7 @@ metadata: {
                 if(selectedVariant.is_on_sale){
                     selected_variant.price = selectedVariant.sale_price;
                     productPrice.textContent = `$${selectedVariant.sale_price}`;
-                    regularProductPrice.textContent = `$${selectedVariant.regular_price}`;                
+                    regularProductPrice.textContent = `$${selectedVariant.regular_price}`;
                 } else {
                     selected_variant.price = selectedVariant.regular_price;
                     productPrice.textContent = `$${selectedVariant.regular_price}`;
@@ -396,7 +395,14 @@ metadata: {
                 }
                 //product_options
                 selected_variant.product_options = selectedVariant.product_options;
-
+                // Sync add-to-cart button data with selected variant
+                document.querySelectorAll('#product-details-btn .add-to-cart-btn').forEach(btn => {
+                    try {
+                        const btnData = JSON.parse(btn.getAttribute('data') || '{}');
+                        btnData.product_variant_uuid = selectedVariant.uuid;
+                        btn.setAttribute('data', JSON.stringify(btnData));
+                    } catch(e) {}
+                });
             } else {
                 productSKU.textContent = "";
                 productPrice.textContent = "$--";
@@ -406,9 +412,17 @@ metadata: {
             }
         }
 
+        function disableAddToCartBtns() {
+            document.querySelectorAll('#product-details-btn .add-to-cart-btn').forEach(btn => {
+                btn.disabled = true;
+            });
+        }
 
-        // Recursive function to render select
+        // Render cascading select at given level, filtered by selectedPath
         async function renderSelect(level, selectedPath = []) {
+
+            // Any selection change invalidates the previous complete match
+            disableAddToCartBtns();
 
             // Remove any selects deeper than current level
             [...nextSelectsWrap.children].forEach(child => {
@@ -418,23 +432,22 @@ metadata: {
             });
 
             // Filter variants matching all selected values so far
-            const filtered = parsedVariants.filter(variant => {
-                return selectedPath.every((selected, i) => {
-                    const opt = variant.product_options[i];
+            const filtered = parsedVariants.filter(variant =>
+                selectedPath.every((selected, i) => {
+                    const opt = variant.parsedOptions[i];
                     return opt &&
                         opt.product_option_label === selected.label &&
                         opt.product_option_value === selected.value;
-                });
-            });
-
+                })
+            );
 
             // Find the next option label
-            const nextLabel = filtered[0]?.product_options[selectedPath.length]?.product_option_label;
+            const nextLabel = filtered[0]?.parsedOptions[selectedPath.length]?.product_option_label;
 
-            // No more dropdowns to generate
+            // No more dropdowns to generate — find and display matching variant
             if (!nextLabel) {
                 const selections = await getUserSelections();
-                const matchedVariant = findMatchingVariant(selections, variants);
+                const matchedVariant = findMatchingVariant(selections);
 
                 if (matchedVariant) {
                     console.log('Matching variant:', matchedVariant);
@@ -451,13 +464,13 @@ metadata: {
                     console.log('No matching variant found');
                 }
 
-                return; 
-            } 
+                return;
+            }
 
             // Collect unique values for next label
             const values = new Set();
             filtered.forEach(v => {
-                const opt = v.product_options[selectedPath.length];
+                const opt = v.parsedOptions[selectedPath.length];
                 if (opt?.product_option_label === nextLabel) {
                     values.add(opt.product_option_value);
                 }
@@ -470,10 +483,10 @@ metadata: {
             const selectId = `option-${level}`;
             wrapper.innerHTML = `
                 <div class="spacer"></div>
-                <ins-select 
-                id="${selectId}" 
-                label="${nextLabel}" 
-                placeholder="Select ${nextLabel}" 
+                <ins-select
+                id="${selectId}"
+                label="${nextLabel}"
+                placeholder="Select ${nextLabel}"
                 validate>
                 ${[...values].map(val => `
                     <ins-select-option label="${val}" value="${val}"></ins-select-option>
