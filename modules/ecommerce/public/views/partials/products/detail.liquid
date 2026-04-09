@@ -212,14 +212,16 @@ metadata: {
                                 {% endif %}
                             {% endfor %}
 
+                            {% assign first_option_label_display = first_option_label | capitalize %}
+
                             <div id="product-options">
                                 <ins-select
                                     id="option-0"
                                     class="variant-select2"
-                                    label="{{ first_option_label }}"
+                                    label="{{ first_option_label_display }}"
                                     label-key="{{ first_option_label }}"
-                                    placeholder="Select {{ first_option_label }}"
-                                    error-message="Please select a {{ first_option_label }}"
+                                    placeholder="Select {{ first_option_label_display }}"
+                                    error-message="Please select a {{ first_option_label_display }}"
                                     small>
                                     {% for value in first_option_values %}
                                     <ins-select-option label="{{ value }}" value="{{ value }}" ></ins-select-option>
@@ -327,12 +329,16 @@ metadata: {
         // Use pre-parsed and deduplicated options from Liquid (v.options)
         const parsedVariants = variants.map(v => ({ ...v, parsedOptions: v.options }));
 
+        function toTitleCase(str) {
+            return str.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+        }
+
         async function getUserSelections() {
             const selects = document.querySelectorAll('#product-options ins-select, #next-selects ins-select');
             const selections = [];
 
             for (const select of selects) {
-                const label = select.getAttribute('label');
+                const label = select.getAttribute('label-key') || select.getAttribute('label');
                 const value = await select.getValue();
                 if (value) {
                     selections.push({ label, value });
@@ -481,12 +487,14 @@ metadata: {
             wrapper.dataset.level = level;
 
             const selectId = `option-${level}`;
+            const nextLabelDisplay = toTitleCase(nextLabel);
             wrapper.innerHTML = `
                 <div class="spacer"></div>
                 <ins-select
                 id="${selectId}"
-                label="${nextLabel}"
-                placeholder="Select ${nextLabel}"
+                label="${nextLabelDisplay}"
+                label-key="${nextLabel}"
+                placeholder="Select ${nextLabelDisplay}"
                 validate>
                 ${[...values].map(val => `
                     <ins-select-option label="${val}" value="${val}"></ins-select-option>
@@ -506,7 +514,7 @@ metadata: {
 
         // Add listener to first variant option
         const firstSelect = document.getElementById('option-0');
-        const firstLabel = firstSelect.getAttribute('label');
+        const firstLabel = firstSelect.getAttribute('label-key') || firstSelect.getAttribute('label');
         firstSelect.addEventListener('insValueChange', (e) => {
             renderSelect(1, [{ label: firstLabel, value: e.detail }]);
         });
