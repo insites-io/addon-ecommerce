@@ -1146,13 +1146,32 @@ ins-drawer#mobile-menu .menu .ins-accordion-item_content .sign-out-wrapper {
     height: auto;
 }
 
+.main-filters {
+    row-gap: 24px;
+}
+
 .main-filter-by .form-label,
 .main-filter-by .ins-button-select-wrap {
-    margin-bottom: 8px;
+    margin-bottom: 0px !important;
+}
+@media screen and (max-width: 639px) {
+    .main-filter-by .form-label,
+    .main-filter-by .ins-button-select-wrap {
+        margin-bottom: 8px !important;
+    }
+}
+
+.main-filter-by,
+.main-filter-views {
+    align-self: center;
 }
 
 .main-filter-views {
-    margin-bottom: 8px;
+    align-items: center;
+}
+
+.main-filter-views .form-label.text {
+    margin-bottom: 0px !important;
 }
 
 @media screen and (max-width: 639px) {
