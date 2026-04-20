@@ -78,15 +78,11 @@ metadata: {
   %}       
 
   {% parse_json reorder_data %}
-  {
-      "id": "{{ selected_prop.id }}",
-      "product_uuid": "{{ item.product_uuid }}",
+  {      
       {% if is_variant == true %}
       "product_variant_uuid": "{{ item.product_variant_uuid }}",
       {% endif %}
-      "product_sku": "{{ item.sku }}",
-      "product_name": "{{ item.product.product_name }}",
-      "price": "{{ price | default: 0 }}",
+      "product_uuid": "{{ item.product_uuid }}",
       "quantity": "{{ item.quantity | default: 1 }}"
   }
   {% endparse_json %}
