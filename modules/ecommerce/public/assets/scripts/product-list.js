@@ -39,8 +39,55 @@ let productList = (function () {
                     keywordInput.addEventListener('insIconClick', function(event) {
                         productList.methods.keywordInputEvent(event, 'iconClick');
                     });
+                    productList.methods.initSearchClear();
                 }
+            },
+            initSearchClear(){
+                const initClear = () => {
+                    const inputEl   = keywordInput.getElementsByTagName('input')[0];
+                    const inputWrap = keywordInput.querySelector('.input-wrap');
+                    const iconEl    = keywordInput.querySelector('.icon-search1') || keywordInput.querySelector('.icon-search-1') || keywordInput.querySelector('.icon-search');
 
+                    if (!inputEl || !inputWrap) return false;
+
+                    let closeIcon = null;
+
+                    const showClose = () => {
+                        if (closeIcon) return;
+                        closeIcon = document.createElement('i');
+                        closeIcon.classList.add('icon-close-1', 'icon-wrap', 'icon-close-active', 'icon-close-style');
+                        inputWrap.insertBefore(closeIcon, iconEl || null);
+                    };
+
+                    const hideClose = () => {
+                        if (!closeIcon) return;
+                        closeIcon.remove();
+                        closeIcon = null;
+                    };
+
+                    if (inputEl.value.trim()) showClose();
+
+                    inputEl.addEventListener('input', () => {
+                        inputEl.value.trim() ? showClose() : hideClose();
+                    });
+
+                    keywordInput.addEventListener('click', (e) => {
+                        if (!e.target.classList.contains('icon-close-1')) return;
+                        inputEl.value = '';
+                        hideClose();
+                        productList.methods.clearFilterToList();
+                        window.location.href = productList.methods.buildURLLink();
+                    });
+
+                    return true;
+                };
+
+                if (!initClear()) {
+                    const observer = new MutationObserver(() => {
+                        if (initClear()) observer.disconnect();
+                    });
+                    observer.observe(keywordInput, { childList: true, subtree: true });
+                }
             },
             putFilterValues(){
                 if(productFilter.keyword != ""){
@@ -132,7 +179,7 @@ let productList = (function () {
                     mobileFilterDrawer.setDrawerState(true);
                 }
             },
-            keywordInputEvent(event, type){                
+            keywordInputEvent(event, type){
                 if (event.detail.keyCode === 13 || (type == "iconClick" && event.detail.value != "")){
                     productList.methods.clearFilterToList();
                     productFilter.keyword = event.detail.value;

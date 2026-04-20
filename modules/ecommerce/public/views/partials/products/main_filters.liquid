@@ -8,10 +8,10 @@ metadata: {
         <div class="filter">                                        
             <ins-input
                 id="filter-keyword"
-                class="filter-keyword" 
+                class="filter-keyword"
                 icon-event
                 placeholder="Search"
-                value=""
+                value="{{ params.keyword | default: '' }}"
                 field="search"
                 icon="icon-search1"
                 size="large">
