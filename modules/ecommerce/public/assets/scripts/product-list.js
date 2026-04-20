@@ -75,8 +75,10 @@ let productList = (function () {
                         if (!e.target.classList.contains('icon-close-1')) return;
                         inputEl.value = '';
                         hideClose();
-                        productList.methods.clearFilterToList();
-                        window.location.href = productList.methods.buildURLLink();
+                        if (productFilter.keyword) {
+                            productList.methods.clearFilterToList();
+                            window.location.href = productList.methods.buildURLLink();
+                        }
                     });
 
                     return true;
