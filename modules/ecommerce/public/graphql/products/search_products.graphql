@@ -18,6 +18,7 @@ query search_products(
       table:{ value:"modules/insites_ecommerce/product" }
       properties:[
       	{ name: "status", value: "enabled"}
+        { name: "is_website_display", value_boolean: true}
         { name: "category_uuids", value_in: $category_uuids }
         { name: "is_on_sale", value_boolean: $is_on_sale }
         { name: "stock_level", range: { gt: $not_number } }

@@ -12,7 +12,8 @@ query get_product (
       deleted_at: { exists: false }
       table: { value: "modules/insites_ecommerce/product" }
       properties: [
-        { name: "status", not_value_in: ["archived","disabled"] }
+        { name: "status", value: "enabled"}
+        { name: "is_website_display", value_boolean: true}
         { name: "slug", value: $slug }
       ] 
     }
