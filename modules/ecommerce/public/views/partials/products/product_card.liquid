@@ -89,7 +89,7 @@ metadata: {
                     {% endif %}
                     <div class="spacer x-small"></div>
                     {% assign category = all_categories | array_detect: uuid: product.category_uuids[0] %}
-                    <p class="body-x-small">{{ category.category_name | default: 'Category' | capitalize }}</p>
+                    <p class="body-x-small">{{ category.category_name | capitalize }}</p>
                     <div class="spacer"></div>
                     <p class="product-current-price">{{ price | pricify }}
                         {% if product.is_on_sale == true or variant.is_on_sale == true %}

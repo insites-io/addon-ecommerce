@@ -227,7 +227,7 @@ authorization_policies:
             <div class="details flex-grow-1">
                 <h6>{{ product.product_name }}</h6>
                 <div class="spacer x-small"></div>                
-                <p>{{ category_name | default: 'Category' }}</p>
+                <p>{{ category_name }}</p>
                 <div class="spacer"></div>
                 <p class="product-current-price">{{ price | pricify }}
                     {% if selected_prop.is_on_sale == true %}
