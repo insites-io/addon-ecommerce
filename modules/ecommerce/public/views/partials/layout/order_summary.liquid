@@ -278,7 +278,21 @@ metadata: {
             <p id="summary_processing_fee">{{ processing_fee }}</p>
         </div>
     </div>
-    <div class="spacer medium"></div> 
+
+
+    {% comment %} Minimum Charge {% endcomment %}
+    {%- if computed.is_minimum_charge == true -%}
+    <div class="spacer x-small"></div>
+    <div class="grid-x grid-padding-x">
+        <div class="large-6 medium-6 small-6 cell">
+            <p class="font-color-sub bold">Minimum charge</p>
+        </div>
+        <div class="large-6 medium-6 small-6 cell text-right">
+            <p>$1.00</p>
+        </div>
+    </div>
+    {%- endif -%}
+    <div class="spacer medium"></div>
 
 
     <hr>
