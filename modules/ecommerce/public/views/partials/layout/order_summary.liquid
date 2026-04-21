@@ -233,7 +233,9 @@ metadata: {
                 </div>
             {%- endfor -%}
         </div>
-        <div class="spacer x-small"></div>                
+        {% if discounts.size > 0 %}
+            <div class="spacer x-small"></div>
+        {% endif %}             
     {%- endif -%}
     {% comment %} END Discount Codes {% endcomment %}
     
