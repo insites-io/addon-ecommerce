@@ -107,6 +107,10 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
         if (StripeServices && typeof StripeServices.deleteCreditCard === 'function') {
             StripeServices.deleteCreditCard = async function (payload) {
                 let url = `/ecommerce/stripe/delete-credit-card.json`;
+                const isGuestEl = document.getElementById('is_guest');
+                if (isGuestEl && isGuestEl.value === 'true') {
+                    payload.payload.is_guest = true;
+                }
                 return await apiServices.processRequest('post', url, payload);
             };
         }
