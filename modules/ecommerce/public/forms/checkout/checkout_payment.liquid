@@ -339,3 +339,25 @@ callback_actions: >
     public_key: stripe_settings.pk_key,
     has_profile: has_profile -%}
 <!-- END Stripe Element -->
+
+{%- unless has_profile -%}
+<script>
+    (function () {
+        const cardList = document.getElementById('card-options-list');
+        const submitButtons = document.getElementById('submit-buttons');
+        const guestCardForm = document.getElementById('guest-add-card-form');
+
+        if (!cardList || !submitButtons) return;
+
+        const observer = new MutationObserver(() => {
+            if (cardList.querySelector('ins-credit-card')) {
+                submitButtons.classList.remove('hide');
+                if (guestCardForm) guestCardForm.classList.add('hide');
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(cardList, { childList: true, subtree: true });
+    })();
+</script>
+{%- endunless -%}
