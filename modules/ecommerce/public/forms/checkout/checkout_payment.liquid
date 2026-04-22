@@ -349,11 +349,27 @@ callback_actions: >
 
         if (!cardList || !submitButtons) return;
 
+        const stripeCardInput = document.getElementById('stripe-card');
+        const submitBtn = document.getElementById('checkout-submit-btn');
+
         const observer = new MutationObserver(() => {
             if (cardList.querySelector('ins-credit-card')) {
+                observer.disconnect();
+
+                // Show the button immediately in loading state while waiting for the token
                 submitButtons.classList.remove('hide');
                 if (guestCardForm) guestCardForm.classList.add('hide');
-                observer.disconnect();
+                if (submitBtn) submitBtn.loading = true;
+
+                let attempts = 0;
+                const poll = setInterval(() => {
+                    attempts++;
+                    const hasToken = stripeCardInput && stripeCardInput.value;
+                    if (hasToken || attempts > 50) {
+                        clearInterval(poll);
+                        if (submitBtn) submitBtn.loading = false;
+                    }
+                }, 100);
             }
         });
 
