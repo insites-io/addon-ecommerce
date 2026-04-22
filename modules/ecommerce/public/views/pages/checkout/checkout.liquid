@@ -15,7 +15,7 @@ metadata: {
 {% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
 {% assign user = context.exports.current_user.user %}
 
-{%- if has_profile or context.params.guest -%}
+{%- if has_profile or context.params.guest == 'true' -%}
     {%- include 'modules/ecommerce/checkout/checkout_contact', user: user -%}
 {%- else -%}
     {%- include 'modules/ecommerce/checkout/landing_page' -%}

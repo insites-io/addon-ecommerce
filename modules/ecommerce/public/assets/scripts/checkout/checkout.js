@@ -262,7 +262,7 @@ let Checkout = (function () {
             // Contact Information submission
             async contactSubmit(event){
                 event.preventDefault();
-                let form = event.srcElement;
+                let form = event.target;
                 contactSubmitBtn.loading = true;                
                 Checkout.methods.extractPhoneNumbers(contactPhone);
                 if(await App.validation.validateForm(form)) {
@@ -282,7 +282,12 @@ let Checkout = (function () {
                 contactSubmitBtn.loading = true;                
                 Checkout.methods.extractPhoneNumbers(contactPhone);
                 let emailStatus = await Checkout.methods.checkSignUpUserEmail(contactEmailEl);
-                if(await App.validation.validateForm(document.getElementById('virtual-form'))) {                    
+                if(await App.validation.validateForm(document.getElementById('virtual-form'))) {
+                    if (!emailStatus) {
+                        App.events.notyf("error", "Please check missing fields.");
+                        contactSubmitBtn.loading = false;
+                        return false;
+                    }
                     var companyPayload = {
                         "company_name" : contactCompanyNameEl.value
                     };
@@ -359,7 +364,7 @@ let Checkout = (function () {
             async shippingSubmit(event){
                 event.preventDefault();
                 shippingSubmitBtn.loading = true;
-                let form = event.srcElement;
+                let form = event.target;
 
                 if(shippingSamewithAccountFlag){
                     Checkout.methods.updateShippingContact(true);
@@ -382,7 +387,7 @@ let Checkout = (function () {
             async billingSubmit(event){
                 event.preventDefault();
                 billingSubmitBtn.loading = true;  
-                let form = event.srcElement;
+                let form = event.target;
 
                 if(billingSamewithShippingFlag){
                     Checkout.methods.updateBillingContact(true);
@@ -396,12 +401,10 @@ let Checkout = (function () {
                             form.submit();
                         }, 1000);       
                     } 
-                } else {                       
+                } else {
                     App.events.notyf("error", "Please check missing fields.");
                     billingSubmitBtn.loading = false;
-                }                
-                            
-                billingSubmitBtn.loading = false;
+                }
                 return false;
             },
             async saveSessionApi(page) {
@@ -587,7 +590,7 @@ let Checkout = (function () {
             async paymentFormSubmit(event){
                 event.preventDefault();
                 checkoutSubmitBtn.loading = true;
-                let form = event.srcElement;
+                let form = event.target;
                 let isValid = await App.validation.validateForm(form);
                 
                 Checkout.validation.validateCreditCard(form);

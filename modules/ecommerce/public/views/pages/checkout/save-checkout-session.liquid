@@ -189,7 +189,8 @@ metadata: {
 
     # Add response status
     assign response = response | add_hash_key: 'status', 200
-    assign response = response | add_hash_key: 'data', context.session    
+    assign data = '{"saved":true}' | parse_json
+    assign response = response | add_hash_key: 'data', data
 
 %}
 
