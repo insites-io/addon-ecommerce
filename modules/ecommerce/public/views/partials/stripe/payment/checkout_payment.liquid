@@ -12,13 +12,7 @@ metadata: {
 -%}
 
 {% comment %} Get Email {% endcomment %}
-{%- liquid
-    if context.current_user.email and context.current_user.email != ''
-        assign customer_email = context.current_user.email
-    else
-        assign customer_email = context.session.contact_email
-    endif
--%}
+{% assign customer_email = context.session.contact_email %}
 
 {%- comment -%} 
     - STEP 1: Fetch user details and stripe customer information for logged-in users
@@ -78,6 +72,10 @@ metadata: {
         | dig: "items" | dig: "response" %}
         
     {%- assign payment_response = stripe_create_charge.body | parse_json -%}
+
+    {%- if payment_response.error -%}
+        {% log payment_response.error, type: "payment_response" %} 
+    {%- endif -%}
 
     {% log "=== END PROCESS: STRIPE PAYMENT ===" %} 
 
