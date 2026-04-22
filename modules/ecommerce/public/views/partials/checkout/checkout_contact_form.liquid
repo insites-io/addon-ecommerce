@@ -2,7 +2,8 @@
 {% assign prop = fields.properties %}
 {% assign profiles_prop = fields.profiles['modules/insites_core/crm_contact'].properties %}
 
-{% if context.current_user %}
+{% if guest != true and context.current_user %}
+  {% comment %} guest flag prevents falling into this branch during guest checkout even when context.current_user is present {% endcomment %}
   {%  liquid
       assign first_name = context.current_user.first_name
       assign last_name = context.current_user.last_name
@@ -25,7 +26,7 @@
     <div class="grid-x grid-padding-x account-details">      
 
       <div class="large-12 medium-12 small-12 cell">
-        {% if context.current_user %}
+        {% if guest != true %}
           
           <ins-input   
             id="contact-company-name"
@@ -85,7 +86,7 @@
         <ins-input required validate 
           id="contact-email"
           class="label-input"
-          {% if context.current_user and context.current_user.email %} readonly {% endif %} 
+          {% if guest != true %} readonly {% endif %} 
           label="Email*"
           placeholder="Email" 
           field="email" 
