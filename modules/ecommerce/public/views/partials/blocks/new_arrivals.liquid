@@ -9,6 +9,11 @@ metadata: {
 {% graphql products = "modules/ecommerce/products/get_products", size: 8 | dig: 'items','results' %}
 
 {% if products.size > 0 %}
+
+    {% graphql all_categories = 'modules/ecommerce/categories/get_categories' | dig: 'items','results'  %}
+    {% comment %} This export will be used in 'Whats Hot' block to eliminate the need to fetch the categories again {% endcomment %}
+    {% export all_categories %}
+
 <section class="wrapper">
     <div class="spacer xxxx-large"></div>
     <div class="product-carousel">
@@ -26,7 +31,7 @@ metadata: {
             <div class="spacer xx-large"></div>
             <div id="newArrivalCardsDesktop" class="product-cards">
                 {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product, all_categories: context.exports.all_categories, heading_level: 'h3' %}
+                    {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, heading_level: 'h3' %}
                 {% endfor %}
             </div>
             
@@ -51,7 +56,7 @@ metadata: {
             <div class="spacer xx-large"></div>
             <div id="newArrivalCardsTablet" class="product-cards">
                 {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product, heading_level: 'h3' %}
+                    {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, heading_level: 'h3' %}
                 {% endfor %}
             </div>
         </ins-carousel>
@@ -72,7 +77,7 @@ metadata: {
                 <div class="spacer"></div>
                 <div id="newArrivalCardsMobile" class="product-cards">
                     {% for product in products %}
-                        {% include "modules/ecommerce/products/product_card", product: product, heading_level: 'h3' %}
+                        {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, heading_level: 'h3' %}
                     {% endfor %}
                 </div>
             </ins-carousel>
