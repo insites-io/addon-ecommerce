@@ -17,7 +17,6 @@ query get_products (
       table: { value: "modules/insites_ecommerce/product" }
       properties: [
         { name: "status", value: "enabled"}
-        { name: "is_website_display", value_boolean: true}
         { name: "is_featured", value_boolean: $is_featured }
         { name: "uuid", not_value: $not_uuid }
       ] 

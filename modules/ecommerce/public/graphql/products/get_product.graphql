@@ -13,7 +13,6 @@ query get_product (
       table: { value: "modules/insites_ecommerce/product" }
       properties: [
         { name: "status", value: "enabled"}
-        { name: "is_website_display", value_boolean: true}
         { name: "slug", value: $slug }
       ] 
     }
