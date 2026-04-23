@@ -665,9 +665,10 @@ let Checkout = (function () {
             },
             initBillingDetailsListener() {
                 if (billingSameWithShippingEl) {
-                    billingSameWithShippingEl.addEventListener('insCheck', (event) => {                        
+                    billingSameWithShippingEl.addEventListener('insCheck', (event) => {
                         Checkout.methods.updateBillingContact(event.detail.checked);
-                    });                    
+                    });
+                    Checkout.methods.updateBillingContact(billingSamewithShippingFlag);
                 }
             },            
             initAddressCardListener() {
