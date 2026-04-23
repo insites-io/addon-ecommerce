@@ -398,9 +398,13 @@ let Checkout = (function () {
                     if(Checkout.events.saveSessionApi('billing')){
                         //Add delay to allow the session to be saved
                         setTimeout(() => {
-                            form.submit();
-                        }, 1000);       
-                    } 
+                            if (billingSamewithShippingFlag) {
+                                window.location.href = '/checkout/payment';
+                            } else {
+                                form.submit();
+                            }
+                        }, 1000);
+                    }
                 } else {
                     App.events.notyf("error", "Please check missing fields.");
                     billingSubmitBtn.loading = false;

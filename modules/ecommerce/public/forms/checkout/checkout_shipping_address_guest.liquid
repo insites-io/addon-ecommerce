@@ -17,7 +17,7 @@ fields:
     suburb:
     state:
     postcode:
-    country:     
+    country:
     shipping_same_with_account:
       property_options:
         virtual: true 
@@ -43,11 +43,20 @@ fields:
       property_options:
         virtual: true
     
-callback_actions: |-    
+callback_actions: |-
 
   {%- session shipping_address_id = form.id -%}
   {%- session latest_step = 3 -%}
 
+  {%- if form.properties.uuid != blank -%}
+    {% parse_json params %}
+    {
+      "email" : "{{ context.session.contact_email }}",
+      "default_address_uuid" : "{{ form.properties.uuid }}"
+    }
+    {% endparse_json %}
+    {% function update_default_address = "crm/controller/contacts/update", uuid: context.session.guest_uuid, params: params %}    
+  {%- endif -%}
 ---
 
 {% assign prop = form.fields.properties %}
@@ -61,7 +70,7 @@ callback_actions: |-
     {% unless context.session.shipping_address_id %}
       <input type="hidden" name="{{ prop.uuid.name }}" value="{{ '' | uuid }}" >
       <input type="hidden" name="{{ prop.related_uuid.name }}" value="{{ context.session.guest_uuid }}" >
-    {% endunless %}  
+    {% endunless %}
 
     {% include 'modules/ecommerce/checkout/checkout_shipping_contacts', prop %}
 
