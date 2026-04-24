@@ -18,40 +18,57 @@ metadata: {
             endfor
         endif
     elsif product.is_product_variant_enabled
+        assign class_add_to_cart_btn = ''
+        assign label_add_tocart_btn = 'Select Variant'
         assign selected_prop = product.variant
+        assign product_variant_uuid = product.variant.uuid
     else 
+        assign class_add_to_cart_btn = 'add-to-cart-btn'
+        assign label_add_tocart_btn = 'Add to Cart'
         assign selected_prop = product
+        assign product_variant_uuid = null
     endif
-
     
 
-    if selected_prop.is_on_sale == true 
-        assign price = selected_prop.sale_price
-        assign price_strikethrough = selected_prop.regular_price
-    else 
-        assign price = selected_prop.regular_price
-        assign price_strikethrough = ''
+    ## Pricing
+    ## Use product details here even if the variant is enabled
+    include 'modules/ecommerce/products/pricing', product: product
+    assign price = context.exports.price
+    assign price_strikethrough = context.exports.price_strikethrough
+    assign is_tax_included = context.exports.is_tax_included
+
+    ## If price is empty and the item is a variant, then use the variant pricing
+    if price == '' or price == blank
+        if product.is_product_variant_enabled
+            if selected_prop.is_on_sale == true 
+                assign price = selected_prop.sale_price
+                assign price_strikethrough = selected_prop.regular_price
+            else 
+                assign price = selected_prop.regular_price
+                assign price_strikethrough = ''
+            endif
+        endif
     endif
 %}    
     <div class="cell">
         <div class="wrap grid-y">
             <div class="img-wrap">
-            {% if selected_prop.stock_level < 1 %}
+            {% if selected_prop.stock_level < 1 or selected_prop.stock_level == blank %}
                 <div class="out-of-stock"></div>
             {% endif %}
             {% if selected_prop.is_on_sale == true %}
                 <div class="sale-tag">SALE</div>
             {% endif %}
             {% if product.product_image.url %}
-                {% assign image_url = product.product_image.url %}
-                {% assign base_url = image_url | split: '/' %}
-                {% assign filename = base_url.last %}
-                
-                <!-- Manually encode only the filename part -->
-                {% assign encoded_filename = filename | replace: ' ', '%20' | replace: ';', '%3B' %}
-                
-                <!-- Rebuild the URL without encoding the base URL -->
-                <img src="{{ image_url | remove: filename }}{{ encoded_filename }}" alt="{{ product.product_name }}">
+                {% assign image_url = product.product_image.url | replace: ' ', '%20' | escape %}                               
+                {%- capture img_cache_key -%} product_image-{{ product.id }}-{{ product.updated_at }} {%- endcapture -%}
+                {% cache img_cache_key %}
+                {% if fetchpriority == 'high' %}
+                <img src="{{ image_url }}" alt="{{ product.product_name }}" fetchpriority="high" width="300" height="286">
+                {% else %}
+                <img src="{{ image_url }}" alt="{{ product.product_name }}" loading="lazy" width="300" height="286">
+                {% endif %}
+                {% endcache %}
             {% else %}
                 {% include 'modules/website/layout/placeholder_image', size: 'medium' %}
             {% endif %}
@@ -59,14 +76,24 @@ metadata: {
             <div class="spacer medium"></div>
             <div class="container grid-y flex-grow-1">
                 <div class="details">
-                    <h6>{{ product.product_name }}</h6>
+                    {% if heading_level == 'h2' %}
+                        <h2 class="heading-6">{{ product.product_name }}</h2>
+                    {% elsif heading_level == 'h3' %}
+                        <h3 class="heading-6">{{ product.product_name }}</h3>  
+                    {% elsif heading_level == 'h4' %}
+                        <h4 class="heading-6">{{ product.product_name }}</h4>  
+                    {% elsif heading_level == 'h5' %}
+                        <h5 class="heading-6">{{ product.product_name }}</h5>  
+                    {% else %}
+                        <h6>{{ product.product_name }}</h6>
+                    {% endif %}
                     <div class="spacer x-small"></div>
                     {% assign category = all_categories | array_detect: uuid: product.category_uuids[0] %}
-                    <p>{{ category.category_name | default: 'Category' }}</p>
+                    <p class="body-x-small">{{ category.category_name | capitalize }}</p>
                     <div class="spacer"></div>
                     <p class="product-current-price">{{ price | pricify }}
                         {% if product.is_on_sale == true or variant.is_on_sale == true %}
-                        <span class="body-x-small strikethrough">{{ price_strikethrough | pricify }}</span>
+                        <span class="body-x-small strikethrough">{{ price_strikethrough }}</span>
                         {% endif %}
                     </p>
                     <div class="spacer"></div>
@@ -76,20 +103,34 @@ metadata: {
                     {% endif %}
                 </div>
                 <div class="buttons">
-                    {% parse_json data %}
+                    {% parse_json data_old %}
                     {
                         "id": "{{ selected_prop.id }}",
-                        "product_uuid": "{{ product.uuid }}",
-                        "product_sku": "{{ selected_prop.sku }}",
+                        "slug": "{{ product.slug }}",
                         "product_name": "{{ product.product_name | replace: "'", "`"}}",
-                        "price": "{{ price | default: 0 }}"
+                        "image": "{{ image_url }}",
+                        "product_sku": "{{ selected_prop.sku }}",
+                        "product_uuid": "{{ product.uuid }}",                        
+                        "product_variant_uuid": "{{ product_variant_uuid }}",                     
+                        "price": {{ price | default: 0 | advanced_format: '%.2f' }},                        
+                        "stock_level": {{ selected_prop.stock_level | default: 0 }},
+                        "tax_amount": {{ product.tax_amount | default: 0 }},
+                        "is_tax_included": {{ is_tax_included | default: false }},
+                        "is_fixed_tax_amount": {{ product.is_fixed_tax_amount | default: false }}                        
                     }
                     {% endparse_json %}
 
-                    <ins-button class="full add-to-cart-btn" label="Add to Cart" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
+                    {% parse_json data %}
+                    {
+                        "product_uuid": "{{ product.uuid }}",
+                        "product_variant_uuid": "{{ product_variant_uuid }}"
+                    }
+                    {% endparse_json %}
+
+                    <ins-button class="full {{class_add_to_cart_btn}}" label="{{ label_add_tocart_btn }}" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
                     <div class="spacer x-small"></div>
                     <a href="/products/{{ product.slug }}">
-                        <ins-button class="full" label="View Details" outlined icon="icon-eye"></ins-button>
+                        <ins-button class="full" label="View details" outlined icon="icon-eye"></ins-button>
                     </a>
                 </div>
             </div>

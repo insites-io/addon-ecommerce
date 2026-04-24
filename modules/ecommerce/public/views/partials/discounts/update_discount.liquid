@@ -6,29 +6,50 @@ metadata: {
 {% comment %} 
     Parameters from parent:
      - discount_uuid
+     - user_uuid
+     - type
 {% endcomment %}
 {%- if user_uuid != blank -%}
 
     {% unless user_cart %}
-        {% graphql user_cart = 'modules/ecommerce/carts/get_user_cart', 
+        {% graphql user_cart = 'modules/ecommerce/carts/get_cart', 
         contact_uuid: user_uuid | dig: 'items','results' | first %}
     {% endunless %}
 
     {% if type == 'add' %}
-        {% assign new_discount_code_uuids = user_cart.discount_code_uuids | array_add: discount_uuid | array_uniq %}
+        {% comment %} Check if cart_discount already exists {% endcomment %}
+        {% graphql existing_cart_discount = 'modules/ecommerce/carts/get_cart_discount',
+            cart_uuid: user_cart.uuid, discount_code_uuids: discount_uuid | dig: 'items','results' | first %}
+        
+        {% unless existing_cart_discount.id %}
+            {% comment %} Get discount details by uuid to populate denormalized fields {% endcomment %}
+            {% graphql discount_details = 'modules/ecommerce/discount/get_discount_by_uuid',
+                discount_uuid: discount_uuid | dig: 'items','results' | first %}
+            
+            {% if discount_details.uuid %}
+                {% graphql create_cart_discount = 'modules/ecommerce/cart_discounts/add_cart_discount',
+                    cart_uuid: user_cart.uuid,
+                    discount_uuid: discount_uuid,
+                    discount_name: discount_details.discount_name,
+                    discount_code: discount_details.discount_code,
+                    discount_type: discount_details.discount_type,
+                    discount_value: discount_details.discount_value %}
+                {% assign update_cart_discount = create_cart_discount %}
+            {% endif %}
+        {% endunless %}
+        
     {% elsif type == 'remove' %}
-        {% assign new_discount_code_uuids = user_cart.discount_code_uuids | array_delete: discount_uuid | array_uniq %}
+        {% comment %} Find and delete the cart_discount record {% endcomment %}
+        {% graphql existing_cart_discount = 'modules/ecommerce/carts/get_cart_discount',
+            cart_uuid: user_cart.uuid, discount_code_uuids: discount_uuid | dig: 'items','results' | first %}
+        
+        {% if existing_cart_discount.id %}
+            {% graphql delete_cart_discount = 'modules/ecommerce/cart_discounts/delete_cart_discount',
+                id: existing_cart_discount.id %}
+            {% assign update_cart_discount = delete_cart_discount %}
+        {% endif %}
     {% endif %}
 
-    {% parse_json args %}
-    {
-        "id": "{{ user_cart.id }}",
-        "discount_code_uuids": {{ new_discount_code_uuids }}
-    }
-    {% endparse_json %}
-    {% graphql update_cart_discount = 'modules/ecommerce/carts/update_cart_discount', args: args %}
-{% else %}
-    {% comment %} check cart local storage {% endcomment %}
 {% endif %}
 
 {% export update_cart_discount %}

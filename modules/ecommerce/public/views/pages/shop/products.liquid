@@ -1,0 +1,93 @@
+---
+slug: products
+layout: modules/ecommerce/shop_layout
+searchable: "true"
+max_deep_level: 2
+metadata: {
+    "page_name": "Products",
+    "page_title": "Products | Insites",
+    "meta_title": "Products | Insites",
+    "is_visible_to_search_engines": true,
+    "is_sitemap_enabled": true,
+    "sitemap_priority": "1.0",
+    "sitemap_order": "1", 
+    "sitemap_change_frequency": "monthly"    
+}
+dynamic_cache:
+  layout: false
+  key: |-
+    {%- parse_json models -%}
+    [
+      "modules/insites_ecommerce/category",
+      "modules/insites_ecommerce/product",
+      "modules/insites_ecommerce/product_variant"
+    ]
+    {%- endparse_json -%}   
+    {%- include "modules/website/cache/generate_cache_key", models: models -%}
+    {{ context.current_user.id }} 
+---
+{% comment -%} 
+URL Structures: 
+    - Products List: /products
+    - Products Detail: /products/{product-slug}
+    - Products List by Category: /products/{category-slug}
+    -- sample: /products/living-room
+    - Products List by Sub-Category: /products/{category-slug}?category={sub-category-slug}
+    -- sample: /products/living-room?category=storage
+{% endcomment -%}
+
+{% comment %} Check if slug2 is a category or a product {% endcomment %}
+{%- if context.params.slug2 -%}
+    {%- assign slug_type = 'category' -%}
+    {% comment %} Check if slug2 is a category {% endcomment %}
+    {%- graphql categories = 'modules/ecommerce/categories/is_category_exist', slug: context.params.slug2 | dig: 'items','results' -%}    
+    {%- if categories.size < 1 -%}
+        {%- assign slug_type = 'product' -%}
+        {% comment %} Check if slug2 is a product {% endcomment %}
+        {%- graphql products = 'modules/ecommerce/products/get_product', slug: context.params.slug2 | dig: 'items','results' -%}
+        {%- if products.size == 0 -%}
+            {% redirect_to '/404' %}
+        {%- endif -%}    
+    {%- endif -%}
+{%- endif -%}
+
+
+<div class="ecommerce-wrapper grid-container">
+    <div class="spacer x-large"></div>
+
+    {% parse_json sort_by %}
+    {
+        "properties": [
+            { "name": "category_weighting", "order": "ASC" }
+        ]
+    }
+    {% endparse_json %}
+
+    
+    {% graphql all_categories = 'modules/ecommerce/categories/get_categories' sort_by: sort_by | dig: 'items','results'  %}
+    
+
+    {% assign is_product_detail = false %}
+    {%- if context.params.slug2 -%}
+        {%- if slug_type == 'product' -%}
+            {% assign is_product_detail = true %}
+            {%- include 'modules/ecommerce/products/detail', product: products[0] -%}
+        {%- else -%}        
+            <div class="spacer small"></div>
+            {%- include 'modules/ecommerce/products/list', all_categories -%}
+        {%- endif -%}
+    {%- else -%}
+        <div class="spacer small"></div>
+        {%- include 'modules/ecommerce/products/list', all_categories -%}
+    {%- endif -%}
+
+</div>
+
+
+{% if is_product_detail == false %}
+    {%- if context.environment == "staging" -%}
+        <script src="{{ 'modules/ecommerce/scripts/product-list.js' | asset_url }}" defer></script>
+    {% else %}
+        <script src="{{ 'modules/ecommerce/scripts/product-list.min.js' | asset_url }}" defer></script>
+    {% endif %}
+{% endif %}

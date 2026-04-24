@@ -23,25 +23,12 @@ query get_categories (
     }
     sort: $sort_by
   ) {
-    total_entries
-    total_pages
-    current_page
     results {
       id             
 			uuid: property(name: "uuid")
       slug: property(name: "slug")
       category_name: property(name: "category_name")
       parent_category_uuids: property(name: "parent_category_uuids")      
-      custom_field: related_record(
-        table: "modules/ins_ecommerce/category_custom_field"
-        join_on_property: "uuid"
-        foreign_property: "category_uuid"
-        filter: {
-          properties: {name: "is_featured", value_boolean: true}, 
-          }
-      ) {
-        is_featured: property(name: "is_featured")
-      }
     }
   }
 }

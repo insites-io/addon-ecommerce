@@ -1,36 +1,74 @@
 ---
 metadata: {
-    partial_name: 'Ecommerce | Overview | Overview'
+    partial_name: 'Ecommerce | Portal | Overview'
 }
 ---
-{% graphql orders = "modules/ecommerce/orders/get_orders_to_receive", 
-    order_contact_uuid: context.session.user_uuid | dig: "items" %}
 
-<section>
-    <h2>Overview</h2>
-    <div class="spacer"></div>
+{% comment %} ? Ecommerce Addon Overview Cards {% endcomment %}
+{%- graphql company_uuid = 'modules/portal/account/get_current_user' 
+     | dig: 'current_user','crm_contact' | first | dig: 'company_uuid' -%}
+ 
+{% if company_uuid and company_uuid != '' %}
+     {% assign status = 'back_ordered,Back ordered,Back Ordered' | split: ',' %}
+     {%- graphql get_backorders = 'modules/ecommerce/orders/get_orders_by_status', order_company_uuid: company_uuid, orderStatus: status | dig: "items" -%}
 
-    <div class="grid-padding-x grid-x">
-        <div class="cell large-4 medium-12 small-12">
-            <ins-card steady class="overview no-hover-border">
-                <a href="/">
-                <div class="grid-y cell wrap font-color-head">
-                    <div>
-                        <p class="body-small bold">
-                            <i class="icon-shopping-bag"></i> 
-                            <span>Orders to receive</span>
-                        </p>                         
-                        <div class="spacer x-small"></div>
-                        <h2>{{orders.total_entries | default: 0}}</h2>                        
-                    </div>                   
-                    <div class="text-right">
-                        <a href="/order-history" class="font-color-head">View Details</a>
-                    </div>
-                </div>
-                </a>
-            </ins-card>
-        </div>
-    </div>
+     {% assign status = 'completed,Completed' | split: ',' %}
+     {%- graphql get_completed_orders = 'modules/ecommerce/orders/get_orders_by_status', order_company_uuid: company_uuid, orderStatus: status | dig: "items" -%}
 
-    <div class="spacer x-large"></div>
-</section>
+     {% assign status = 'processing,Processing,open,Open' | split: ',' %}
+     {%- graphql get_orders_in_progress = 'modules/ecommerce/orders/get_orders_by_status', order_company_uuid: company_uuid, orderStatus: status | dig: "items" -%}
+{% endif %}
+
+{% comment %} ? Ecommerce Addon Payload {% endcomment %}
+{% parse_json ecommerce_card_details_result %}
+ [
+     {
+         "card-icon": "icon-retry", 
+         "card-header": "Backorders", 
+         "card-body": "{{ get_backorders.total_entries }}",
+         "location": "{{ context.location.host | prepend: "https://" | append: "/order-history?status=back_ordered" }}"
+     },
+     {
+         "card-icon": "icon-box", 
+         "card-header": "Completed orders", 
+         "card-body": "{{ get_completed_orders.total_entries }}",
+         "location": "{{ context.location.host | prepend: "https://" | append: "/order-history?status=completed" }}"
+     },
+     {
+         "card-icon": "icon-truck", 
+         "card-header": "Orders in progress", 
+         "card-body": "{{ get_orders_in_progress.total_entries }}",
+         "location": "{{ context.location.host | prepend: "https://" | append: "/order-history?status=processing" }}"
+     }
+ ]
+{% endparse_json %}
+
+
+<div class="grid-x grid-padding-y grid-padding-x">
+     {% for details in ecommerce_card_details_result %}
+          <div class="large-4 cell">
+          <div class="overview-cards">
+               <div class="overview-card-icon-header">
+                    <i class="{{ details.card-icon }}"></i>
+                    <span class="overview-card-header">
+                         {{ details.card-header }}
+                    </span>
+               </div>
+               <div class="spacer x-small"></div>
+               <div class="overview-card-body">
+                    <h4 class="heading-4">{{ details.card-body }}</h4>
+               </div>
+               <div class="spacer"></div>
+               <div class="overview-button">
+                    <a href="{{ details.location }}">
+                         <ins-button 
+                              size="small"
+                              label="View details">
+                         </ins-button>
+                    </a>
+               </div>
+          </div>
+          </div> 
+          <div class="spacer"></div>
+     {% endfor %}
+</div>  

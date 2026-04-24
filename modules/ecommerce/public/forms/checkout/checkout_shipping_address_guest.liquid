@@ -1,0 +1,159 @@
+---
+name: checkout_shipping_address_guest
+resource: modules/insites_core/crm_address
+resource_owner: anyone
+redirect_to: checkout/billing
+flash_alert: "Error-UserAddressShipping"
+flash_notice: "Success-UserAddressShipping"
+fields:
+  properties:
+    uuid:
+    related_uuid:
+    related_type: 
+      property_options:
+        default: "contact"
+    address_1:
+    address_2:
+    suburb:
+    state:
+    postcode:
+    country:
+    shipping_same_with_account:
+      property_options:
+        virtual: true 
+    shipping_instructions:
+      property_options:
+        virtual: true    
+    shipping_company_name:
+      property_options:
+        virtual: true
+    shipping_contact_first_name:
+      property_options:
+        virtual: true
+    shipping_contact_last_name:
+      property_options:
+        virtual: true
+    shipping_contact_email:
+      property_options:
+        virtual: true
+    shipping_contact_phone_number:
+      property_options:
+        virtual: true
+    shipping_contact_phone_country_code:
+      property_options:
+        virtual: true
+    
+callback_actions: |-
+
+  {%- session shipping_address_id = form.id -%}
+  {%- session latest_step = 3 -%}
+
+  {%- if form.properties.uuid != blank -%}
+    {% parse_json params %}
+    {
+      "email" : "{{ context.session.contact_email }}",
+      "default_address_uuid" : "{{ form.properties.uuid }}"
+    }
+    {% endparse_json %}
+    {% function update_default_address = "crm/controller/contacts/update", uuid: context.session.guest_uuid, params: params %}    
+  {%- endif -%}
+---
+
+{% assign prop = form.fields.properties %}
+
+{%- form 
+  html-id: "shipping-address-form"
+  html-novalidate: true
+  html-enctype="multipart/form-data"
+  html-onsubmit:"return Checkout.events.shippingSubmit(event);" -%}  
+
+    {% unless context.session.shipping_address_id %}
+      <input type="hidden" name="{{ prop.uuid.name }}" value="{{ '' | uuid }}" >
+      <input type="hidden" name="{{ prop.related_uuid.name }}" value="{{ context.session.guest_uuid }}" >
+    {% endunless %}
+
+    {% include 'modules/ecommerce/checkout/checkout_shipping_contacts', prop %}
+
+    <div class="spacer large"></div>
+    <div class="grid-x">        
+      <h4>Shipping address</h4>
+    </div>
+    <div class="spacer x-large"></div> 
+
+    {% comment %} Search address {% endcomment %}
+    <div id="shipping-address-fields" class="address-fields" >
+      <div class="grid-x grid-padding-x">
+        <div class="large-12 medium-12 small-12 cell">
+          <ins-input address-lookup label="Search Address" 
+            id="shipping-address-search" name="shipping"
+            placeholder="Search Address" icon="icon-map-pin">
+          </ins-input>            
+        </div>
+        <div class="large-6 medium-6 small-12 cell">
+          <ins-input required validate 
+            label="Address 1*" 
+            id="shipping_address_1"
+            placeholder="Address 1" 
+            name="{{ prop.address_1.name }}"
+            value="{{ context.session.shipping_address_1 }}"
+            error-message="Address 1 is required.">
+          </ins-input>
+        </div>
+        <div class="large-6 medium-6 small-12 cell">
+          <ins-input  
+            label="Address 2" 
+            id="shipping_address_2" 
+            placeholder="Address 2"
+            name="{{ prop.address_2.name }}"
+            value="{{ context.session.shipping_address_2 }}">
+          </ins-input>
+        </div>
+        <div class="large-6 medium-6 small-12 cell">
+          <ins-input validate
+            label="Suburb*" 
+            id="shipping_suburb" 
+            placeholder="Suburb"
+            name="{{ prop.suburb.name }}"
+            value="{{ context.session.shipping_suburb }}" 
+            error-message="Suburb is required.">
+          </ins-input>
+        </div>
+        <div class="large-6 medium-6 small-12 cell">
+          <ins-input required validate 
+            label="State*" 
+            id="shipping_state" 
+            placeholder="State"
+            name="{{ prop.state.name }}"
+            value="{{ context.session.shipping_state }}"
+            error-message="State is required.">
+          </ins-input>
+        </div>
+        <div class="large-6 medium-6 small-12 cell">
+          <ins-input  required validate 
+            label="Postcode*" 
+            id="shipping_postcode"
+            placeholder="Postcode" 
+            name="{{ prop.postcode.name }}"
+            value="{{ context.session.shipping_postcode }}"
+            error-message="Postcode is required.">
+          </ins-input>
+        </div>
+        <div class="large-6 medium-6 small-12 cell">
+          <ins-input  required validate 
+            label="Country*" 
+            id="shipping_country"
+            placeholder="Country" 
+            name="{{ prop.country.name }}"
+            value="{{ context.session.shipping_country }}"
+            error-message="Country is required.">
+          </ins-input>
+        </div>
+      </div>
+    </div>
+    
+    <div class="spacer xx-small"></div>       
+
+   {% comment %} Shipping Instructions; Buttons {% endcomment %}
+   {% include 'modules/ecommerce/checkout/checkout_shipping_bottom_blocks' %} 
+
+{%- endform -%}

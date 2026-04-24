@@ -1,0 +1,143 @@
+---
+metadata: {
+    layout_name: Shop
+}
+---
+    
+{% include 'modules/website/cache/layout_fragment_cache_key' %}
+{% assign layout_cache_key = context.exports.layout_cache_key.cache_key %}
+
+<!doctype html>
+<html class="no-js" lang="en">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, viewport-fit=cover">
+    <meta content="authenticity_token" name="csrf-param">
+    <meta content="{{ context.authenticity_token }}" name="csrf-token">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {%- comment -%}
+    <!-- Unique to dynamic layouts to get the title and description to dynamic content-->
+    {%- endcomment -%}
+
+    <!-- [Schema] -->
+    {%- if context.params.slug2 and context.params.slug == "products" -%}
+        {%- if context.params.category -%}
+            {% assign slug = context.params.category %}
+        {% else %}
+            {% assign slug = context.params.slug2 %}
+        {% endif %}
+
+        {%- if context.params.slug2 -%}
+            {%- assign slug_type = 'category' -%}
+            {% comment %} Check if slug2 is a category {% endcomment %}
+            {%- graphql categories = 'modules/ecommerce/categories/is_category_exist', slug: context.params.slug2 | dig: 'items','results' -%}    
+            {%- if categories.size < 1 -%}
+                {%- assign slug_type = 'product' -%}
+                {% comment %} Check if slug2 is a product {% endcomment %}
+                {%- graphql products = 'modules/ecommerce/products/is_product_existing', slug: context.params.slug2 | dig: 'items','results' -%}
+                {%- if products.size == 0 -%}
+                    {% redirect_to '/404' %}
+                {%- endif -%}    
+            {%- endif -%}
+        {%- endif -%} 
+
+        {%- include 'modules/insites_ecommerce/seo', 
+            type: slug_type,
+            slug: slug -%}
+    {%- else -%}
+        {%- include 'modules/insites_cms/seo' -%}
+    {%- endif -%}
+    
+    {% include 'modules/website/layout/pixel_tracking' %}
+
+    {%- comment -%}
+    <!-- Try to limit assets that are part of the head / technical head to minimize page size & improve page performance.
+    Assets like 'Google Map API', should only be referenced as needed. -->
+    {%- endcomment -%}
+    
+    <!-- [Project Assets] -->
+    {% include 'modules/website/layout/technical_head' %}
+    
+</head>
+<body>
+    <div class="main-wrap checkout">
+        
+        {%- capture website_header_key -%} {{ layout_cache_key }}-{{context.current_user.id}}-{{context.device.device_type}} {%- endcapture -%}
+        {%- cache website_header_key -%}                    
+            {% include 'modules/website/layout/header' %}
+        {%- endcache -%}
+
+        {%- if context.params.slug2 -%}
+
+            {% assign category = categories.first %}
+            {% assign product = products.first %}            
+
+            <div class="breadbrumbs__wrapper">
+                <div class="breadcrumbs grid-x">
+                    <a href="/products">All products</a>                        
+                    
+                    {%- if category.id -%}
+
+                        {% comment %} top tier category {% endcomment %}
+                        {%- if category.parent_category.main_category.slug -%}
+                            <i class="icon-chevron-right"></i>
+                            <a href="/products/{{ category.parent_category.main_category.slug }}">{{ category.parent_category.main_category.category_name }}</a>                                 
+                        {%- endif -%}
+
+                        {% comment %} sub tier category {% endcomment %}
+                        {%- if category.parent_category.slug -%}
+                            <i class="icon-chevron-right"></i>
+                            <a href="/products/{{ category.parent_category.slug }}">{{ category.parent_category.category_name }}</a> 
+                        {%- endif -%}
+
+                        {% comment %} category {% endcomment %}
+                        <i class="icon-chevron-right"></i>
+                        <span class="active">{{ category.category_name }}</span>                          
+
+                    {%- elsif product.id -%}
+
+                        {%- if product.category.parent_category.main_category.slug -%}
+                            <i class="icon-chevron-right"></i>
+                            <a href="/products/{{ product.category.parent_category.main_category.slug }}">{{ product.category.parent_category.main_category.category_name }}</a>
+                        {%- endif -%}
+
+                        {%- if product.category.parent_category.slug -%}
+                            <i class="icon-chevron-right"></i>
+                            <a href="/products/{{ product.category.parent_category.slug }}">{{ product.category.parent_category.category_name }}</a>
+                        {%- endif -%}
+
+                        {%- if product.category.parent_category.slug and product.category.slug -%}
+                            <i class="icon-chevron-right"></i>
+                            <a href="/products/{{ product.category.parent_category.slug }}?category={{ product.category.slug }}">{{ product.category.category_name }}</a>
+                        {%- elsif product.category.slug -%}
+                            <i class="icon-chevron-right"></i>
+                            <a href="/products/{{ product.category.slug }}">{{ product.category.category_name }}</a>
+                        {%- endif -%}
+
+                        <i class="icon-chevron-right"></i>
+                        <span class="active">{{ product.product_name }}</span> 
+
+                    {%- endif -%}   
+                                
+                </div>
+            </div>
+        {%- endif -%}
+        <div class="wrapper">
+            <div class="grid-container">
+                {{ content_for_layout }}
+            </div>
+        </div>
+        <div class="spacer xxxx-large"></div>
+    </div>    
+    
+    {% include 'modules/website/layout/header_mobile' %}
+
+    {% include 'modules/website/layout/footer' %}    
+
+    {% if context.params.slug != 'shopping-cart' %}
+        {% include 'modules/ecommerce/carts/cart_drawer' %}
+    {% endif %}
+
+</body>
+</html>

@@ -1,17 +1,3 @@
-let productInfo = {
-    "user_id" : "",
-    "quantity" : "",
-    "order_id" : "",
-    "status" : "",
-    "product_id" : "",
-    "product_name" : "",
-    "product_sku" : "",
-    "product_variant" : "",
-    "product_price" : "",
-    "tax_amount" : "",
-    "shipping_amount" : ""
-}
-let variantList = [];
 let isDeleting = false;
 
 let shoppingCart = (function () {
@@ -20,41 +6,24 @@ let shoppingCart = (function () {
             async removeDiscountCode(ev) {
                 let discountEl = ev.target.parentElement;
                 let uuid = discountEl.getAttribute('data-uuid');
+                let contact_uuid = discountEl.getAttribute('data-contact-uuid');
                 if(uuid && !isDeleting) {
                     isDeleting = true;
-                    let response = await apiServices.removeDiscountCode({ uuid });
+                    let payload = {
+                        "uuid": uuid,
+                        "contact_uuid": contact_uuid
+                    };
+                    let response = await apiServices.removeDiscountCode({ payload });
                     if(response.state) {
                         discountEl.remove();
-                        App.events.notyf("success", "Discount code has been removed from your cart.");                        
-                        if(response.data.type == 'localStorage') {
-                            let discountUuids = JSON.parse(localStorage.getItem('discount_uuids')) || [];
-                            // Remove the specific UUID from the array
-                            discountUuids = discountUuids.filter(id => id !== response.data.discount_uuid);
-                            // Save the updated array back to localStorage or remove if empty
-                            if (discountUuids.length > 0) {
-                                localStorage.setItem('discount_uuids', JSON.stringify(discountUuids));
-                            } else {
-                                localStorage.removeItem('discount_uuids');
-                            }
-                        }
+                        App.events.notyf("success", "Discount code has been removed from your cart.");
                         location.reload();
                     }
                 }
             },
-            validateDiscountForm(formEl) {
-                let field = formEl.querySelector('#discount-code-input');
-                let code = field.value || false;field
-                    field.hasError = !code ? true : false;
-                return code;
-            },
             async validateDiscountCode(payload, formEl) {                                                    
                 let response = await apiServices.validateDiscountCode({ 'payload': payload });
                 this.discountCodeResponseHandler(response, formEl);
-
-                // Guest user: Save discount code to local storage
-                if(payload.contact_uuid == '' && response.data.is_valid == 'true') {
-                    localStorage.setItem('discount_uuids', JSON.stringify(response.data.local_discount_uuids));                   
-                }
             },
             discountCodeResponseHandler(response, formEl) {
                 if(response.state && response.data) {
@@ -73,17 +42,6 @@ let shoppingCart = (function () {
                         window.location.reload();
                     }, 500);
                 } else formEl.querySelector('#apply-discount-btn').loading = false; 
-            },
-            async validateRemoveForm(event){
-                event ? event.preventDefault(): '';
-                let formElem = event.srcElement;
-                let confirm = await App.events.swal('warning', 
-                    'Are you sure?',
-                    'This will remove this item/s from your cart.',
-                    'Remove');
-                if(confirm) {
-                    formElem.submit(); 
-                }
             }            
         },
         init: {

@@ -6,58 +6,50 @@ method: post
 searchable: false
 metadata: {
     "status": "published",
-    "page_type": "endpoint", 
-    "page_name": "Remove Discount Code API",
-    "page_title": "Remove Discount Code API",
-    "meta_title": "Remove Discount Code API"      
+    "api_endpoint_name": "Remove discount code"
 }
 ---
 {%- assign status = 200 -%}
-{%- assign discount_uuid = context.params.uuid -%}
-{%- assign user_uuid = context.current_user.external_id -%}
+{%- assign payload = context.params.payload -%}
+{%- assign discount_uuid = payload.uuid -%}
+{%- assign user_uuid = payload.contact_uuid -%}
 
 
 {%- if user_uuid and discount_uuid -%}
-    {%- comment -%} Logged in user: Check if the code being removed belongs to the customer {%- endcomment -%}
-
-    {%- graphql user_cart_discount = 'modules/ecommerce/carts/get_cart_discount',
-            contact_uuid: user_uuid, discount_code_uuids: discount_uuid | dig: 'items' -%}
-
-    {%- comment -%} Step 2: If it is valid, update user cart, remove the discount_code_uuid {%- endcomment -%}
-    {%- if user_cart_discount.results.size > 0 -%}
-        {%- include 'modules/ecommerce/discounts/update_discount', 
-            user_uuid: user_uuid,
-            type: 'remove',
-            discount_uuid: discount_uuid -%}
-    {%- endif -%}
-
-    {%- parse_json data -%}
-    {
-        {{ context.exports.update_cart_discount }}
-    }
-    {%- endparse_json -%}
-
-{%- elsif discount_uuid -%}
-    {%- comment -%} Guest user {%- endcomment -%}
+    {%- comment -%} Check if the code being removed belongs to the customer {%- endcomment -%}
+    {%- comment -%} Get cart first to get cart_uuid {%- endcomment -%}
+    {%- graphql user_cart = 'modules/ecommerce/carts/get_cart', 
+        contact_uuid: user_uuid | dig: 'items','results' | first -%}
     
+    {%- if user_cart.uuid -%}
+        {%- graphql user_cart_discount = 'modules/ecommerce/carts/get_cart_discount',
+                cart_uuid: user_cart.uuid, discount_code_uuids: discount_uuid | dig: 'items' -%}
 
-    {% comment %} Update session discount_uuids {% endcomment %}
-    {%- assign local_discount_uuids = context.session.discount_uuids | default: '[]' | parse_json -%}
-    {%- assign filtered_uuids = local_discount_uuids | array_delete: discount_uuid -%}
-    {% session discount_uuids = filtered_uuids %}
-
-    {%- parse_json data -%}
-    {
-        "type": "localStorage",
-        "discount_uuid": "{{ discount_uuid }}"        
-    }
-    {%- endparse_json -%}
+        {%- comment -%} Step 2: If it is valid, update user cart, remove the discount_code_uuid {%- endcomment -%}
+        {%- if user_cart_discount.results.size > 0 -%}
+            {%- include 'modules/ecommerce/discounts/update_discount', 
+                user_uuid: user_uuid,
+                type: 'remove',
+                discount_uuid: discount_uuid -%}
+            {% assign data = context.exports.update_cart_discount %}
+        {%- else -%}
+            {%- assign status = 400 -%}
+            {%- assign data = '{"error": "Discount code not found in cart"}' | parse_json -%}
+        {%- endif -%}
+    {%- else -%}
+        {%- assign status = 400 -%}
+        {%- assign data = '{"error": "Cart not found"}' | parse_json -%}
+    {%- endif -%}
+{%- else -%}
+    {%- assign status = 400 -%}
+    {%- assign data = '{"error": "Missing required parameters"}' | parse_json -%}
 {%- endif -%}
 
 
 {%- comment -%}Status code 400: API or GraphQL error{%- endcomment -%}
-{%- if data == blank -%}
+{%- if data == blank or data == '' -%}
   {%- assign status = 400 -%}
+  {%- assign data = '{"error": "Failed to remove discount code"}' | parse_json -%}
 {%- endif -%}
 
 {{- data -}}

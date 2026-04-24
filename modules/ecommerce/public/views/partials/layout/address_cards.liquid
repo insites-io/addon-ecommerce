@@ -3,22 +3,21 @@ metadata: {
     partial_name: 'Ecommerce | Layout | Address Cards'
 }
 ---
-{%- if addresses.size > 0 -%}
-    <div id="address-cards" class="grid-x grid-padding-x grid-padding-y address-options {{ hide }}" data-equalizer>
+<div id="address-cards" class="grid-x grid-padding-x grid-padding-y address-options {{ hide }}" data-equalizer>    
+
+{%- if addresses.size > 0 -%}    
     {%- for data in addresses -%}
         {%- assign full_address = "" -%}
         {%- if data.address_1 and data.address_1 != '' -%}
-            {%- assign full_address = full_address | append: data.address_1 | strip | append : ", " -%}
+            {%- assign full_address = full_address | append: data.address_1 | strip -%}
         {%- endif -%}
         {%- if data.address_2 and data.address_2 != '' -%}
-            {%- assign full_address = full_address | append: data.address_2 | strip | append : ", " -%}
+            {%- assign full_address = full_address | append : ", " | append: data.address_2 | strip -%}
         {%- endif -%}
         {%- if data.address_3 and data.address_3 != '' -%}
-            {%- assign full_address = full_address | append: data.address_3 | strip | append : ", " -%}
+            {%- assign full_address = full_address | append : ", " | append: data.address_3 | strip -%}
         {%- endif -%}
-        {%- if data.suburb and data.suburb != '' -%}
-            {%- assign full_address = full_address | append: data.suburb | strip -%}
-        {%- endif -%}
+
         <div class="large-6 medium-6 small-12 cell">
         
             {% comment %} Convert into integer for comparison with selected_card {% endcomment %}
@@ -44,11 +43,17 @@ metadata: {
                 <div>
                     <p class="form-label">{{ full_address }}</p>
                     <div class="spacer small"></div>
-                    <p>{{ data.state | strip }} <br>{{ data.postcode | strip }}</p>
+                    <p>{{ data.suburb | strip }} {{ data.state | strip }}, {{ data.postcode | strip }}</p>
                     <p>{{ data.country | strip }}</p>
                 </div>
             </ins-checkbox-card>
         </div>
-    {%- endfor -%}
-    </div>
+    {%- endfor -%}       
+{%- endif -%}
+
+</div>
+
+{%- if addresses.size > 0 -%} 
+    <div class="spacer"></div>
+    <div class="spacer xx-small"></div>
 {%- endif -%}

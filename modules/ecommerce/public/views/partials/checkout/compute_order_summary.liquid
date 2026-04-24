@@ -3,86 +3,60 @@ metadata: {
     partial_name: 'Ecommerce | Checkout | Compute Order Summary'
 }
 ---
-{% comment %} 
-    Parameters from parent: 
-        - user_uuid
-        - user_cart
-        - carts
+{% comment %}
+    Parameters from parent:
+        - cart (previously user_cart)
+        - cart_items (previously carts)
         - products
+        - discounts
 {% endcomment %}
 
 
-{%- assign user_id = context.current_user.id | default: null -%}
-{%- function has_profile = "modules/website/layout/check_if_user_has_profile" -%}
-{%- unless has_profile -%}
-    {%- assign user_id = null -%}
-{%- endunless -%}
-
-
 {% comment %} Initialize Variables {% endcomment %}
-{%  liquid 
+{%  liquid
     assign sub_total_amount = 0
-    assign sub_total_discount = 0
     assign sub_total_shipping = 0
-    assign sub_total_tax = 0
-    assign sub_total_tax_included = 0 
-    assign used_discounts = '' | split: ','
+    assign sub_total_shipping_discount = 0
+    assign combined_base = 0
 %}
 
-{% if user_id == null %}
-    {% comment %} Guest user {% endcomment %}
-    
-    {% unless guest_discounts %} 
-        {% if context.session.discount_uuids %}
-            {% graphql discounts = 'modules/ecommerce/discount/get_discount_by_uuids', 
-                uuids: context.session.discount_uuids | dig: 'items', 'results' %}
-        {% endif %}
-    {% endunless %} 
-
-    {% assign carts = context.session.guest_cart %}
-
-    {% comment %} Get product info {% endcomment %}
-    {%  liquid  
-        assign product_uuids = carts | array_map: 'product_uuid' | array_flatten
-        graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: carts.size | dig: 'items','results'
-    %}    
-
-    {% parse_json guest_cart_items %}
-    {
-        "carts": {{ carts | default: '[]' }},
-        "products": {{ products | default: '[]' }}
-    }
-    {% endparse_json %}
-
-    {% export guest_cart_items %}
-{% else %}
-
-    {% comment %} Logged in user {% endcomment %}
-
-    {% if user_uuid and user_cart and carts and products %}
+    {% if cart and cart_items and products %}
         {% comment %} Do nothing {% endcomment %}
     {% else %}
-        {% include 'modules/ecommerce/carts/cart_items' %}
-        {% assign cart_items = context.exports.cart_items %}        
-        {% assign user_cart = cart_items.user_cart %}
-        {% assign carts = cart_items.carts %}
-        {% assign products = cart_items.products %}
+        {% include 'modules/ecommerce/carts/cart_data', cart, cart_items, products %}
+        {% assign cart_data = context.exports.cart_data %}
+        {% assign cart = cart_data.cart %}
+        {% assign cart_items = cart_data.cart_items %}
+        {% assign products = cart_data.products %}
+        {% comment %} Map cart_discounts to discounts format for compatibility {% endcomment %}
+        {% if cart.cart_discounts %}
+            {% assign discounts = cart.cart_discounts %}
+        {% else %}
+            {% assign discounts = '' | split: ',' %}
+        {% endif %}
     {% endif %}
 
-    {% assign discounts = user_cart.discounts %}
-    
-{% endif %}
 
-{% if carts.size > 0 %}
+{% comment %} Pass 1: Accumulate display prices, extract pre-tax bases, shipping {% endcomment %}
+{% if cart_items.size > 0 %}
 
-    {% for item in carts %}
-                    
-        {% include 'modules/ecommerce/carts/cart_details', products, item, user_uuid %}
-        {% assign cart = context.exports.cart %}    
+    {% for item in cart_items %}
+
+        {% include 'modules/ecommerce/carts/cart_item_details', products, item %}
+        {% assign cart = context.exports.cart %}
         {% assign item_total_price = cart.item_total_price %}
         {% assign sub_total_amount = sub_total_amount | plus: item_total_price %}
 
-        {% comment %} Shipping Fee {% endcomment %}
+        {% comment %} Normalize is_on_sale: treat null as false {% endcomment %}
+        {% liquid
+            if cart.selected_prop.is_on_sale == true
+                assign is_on_sale = true
+            else
+                assign is_on_sale = false
+            endif
+        %}
+
+        {% comment %} Shipping {% endcomment %}
         {%  liquid
             assign is_free_shipping = cart.selected_prop.is_free_shipping
             if is_free_shipping == true
@@ -93,93 +67,220 @@ metadata: {
             assign sub_freight_amount = freight_amount | times: item.quantity
             assign sub_total_shipping = sub_total_shipping | plus: sub_freight_amount
         %}
-        
-        {% comment %} Tax {% endcomment %}
-        {% comment %} 
-            when is_tax_included = true, the tax is already included in the price of the product
-        {% endcomment %}
-        {%  liquid                
+
+        {% comment %} Extract pre-tax base per item (Step 1 of discount algorithm) {% endcomment %}
+        {%  liquid
             if cart.selected_prop.is_fixed_tax_amount == true
-                assign tax = cart.selected_prop.tax_amount | times: item.quantity
-            else 
-                if cart.selected_prop.is_tax_included == true
-                    ## tax = (Price x Tax Rate​) / (1 + Tax Rate​)
-                    assign tax_rate = cart.selected_prop.tax_amount | divided_by: 100
-                    assign temp_val = cart.price | times: tax_rate
-                    assign temp_val2 = 1 | plus: tax_rate
-                    assign tax = temp_val | divided_by: temp_val2 | times: item.quantity
-                else 
-                    assign tax = cart.price | times: cart.selected_prop.tax_amount | divided_by: 100 | times: item.quantity
+                assign item_base = item_total_price
+            else
+                assign tax_rate_pct = cart.selected_prop.tax_amount | plus: 0
+
+                assign is_price_tax_included = false
+                if is_on_sale == false and cart.selected_prop.is_tax_included == true
+                    assign is_price_tax_included = true
+                elsif is_on_sale == true
+                    if cart.is_variant == true and cart.selected_prop.is_variant_sale_price_tax_included == true
+                        assign is_price_tax_included = true
+                    elsif cart.is_variant == false and cart.selected_prop.is_sale_price_tax_included == true
+                        assign is_price_tax_included = true
+                    endif
+                endif
+
+                if is_price_tax_included == true
+                    assign tax_divisor = tax_rate_pct | divided_by: 100.00 | plus: 1.00
+                    assign item_base = cart.price | divided_by: tax_divisor | times: item.quantity
+                else
+                    assign item_base = item_total_price
                 endif
             endif
-            
-            assign sub_total_tax = sub_total_tax | plus: tax
 
-            if cart.selected_prop.is_tax_included == true                   
-                ## save the tax that is already included in the price of the product 
-                ## we will use this to subtract in the total amount
-                assign sub_total_tax_included = sub_total_tax_included | plus: tax
-                assign tax_label = 'Includes Tax'
-            elsif sub_total_tax_included > 0
-                assign tax_label = 'Includes Tax'
-            else 
-                assign tax_label = 'Tax'
-            endif
+            assign combined_base = combined_base | plus: item_base
         %}
 
-        {% comment %} Discounts {% endcomment %}
-        {% function sub_total_discount = 'modules/ecommerce/checkout/compute_discount', 
-            discounts: discounts, 
-            item: item, 
-            item_total_price: item_total_price,
-            used_discounts: used_discounts,
-            sub_total_discount: sub_total_discount,
-            is_free_shipping: is_free_shipping,
-            freight_amount: freight_amount,
-            sub_freight_amount : sub_freight_amount
-        %}        
-        {% assign used_discounts = context.exports.used_discounts %}
-                    
+        {% comment %} Shipping discounts (per-item; independent of product base) {% endcomment %}
+        {% for discount in discounts %}
+            {%  liquid
+                assign minimum_cart_value = discount.discount.minimum_cart_value | plus: 0 | default: 0
+            %}
+            {% if sub_total_amount >= minimum_cart_value %}
+                {%  liquid
+                    assign discount_type = discount.discount_type | default: discount.discount.discount_type | downcase
+                    assign discount_value = discount.discount_value | default: discount.discount.discount_value
+
+                    assign shipping_discount = 0
+                    if discount_type contains "shipping"
+                        if discount_type contains "fix" and is_free_shipping == false
+                            assign shipping_discount = discount_value | times: item.quantity
+                        elsif discount_type contains "percent" and is_free_shipping == false
+                            assign shipping_discount = freight_amount | times: discount_value | divided_by: 100 | times: item.quantity
+                        elsif discount_type contains "free_shipping"
+                            assign shipping_discount = freight_amount | times: item.quantity
+                        endif
+                        if shipping_discount > sub_freight_amount
+                            assign shipping_discount = sub_freight_amount
+                        endif
+                        assign sub_total_shipping_discount = sub_total_shipping_discount | plus: shipping_discount
+                    endif
+                %}
+            {% endif %}
+        {% endfor %}
+
     {% endfor %}
 {% endif %}
 
-{% if page_slug == 'shopping-cart' %}
-    {% assign sub_total_shipping = 0 %}
+
+{% comment %}
+    Step 3: Total product discount — additive, both applied against original combined_base.
+    Fixed discounts applied once; percentage against combined_base (not per-item prices).
+{% endcomment %}
+{% assign total_product_discount = 0 %}
+{% assign used_discounts = '' | split: ',' %}
+{% for discount in discounts %}
+    {%  liquid
+        assign minimum_cart_value = discount.discount.minimum_cart_value | plus: 0 | default: 0
+    %}
+    {% if sub_total_amount >= minimum_cart_value %}
+        {%  liquid
+            assign discount_type = discount.discount_type | default: discount.discount.discount_type | downcase
+            assign discount_value = discount.discount_value | default: discount.discount.discount_value
+        %}
+        {% if discount_type == "fixed_amount" %}
+            {%  liquid
+                assign is_discount_used = used_discounts | array_any: discount.discount_code
+                if is_discount_used == false or is_discount_used == blank
+                    assign total_product_discount = total_product_discount | plus: discount_value
+                    assign used_discounts = used_discounts | array_add: discount.discount_code
+                endif
+            %}
+        {% elsif discount_type == "percentage" %}
+            {%  liquid
+                assign temp = combined_base | times: discount_value | divided_by: 100
+                assign total_product_discount = total_product_discount | plus: temp
+            %}
+        {% endif %}
+    {% endif %}
+{% endfor %}
+
+{% comment %} Step 4: Discounted base (floor at 0) {% endcomment %}
+{% assign discounted_base = combined_base | minus: total_product_discount %}
+{% if discounted_base < 0 %}
+    {% assign discounted_base = 0 %}
 {% endif %}
 
-{% assign temp_total = sub_total_amount | plus: sub_total_shipping | minus: sub_total_discount | plus: sub_total_tax | minus: sub_total_tax_included %}
 
-{% comment %} ? ADD VALUE FOR TAX INCLUDED AND NOT INCLUDED {% endcomment %}
-{% assign sub_total_tax_not_included = sub_total_tax | minus: sub_total_tax_included %}
+{% comment %} Pass 2 / Step 5: Recalculate per-item GST proportionally on discounted base {% endcomment %}
+{%  liquid
+    assign total_gst = 0
+    assign sub_total_tax_included = 0
+    assign sub_total_tax_not_included = 0
+%}
+
+{% if cart_items.size > 0 and combined_base > 0 %}
+
+    {% for item in cart_items %}
+
+        {% include 'modules/ecommerce/carts/cart_item_details', products, item %}
+        {% assign cart = context.exports.cart %}
+
+        {% liquid
+            if cart.selected_prop.is_on_sale == true
+                assign is_on_sale = true
+            else
+                assign is_on_sale = false
+            endif
+        %}
+
+        {%  liquid
+            if cart.selected_prop.is_fixed_tax_amount == true
+                assign item_gst = cart.selected_prop.tax_amount | times: item.quantity
+                assign is_price_tax_included = false
+            else
+                assign tax_rate_pct = cart.selected_prop.tax_amount | plus: 0
+
+                assign is_price_tax_included = false
+                if is_on_sale == false and cart.selected_prop.is_tax_included == true
+                    assign is_price_tax_included = true
+                elsif is_on_sale == true
+                    if cart.is_variant == true and cart.selected_prop.is_variant_sale_price_tax_included == true
+                        assign is_price_tax_included = true
+                    elsif cart.is_variant == false and cart.selected_prop.is_sale_price_tax_included == true
+                        assign is_price_tax_included = true
+                    endif
+                endif
+
+                if is_price_tax_included == true
+                    assign tax_divisor = tax_rate_pct | divided_by: 100.00 | plus: 1.00
+                    assign item_base = cart.price | divided_by: tax_divisor | times: item.quantity
+                else
+                    assign item_base = cart.price | times: item.quantity
+                endif
+
+                assign item_discounted_base = item_base | times: discounted_base | divided_by: combined_base
+                assign item_gst = item_discounted_base | times: tax_rate_pct | divided_by: 100 | round: 2
+            endif
+
+            assign total_gst = total_gst | plus: item_gst
+
+            if is_price_tax_included == true
+                assign sub_total_tax_included = sub_total_tax_included | plus: item_gst
+            else
+                assign sub_total_tax_not_included = sub_total_tax_not_included | plus: item_gst
+            endif
+        %}
+
+    {% endfor %}
+
+{% endif %}
+
+
+{% if page_slug == 'shopping-cart' %}
+    {% assign sub_total_shipping = 0 %}
+    {% assign sub_total_shipping_discount = 0 %}
+{% endif %}
+
+{% assign effective_shipping = sub_total_shipping | minus: sub_total_shipping_discount %}
+{% if effective_shipping < 0 %}
+    {% assign effective_shipping = 0 %}
+{% endif %}
+
+{% assign total_discount = total_product_discount | plus: sub_total_shipping_discount %}
+
+{% comment %} Step 6: Subtotal {% endcomment %}
+{% assign subtotal = discounted_base | plus: total_gst | plus: effective_shipping %}
+
+{% comment %} Step 7: Processing fee {% endcomment %}
+{% assign processing_fee = subtotal | times: 0.017 | round: 2 %}
+
+{% comment %} Step 8: Grand total (Stripe minimum $1.00) {% endcomment %}
+{% assign total_amount = subtotal | plus: processing_fee %}
+{% assign is_minimum_charge = false %}
+{% if total_amount < 1.00 and total_amount >= 0 %}
+    {% assign total_amount = 1.00 %}
+    {% assign is_minimum_charge = true %}
+{% endif %}
+
+
+{% comment %} Tax display flag {% endcomment %}
 {% if sub_total_tax_not_included != 0 and sub_total_tax_included != 0 %}
     {% assign tax_applied = "both" %}
 {% else %}
-    {% assign tax_applied = "single" %}        
+    {% assign tax_applied = "single" %}
 {% endif %}
 
-{% assign processing_fee = temp_total | times: 0.017 %}
-{% assign total_amount = temp_total | plus: processing_fee %}
 
-{% comment %} tax_included_in_price represents the sum of taxes that are already included in the product price {% endcomment %}
 {% parse_json computed %}
 {
     "sub_total_amount": {{ sub_total_amount | default: 0 }},
     "shipping_amount": {{ sub_total_shipping | default: 0 }},
-    "total_discount_amount": {{ sub_total_discount | default: 0 }},
+    "total_discount_amount": {{ total_discount | default: 0 }},
     "processing_fee": {{ processing_fee | default: 0 }},
-    "tax_label": "{{ tax_label }}",
-    "tax_amount": {{ sub_total_tax | default: 0 }},
-    "tax_included_in_price": {{ sub_total_tax_included | default: 0 }},
+    "tax_amount": {{ total_gst | default: 0 }},
     "total_amount": {{ total_amount | default: 0 }},
     "sub_total_tax_not_included": {{ sub_total_tax_not_included | times: 1 | default: 0 }},
     "sub_total_tax_included": {{ sub_total_tax_included | times: 1 | default: 0 }},
-    "tax_applied": "{{ tax_applied }}"
+    "tax_applied": "{{ tax_applied }}",
+    "is_minimum_charge": {{ is_minimum_charge | default: false }}
 }
 {% endparse_json %}
 
-{% comment %} ? add to session for confirmation {% endcomment %}
- {% session sub_total_tax_not_included = sub_total_tax_not_included | times: 1 | default: 0 %}
- {% session sub_total_tax_included = sub_total_tax_included | times: 1 | default: 0 %}
- {% session tax_applied = tax_applied %}
- 
 {% export computed %}

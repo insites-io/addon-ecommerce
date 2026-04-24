@@ -1,0 +1,53 @@
+---
+slug: api/ecommerce/stripe/delete-credit-card #Add 'ecommerce' to the URL since the portal template has api/stripe/delete-credit-card
+format: json
+method: post
+searchable: false
+metadata: {
+    "status": "published",
+    "api_endpoint_name": "Ecommerce delete credit card"
+}
+---
+
+{%- assign payload = context.params.payload | parse_json -%}
+{%- assign card_id = payload.id -%}
+{%- assign status = 200 -%}
+{%- assign result = '{}' | parse_json -%}
+
+{%- comment -%} Get user uuid {%- endcomment -%}
+{%- liquid
+     if payload.is_guest == true
+          assign user_uuid = context.session.guest_uuid
+     elsif context.current_user
+          assign user_uuid = context.current_user.external_id
+     else
+          assign user_uuid = context.session.guest_uuid
+     endif
+%}
+
+{%- comment -%} Check if the cc being deleted belongs to the user {%- endcomment -%}
+{%- liquid 
+     if user_uuid and user_uuid != ''
+          graphql card_matched = "modules/ecommerce/payment_method/get_payment_method", id: card_id, contact_uuid: user_uuid | dig: 'items','results'
+     endif
+%}
+
+{%- comment -%} Delete credit card {%- endcomment -%}
+{%- if card_matched.size > 0 -%}
+     {%- graphql response = 'modules/portal/credit_cards/delete_credit_card',
+     id: card_id -%}
+          
+     {%- if response == blank -%}
+          {%- assign status = 400 -%}
+          {%- assign result = result | add_hash_key: "message", response -%}
+     {%- else -%}
+          {%- assign result = result | add_hash_key: "message", "Card delete Successfully." -%}
+     {%- endif -%}
+     
+{%- else -%}
+     {%- assign result = result | add_hash_key: "message", "You are not authorized to delete this card." -%}
+{%- endif -%}
+
+
+{{ result }}
+{%- response_status status -%}

@@ -7,65 +7,60 @@ metadata: {
 {%- assign currentStep = 1 -%}
 
 {% case context.page.slug %}
-{% when 'checkout' %}
-{%- assign currentStep = 1 -%}
-{% when 'checkout/shipping' %}
-{%- assign currentStep = 2 -%}
-{% when 'checkout/billing' %}
-{%- assign currentStep = 3 -%}
-{% when 'checkout/payment' %}
-{%- assign currentStep = 4 -%}
-{% when 'confirmation' %}
-{%- assign currentStep = 5 -%}
-{% else %}
-
+    {% when 'checkout' %}
+        {%- assign currentStep = 1 -%}
+    {% when 'checkout/shipping' %}
+        {%- assign currentStep = 2 -%}
+    {% when 'checkout/billing' %}
+        {%- assign currentStep = 3 -%}
+    {% when 'checkout/payment' %}
+        {%- assign currentStep = 4 -%}
+    {% when 'confirmation' %}
+        {%- assign currentStep = 5 -%}
+    {% else %}
 {% endcase %}
 
-{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
-
 <ins-steps
-    {% if clickable %} clickable  with-validation {% endif %}
+    inline
+    clickable  with-validation
     {% if context.location.pathname == '/confirmation' %} complete {% endif %}
     id="checkout-nav">
-
-    {% if has_profile %}
-    <ins-step data-step="1" 
-        {% if currentStep == 1 %}active{% endif %}
-        {% if latestStep < 1 %}disabled {% endif %}
+    
+    <ins-step
+        {% if currentStep == 1 %}active disabled{% endif %}
         {% if latestStep > 1 and currentStep > 1 %}complete{% endif %}
-        content="account-details" 
-        link="/checkout" 
-        description="Account Details" 
+        {% if context.current_user %}
+            data-page="/checkout"
+        {% else %}
+            data-page="/checkout?guest=true"
+        {% endif %}
+        description="Contact" 
         class="checkout-step">
     </ins-step>
-    {% endif %}
 
-    <ins-step data-step="2" 
+    <ins-step
         {% if currentStep == 2 %}active{% endif %}
-        {% if latestStep < 2 %}disabled {% endif %}
+        {% if currentStep == 2 or latestStep < 2 %}disabled {% endif %}
         {% if latestStep > 2 and currentStep > 2 %}complete{% endif %}
-        content="shipping-details" 
-        link="/checkout/shipping" 
+        data-page="/checkout/shipping"
         description="Shipping" 
         class="checkout-step">
     </ins-step>
 
-    <ins-step data-step="3" 
+    <ins-step
         {% if currentStep == 3 %}active{% endif %}
-        {% if latestStep < 3 %}disabled {% endif %}
-        {% if latestStep > 3 and currentStep > 3 %}complete{% endif %}
-        content="billing-details" 
-        link="/checkout/billing" 
+        {% if currentStep == 3 or latestStep < 3 %}disabled {% endif %}
+        {% if latestStep > 3 and currentStep > 3 %}complete{% endif %} 
+        data-page="/checkout/billing"
         description="Billing" 
         class="checkout-step">
     </ins-step>
 
-    <ins-step data-step="4" 
+    <ins-step
         {% if currentStep == 4 %}active{% endif %}
-        {% if latestStep < 4 %}disabled {% endif %}
+        {% if currentStep == 4 or latestStep < 4 %}disabled {% endif %}
         {% if latestStep > 4 and currentStep > 4 %}complete{% endif %}
-        content="payment-details" 
-        link="/checkout/payment" 
+        data-page="/checkout/payment"
         description="Payment" 
         class="checkout-step">
     </ins-step>

@@ -5,66 +5,21 @@ metadata: {
 ---
 <section class="bg-color-ui-01">
     <div class="spacer xxxx-large"></div>
-    <div class="product-carousel">
+    {% if heading_level == 'h2' %}
+        <h2 class="heading-5">You may also like</h2>
+    {% else %}
+        <h5>You may also like</h5>
+    {% endif %}  
+    <div class="spacer x-large"></div>
 
-        {% graphql products = "modules/ecommerce/products/get_products", not_uuid: not_uuid | dig: 'items','results' %}        
+    {% graphql products = "modules/ecommerce/products/get_products", not_uuid: not_uuid, size: 4 | dig: 'items','results' %}    
 
-        <!-- desktop carousel -->
-        <ins-carousel 
-            class="show-for-large"
-            layout="1"
-            per-page="4"
-            no-pagination=true
-            no-carousel-button=true
-            bind-to="newArrivalCardsDesktop">
-
-            <h3>You may also like</h3>     
-            <div class="spacer xx-large"></div>
-            <div id="newArrivalCardsDesktop" class="product-cards">
-                {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product %}
-                {% endfor %}
-            </div>
-        </ins-carousel>
-        <!-- desktop carousel -->
-
-        <!-- tablet carousel -->
-        <ins-carousel 
-            class="show-for-medium-only"
-            layout="1"
-            per-page="3"
-            no-pagination=true
-            no-carousel-button=true
-            bind-to="newArrivalCardsTablet">
-
-            <h3>You may also like</h3>
-            <div class="spacer xx-large"></div>
-            <div id="newArrivalCardsTablet" class="product-cards">
-                {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product %}
-                {% endfor %}
-            </div>
-        </ins-carousel>
-        <!-- tablet carousel -->
-
-        <!-- mobile carousel -->
-        <ins-carousel 
-            class="show-for-small-only"
-            layout="1"
-            per-page="1"
-            no-pagination=true
-            no-carousel-button=true
-            bind-to="newArrivalCardsMobile">
-
-            <h3>You may also like</h3>  
-            <div class="spacer xx-large"></div>
-            <div id="newArrivalCardsMobile" class="product-cards">
-                {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product %}
-                {% endfor %}
-            </div>
-        </ins-carousel>
-        <!-- mobile carousel -->
+    <div id="product-grid" class="product-cards products-grid grid-x grid-padding-x grid-padding-y large-up-4 medium-up-3 small-up-1">
+    
+        {% for product in products %}
+            {% include "modules/ecommerce/products/product_card", product: product %}
+        {% endfor %}
 
     </div>
+    
 </section>

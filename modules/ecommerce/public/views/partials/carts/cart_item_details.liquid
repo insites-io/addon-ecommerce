@@ -1,0 +1,61 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Carts | Cart Item Details'
+}
+---
+{% liquid 
+    assign product = products | array_detect: uuid: item.product_uuid 
+    assign product_name = product.product_name
+    
+    ## Check if the item is a product or a variant of the product
+    assign selected_prop = ''
+    if product.is_product_variant_enabled
+        ## item is a variant                
+        for variant in product.variants
+            if item.product_variant_uuid == variant.uuid
+                assign selected_prop = variant
+                assign is_variant = true
+            endif
+        endfor
+
+        ## Image: Use the variant; if none exists, use the main product image.
+        assign imgsrc = selected_prop.product_image.url
+        if imgsrc == '' or imgsrc == blank 
+            assign imgsrc = product.product_image.url
+        endif
+    else        
+        ## item is NOT a variant
+        assign selected_prop = product
+        assign is_variant = false
+        assign imgsrc = product.product_image.url
+    endif           
+%}       
+
+{% comment %} Prices {% endcomment %}
+{%  liquid
+    if selected_prop.is_on_sale == true 
+        assign price = selected_prop.sale_price
+        assign price_strikethrough = selected_prop.regular_price
+    else 
+        assign price = selected_prop.regular_price
+        assign price_strikethrough = ''
+    endif          
+    
+    assign item_total_price = price | times: item.quantity
+%}      
+
+{% parse_json cart %}
+{
+    "slug": "{{ product.slug }}",
+    "product_name": "{{ product_name }}",
+    "product_sku": "{{ selected_prop.product_sku }}",
+    "is_variant": {{ is_variant | default: false }},
+    "selected_prop": {{ selected_prop | default: '[]' }},
+    "price": {{ price | default: 0 }},
+    "price_strikethrough": "{{ price_strikethrough }}",
+    "item_total_price": {{ item_total_price | default: 0 }},
+    "imgsrc": "{{ imgsrc }}"
+}
+{% endparse_json %}
+
+{% export cart %}

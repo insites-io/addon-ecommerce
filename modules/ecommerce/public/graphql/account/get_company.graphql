@@ -1,0 +1,27 @@
+query get_company(
+    $page: Int = 1,
+    $size: Int = 1,
+  	$uuid: String
+) {
+    items: records(
+      page: $page
+      per_page: $size
+      filter: {
+        deleted_at: { exists: false }
+        table: { value: "modules/insites_core/crm_company" }
+        properties: [
+          	{ name: "uuid", value: $uuid }
+        ]
+      }
+    ) {
+        results {
+          id
+          created_at
+          uuid:property(name:"uuid")
+          company_name:property(name:"company_name")
+          email_1:property(name:"email_1")
+          mobile_phone_country_code:property(name:"mobile_phone_country_code")
+          mobile_phone_number:property(name:"mobile_phone_number")
+        }
+    }
+}

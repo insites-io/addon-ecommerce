@@ -1,0 +1,121 @@
+---
+metadata: {
+    layout_name: Checkout
+}
+---
+
+{%- comment -%}
+By adding the global content to the top of the layout
+It can be accessed in the includes without calling the GraphQL again
+It IS NOT accessable in {{content_for_layout}} which includes the specific page
+{%- endcomment -%}
+{%- include "modules/insites_cms/globals" -%}
+{%- assign global = context.exports.global -%}
+
+<!doctype html>
+<html class="no-js" lang="en">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, viewport-fit=cover">
+    <meta content="authenticity_token" name="csrf-param">
+    <meta content="{{ context.authenticity_token }}" name="csrf-token">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {%- comment -%}
+    <!--
+    Try to limit assets that are part of the head / technical head to minimize page size & improve page performance.
+    Assets like 'Google Map API', should only be referenced as needed.
+    -->
+    {%- endcomment -%}  
+
+
+    {%- include 'modules/insites_cms/seo' -%}
+     
+
+    <!-- [Project Assets] -->
+    {% include 'modules/website/layout/technical_head' %}
+    
+    <!--[Pixel Tracking]-->
+    {% include 'modules/website/layout/pixel_tracking' %}
+    
+    {% comment %} Google Maps {% endcomment %}
+    {% if context.params.slug2 == 'shipping' or context.params.slug2 == 'billing' %}
+        {% include 'modules/website/layout/googlemaps' %}
+    {% endif %}
+</head>
+<body>
+    <div class="main-wrap checkout">
+        {% include 'modules/website/layout/header' %}
+
+        
+        {% comment %} Checkout Stepper {% endcomment %}
+        {% assign pages_with_stepper = 'checkout,checkout/shipping,checkout/billing,checkout/payment' | split: ',' %} 
+        {% assign is_pages_with_stepper = pages_with_stepper | array_any: context.page.slug %}      
+        {% function has_profile = "modules/website/layout/check_if_user_has_profile" %}  
+        {% if context.page.slug == 'checkout' and has_profile == false and context.params.guest != 'true' %} 
+            <div class="spacer xxxx-large"></div>
+        {% elsif is_pages_with_stepper %} 
+            {% include 'modules/ecommerce/checkout/checkout_redirect_step' %}
+            <div class="stepper-wrapper">
+                {% include 'modules/ecommerce/layout/checkout_steps' %}
+            </div>
+        {% else %}
+            <div class="spacer xxxx-large"></div>
+        {% endif %}
+
+        {% comment %} Page Content {% endcomment %}
+        <div class="wrapper">
+            <div class="grid-container">
+                    {{ content_for_layout }}
+                <div class="spacer xxxx-large"></div>
+            </div>
+        </div>
+    </div>
+    
+    {% comment %} On the checkout/payment page, the carts/cart_drawer is included within the page itself. {% endcomment %}
+    {% if context.params.slug2 != 'payment' %}
+        {% include 'modules/ecommerce/carts/cart_drawer' %}
+    {% endif %}
+
+    {% include 'modules/website/layout/header_mobile' %}
+
+    {% include 'modules/website/layout/footer' %}
+
+    {% comment %}
+    {% include 'modules/website/layout/foot' %}
+     {% endcomment %}
+
+    {%- if context.environment == "staging" -%}
+        <script src="{{ 'modules/ecommerce/scripts/checkout/address-lookup.js' | asset_url }}" defer></script>
+        <script src="{{ 'modules/ecommerce/scripts/checkout/checkout.js' | asset_url }}" defer></script>
+    {%- else -%}
+        <script src="{{ 'modules/ecommerce/scripts/checkout/address-lookup.min.js' | asset_url }}" defer></script>
+        <script src="{{ 'modules/ecommerce/scripts/checkout/checkout.min.js' | asset_url }}" defer></script>
+    {%- endif -%}
+
+    {% comment %} Services {% endcomment %}
+    {%- if context.environment == "staging" -%}
+        <script src="{{ 'modules/portal/services/stripeServices.js' | asset_url }}"></script>
+        <script src="{{ 'modules/ecommerce/scripts/shopping-cart.js' | asset_url }}"></script>
+    {%- else -%}
+        <script src="{{ 'modules/portal/services/stripeServices.min.js' | asset_url }}"></script>
+        <script src="{{ 'modules/ecommerce/scripts/shopping-cart.min.js' | asset_url }}"></script>
+    {%- endif -%}
+
+    {% comment %} Override StripeServices.js -> StripeServices.deleteCreditCard {% endcomment %}
+    <script>
+        if (StripeServices && typeof StripeServices.deleteCreditCard === 'function') {
+            StripeServices.deleteCreditCard = async function (payload) {
+                let url = `/ecommerce/stripe/delete-credit-card.json`;
+                const isGuestEl = document.getElementById('is_guest');
+                if (isGuestEl && isGuestEl.value === 'true') {
+                    payload.payload.is_guest = true;
+                }
+                return await apiServices.processRequest('post', url, payload);
+            };
+        }
+    </script>
+    
+</body>
+
+</html>

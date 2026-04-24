@@ -1,0 +1,31 @@
+mutation add_cart_discount(
+  $cart_uuid: String!
+  $discount_uuid: String!
+  $discount_name: String
+  $discount_code: String
+  $discount_type: String
+  $discount_value: Float
+) {
+  items: record_create(
+    record: {
+      table: "modules/insites_ecommerce/cart_discount"
+      properties: [
+        { name: "cart_uuid", value: $cart_uuid }
+        { name: "discount_uuid", value: $discount_uuid }
+        { name: "discount_name", value: $discount_name }
+        { name: "discount_code", value: $discount_code }
+        { name: "discount_type", value: $discount_type }
+        { name: "discount_value", value_float: $discount_value }
+      ]
+    }
+  ) {
+    id
+    uuid: property(name: "uuid")
+    cart_uuid: property(name: "cart_uuid")
+    discount_uuid: property(name: "discount_uuid")
+    discount_name: property(name: "discount_name")
+    discount_code: property(name: "discount_code")
+    discount_type: property(name: "discount_type")
+    discount_value: property_float(name: "discount_value")
+  }
+}

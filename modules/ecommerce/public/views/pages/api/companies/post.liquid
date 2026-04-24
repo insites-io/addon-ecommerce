@@ -1,0 +1,27 @@
+---
+slug: api/create-company
+format: json
+method: post
+searchable: false
+metadata: {
+    "status": "published",
+    "api_endpoint_name": "Create company"
+}
+---
+
+{%- assign payload = context.params | parse_json -%}
+{%- assign status = 400 -%}
+
+{% comment %} Use Insites V2 API Controller {% endcomment %}
+{% function add_company = "crm/controller/companies/create", params: payload %}
+{% session company_uuid = add_company.uuid %} 
+
+{% comment %} Set Status {% endcomment %}
+{%- liquid
+     if add_company.id 
+          assign status = 200
+     endif
+-%}
+
+{{ add_company }}
+{%- response_status status -%}

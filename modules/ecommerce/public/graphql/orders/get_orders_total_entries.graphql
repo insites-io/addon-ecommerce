@@ -1,0 +1,37 @@
+query get_orders_total_entries (
+  $page: Int = 1,
+  $size: Int = 100,
+  $order_company_uuid: String,
+  $order_contact_uuid: String,
+  $keyword: ID,
+  $dateFrom: String,
+  $dateTo: String
+  $orderStatus: [String!]
+  $sort:[RecordsSortInput!] = {
+    properties:[
+      { name: "date_time", order: DESC }
+    ]
+  }
+) {
+  items: records (
+    per_page: $size,
+    page: $page,
+    filter: {
+      table: {
+        value: "modules/insites_ecommerce/order"
+      },
+      id: { value: $keyword }
+      properties: [
+        { name: "order_company_uuid", value: $order_company_uuid }
+        { name: "order_contact_uuid", value: $order_contact_uuid }
+        { name: "date_time", range: {gte: $dateFrom, lte: $dateTo} }
+        { name: "order_status", value_in: $orderStatus }
+      ]
+    },
+    sort: $sort
+  ) {            
+    total_entries
+    current_page
+    total_pages
+  }
+}

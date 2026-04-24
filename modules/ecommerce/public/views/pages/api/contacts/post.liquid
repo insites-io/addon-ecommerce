@@ -1,0 +1,51 @@
+---
+slug: api/create-contact
+format: json
+method: post
+searchable: false
+metadata: {
+    "status": "published",
+    "api_endpoint_name": "Create contact"
+}
+---
+
+{%- assign payload = context.params | parse_json -%}
+{%- assign status = 400 -%}
+
+{% comment %} Use Insites V2 API Controller {% endcomment %}
+{% function add_contact = "crm/controller/contacts/create", params: payload  %}
+
+{% comment %} Set Status {% endcomment %}
+{%- liquid
+     if add_contact.id 
+          assign status = 200
+     endif
+-%}
+     
+{% comment %} Add Item in Event Stream {% endcomment %}
+{%- parse_json event_payload-%}
+{
+     "font_icon": "icon-users",
+     "font_icon_color": "#FA38A1",
+     "module_source": "insites_core",
+     "module_feature": "crm_contact",
+     "request_type": "internal",     
+     "administrator_uuid": "{{ add_contact.uuid }}",
+     "details": "CRM Contact for {{add_contact.first_name}} {{add_contact.last_name}} has been created.",
+     "description": "User <a target='_blank' href='/admin/insites/#/crm/contacts/{{add_contact.id}}'>{{add_contact.first_name}} {{add_contact.last_name}}</a> was created."
+}
+{%- endparse_json -%}
+{%- parse_json log_data-%}
+{
+     "action": "add_contact",
+     "entity": "crm_contact",
+     "contact_uuid": "{{add_contact.uuid}}"
+}
+{%- endparse_json -%}
+{%- assign log_data = log_data | add_hash_key: "data", add_contact -%}
+{%- assign event_payload = event_payload | add_hash_key: "log", log_data -%}
+{% function add_events = "crm/controller/event-streams/create", params: event_payload %}
+
+
+{{ add_contact | json }}
+{%- response_status status -%}

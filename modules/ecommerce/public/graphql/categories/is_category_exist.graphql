@@ -15,7 +15,6 @@ query is_category_exist (
       ] 
     }
   ) {
-    total_entries
     results {
       id 
       slug: property(name: "slug")

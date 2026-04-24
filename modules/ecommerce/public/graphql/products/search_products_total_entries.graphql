@@ -1,0 +1,44 @@
+query search_products_total_entries(
+  $page: Int = 1,
+  $size: Int = 10,
+  $keyword : String,
+  $keywords : [String!],
+  $category_uuids: [String!],
+  $brand: String,
+  $is_on_sale: Boolean,
+  $not_number: String,
+){
+  items: records(
+    page: $page
+    per_page: $size
+    filter:{
+      table:{ value:"modules/insites_ecommerce/product" }
+      properties:[
+      	{ name: "status", value: "enabled"}
+        { name: "category_uuids", value_in: $category_uuids }
+        { name: "is_on_sale", value_boolean: $is_on_sale }
+        { name: "stock_level", range: { gt: $not_number } }
+        { name: "brand_name", contains: $brand }
+      ]
+      or:[
+        {
+          properties: { name: "product_name", contains: $keyword}           
+        },
+        {
+          properties: { name: "long_description", contains: $keyword}           
+        },
+        {
+          properties: { name: "short_description", contains: $keyword}           
+        }
+        {
+          properties: { name: "keywords", array_contains: $keywords}           
+        }
+      ]
+
+    }
+  ){
+     total_entries
+     current_page
+     per_page
+  }
+}

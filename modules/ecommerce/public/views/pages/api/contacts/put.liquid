@@ -1,0 +1,27 @@
+---
+slug: api/update-contact
+format: json
+method: put
+searchable: false
+metadata: {
+    "status": "published",
+    "api_endpoint_name": "Update contact"
+}
+---
+
+{%- assign payload = context.params | parse_json -%}
+{%- assign user_uuid = payload.uuid -%}
+{%- assign status = 400 -%}
+
+{% comment %} Use Insites V2 API Controller{% endcomment %}
+{% function update_contact = "crm/controller/contacts/update", uuid: user_uuid, params: payload %}
+
+{% comment %} Set Status {% endcomment %}
+{%- liquid
+     if update_contact.id 
+          assign status = 200
+     endif
+-%}
+
+{{ update_contact }}
+{%- response_status status -%}

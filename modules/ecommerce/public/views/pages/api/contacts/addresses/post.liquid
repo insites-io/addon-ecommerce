@@ -1,0 +1,26 @@
+---
+slug: api/create-contact-address
+format: json
+method: post
+searchable: false
+metadata: {
+    "status": "published",
+    "api_endpoint_name": "Create contact address"
+}
+---
+
+{%- assign payload = context.params | parse_json -%}
+{%- assign status = 400 -%}
+
+{% comment %} Use Insites V2 API {% endcomment %}
+{%- function  add_contact_address = "crm/controller/addresses/create", type: "contact", params: payload -%}       
+
+{% comment %} Set Status {% endcomment %}
+{%- liquid
+     if add_contact_address.id 
+          assign status = 200
+     endif
+-%}
+
+{{ add_contact_address  }}
+{%- response_status status -%}

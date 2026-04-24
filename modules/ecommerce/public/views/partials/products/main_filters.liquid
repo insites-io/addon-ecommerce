@@ -8,10 +8,10 @@ metadata: {
         <div class="filter">                                        
             <ins-input
                 id="filter-keyword"
-                class="filter-keyword" 
+                class="filter-keyword"
                 icon-event
                 placeholder="Search"
-                value=""
+                value="{{ params.keyword | default: '' }}"
                 field="search"
                 icon="icon-search1"
                 size="large">
@@ -19,22 +19,24 @@ metadata: {
             <div class="spacer"></div>
 
             <div class="grid-x">
-                <div class="large-auto small-12 cell grid-x flex-container align-justify">
-                    <div class="align-middle grid-x large-10 medium-9 small-12">
-                        <span class="body-small bold font-color-head">Filter By:</span>
+                <div class="main-filters large-auto small-12 cell grid-x flex-container align-justify">
+                    <div class="main-filter-by align-middle grid-x large-10 medium-12 small-12">
+                        <span class="form-label">Filter by:</span>
 
-                        {% graphql product_brands = 'modules/ecommerce/products/get_product_brands' 
+                        {% graphql product_brands = 'modules/ecommerce/products/get_product_brand_uuid', args: filters 
                             | dig: 'items','results' | map: 'brand' | array_uniq %}
                         
                         <ins-button-select 
                             id="brandSelect"
                             label="Brand"
-                            placeholder="{{ params.brand | default: 'Select brand' }}" 
+                            placeholder="{{ params.brand | default: 'All' }}" 
                             small>
+                                <ins-button-select-option label="All" value="" {% if params.brand == blank %}activated{% endif %}></ins-button-select-option>
                             {% for product_brand in product_brands %}
                                 <ins-button-select-option label="{{product_brand}}" value="{{product_brand}}" {% if params.brand == product_brand %}activated{% endif %}></ins-button-select-option>
                             {% endfor %}
                         </ins-button-select >
+                        <div class="show-for-small-only spacer x-small cell"></div>
 
                         <ins-button-select 
                             id="showSelect"
@@ -66,11 +68,11 @@ metadata: {
                             <ins-button-select-option label="Price: Low-High" value="price-ascending" {% if params.sort == "price-ascending" %}activated{% endif %}></ins-button-select-option>
                         </ins-button-select>
                     </div>
-                    <div class="align-middle align-right grid-x hide-for-small-only">
-                        <div><p class="body-small bold font-color-head">View:</p></div>
+                    <div class="main-filter-views align-middle align-right grid-x hide-for-small-only">
+                        <div><p class="form-label pr-8 text">View:</p></div>
                         <ins-button id="view-grid-btn" icon="icon-grid" color="white" size="normal" label="" class="view-button active"></ins-button>
                         <ins-button id="view-list-btn" icon="icon-list" color="white" size="normal" label="" class="view-button"></ins-button>
                     </div>
                 </div>
             </div>
-        </div>
+        </div>        

@@ -1,6 +1,9 @@
 ---
 slug: purchase-again
-layout: modules/portal/default
+## Note: This page is no longer available in v1.1.0. We now redirect to the /overview page instead.  
+## We are keeping this page for now for backward compatibility and future reference.
+redirect_to: /overview
+layout: modules/portal/portal_default
 searchable: false
 max_deep_level: 2
 metadata: {
@@ -183,23 +186,16 @@ authorization_policies:
             endif
 
             assign total_items = total_items | plus: 1 
-
-
-            ## to fix issues in comparing '' versus null
-            if product.sku == null 
-                assign product = product | add_hash_key: 'sku', ''
-            endif
-            if item.sku == null 
-                assign item = item | add_hash_key: 'sku', ''
-            endif
             
 
-            if item.sku == product.sku
+            if item.product_variant_uuid == '' or item.product_variant_uuid == null
                 assign selected_prop = product
+                assign product_variant_uuid = null
             else 
                 for variant in product.variants
-                if item.sku == variant.sku
+                if item.product_variant_uuid == variant.uuid
                     assign selected_prop = variant
+                    assign product_variant_uuid = variant.uuid
                     assign is_variant = true
                 endif
                 endfor
@@ -231,7 +227,7 @@ authorization_policies:
             <div class="details flex-grow-1">
                 <h6>{{ product.product_name }}</h6>
                 <div class="spacer x-small"></div>                
-                <p>{{ category_name | default: 'Category' }}</p>
+                <p>{{ category_name }}</p>
                 <div class="spacer"></div>
                 <p class="product-current-price">{{ price | pricify }}
                     {% if selected_prop.is_on_sale == true %}
@@ -247,14 +243,15 @@ authorization_policies:
                     "id": "{{ selected_prop.id }}",
                     "product_uuid": "{{ product.uuid }}",
                     "product_sku": "{{ selected_prop.sku }}",
+                    "product_variant_uuid": "{{ product_variant_uuid }}",
                     "product_name": "{{ product.product_name | replace: "'", "`" }}",
                     "price": "{{ price | default: 0 }}"
                 }
                 {% endparse_json %}
-                <ins-button class="full add-to-cart-btn" label="Add to Cart" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
+                <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
                 <div class="spacer x-small"></div>
                 <a href="/products/{{ product.slug }}">
-                    <ins-button class="full" label="View Details" outlined icon="icon-eye"></ins-button>
+                    <ins-button class="full" label="View details" outlined icon="icon-eye"></ins-button>
                 </a>
             </div>
         
@@ -286,10 +283,11 @@ authorization_policies:
 {
     "total_entries": {{ unique_ordered_items.size | default: 0 }},
     "current_page": {{ page_num }},
-    "total_pages": {{ total_pages }}
+    "total_pages": {{ total_pages }},
+    "per_page": {{ per_page }}
 }
 {% endparse_json %}
-{% include "modules/ecommerce/layout/pagination", data: data, per_page: per_page, label: 'Items' %}
+{% include "modules/ecommerce/layout/pagination", data: data, label: 'Items' %}
 
 
 <script>

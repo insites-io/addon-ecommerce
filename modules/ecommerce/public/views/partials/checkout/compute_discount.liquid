@@ -4,15 +4,21 @@ metadata: {
 }
 ---
 
+{% comment %} 
+ - This only computes all discount codes added in modules/insites_ecommerce/cart_discount.
+ - No further validation is performed here to check whether the cart_discounts are still valid.
+ - Use plus filter to convert null or String into number
+{% endcomment %}
+
 {% for discount in discounts %}
-                
-    {% assign in_product_ids =  discount.product_uuids | array_any: item.product_uuid %}
-    {% if discount.is_applicable_to_all_products or in_product_ids %}
+         {% comment %} Get minimum_cart_value from related discount record (nested in discount table) {% endcomment %}
+         {% assign minimum_cart_value = discount.discount.minimum_cart_value | plus: 0| default: 0 %}         
 
-         {% if item_total_price >= discount.minimum_cart_value or discount.minimum_cart_value == blank %}
+         {% if sub_total_amount >= minimum_cart_value %}
 
-             {% assign discount_type = discount.discount_type | downcase %}
-             {% assign discount_value = discount.discount_value %}                        
+             {% comment %} Get discount_type and discount_value from cart_discount (denormalized) or nested discount {% endcomment %}
+             {% assign discount_type = discount.discount_type | default: discount.discount.discount_type | downcase %}
+             {% assign discount_value = discount.discount_value | default: discount.discount.discount_value %}                        
 
              {% if discount_type == "fixed_amount" %}
 
@@ -33,7 +39,7 @@ metadata: {
              {%- elsif discount_type contains "shipping" -%}
 
                  {%- liquid                
-                     assign shipping_discount = 0                       
+                     assign shipping_discount = 0       
 
                      if discount_type contains "fix" and is_free_shipping == false
                          assign shipping_discount = discount_value | times: item.quantity
@@ -52,7 +58,6 @@ metadata: {
 
             {% endif %}             
          {% endif %}
-     {% endif %}        
- {% endfor %}
+{% endfor %}
 
- {% return sub_total_discount %}
+{% return sub_total_discount %}

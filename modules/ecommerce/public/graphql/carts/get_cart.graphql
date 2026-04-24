@@ -1,0 +1,77 @@
+query get_cart (
+  $page: Int=1,
+  $size: Int=1,
+  $contact_uuid: String!,
+  $show_discount_details: Boolean
+) {
+  items: records(
+    page: $page
+    per_page: $size
+    filter: {
+      deleted_at: { exists: false }
+      table: { value: "modules/insites_ecommerce/cart" }
+      properties: [
+        { name: "contact_uuid", value: $contact_uuid }
+      ] 
+    }
+  ) {
+    results {
+      id
+      uuid: property(name: "uuid")
+      contact_uuid: property(name: "contact_uuid")
+      cart_items: related_records(
+        table: "modules/insites_ecommerce/cart_item"
+        join_on_property: "uuid"
+        foreign_property: "cart_uuid"
+        sort: {
+          created_at: {order: DESC}
+        }
+      ){
+        id
+        uuid: property(name: "uuid")
+        cart_uuid: property(name: "cart_uuid")
+        product_uuid: property(name: "product_uuid")
+        product_variant_uuid: property(name: "product_variant_uuid")
+        quantity: property_int(name: "quantity")
+        sub_total: property_float(name: "sub_total")
+        item_tax: property_float(name: "item_tax")
+        line_item_total: property_float(name: "line_item_total")
+        product_name: property(name: "product_name")
+        product_sku: property(name: "product_sku")
+        product_price: property_float(name: "product_price")
+        product_price_includes_tax: property_boolean(name: "product_price_includes_tax")
+        tax_type: property(name: "tax_type")
+        tax_amount: property_float(name: "tax_amount")
+        #properties
+      }
+    },
+    results @include(if: $show_discount_details){
+      cart_discounts: related_records(
+        table: "modules/insites_ecommerce/cart_discount"
+        join_on_property: "uuid"
+        foreign_property: "cart_uuid"
+      ){
+        id
+        cart_uuid: property(name: "cart_uuid")
+        discount_uuid: property(name: "discount_uuid")
+        discount_code: property(name: "discount_code")
+        discount_name: property(name: "discount_name")
+        discount_type: property(name: "discount_type")
+        discount_value: property_float(name: "discount_value")
+        discount: related_record(
+          table: "modules/insites_ecommerce/discount"
+          foreign_property: "uuid"
+          join_on_property: "discount_uuid"
+        ){
+          id
+          uuid: property(name: "uuid")
+          product_uuids: property_array(name: "product_uuids")
+          category_uuids: property_array(name: "category_uuids")
+          is_applicable_to_all_products: property_boolean(name: "is_applicable_to_all_products")
+          is_applicable_to_all_categories: property_boolean(name: "is_applicable_to_all_categories")
+          minimum_cart_value: property_float(name: "minimum_cart_value")
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,94 @@
+---
+metadata:
+    partial_name: 'location_modal'
+---
+
+<ins-modal id="address-form-modal" with-backdrop no-button >
+    <div class="inviteUserModalBodyContainer">
+        <h5 class="heading-3">Add new address</h5>
+        <div class="spacer"></div> 
+
+        <div class="address-fields" >
+
+            <ins-input address-lookup 
+                label="Search Addresss" name="modal" id="modal_search"              
+                placeholder="Search Addresss" icon="icon-map-pin">
+            </ins-input>  
+
+            <input type="hidden" id="modal_latitude" value="">
+            <input type="hidden" id="modal_longitude" value="">    
+                        
+            <ins-input required validate 
+                label="Address 1*" 
+                id="modal_address_1"
+                placeholder="Address 1" 
+                value=""
+                error-message="Address 1 is required.">
+            </ins-input>
+
+            <ins-input  
+                label="Address 2" 
+                id="modal_address_2" 
+                placeholder="Address 2"
+                value=""
+                error-message="">
+            </ins-input>
+
+            <ins-input validate
+                label="Suburb*" 
+                id="modal_suburb" 
+                placeholder="Suburb"
+                value="" 
+                error-message="Suburb is required.">
+            </ins-input>
+
+            <ins-input validate 
+                label="State*" 
+                id="modal_state" 
+                placeholder="State"
+                value=""
+                error-message="State is required.">
+            </ins-input>
+
+            <ins-input validate 
+                label="Postcode*" 
+                id="modal_postcode"
+                placeholder="Postcode" 
+                value=""
+                error-message="Postcode is required.">
+            </ins-input>
+
+            <ins-input validate 
+                label="Country*" 
+                id="modal_country"
+                placeholder="Country" 
+                value=""
+                error-message="Country is required.">
+            </ins-input>
+
+            <div class="modal-button">
+                <ins-button
+                    id="address-cancel-btn"
+                    type="button"
+                    class="card-form-cancel"
+                    label="Cancel"
+                    outlined
+                    icon="icon-close-1">
+                </ins-button>
+
+                <ins-button
+                    type="button"
+                    id="address-submit-btn"
+                    label="Add address"
+                    solid
+                    icon="icon-check-2">
+                </ins-button>
+            </div>
+
+        </div>
+    </div>
+</ins-modal>
+
+<script>
+    let contactUuid = '{{ context.current_user.external_id }}';
+</script>

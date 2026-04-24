@@ -11,12 +11,63 @@ reply_to: >
 cc:
 bcc:
 subject: Pre-Order Shipping
-layout: modules/insites_core/insites_internal_email_layout
+layout: modules/insites_core/insites_external_email_layout
+metadata: {
+    "email_name": "Pre-Order Shipping | Autoresponder"
+}
 ---
 {% include "modules/insites_cms/globals" %}
 {% assign global = context.exports.global %}
-{% assign product = data.product %}
 {% assign user = data.customer_info %}
+{% liquid
+    ## Collect the names of all pre-order products (stock_level <= 0) from the cart.
+    ## data.cart contains cart items; data.products contains the full product records.
+    ## We match each cart item to its product by uuid, then resolve to the correct
+    ## stock level: variant level if the item is a variant, otherwise product level.
+    ## This mirrors the logic in emails/product_list.liquid.
+    assign preorder_names = '' | split: ','
+    for cart_item in data.cart
+        assign matched = data.products | array_detect: uuid: cart_item.product_uuid
+
+        ## Resolve selected_prop to the variant (if applicable) or the product itself,
+        ## so we check the correct stock_level for the purchased item.
+        if cart_item.product_variant_uuid == blank
+            assign selected_prop = matched
+        else
+            assign selected_prop = matched
+            for variant in matched.variants
+                if variant.uuid == cart_item.product_variant_uuid
+                    assign selected_prop = variant
+                endif
+            endfor
+        endif
+
+        if selected_prop.stock_level == blank or selected_prop.stock_level <= 0
+            assign preorder_names = preorder_names | array_add: matched.product_name
+        endif
+    endfor
+
+    ## Format the collected names with proper grammar:
+    ##   1 item  → "Product A"
+    ##   2 items → "Product A & Product B"
+    ##   3+ items → "Product A, Product B & Product C"
+    assign names_count = preorder_names.size
+    if names_count == 1
+        assign formatted_names = preorder_names[0]
+    elsif names_count == 2
+        assign formatted_names = preorder_names[0] | append: ' & ' | append: preorder_names[1]
+    else
+        for name in preorder_names
+            if forloop.index0 == 0
+                assign formatted_names = name
+            elsif forloop.last
+                assign formatted_names = formatted_names | append: ' & ' | append: name
+            else
+                assign formatted_names = formatted_names | append: ', ' | append: name
+            endif
+        endfor
+    endif
+%}
 
 {% comment %} <!-------------------------------- HTML --------------------------------> {% endcomment %}
 
@@ -75,7 +126,7 @@ data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10
             height="100%" valign="top" bgcolor="" role="module-content">
             <div>
             <div style="font-family: inherit; text-align: left; line-height: 26px"><span
-                style="font-size: 16px; color: #525252;">Thank you for your pre-order of {{ product.product_name }}. We wanted to let you know that this item is currently out of stock, and we are working on restocking it as soon as possible.</span></div>
+                style="font-size: 16px; color: #525252;">Thank you for your pre-order of {{ formatted_names }}. We wanted to let you know that {% if preorder_names.size > 1 %}these items are{% else %}this item is{% endif %} currently out of stock, and we are working on restocking {% if preorder_names.size > 1 %}them{% else %}it{% endif %} as soon as possible.</span></div>
             <div></div>
             </div>
         </td>
@@ -109,25 +160,8 @@ data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10
 <hr style="margin-left: 40px;margin-right: 40px;border-top: 1px solid #DFDFDF;">
 {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
 
-{% parse_json cart %}
-[
-    {
-        "product_uuid": "{{ product.uuid }}",
-        "quantity": "{{ product.quantity }}",
-        "product_sku": "{{ product.product_sku }}"
-    }
-]
-
-{% endparse_json %}
-
-{% parse_json products %}
-[
-    {{ product }}
-]
-{% endparse_json %}
-
 {% comment %} <!-- Product List --> {% endcomment %}
-{% include 'modules/ecommerce/emails/product_list', products: products, cart: cart %}
+{% include 'modules/ecommerce/emails/product_list', products: data.products, cart: data.cart, preorder: true %}
 
 {% comment %} <!-- Spacer --> {% endcomment %}
 {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 40 %}
@@ -137,4 +171,4 @@ data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10
 {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
 
 {% comment %} <!-- Footer --> {% endcomment %}
-{% include 'modules/ecommerce/emails/client_footer', global: global %}
+{% comment %} {% include 'modules/ecommerce/emails/client_footer', global: global %} {% endcomment %}

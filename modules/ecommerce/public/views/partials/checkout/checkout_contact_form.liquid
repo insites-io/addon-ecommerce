@@ -1,0 +1,136 @@
+{% assign fields = form.fields %}
+{% assign prop = fields.properties %}
+{% assign profiles_prop = fields.profiles['modules/insites_core/crm_contact'].properties %}
+
+{% if guest != true and context.current_user %}
+  {% comment %} guest flag prevents falling into this branch during guest checkout even when context.current_user is present {% endcomment %}
+  {%  liquid
+      assign first_name = context.current_user.first_name
+      assign last_name = context.current_user.last_name
+      assign email = context.current_user.email
+  %} 
+{% else %}
+  {%  liquid      
+      assign first_name = context.session.contact_first_name
+      assign last_name = context.session.contact_last_name
+      assign email = context.session.contact_email
+  %} 
+{% endif %}
+
+
+  <div id="account-details">
+    <h4>Contact information</h4>
+    <div class="spacer x-large hide-for-small-only"></div>
+    <div class="spacer show-for-small-only"></div>
+
+    <div class="grid-x grid-padding-x account-details">      
+
+      <div class="large-12 medium-12 small-12 cell">
+        {% if guest != true %}
+          
+          <ins-input   
+            id="contact-company-name"
+            class="label-input" 
+            label="Company Name"
+            placeholder="Company Name" 
+            field="text" 
+            value="{{ company_name }}"
+            name="temp_company_name"
+            readonly >
+          </ins-input>
+
+          <input type="hidden" name="{{ fields.company_name.name }}" value="{{ company_name }}" >
+
+        {% else %} 
+
+          <ins-input   
+            id="contact-company-name"
+            class="label-input" 
+            label="Company Name"
+            placeholder="Company Name" 
+            field="text" 
+            value="{{ company_name }}"
+            name="company_name">
+          </ins-input>
+
+        {% endif %}        
+      </div>
+
+      <div class="large-6 medium-6 small-12 cell">
+        <ins-input required validate  
+          id="contact-first-name"
+          class="label-input"
+          label="First Name*"
+          placeholder="First Name" 
+          value="{{ first_name }}"
+          name="{{ fields.first_name.name }}" 
+          {% if form.errors['first_name'] %} has-error {% endif %}
+          error-message="{{ fields.first_name.validation.rules.presence.message }}">
+        </ins-input>
+      </div>
+
+      <div class="large-6 medium-6 small-12 cell">
+        <ins-input required validate  
+          id="contact-last-name"
+          class="label-input"
+          label="Last Name*"
+          placeholder="Last Name" 
+          value="{{ last_name }}"
+          name="{{ fields.last_name.name }}" 
+          {% if form.errors['last_name'] %} has-error {% endif %}
+          error-message="{{ fields.last_name.validation.rules.presence.message }}">
+        </ins-input>
+      </div>
+
+      <div class="large-6 medium-6 small-12 cell">
+        <ins-input required validate 
+          id="contact-email"
+          class="label-input"
+          {% if guest != true %} readonly {% endif %} 
+          label="Email*"
+          placeholder="Email" 
+          field="email" 
+          value="{{ email }}"
+          name="{{ fields.email.name }}" 
+          {% if form.errors['email'] %} has-error {% endif %}
+          error-message="{{ fields.email.validation.rules.presence.message }}">
+        </ins-input>
+      </div>
+
+      <div class="large-6 medium-6 small-12 cell">
+        <ins-input-tel  
+          class="label-input" 
+          id="contact-phone"
+          label="Phone"
+          country-code="{{ contact_phone_country_code | default: '61' }}"  
+          phonenum-value="{{ contact_phone_number }}"
+          phonenum-placeholder="Phone" 
+          no-areacode>
+        </ins-input-tel>
+
+        <input type="hidden" 
+          id="phone-number"
+          name="{{ profiles_prop.mobile_phone_number.name | default: 'mobile_phone_number'}}"
+          value="{{ contact_phone_number }}" >
+
+        <input type="hidden" 
+          id="phone-country-code"
+          name="{{ profiles_prop.mobile_phone_country_code.name | default: 'mobile_phone_country_code'}}"
+          value="{{ contact_phone_country_code }}" >
+      </div>
+
+    </div>
+       
+   <div class="spacer small"></div>
+    <div class="grid-x grid-padding-x">
+      <div class="large-6 medium-6 small-12 cell">
+          <a href="/shopping-cart">
+              <ins-button type="button" label="Cancel" outlined icon="icon-close-1"></ins-button>
+          </a>
+      </div>
+      <div class="cell show-for-small-only spacer small"></div>
+      <div class="large-6 medium-6 small-12 cell text-right">
+        <ins-button solid type="submit" id="contact-submit" class="w-100 checkout-btn" label="Continue to shipping" icon-right="icon-arrow-forward"></ins-button>
+      </div>
+    </div>
+  </div>      

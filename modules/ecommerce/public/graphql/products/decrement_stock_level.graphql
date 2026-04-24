@@ -1,0 +1,23 @@
+mutation decrement_stock_level (
+  $uuid: String!
+  $ordered_qty: Float = 1
+  $table: String!
+) {
+  ## Use records_update_all instead of record_update so we do not need to pass the id
+  items: records_update_all (
+    sync: true
+    table: $table
+    filter: {
+      properties: [
+        {name: "uuid", value: $uuid}
+      ]
+    }
+    record: {
+      properties: [
+        { name: "stock_level", decrement: $ordered_qty}
+      ]
+    }
+  ) {
+    count
+  }
+}

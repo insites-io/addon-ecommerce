@@ -1,7 +1,6 @@
 query get_order_discounts (
   $page: Int=1,
   $size: Int=50,
-  $order_contact_email: String!,
   $discount_code_uuids: [String!]
 ) {
   items: records(
@@ -9,18 +8,25 @@ query get_order_discounts (
     per_page: $size
     filter: {
       deleted_at: { exists: false }
-      table: { value: "modules/insites_ecommerce/order" }
+      table: { value: "modules/insites_ecommerce/order_discount" }
       properties: [
-        { name: "order_contact_email", value: $order_contact_email }
-        { name: "discount_code_uuids", array_contains: $discount_code_uuids }
+        { name: "discount_uuid", value_in: $discount_code_uuids }
       ] 
     }
   ) {
-    total_entries    
     results {
       id 
-      order_contact_email: property(name: "order_contact_email")      
-      discount_code_uuids: property_array(name: "discount_code_uuids")  
+      discount_uuid: property(name: "discount_uuid")
+      discount_code: property(name: "discount_code")
+      order_uuid: property(name: "order_uuid")
+      order: related_record(
+        table: "modules/insites_ecommerce/order"
+        foreign_property: "uuid"
+        join_on_property: "order_uuid"
+      ) {
+        id
+        order_contact_email: property(name: "order_contact_email")
+      }
     }
   }
 }

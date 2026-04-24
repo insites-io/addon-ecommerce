@@ -26,9 +26,6 @@ query get_featured_categories (
     }
     sort: $sort_by
   ) {
-    total_entries
-    total_pages
-    current_page
     results {     
 		  uuid: property(name: "uuid")
       slug: property(name: "slug")

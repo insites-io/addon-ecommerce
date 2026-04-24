@@ -1,33 +1,39 @@
 ---
 slug: checkout/payment
-layout: modules/ecommerce/checkout-layout
+layout: modules/ecommerce/checkout_layout
 searchable: "false"
 max_deep_level: 2
-metadata: {
-    "status": "published",
-    "page_type": "content", 
-    "page_name": "Checkout - Payment Detail",
-    "page_title": "Checkout - Payment Detail",
-    "meta_title": "Checkout - Payment Detail"       
+metadata: {    
+    "page_name": "Checkout - Payment Details",
+    "page_title": "Checkout - Payment Details | Insites",
+    "meta_title": "Checkout - Payment Details | Insites",
+    "is_visible_to_search_engines": false,
+    "is_sitemap_enabled": false
 }
 ---
 
-{% include 'modules/ecommerce/checkout/checkout_redirect_step' %}
+<div class="spacer xxxx-large hide-for-small-only"></div>
+<div class="spacer x-large show-for-small-only"></div>
 
-<div class="grid-x grid-padding-x">
-    <div class="large-offset-2 medium-offset-1 small-offset-0 large-8 medium-10 small-12 cell">
-        {% include 'modules/ecommerce/layout/checkout_steps', clickable: true %}
-    </div>
-</div>
+<h2 class="heading-1">Payment</h2>
+<div class="spacer xxx-large hide-for-small-only"></div>
+<div class="spacer show-for-small-only"></div>
 
-<div class="spacer xxxx-large"></div>
-
-<h2 class="heading-1">Payment Info</h2>
-<div class="spacer xxx-large"></div>
+{% comment %} 
+    Include carts/cart_drawer here rather than in checkout_layout, 
+    as we need to retrieve context.exports.total_cart_value before calling layout/order_summary.
+    total_cart_value is use for validating the discount_code againts discount.minimum_cart_value
+{% endcomment %}
+{% include 'modules/ecommerce/carts/cart_drawer' %}
+{% assign total_cart_value = context.exports.total_cart_value %}
 
 <div class="grid-x grid-padding-x">
     <div class="large-7 medium-12 small-12 cell">
-        {%- include_form 'modules/ecommerce/checkout_payment' -%}   
+        {% if context.session.order_id and context.session.order_id != '' %}
+            {%- include_form 'modules/ecommerce/checkout_payment', id: context.session.order_id -%}
+        {% else %}
+            {%- include_form 'modules/ecommerce/checkout_payment' -%}   
+        {% endif %}
     </div>
     <div class="large-4 large-offset-1 medium-12 small-12 cell">
         <div class="hide-for-large spacer xxx-large"></div>
@@ -35,36 +41,47 @@ metadata: {
             show_product: true,
             check
             form_update: true,
-            form_delete: true -%}
+            form_delete: true,
+            total_cart_value: total_cart_value -%}
     </div>
 </div>
 
 {%- if context.params.status == 'payment-error' -%}
     {%- if context.params.type == blank or context.params.type == 'missing' -%}
     <script>
-        setTimeout(() => {
-            Swal.fire({
-                html: `
-                    <ins-loader state-icon="error" icon-color="error" state-title="Failed to process your order."></ins-loader>
-                    <p class="ins-loader-wrap--message">There was an error in processing your order. <br>
-                    Please contact notifications@insites.io or try again.</p>`,
-                    showCancelButton: false,
-                    confirmButtonText: 'Close'
-            })
-        }, 250);
+        function showPaymentError() {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    html: `
+                        <ins-loader state-icon="error" icon-color="error" state-title="Failed to process your order."></ins-loader>
+                        <p class="ins-loader-wrap--message">There was an error in processing your order. <br>
+                        Please contact notifications@insites.io or try again.</p>`,
+                        showCancelButton: false,
+                        confirmButtonText: 'Close'
+                });
+            } else {
+                setTimeout(showPaymentError, 100);
+            }
+        }
+        setTimeout(showPaymentError, 250);
     </script>
     {%- else -%}
     <script>
-        setTimeout(() => {
-            var errType = "Card Declined";
-            Swal.fire({
-                html: `
-                    <ins-loader state-icon="error" icon-color="error" state-title="Failed to process your order."></ins-loader>
-                    <p class="ins-loader-wrap--message">Your payment failed with error code: <span>`+ errType +`</span> <br>Please review your payment details and try again.</p>`,
-                    showCancelButton: false,
-                    confirmButtonText: 'Close'
-            })
-        }, 250);
+        function showPaymentError() {
+            if (typeof Swal !== 'undefined') {
+                var errType = "Card Declined";
+                Swal.fire({
+                    html: `
+                        <ins-loader state-icon="error" icon-color="error" state-title="Failed to process your order."></ins-loader>
+                        <p class="ins-loader-wrap--message">Your payment failed with error code: <span>`+ errType +`</span> <br>Please review your payment details and try again.</p>`,
+                        showCancelButton: false,
+                        confirmButtonText: 'Close'
+                });
+            } else {
+                setTimeout(showPaymentError, 100);
+            }
+        }
+        setTimeout(showPaymentError, 250);
     </script>
     {%- endif -%}
 {%- endif -%}

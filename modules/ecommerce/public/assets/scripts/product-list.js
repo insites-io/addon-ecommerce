@@ -9,7 +9,6 @@ let productFilter = {
     "sort": ""
 };
 
-let subCatContElem = document.getElementById("sidebar-categories");
 let keywordInput = document.getElementById("filter-keyword");
 
 let productList = (function () {
@@ -40,16 +39,61 @@ let productList = (function () {
                     keywordInput.addEventListener('insIconClick', function(event) {
                         productList.methods.keywordInputEvent(event, 'iconClick');
                     });
+                    productList.methods.initSearchClear();
                 }
+            },
+            initSearchClear(){
+                const initClear = () => {
+                    const inputEl   = keywordInput.getElementsByTagName('input')[0];
+                    const inputWrap = keywordInput.querySelector('.input-wrap');
+                    const iconEl    = keywordInput.querySelector('.icon-search1') || keywordInput.querySelector('.icon-search-1') || keywordInput.querySelector('.icon-search');
 
+                    if (!inputEl || !inputWrap) return false;
+
+                    let closeIcon = null;
+
+                    const showClose = () => {
+                        if (closeIcon) return;
+                        closeIcon = document.createElement('i');
+                        closeIcon.classList.add('icon-close-1', 'icon-wrap', 'icon-close-active', 'icon-close-style');
+                        inputWrap.insertBefore(closeIcon, iconEl || null);
+                    };
+
+                    const hideClose = () => {
+                        if (!closeIcon) return;
+                        closeIcon.remove();
+                        closeIcon = null;
+                    };
+
+                    if (inputEl.value.trim()) showClose();
+
+                    inputEl.addEventListener('input', () => {
+                        inputEl.value.trim() ? showClose() : hideClose();
+                    });
+
+                    keywordInput.addEventListener('click', (e) => {
+                        if (!e.target.classList.contains('icon-close-1')) return;
+                        inputEl.value = '';
+                        hideClose();
+                        if (productFilter.keyword) {
+                            productList.methods.clearFilterToList();
+                            window.location.href = productList.methods.buildURLLink();
+                        }
+                    });
+
+                    return true;
+                };
+
+                if (!initClear()) {
+                    const observer = new MutationObserver(() => {
+                        if (initClear()) observer.disconnect();
+                    });
+                    observer.observe(keywordInput, { childList: true, subtree: true });
+                }
             },
             putFilterValues(){
                 if(productFilter.keyword != ""){
                     keywordInput.value = decodeURI(productFilter.keyword);
-                }
-                if(productFilter.sub_category != ""){
-                    let tmpId = "sub-" + productFilter.sub_category;
-                    document.getElementById(tmpId).classList.add('active');
                 }
             },
             toggleProductView(e){
@@ -78,6 +122,9 @@ let productList = (function () {
                 let tmpVal = event.detail;
                 productFilter.brand = tmpVal;
 
+                // Reset to page 1
+                productFilter.page = "1";
+
                 window.location.href = productList.methods.buildURLLink();
             },
             showValueSelected(event){
@@ -85,12 +132,19 @@ let productList = (function () {
                 let tmpVal = event.detail;
                 productFilter.show = tmpVal;
 
+                // Reset to page 1
+                productFilter.page = "1";
+
                 window.location.href = productList.methods.buildURLLink();
             },
             sortValueSelected(event){
                 //Function to update sort of products
                 let tmpVal = event.detail;
                 productFilter.sort = tmpVal;
+
+                // Reset to page 1
+                productFilter.page = "1";
+                
                 window.location.href = productList.methods.buildURLLink();
             },
             clearFilterToList(){
@@ -104,7 +158,7 @@ let productList = (function () {
                 let entries = Object.entries(productFilter);
                 let tmpParamArr = [];
                 for(let a = 0; a < entries.length; a++){
-                    if(entries[a][1] != ""){
+                    if(entries[a][0] != "" && entries[a][1] != ""){
                         tmpParamArr.push(entries[a].join('='));
                     }
                 }
@@ -127,7 +181,7 @@ let productList = (function () {
                     mobileFilterDrawer.setDrawerState(true);
                 }
             },
-            keywordInputEvent(event, type){                
+            keywordInputEvent(event, type){
                 if (event.detail.keyCode === 13 || (type == "iconClick" && event.detail.value != "")){
                     productList.methods.clearFilterToList();
                     productFilter.keyword = event.detail.value;
@@ -166,15 +220,12 @@ let productList = (function () {
                     sortSelect.addEventListener('insChange', productList.methods.sortValueSelected);
                 }
 
+                
                 let mobileCategoryToggle = document.getElementById('mobile-category-button');
-                if(mobileCategoryToggle){
-                    let sidebarCategoriesHtml = document.getElementById('sidebar-categories').innerHTML;
-                    // Replace 'id' with 'data'
-                    let modifiedHTML = sidebarCategoriesHtml.replace(/\bid="([^"]+)"/g, 'data="$1"');
-                    let mobileFilterWrap = document.querySelector('#mobile-filter-drawer .wrap');                
-                    mobileFilterWrap.innerHTML = modifiedHTML;
+                if(mobileCategoryToggle){                    
                     mobileCategoryToggle.addEventListener('insClick', productList.methods.openMobileFilterDrawer);
                 }
+                    
             }
             
         }

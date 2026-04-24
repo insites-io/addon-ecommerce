@@ -3,13 +3,21 @@ metadata: {
     partial_name: 'Ecommerce | Blocks | New Arrivals'
 }
 ---
-<section class="bg-color-ui-02">
+
+{% comment %} This partial is used in the app-portal {% endcomment %}
+
+{% graphql products = "modules/ecommerce/products/get_products", size: 8 | dig: 'items','results' %}
+
+{% if products.size > 0 %}
+
+    {% graphql all_categories = 'modules/ecommerce/categories/get_categories' | dig: 'items','results'  %}
+    {% comment %} This export will be used in 'Whats Hot' block to eliminate the need to fetch the categories again {% endcomment %}
+    {% export all_categories %}
+
+<section class="wrapper">
     <div class="spacer xxxx-large"></div>
-    <div class="product-carousel large-offset-1">
-
-        {% graphql products = "modules/ecommerce/products/get_products", size: 8 | dig: 'items','results' %}        
+    <div class="product-carousel">
         
-
         <!-- desktop carousel -->
         <ins-carousel 
             id="newArrivalsCarouselDesktop"
@@ -19,11 +27,11 @@ metadata: {
             no-pagination=true
             bind-to="newArrivalCardsDesktop">
 
-            <h2>New Arrivals</h2>
+            <h2 class="heading-4">New arrivals</h2>
             <div class="spacer xx-large"></div>
             <div id="newArrivalCardsDesktop" class="product-cards">
                 {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product, all_categories: context.exports.all_categories %}
+                    {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, heading_level: 'h3' %}
                 {% endfor %}
             </div>
             
@@ -41,14 +49,14 @@ metadata: {
 
             <div class="grid-container">
                 <div class="grid-x">
-                    <h2>New Arrivals</h2>     
+                    <h2 class="heading-4">New arrivals</h2>     
                 </div>
             </div>
 
             <div class="spacer xx-large"></div>
             <div id="newArrivalCardsTablet" class="product-cards">
                 {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product %}
+                    {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, heading_level: 'h3' %}
                 {% endfor %}
             </div>
         </ins-carousel>
@@ -64,12 +72,12 @@ metadata: {
                 no-pagination=true
                 bind-to="newArrivalCardsMobile">
                 
-                <h2>New Arrivals</h2>
+                <h2 class="heading-4">New arrivals</h2>
 
                 <div class="spacer"></div>
                 <div id="newArrivalCardsMobile" class="product-cards">
                     {% for product in products %}
-                        {% include "modules/ecommerce/products/product_card", product: product %}
+                        {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, heading_level: 'h3' %}
                     {% endfor %}
                 </div>
             </ins-carousel>
@@ -91,7 +99,7 @@ newArrivalsCarousel.forEach(carousel => {
         if(carouselCtrlBtns && showAllLink[carouselID] !== true){            
             var newLink = document.createElement('a');
                 newLink.href = "/products";
-                newLink.textContent = "Shop All";
+                newLink.textContent = "Shop all";
                 newLink.className = "shop-all-link"; 
             carouselCtrlBtns.appendChild(newLink);  
             showAllLink[carouselID] = true;           
@@ -99,3 +107,4 @@ newArrivalsCarousel.forEach(carousel => {
     });          
 });
 </script>
+{% endif %}
