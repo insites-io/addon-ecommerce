@@ -1,7 +1,7 @@
 query get_cart_discount (
   $page: Int=1,
   $size: Int=1,
-  $contact_uuid: String!,
+  $cart_uuid: String!,
   $discount_code_uuids: [String!]
 ) {
   items: records(
@@ -9,17 +9,18 @@ query get_cart_discount (
     per_page: $size
     filter: {
       deleted_at: { exists: false }
-      table: { value: "modules/insites_ecommerce/cart" }
+      table: { value: "modules/insites_ecommerce/cart_discount" }
       properties: [
-        { name: "contact_uuid", value: $contact_uuid }
-        { name: "discount_code_uuids", array_contains: $discount_code_uuids }
+        { name: "cart_uuid", value: $cart_uuid }
+        { name: "discount_uuid", value_in: $discount_code_uuids }
       ] 
     }
   ) {
     results {
       id 
-      contact_uuid: property(name: "contact_uuid")
-      discount_code_uuids: property_array(name: "discount_code_uuids")  
+      cart_uuid: property(name: "cart_uuid")
+      discount_uuid: property(name: "discount_uuid")
+      discount_code: property(name: "discount_code")
     }
   }
 }

@@ -1,5 +1,6 @@
 query get_product_brand_uuid(
   $keyword : String,
+  $keywords : [String!],
   $category_uuids: [String!],
   $is_on_sale: Boolean,
   $not_number: String,
@@ -10,17 +11,26 @@ query get_product_brand_uuid(
     filter:{
       table:{ value:"modules/insites_ecommerce/product" }
       properties:[
-      	{ name: "status", not_value_in: ["archived","disabled"] }
+      	{ name: "status", value: "enabled"}
         { name: "category_uuids", value_in: $category_uuids }
         { name: "is_on_sale", value_boolean: $is_on_sale }
         { name: "stock_level", range: { gt: $not_number } }
         { name: "brand_uuid", exists: true }
       ]
-      fulltext:{
-        keyword:$keyword
-        match_type:CONTAINS
-        operator:OR
-      }
+       or:[
+        {
+          properties: { name: "product_name", contains: $keyword}           
+        },
+        {
+          properties: { name: "long_description", contains: $keyword}           
+        },
+        {
+          properties: { name: "short_description", contains: $keyword}           
+        }
+        {
+          properties: { name: "keywords", array_contains: $keywords}           
+        }
+      ]
     }
   ){
      per_page

@@ -3,7 +3,7 @@
      - item
      - selected_prop
 {% endcomment %}
-{% if item.variant_uuid != '' and item.variant_uuid != null %}
+{% if item.product_variant_uuid != '' and item.product_variant_uuid != null %}
      {%  liquid 
          ## Convert an array of strings into an array of objects
          assign options = '' | split: ',' 

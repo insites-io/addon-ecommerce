@@ -9,93 +9,126 @@ metadata: {
 }
 ---
 
-{%- liquid
+{%- 
+    liquid
+
     assign params = context.params
     assign contact_uuid = params.contact_uuid
-    assign type = params.type
-    assign quantity = params.quantity
     assign product_uuid = params.product_uuid
-    assign variant_uuid = params.variant_uuid
+    assign product_variant_uuid = params.product_variant_uuid
+    assign quantity = params.quantity | times: 1.0
+    assign type = params.type | downcase
+
+    assign return_data = '{}' | parse_json
+    assign prod_details = '{}' | parse_json
+
+    ## Check if the contact_uuid is available
+    if contact_uuid != blank and contact_uuid != ''
+
+        ## Build the data
+        assign add_cart_item_data = '{}' | parse_json
+        assign add_cart_item_data = add_cart_item_data | add_hash_key: 'product_uuid', product_uuid
+
+        # Get the details of the product
+        function product_data = "ecommerce/controller/product/get", uuid: product_uuid
+
+        ## Get current cart (if any)
+        ## Keep using graphql instead of function/controller to leverage the cart_items relationship and avoid multiple calls
+        graphql cart = 'modules/ecommerce/carts/get_cart', contact_uuid: contact_uuid | dig: 'items','results' | first       
+
+        ## Check if the product already exist in the cart
+        if cart.uuid
+            if product_variant_uuid != blank
+                assign product_exist = cart.cart_items | array_detect: product_variant_uuid: product_variant_uuid
+            else
+                assign product_exist = cart.cart_items | array_detect: product_uuid: product_uuid
+            endif
+            if product_exist.id
+                ## Add previous quantity if not from a stepper
+                unless type == 'stepper'
+                    assign quantity = product_exist.quantity | plus: quantity
+                endunless
+            endif
+        endif
+
+        ## Resolve product SKU and price from product/variant for client-side response
+        if product_variant_uuid != blank
+            ## The product is a variant
+            assign add_cart_item_data = add_cart_item_data | add_hash_key: 'product_variant_uuid', product_variant_uuid
+            graphql product_variant_data = 'modules/ecommerce/products/get_product_variant', uuid: product_variant_uuid | dig: 'items','results' | first
+
+            assign product_sku = product_variant_data.product_sku
+            if product_variant_data.is_on_sale == true or product_variant_data.is_on_sale == 'true'
+                assign product_price = product_variant_data.sale_price
+            else
+                assign product_price = product_variant_data.regular_price
+            endif
+
+            assign prod_details = prod_details | add_hash_key: 'product_options', product_variant_data.product_options
+        else
+            ## The product is NOT a variant
+            assign product_sku = product_data.sku
+            if product_data.is_on_sale == true or product_data.is_on_sale == 'true'
+                assign product_price = product_data.sale_price
+            else
+                assign product_price = product_data.regular_price
+            endif
+        endif
+
+        ## Get the cart information if possible
+       
+        if cart.uuid
+            ## User already has cart
+
+            if product_exist.id
+                ## Product exist in cart                
+                assign int_qty = quantity | round: 0
+                assign add_cart_item_data = add_cart_item_data | add_hash_key: 'quantity', int_qty
+                function add_cart_item = "ecommerce/controller/cart_items/update", uuid: product_exist.uuid, params: add_cart_item_data
+            else
+                ## Product does not exist in cart
+                assign int_qty = quantity | round: 0
+                assign add_cart_item_data = add_cart_item_data | add_hash_key: 'quantity', int_qty
+                assign add_cart_item_data = add_cart_item_data | add_hash_key: 'cart_uuid', cart.uuid
+                function add_cart_item = "ecommerce/controller/cart_items/create", params: add_cart_item_data
+            endif
+
+        else
+            
+            ## User has no cart yet add cart 
+            assign cart_data = '{}' | parse_json
+            assign cart_data = cart_data | add_hash_key: 'contact_uuid', contact_uuid            
+            function add_cart = "ecommerce/controller/cart/create", params: cart_data
+            
+            ## Add cart_item 
+            assign add_cart_item_data = add_cart_item_data | add_hash_key: 'cart_uuid', add_cart.uuid
+            assign int_qty = quantity | round: 0
+            assign add_cart_item_data = add_cart_item_data | add_hash_key: 'quantity', int_qty
+            function add_cart_item = "ecommerce/controller/cart_items/create", params: add_cart_item_data 
+        
+        endif
+
+        ## Augment response with product details for client-side rendering
+        assign add_cart_item = add_cart_item | add_hash_key: 'product_name', product_data.product_name
+        assign add_cart_item = add_cart_item | add_hash_key: 'product_sku', product_sku
+        assign add_cart_item = add_cart_item | add_hash_key: 'product_price', product_price
+
+        ## Send additional detail regarding main product
+
+        assign prod_details = prod_details | add_hash_key: 'product_slug', product_data.product_slug
+        assign prod_details = prod_details | add_hash_key: 'product_image', product_data.product_image
+        assign prod_details = prod_details | add_hash_key: 'stock_level', product_data.stock_level
+        assign prod_details = prod_details | add_hash_key: 'product_uuid', product_uuid
+        assign prod_details = prod_details | add_hash_key: 'product_variant_uuid', product_variant_uuid
+
+        assign return_data = return_data | add_hash_key: 'items', add_cart_item
+        assign return_data = return_data | add_hash_key: 'prod_details', prod_details
+
+    else
+        assign return_data = return_data | add_hash_key: "error", "contact_uuid is required"
+    endif
+
+    response_status 200
 -%}
 
-{%- if contact_uuid != blank and contact_uuid != '' -%}
-
-    {%- comment -%} Check if the user already has a cart {%- endcomment -%}
-    {%- graphql cart = 'modules/ecommerce/carts/get_cart', 
-        contact_uuid: params.contact_uuid | dig: 'items','results' | first -%}
-
-    {%- if cart.uuid -%}
-        {%- comment -%} This user already has a cart. {%- endcomment -%}                
-        {%- comment -%} Check if the product is already added in the cart_item {%- endcomment -%}
-        {%- if variant_uuid != null and variant_uuid != '' -%}
-            {%- assign product_exist = cart.cart_items | array_detect: variant_uuid: variant_uuid -%}
-        {%- else -%}
-            {%- assign product_exist = cart.cart_items | array_detect: product_uuid: product_uuid -%}
-        {%- endif -%}
-
-        {%- if product_exist.id -%}
-            {% comment %} Update the quantity only {% endcomment %}
-            {%- liquid
-                if type == 'stepper'
-                    assign new_quantity = quantity
-                else
-                    assign new_quantity = product_exist.quantity | plus: 1 
-                endif
-            -%}
-            {%- parse_json cart_item_data -%}
-            {
-                "id": {{ product_exist.id }},
-                "quantity": {{ new_quantity }}
-            }
-            {%- endparse_json -%}
-            {%- graphql add_cart_item = 'modules/ecommerce/cart_items/update_cart_item', args: cart_item_data -%}
-        {%- else -%}
-            {% comment %} Add new item in the cart_item {% endcomment %}                
-            {%- parse_json cart_item_data -%}
-            {
-                "uuid": "{{ '' | uuid }}",
-                "cart_uuid": "{{ cart.uuid }}",
-                "quantity": {{ quantity | default: 1 }},
-                "product_uuid": "{{ product_uuid }}",
-                "variant_uuid": "{{ variant_uuid }}"
-            }
-            {%- endparse_json -%}
-            {%- graphql add_cart_item = 'modules/ecommerce/cart_items/add_cart_item', args: cart_item_data -%}
-        {%- endif -%}
-
-    {%- else -%}
-
-        {%- comment -%} The user does not have a cart yet {%- endcomment -%} 
-        {%- comment -%} Step 1: Add cart {%- endcomment -%}
-        {%- parse_json cart_data -%}
-        {
-            "uuid": "{{ '' | uuid }}",
-            "contact_uuid": "{{ contact_uuid }}"
-        }
-        {%- endparse_json -%}
-        {%- graphql add_cart = 'modules/ecommerce/carts/add_cart', args: cart_data | dig: 'items' -%}
-
-        {%- comment -%} Step 2: Add cart_item {%- endcomment -%}
-        {%- parse_json cart_item_data -%}
-        {
-            "uuid": "{{ '' | uuid }}",
-            "cart_uuid": "{{ add_cart.uuid }}",
-            "quantity": {{ quantity | default: 1 }},
-            "product_uuid": "{{ product_uuid }}",
-            "variant_uuid": "{{ variant_uuid }}"
-        }
-        {%- endparse_json -%}
-        {%- graphql add_cart_item = 'modules/ecommerce/cart_items/add_cart_item', args: cart_item_data -%}
-        
-    {%- endif -%}
-
-    {{add_cart_item}}
-
-{%- else -%}
-    {
-        "error": "contact_uuid is required"
-    }
-{%- endif -%}
-
-
-{%- response_status 200 -%}
+{{ return_data }}

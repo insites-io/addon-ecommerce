@@ -15,6 +15,7 @@
 <input type="hidden" id="card_email" value="{{ email }}" >
 <input type="hidden" id="card_first_name" value="{{ first_name }}" >
 <input type="hidden" id="card_last_name" value="{{ last_name }}" >
+<input type="hidden" id="is_guest" value="{% if has_profile %}false{% else %}true{% endif %}" >
 
 <script>
     let payByCardField = document.getElementById('{{ cc_field_id }}');

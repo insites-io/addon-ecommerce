@@ -62,110 +62,126 @@ addToCartBtn.forEach(btn => {
 });
 
 async function addToCartPreProcess(event, type){
-   
-    //show hide
+    
+    // Show the loader and hide the cart items and shopping cart list
+    if (shoppingCartLoaderEl) { shoppingCartLoaderEl.classList.remove("hide"); }
+    if (cartItemsWrap) { cartItemsWrap.classList.add("hide"); }
+    if (shoppingCartListEl) { shoppingCartListEl.classList.add('hide'); }
+     
+    // Show the empty cart wrap and remove the bottom wrap
     emptyCartWrap.classList.add("hide");
     bottomWrap.classList.remove("hide");
 
-    //show cart drawer
-    if(event.detail.label.toLowerCase() == "add to cart"){
-        cartDrawer.setDrawerState(true); 
-    } 
-
+    // Get the data from connected event
     data = JSON.parse(event.detail.data);
     
     if(type != "reorder"){
         data.quantity = cartQuantity;    
         type = event.detail.label 
     }            
-        
     if(data.detail_page === true && typeof selected_variant !== 'undefined' && selected_variant.id){
-        data.id = selected_variant.id;        
-        data.price = selected_variant.price;
-        data.product_name = selected_variant.product_name;
-        data.variant_uuid = selected_variant.variant_uuid; 
-        data.product_sku = selected_variant.sku;
-        data.image = selected_variant.image;  
-        data.stock_level = selected_variant.stock_level;
-        data.product_options = selected_variant.product_options;  
+        data.product_variant_uuid = selected_variant.product_variant_uuid; 
     }
-   
-    let cartItem = document.getElementById(`cart-item-${data.id}`);
- 
-    // Clicking the Add-to-cart button will add the item only if it is not already in the cart.
-    if(cartItem == null){
-      
-        let cart_item = await addToCart(data, type);
-        if(cart_item){        
+    
+    cartDrawer.setDrawerState(true);
+    await submitAddCart(data, type);
 
-            if (!emptyCartWrap.classList.contains('hide')) {
-                emptyCartWrap.classList.add('hide');
-                bottomWrap.classList.remove('hide');
-            }          
-                                
-            cartItemsWrap.insertAdjacentHTML('afterbegin', cartItemHtml(data, cart_item.data.items));
-
-            let newItemAdded = document.getElementById(`cart-item-${data.id}`);
-            if (newItemAdded) {                   
-                let cartStepper = document.querySelector(`#cart-item-${data.id} .cart-stepper`);                        
-                cartStepperEventListener(cartStepper);
-
-                let removeCartBtn = document.querySelector(`#cart-item-${data.id} .cart-remove-btn`);
-                removeCartEventListener(removeCartBtn);
-            } 
-
-            computeSubTotal();
-        }
-    }
-    else if(type.toLowerCase() == 'buy now' || type.toLowerCase() == 'pre-order'){
-        //The item is already added in the cart, go to /shopping-cart
+    // If the type is 'buy now' or 'pre-order', go to /shopping-cart page
+    if(type.toLowerCase() == 'buy now' || type.toLowerCase() == 'pre-order'){
+        // It is either 'buy now' or 'pre-order', go to /shopping-cart page
         window.location.href = "/shopping-cart";
-    }
+    } 
+    
 }
+
+async function submitAddCart(data, type){
+    let cart_item = await addToCart(data, type);
+    if(cart_item){ 
+        let returnData = cart_item.data;
+        // Check if Cart window has 'Empty' signage
+        if (!emptyCartWrap.classList.contains('hide')) {
+            emptyCartWrap.classList.add('hide');
+            bottomWrap.classList.remove('hide');
+        }          
+
+        //Check if there is already an entry in the cart drawer
+        let checkItemOnCart = document.getElementById(`cart-item-${returnData.items.id}`);
+        if (checkItemOnCart){
+            checkItemOnCart.remove();  
+        } 
+        
+        // Add new item on the cart and set the needed event listener
+        cartItemsWrap.insertAdjacentHTML('afterbegin', cartItemHtml(data, returnData)); 
+        let newItemAdded = document.getElementById(`cart-item-${returnData.items.id}`);
+        if (newItemAdded) {                   
+            let cartStepper = document.querySelector(`#cart-item-${returnData.items.id} .cart-stepper`);
+            cartStepper.addEventListener('insValueChange', event => {
+                cartStepperEventListener(event);
+            }); 
+            //cartStepperEventListener(cartStepper);
+            let removeCartBtn = document.querySelector(`#cart-item-${returnData.items.id} .cart-remove-btn`);
+            removeCartEventListener(removeCartBtn);
+        }         
+        computeSubTotal();
+    } 
+
+    if (page == 'shopping-cart') {
+
+    } else {
+        // Hide the loader and show the cart items and shopping cart list
+        if (shoppingCartLoaderEl) { shoppingCartLoaderEl.classList.add("hide"); }
+        if (cartItemsWrap) { cartItemsWrap.classList.remove("hide"); }
+        if (shoppingCartListEl) { shoppingCartListEl.classList.remove('hide'); }
+    }
+
+}
+
     
 /* Increment / Decrement Cart in Drawer */
 let cartStepper = document.querySelectorAll(".cart-stepper");
 cartStepper.forEach(step => {
-    cartStepperEventListener(step);
+    step.addEventListener('insValueChange', event => {
+        cartStepperEventListener(event);
+    });   
 }); 
 
+let debounceTimer = null;
+function cartStepperEventListener(event){ 
+    // Disable the 'Go to Cart' button
+    goToCartButtonDisabled();
+    if (debounceTimer) {
+        clearTimeout(debounceTimer);
+    }
 
-function cartStepperEventListener(step){
-    step.addEventListener('insValueChange', event => {   
-        goToCartButtonDisabled();
-        clearTimeout(stepperDebounceTimer);
-
-        //Add debounce timer to allow multiple click in + or - before calling the api/add-to-cart.json
-        stepperDebounceTimer = setTimeout(() => {
-
-            if (shoppingCartListEl && shoppingCartLoaderEl) {
-                shoppingCartListEl.style.display = 'none';  
-                shoppingCartLoaderEl.classList.remove("hide");
-            }
-
-            let itemWrap = event.target.closest(".cart-item-wrap");            
-            let stepperData = event.target.closest("ins-input-stepper").dataset;
-
-            // Calculate the total price for the item
-            let priceData = computeItemTotal(itemWrap, event.detail);
-
-            let data = {
-                "id": stepperData.id,
-                "product_name": stepperData.product_name,
-                "product_uuid": stepperData.product_uuid,
-                "variant_uuid": stepperData.variant_uuid,
-                "price": priceData.price,  
-                "item_total_price": priceData.item_total_price,
-                "quantity": event.detail
-            };   
-
-            if(addToCart(data, 'stepper')){                
-                computeSubTotal();
-            }                  
-            
-        }, 1000); 
-    });
+    // Set a timeout to call the API after 500ms
+    debounceTimer = setTimeout(async () => {
+        try {
+            await processStepperCall(event);
+        } catch (err) {
+            console.error("API call failed:", err);
+        } finally {
+            debounceTimer = null;
+        }
+      }, 500);
 }    
+
+async function processStepperCall(event){
+    // Show the loader and hide the cart items and shopping cart list
+    if (shoppingCartLoaderEl) { shoppingCartLoaderEl.classList.remove("hide"); }
+    if (cartItemsWrap) { cartItemsWrap.classList.add("hide"); }
+    if (shoppingCartListEl) { shoppingCartListEl.classList.add('hide'); }
+    
+    // Get the data from the stepper
+    let stepperData = event.target.closest("ins-input-stepper").dataset;
+    let data = {        
+        "product_uuid": stepperData.product_uuid,
+        "product_variant_uuid": stepperData.product_variant_uuid,
+        "quantity": event.detail,
+    };
+    
+    await submitAddCart(data, 'stepper');
+
+}
 
 
 /* Remove from Cart */
@@ -174,8 +190,8 @@ removeCartBtn.forEach(btn => {
     removeCartEventListener(btn);
 });             
 
-    
-function removeCartEventListener(btn){        
+function removeCartEventListener(btn){ 
+
     btn.addEventListener('insClick', async event => {
         let confirm = await App.events.swal("warning", 
                 "Remove item?", 
@@ -207,7 +223,6 @@ async function addToCart(data, type){
         setButtonLoadingState(data.id, true)
     }
 
-                         
     if (type == "reorder") {
         // Add items to the cart using the Reorder button from Order History.
         // Each item from the selected order will be added individually by calling the API.
@@ -340,16 +355,17 @@ function titleize(str) {
 }
 
 function cartItemHtml(data, cart_item){
-    const item_price = formatNumber(data.price);
-    const item_total_price = formatNumber(data.item_total_price || data.price);
-    const img = data.image && data.image.trim() !== ''
-        ? `<img src="${data.image}" width="66px" height="66px">`
+    let cartItemDetail = cart_item.items;
+    let prodItemDetail = cart_item.prod_details;
+    const item_price = formatNumber(cartItemDetail.product_price);
+    const item_total_price = formatNumber(cartItemDetail.product_price * cartItemDetail.quantity || cartItemDetail.product_price);
+    const img = prodItemDetail?.product_image?.url && prodItemDetail?.product_image?.url !== '' && prodItemDetail?.product_image?.url !== null
+        ? `<img src="${prodItemDetail.product_image.url}" width="66px" height="66px">`
         : placeholderImage;
     
-
     // Pre-order tag
-    const stockLevel = parseFloat(data.stock_level);
-    const quantity = parseFloat(data.quantity);    
+    const stockLevel = parseFloat(prodItemDetail.stock_level);
+    const quantity = parseFloat(cartItemDetail.quantity);    
     const preorder_tag = (
         !isNaN(stockLevel) &&
         !isNaN(quantity) &&
@@ -358,11 +374,10 @@ function cartItemHtml(data, cart_item){
         ? `<p><ins-tag label="Pre-order" class="preorder-tag body-x-small"></ins-tag></p>`
         : '';
 
-
-    // Variant Options
+    // Variant Options - To be constructed
     let optionsHtml = '';
-    if (data.variant_uuid != '' && data.variant_uuid != null && data.product_options.length > 0) {
-        for (const optionStr of data.product_options) {
+    if (cartItemDetail.product_variant_uuid != '' && cartItemDetail.product_variant_uuid != null && prodItemDetail.product_options.length > 0) {
+        for (const optionStr of prodItemDetail.product_options) {
             const option = JSON.parse(optionStr);
             optionsHtml += `
                 <p>
@@ -374,15 +389,15 @@ function cartItemHtml(data, cart_item){
     }
          
 
-    return ` <div id="cart-item-${data.id}" class="cart-item-wrap">
+    return ` <div id="cart-item-${cartItemDetail.id}" class="cart-item-wrap">
             <div class="grid-x" >
                 <div class="image_wrap">
-                    <a href="/products/${data.slug}">${ img }</a>
+                    <a href="/products/${prodItemDetail.slug}">${ img }</a>
                 </div>
                 <div class="grid-y cart-details flex-child-auto">
-                    <a href="/products/${data.slug}"><h6>${ data.product_name }</h6></a>
+                    <a href="/products/${prodItemDetail.slug}"><span class="heading-6">${ cartItemDetail.product_name }</span></a>
                     ${preorder_tag}
-                    <p class="body-x-small">SKU ${ data.product_sku }</p>
+                    <p class="body-x-small">SKU ${ cartItemDetail.product_sku }</p>
                     <div class="spacer x-small"></div>
                     ${optionsHtml}
                     <p>
@@ -395,19 +410,17 @@ function cartItemHtml(data, cart_item){
                     <p class="cart-price compute-price">$${ item_total_price }</p>
                     <div class="spacer x-small"></div>
                     <ins-input-stepper
-                        name="cart-stepper"
                         class="cart-stepper" 
-                        data-id="${ data.id }"
-                        data-product_uuid="${ data.product_uuid }"
-                        data-variant_uuid="${ data.variant_uuid }"
-                        data-product_name="${ data.product_name }"
-                        value="${ data.quantity }"
+                        data-product_uuid="${ prodItemDetail.product_uuid }"
+                        data-variant_uuid="${ prodItemDetail.product_variant_uuid }"
+                        data-product_name="${ cartItemDetail.product_name }"
+                        value="${ cartItemDetail.quantity }"
                         step="1" min="1" 
                         small>
                     </ins-input-stepper>
                     <div class="spacer small"></div>
                     <div class="text-right" >
-                        <ins-button label="Remove" icon="icon-trash-2" size="small" class="cart-remove-btn" data='{"id":"${cart_item.id}","uuid":"${cart_item.uuid}","cart_uuid":"${cart_item.cart_uuid}"}' ></ins-button>
+                        <ins-button label="Remove" icon="icon-trash-2" size="small" class="cart-remove-btn" data='{"id":"${cartItemDetail.id}","uuid":"${cartItemDetail.uuid}","cart_uuid":"${cartItemDetail.cart_uuid}"}' ></ins-button>
                     </div>   
                 </div>        
             </div>    

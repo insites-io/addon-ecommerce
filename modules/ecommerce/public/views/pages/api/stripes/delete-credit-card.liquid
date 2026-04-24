@@ -15,10 +15,12 @@ metadata: {
 {%- assign result = '{}' | parse_json -%}
 
 {%- comment -%} Get user uuid {%- endcomment -%}
-{%- liquid 
-     if context.current_user
+{%- liquid
+     if payload.is_guest == true
+          assign user_uuid = context.session.guest_uuid
+     elsif context.current_user
           assign user_uuid = context.current_user.external_id
-     else 
+     else
           assign user_uuid = context.session.guest_uuid
      endif
 %}

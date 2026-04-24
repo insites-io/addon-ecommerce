@@ -37,7 +37,7 @@ metadata: {
 
     {% comment %} Empty cart {% endcomment %}
     <div id="empty-cart-wrap" class="empty-cart-wrap {% if user_cart.cart_items.size > 0 %}hide{% endif %}">
-        <h5 class="text-center">Your cart is empty!</h5>
+        <h3 class="heading-5 text-center">Your cart is empty!</h3>
         <div class="spacer x-small"></div>
         <p class="text-center">Don't miss out on the best deals!</p>
     </div>
@@ -67,14 +67,14 @@ metadata: {
                 assign recount_total_items = recount_total_items | plus: 1
                 
                 ## Check if the item is a product or a variant of the product
-                if item.variant_uuid == '' or item.variant_uuid == null
+                if item.product_variant_uuid == '' or item.product_variant_uuid == null
                     ## item is NOT a variant
                     assign selected_prop = product
                     assign imgsrc = product.product_image.url
                 else 
                     ## item is a variant                
                     for variant in product.variants
-                        if item.variant_uuid == variant.uuid
+                        if item.product_variant_uuid == variant.uuid
                             assign selected_prop = variant
                         endif
                     endfor
@@ -89,17 +89,19 @@ metadata: {
                 if selected_prop.is_on_sale == true 
                     assign price = selected_prop.sale_price
                     assign price_strikethrough = selected_prop.regular_price
+                    assign is_tax_included = selected_prop.is_sale_price_tax_included
                 else 
                     assign price = selected_prop.regular_price
                     assign price_strikethrough = ''
+                    assign is_tax_included = selected_prop.is_tax_included
                 endif          
 
                 assign product_id = selected_prop.id
-                assign item_total = price | times: item.quantity
+                assign item_total = price | times: item.quantity 
                 assign subtotal = subtotal | plus: item_total
             %}
 
-        <div id="cart-item-{{product_id}}" class="cart-item-wrap">
+        <div id="cart-item-{{item.id}}" class="cart-item-wrap">
             <div class="grid-x" >
 
                 <div class="image_wrap">
@@ -113,7 +115,7 @@ metadata: {
                 </div>
 
                 <div class="grid-y cart-details flex-child-auto">
-                    <a href="/products/{{product.slug}}"><h6>{{ product_name }}</h6></a>
+                    <a href="/products/{{product.slug}}"><span class="heading-6">{{ product_name }}</span></a>
                     {% if selected_prop.stock_level < item.quantity %}
                         <p>
                             <ins-tag label="Pre-order" class='preorder-tag body-x-small' ></ins-tag>
@@ -140,13 +142,16 @@ metadata: {
                     <p class="cart-price compute-price">{{ item_total | plus: 0 | pricify: 'USD', no_cents_if_whole: false }}</p>
                     <div class="spacer x-small"></div>
                     <ins-input-stepper
-                        name="cart-stepper"
                         class="cart-stepper" 
                         data-id="{{ item.id }}"
+                        data-product_sku="{{ item.sku }}"
                         data-product_uuid="{{ item.product_uuid }}"
-                        data-variant_uuid="{{ item.variant_uuid }}"
+                        data-variant_uuid="{{ item.product_variant_uuid }}"
                         data-product_name="{{ item.product_name }}"
                         data-stock_level="{{ selected_prop.stock_level | default: 0 }}"
+                        data-tax_amount={{ product.tax_amount | default: 0 }}                            
+                        data-is_fixed_tax_amount={{ product.is_fixed_tax_amount | default: false }}
+                        data-is_tax_included={{ is_tax_included | default: false }}
                         value="{{ item.quantity }}" 
                         step="1" min="1"                         
                         small>
@@ -174,7 +179,15 @@ metadata: {
 
     {% endif %}
 
-    </div>        
+    </div>
+    
+    <ins-loader
+        id="shopping-cart-loader"
+        class="hide"
+        state-title="" 
+        state-icon="processing" 
+        state-message="Loading">
+    </ins-loader>
     
     {% comment %} user_cart = blank if the user has a guest account {% endcomment %}
     <div id="bottom-wrap" class="bottom-wrap {% if user_cart.cart_items.size <= 0 or user_cart == blank %}hide{% endif %}">

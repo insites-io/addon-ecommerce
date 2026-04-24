@@ -1,3 +1,6 @@
+// Checkout Steps Navigation
+const checkoutStepEl = Array.from(document.getElementsByClassName('checkout-step'));
+
 // Phone Numbers
 const contactPhone = {
     insInput: document.getElementById('contact-phone'),
@@ -133,15 +136,16 @@ let Checkout = (function () {
                     };
                 }
             },
-            createAddressCard(data) {
+            createAddressCard(data, type = 'shipping') {
                 const suburbState = [data.suburb, data.state].filter(Boolean).join(' ');
                 let streetAddress = data.address_1;
                 if(data.address_2){
                     streetAddress += `, ${data.address_2}`;
                 }
+                const cardName = `${type}-address-cards`;
                 let cardHtml = `
                 <div class="large-6 medium-6 small-12 cell">
-                    <ins-checkbox-card data-equalizer-watch="" name="shipping-address-cards" selected-color="blue" value="${data.id}" data-address="${data.address_1}" data-address_1="${data.address_1}" data-address_2="${data.address_2}" data-suburb="${data.suburb}" data-state="${data.state}" data-postcode="${data.postcode}" data-country="${data.country}">                    
+                    <ins-checkbox-card data-equalizer-watch="" name="${cardName}" selected-color="blue" value="${data.id}" data-address="${data.address_1}" data-address_1="${data.address_1}" data-address_2="${data.address_2}" data-suburb="${data.suburb}" data-state="${data.state}" data-postcode="${data.postcode}" data-country="${data.country}">                    
                         <div>
                             <p class="form-label">${streetAddress}</p>
                             <div class="spacer small"></div>
@@ -172,26 +176,10 @@ let Checkout = (function () {
                     // If a selected card is found, stop further processing
                     if (isSelected) {
                         selectedAddressId = card.value;
-                        //Checkout.methods.removeAddressRequiredAttribute();
                         return; 
                     }
                 });
-            },
-            addAddressRequiredAttribute() {
-                // List of input IDs to exclude
-                const excludedIds = ['shipping_address_2', 'billing_address_2'];
-            
-                // Add the 'required' and 'validate' attributes to all inputs except excluded ones
-                inputIds.forEach(id => {
-                    if (!excludedIds.includes(id)) {
-                        const inputElement = document.getElementById(id);
-                        if (inputElement) {
-                            inputElement.setAttribute('required', '');
-                            inputElement.setAttribute('validate', '');
-                        }
-                    }
-                });
-            },                     
+            },                    
             // Update shipping details based on whether shipping info is the same as account info
             updateShippingContact(sameDetails){
                 let requiredInputs = document.querySelectorAll('#shipping-contact-inputs ins-input[required]');
@@ -274,7 +262,7 @@ let Checkout = (function () {
             // Contact Information submission
             async contactSubmit(event){
                 event.preventDefault();
-                let form = event.srcElement;
+                let form = event.target;
                 contactSubmitBtn.loading = true;                
                 Checkout.methods.extractPhoneNumbers(contactPhone);
                 if(await App.validation.validateForm(form)) {
@@ -294,7 +282,12 @@ let Checkout = (function () {
                 contactSubmitBtn.loading = true;                
                 Checkout.methods.extractPhoneNumbers(contactPhone);
                 let emailStatus = await Checkout.methods.checkSignUpUserEmail(contactEmailEl);
-                if(await App.validation.validateForm(document.getElementById('virtual-form'))) {                    
+                if(await App.validation.validateForm(document.getElementById('virtual-form'))) {
+                    if (!emailStatus) {
+                        App.events.notyf("error", "Please check missing fields.");
+                        contactSubmitBtn.loading = false;
+                        return false;
+                    }
                     var companyPayload = {
                         "company_name" : contactCompanyNameEl.value
                     };
@@ -371,7 +364,7 @@ let Checkout = (function () {
             async shippingSubmit(event){
                 event.preventDefault();
                 shippingSubmitBtn.loading = true;
-                let form = event.srcElement;
+                let form = event.target;
 
                 if(shippingSamewithAccountFlag){
                     Checkout.methods.updateShippingContact(true);
@@ -394,7 +387,7 @@ let Checkout = (function () {
             async billingSubmit(event){
                 event.preventDefault();
                 billingSubmitBtn.loading = true;  
-                let form = event.srcElement;
+                let form = event.target;
 
                 if(billingSamewithShippingFlag){
                     Checkout.methods.updateBillingContact(true);
@@ -405,15 +398,17 @@ let Checkout = (function () {
                     if(Checkout.events.saveSessionApi('billing')){
                         //Add delay to allow the session to be saved
                         setTimeout(() => {
-                            form.submit();
-                        }, 1000);       
-                    } 
-                } else {                       
+                            if (billingSamewithShippingFlag) {
+                                window.location.href = '/checkout/payment';
+                            } else {
+                                form.submit();
+                            }
+                        }, 1000);
+                    }
+                } else {
                     App.events.notyf("error", "Please check missing fields.");
                     billingSubmitBtn.loading = false;
-                }                
-                            
-                billingSubmitBtn.loading = false;
+                }
                 return false;
             },
             async saveSessionApi(page) {
@@ -435,7 +430,6 @@ let Checkout = (function () {
                 } else if (page == 'shipping') {
                     payload = {
                         type: 'shipping',
-                        //shipping_address_id: shippingAddressID.value,
                         shipping_same_with_account: shippingSamewithAccountFlag,
                         shipping_instructions: document.getElementById('shipping_instructions').value,
                         shipping_company_name: shippingCompanyNameEl.value,
@@ -449,7 +443,6 @@ let Checkout = (function () {
                 } else if (page == 'billing') {
                     payload = {
                         type: 'billing',
-                        //billing_address_id: billingAddressID.value,
                         billing_same_with_shipping: billingSamewithShippingFlag,
                         billing_company_name: billingCompanyNameEl.value,
                         billing_contact_first_name: billingFirstNameEl.value,
@@ -503,7 +496,7 @@ let Checkout = (function () {
             selectAddressCard(addressCard) {
                 let name = addressCard.getAttribute('name');
       
-                // Remove State of address field cards
+                // Remove State of address field cards - clear all cards with the same name
                 document.getElementsByName(name).forEach(el => {
                     el.classList.remove('is-invalid');
                     el.removeAttribute('selected');
@@ -511,7 +504,7 @@ let Checkout = (function () {
                 });
 
                 // Set selected state
-                addressCard.setAttribute('selected', true);
+                addressCard.setAttribute('selected', 'true');
                 addressCard.selected = true;
                 selectedAddressId = addressCard.value;
 
@@ -529,6 +522,18 @@ let Checkout = (function () {
             async addressSubmit() {
                 let isValid = await App.validation.validateForm(addressFormModal);
                 if(isValid){
+                    // Detect page type by checking the button's name attribute
+                    let pageType = 'shipping';
+                    if(addAddressBtn){
+                        const btnName = addAddressBtn.getAttribute('name');
+                        if(btnName && btnName.includes('billing')){
+                            pageType = 'billing';
+                        }
+                    } else if(billingAddressID && !shippingAddressID){
+                        // Fallback: check which address ID field exists
+                        pageType = 'billing';
+                    }
+
                     let url = '/create-contact-address.json' ;
                     let payload = {
                             "related_uuid": contactUuid, //REQUIRED
@@ -551,11 +556,19 @@ let Checkout = (function () {
                     if(response.state && response.data.id) {            
                         addressFormModal.close();
                         App.events.notyf("success", "Address added successfully.");                        
-                        addressCards.insertAdjacentHTML('afterbegin', Checkout.methods.createAddressCard(response.data));
+                        
+                        // Clear all cards of the same type before adding the new one
+                        const cardName = `${pageType}-address-cards`;
+                        document.querySelectorAll(`ins-checkbox-card[name="${cardName}"]`).forEach(el => {
+                            el.removeAttribute('selected');
+                            el.selected = false;
+                        });
+                        
+                        addressCards.insertAdjacentHTML('afterbegin', Checkout.methods.createAddressCard(response.data, pageType));
 
                         //Select the newly added card                        
                         Checkout.events.selectAddressCard(
-                            document.querySelector(`ins-checkbox-card[value="${response.data.id}"]`)
+                            document.querySelector(`ins-checkbox-card[value="${response.data.id}"][name="${cardName}"]`)
                         );                          
 
                         // Reset value to blank
@@ -578,25 +591,10 @@ let Checkout = (function () {
                     }
                 }
             },
-            uncheckAddressCard(){
-                let addressCards = Array.from(document.querySelectorAll('ins-checkbox-card'));
-                addressCards.forEach(address => {
-                    address.setAttribute('selected', false);
-                    address.selected = false;
-                });
-                selectedAddressId = null;
-            },
-            // Function to remove 'is-invalid' class from all form elements
-            removeInvalidClassFromForm() {
-                const invalidElements = document.querySelectorAll('.is-invalid');
-                invalidElements.forEach((element) => {
-                    element.classList.remove('is-invalid');
-                });
-            },
             async paymentFormSubmit(event){
                 event.preventDefault();
                 checkoutSubmitBtn.loading = true;
-                let form = event.srcElement;
+                let form = event.target;
                 let isValid = await App.validation.validateForm(form);
                 
                 Checkout.validation.validateCreditCard(form);
@@ -619,12 +617,22 @@ let Checkout = (function () {
                 this.initCardsEventListener();
                 this.initCheckNavigation();
                 this.initAddressListener();    
+                this.initNavigation();
                 if(addCardBtns) {
                     addCardBtns.forEach(btn => {
                         btn.addEventListener('insClick',() => cardModal.open());
                     });
                 }            
                 this.initPaymentPage();
+            },
+            initNavigation() {
+                if(checkoutStepEl) {
+                    checkoutStepEl.forEach(step => {
+                        step.addEventListener('insStepClick', async(event) => {
+                            window.location.href = event.target.dataset.page;
+                        });
+                    });
+                }
             },
             initAddressListener() {
                 if(addAddressBtn && addressCancelBtn && addressSubmitBtn) {
@@ -657,9 +665,10 @@ let Checkout = (function () {
             },
             initBillingDetailsListener() {
                 if (billingSameWithShippingEl) {
-                    billingSameWithShippingEl.addEventListener('insCheck', (event) => {                        
+                    billingSameWithShippingEl.addEventListener('insCheck', (event) => {
                         Checkout.methods.updateBillingContact(event.detail.checked);
-                    });                    
+                    });
+                    Checkout.methods.updateBillingContact(billingSamewithShippingFlag);
                 }
             },            
             initAddressCardListener() {

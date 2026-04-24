@@ -7,17 +7,59 @@ metadata: {
 {% graphql order_amounts = 'modules/ecommerce/orders/get_order_amounts',
     uuid: uuid | dig: 'items','results' | first %}
 
+{% comment %} Get Order items to compute tax split {% endcomment %}
+{% graphql order_items_result = 'modules/ecommerce/order_items/get_order_items',
+    order_uuid: uuid | dig: 'items','results' %}
+
 
 {% comment %} Initialize Variables {% endcomment %}
-{%  liquid 
-    assign sub_total_amount = order_amounts.subtotal_amount
+{%  liquid
     assign sub_total_discount = order_amounts.total_discount_amount
     assign sub_total_shipping = order_amounts.total_shipping_amount
     assign sub_total_tax = order_amounts.total_tax_amount
-    assign total_amount = order_amounts.total_amount
+    assign total_amount = order_amounts.total_amount_paid
 
-    ## processing_fee = (total_amount * 0.017) / 1.017
+    ## processing_fee = back-calculated from stored total
     assign processing_fee = total_amount | times: 0.017 | divided_by: 1.017
+
+    ## sub_total_amount = sum of display prices (unit_price × quantity) from order items
+    ## This matches what compute_order_summary shows as "Subtotal"
+    assign sub_total_amount = 0
+    assign sub_total_tax_included = 0
+    assign sub_total_tax_not_included = 0
+    for order_item in order_items_result
+        assign line_total = order_item.unit_price | times: order_item.quantity
+        assign sub_total_amount = sub_total_amount | plus: line_total
+
+        if order_item.unit_price_includes_tax == true
+            assign sub_total_tax_included = sub_total_tax_included | plus: order_item.line_item_tax
+        else
+            assign sub_total_tax_not_included = sub_total_tax_not_included | plus: order_item.line_item_tax
+        endif
+    endfor
+
+    if sub_total_tax_not_included != 0 and sub_total_tax_included != 0
+        assign tax_applied = "both"
+    else
+        assign tax_applied = "single"
+    endif
+
+    assign is_minimum_charge = false
+    if total_amount == 1.00
+        assign is_minimum_charge = true
+    endif
+
+    ## When minimum cap fired, the processing fee was on a near-zero subtotal.
+    ## Zero it out so it matches compute_order_summary display.
+    ## Also zero out GST splits — stored line_item_tax values are pre-discount
+    ## and no longer reflect the correct discounted base.
+    if is_minimum_charge == true
+        assign processing_fee = 0
+        assign sub_total_tax_included = 0
+        assign sub_total_tax_not_included = 0
+        assign sub_total_tax = 0
+        assign tax_applied = "single"
+    endif
 %}
 
 {% parse_json computed %}
@@ -26,8 +68,12 @@ metadata: {
     "shipping_amount": {{ sub_total_shipping | default: 0 }},
     "total_discount_amount": {{ sub_total_discount | default: 0 }},
     "processing_fee": {{ processing_fee | default: 0 }},
-    "tax_amount": {{ sub_total_tax | default: 0 }},    
-    "total_amount": {{ total_amount | default: 0 }}
+    "tax_amount": {{ sub_total_tax | default: 0 }},
+    "sub_total_tax_included": {{ sub_total_tax_included | default: 0 }},
+    "sub_total_tax_not_included": {{ sub_total_tax_not_included | default: 0 }},
+    "tax_applied": "{{ tax_applied }}",
+    "total_amount": {{ total_amount | default: 0 }},
+    "is_minimum_charge": {{ is_minimum_charge | default: false }}
 }
 {% endparse_json %}
 {% export computed %}

@@ -12,7 +12,7 @@ query get_product (
       deleted_at: { exists: false }
       table: { value: "modules/insites_ecommerce/product" }
       properties: [
-        { name: "status", not_value_in: ["archived","disabled"] }
+        { name: "status", value: "enabled"}
         { name: "slug", value: $slug }
       ] 
     }
@@ -30,7 +30,11 @@ query get_product (
       sku: property(name: "sku")  
       short_description: property(name: "short_description")  
       long_description: property(name: "long_description")  
-      is_product_variant_enabled: property_boolean(name: "is_product_variant_enabled")      
+      is_product_variant_enabled: property_boolean(name: "is_product_variant_enabled")  
+      tax_amount: property_float( name: "tax_amount")
+      is_tax_included: property_boolean(name: "is_tax_included")
+      is_fixed_tax_amount: property_boolean(name: "is_fixed_tax_amount")
+      is_sale_price_tax_included: property_boolean(name: "is_sale_price_tax_included")    
       variants: related_records(
         table: "modules/insites_ecommerce/product_variant"
         join_on_property: "uuid"
@@ -47,7 +51,11 @@ query get_product (
         product_image: property_upload(name: "product_image") {
           url
         }
-        product_options: property_array(name: "product_options")  
+        product_options: property_array(name: "product_options") 
+        tax_amount: property_float( name: "tax_amount")
+        is_tax_included: property_boolean(name: "is_tax_included")
+        is_fixed_tax_amount: property_boolean(name: "is_fixed_tax_amount")
+        is_variant_sale_price_tax_included: property_boolean(name: "is_variant_sale_price_tax_included") 
       }
       
       product_image: property_upload(name: "product_image") {

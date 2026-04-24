@@ -30,7 +30,7 @@ metadata: {
 {%- elsif sort == "price-ascending" -%}
     {%- parse_json sort_by -%}
     [{ "properties": [
-        { "name" : "regular_price", "order": "ASC" },
+        { "name" : "effective_price", "order": "ASC" },
         { "name" : "name", "order": "ASC" }
     ]
     }]
@@ -38,7 +38,7 @@ metadata: {
 {%- elsif sort == "price-descending" -%}
     {%- parse_json sort_by -%}
     [{ "properties": [ 
-        { "name" : "regular_price", "order": "DESC" },
+        { "name" : "effective_price", "order": "DESC" },
         { "name" : "name", "order": "ASC" } 
     ] 
     }]
@@ -66,9 +66,13 @@ metadata: {
 {
     "page": {{page_num}},
     "size": {{per_page}},
+    "brand": "{{brand}}", 
     "keyword": "{{keyword}}",
-    "brand": "{{brand}}",    
 
+    {%- if keyword and keyword != '' -%}
+        "keywords": ["{{keyword}}"],
+    {%- endif -%}
+       
     {%- if category_uuids.size > 0 -%}
         "category_uuids": {{ category_uuids }},
     {%- endif -%}
@@ -112,8 +116,6 @@ metadata: {
     </div>
 </div>
 
-
-
 <div class="product-list grid-x grid-padding-x  {% if total_cat_child == 0 %} align-center {% endif %}">    
     <div class="large-3 medium-12 small-12 cell">
         
@@ -144,14 +146,18 @@ metadata: {
         
         {% include "modules/ecommerce/products/main_filters", filters: filters %}
         
-        <div class="spacer small"></div>
+        <div class="spacer"></div>
         
         {%- if products.items and products.items.results.size > 0 -%}                
         
         <div id="product-grid" class="product-cards products-grid grid-x grid-padding-x grid-padding-y medium-up-3 small-up-1">
             
             {%- for product in products.items.results -%}
-                {% include "modules/ecommerce/products/product_card", product, all_categories %}
+                {% assign fetchpriority = null %}
+                {% if forloop.index < 4 %}
+                    {% assign fetchpriority = 'high' %}
+                {% endif %}
+                {% include "modules/ecommerce/products/product_card", product, all_categories, heading_level: 'h2', fetchpriority: fetchpriority %}
             {%- endfor -%}
 
         </div>

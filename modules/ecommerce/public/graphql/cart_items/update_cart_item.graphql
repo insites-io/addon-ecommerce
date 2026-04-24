@@ -1,21 +1,23 @@
 mutation update_cart_item (
-  $id: ID!
-  $quantity: Int!
+  $id: ID!, 
+  $quantity: Int!, 
+  $product_uuid: String, 
+  $product_variant_uuid: String
 ) {
   items: record_update(
     id: $id,
     record: {
       table: "modules/insites_ecommerce/cart_item",
-    	properties: [
-        { name: "quantity", value_int: $quantity }        
+      properties: [
+        { name: "quantity", value_int: $quantity }
+        { name: "product_uuid", value: $product_uuid }
+        { name: "product_variant_uuid", value: $product_variant_uuid }
       ]
     }
   ) {
     id
     uuid: property(name: "uuid")
     cart_uuid: property(name: "cart_uuid")
-    product_uuid: property(name: "product_uuid")
-    variant_uuid: property(name: "variant_uuid")
-    quantity: property_int(name: "quantity")      
+    quantity: property_int(name: "quantity")
   }
 }

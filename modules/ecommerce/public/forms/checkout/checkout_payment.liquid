@@ -83,12 +83,11 @@ fields:
         subtotal_amount: ## Float!
         total_tax_amount: ## Float!
         total_shipping_amount: ## Float!
-        total_discount_amount:
+        total_discount_amount: ## Float!
+        order_total: ## Float!
         total_amount: ## Float!
         total_amount_paid:
-        processing_fee:
-            property_options:
-                virtual: true
+        processing_fee: ## Float!
         discount_code_uuids:     
             property_options:
                 virtual: true   
@@ -113,6 +112,7 @@ default_payload: >
     {%- comment -%} Compute order values {%- endcomment -%}
     {%- include 'modules/ecommerce/checkout/compute_order_summary' -%}
     {%- assign computed = context.exports.computed -%}
+    {%- assign subtotal_amount = computed.sub_total_amount | minus: computed.sub_total_tax_included -%}
     {
         "properties_attributes": {
             "shipping_company_name": "{{context.session.shipping_company_name | default: ''}}",
@@ -159,12 +159,14 @@ default_payload: >
             "date_time": "", 
             "notes": "", 
             "currency": "{{ settings.currency | default: 'AUD' }}", 
-            "subtotal_amount": "{{ computed.sub_total_amount }}",
+            "processing_fee": "{{ computed.processing_fee }}",
+            "subtotal_amount": "{{ subtotal_amount }}",
             "total_tax_amount": "{{ computed.tax_amount }}",
             "total_shipping_amount": "{{ computed.shipping_amount  }}",
             "total_discount_amount": "{{ computed.total_discount_amount }}",
             "total_amount_paid": "{{ computed.total_amount }}",
             "processing_fee": {{ computed.processing_fee }},
+            "order_total": "{{ computed.total_amount }}",
             "total_amount": "{{ computed.total_amount }}",
             "uuid": "{{ '' | uuid }}"                       
         }
@@ -318,7 +320,6 @@ callback_actions: >
         </div>
     </div>
     <!-- END Payment Details -->
-    
 {% endform %}
 
 <!-- Stripe Element -->
@@ -338,3 +339,41 @@ callback_actions: >
     public_key: stripe_settings.pk_key,
     has_profile: has_profile -%}
 <!-- END Stripe Element -->
+
+{%- unless has_profile -%}
+<script>
+    (function () {
+        const cardList = document.getElementById('card-options-list');
+        const submitButtons = document.getElementById('submit-buttons');
+        const guestCardForm = document.getElementById('guest-add-card-form');
+
+        if (!cardList || !submitButtons) return;
+
+        const stripeCardInput = document.getElementById('stripe-card');
+        const submitBtn = document.getElementById('checkout-submit-btn');
+
+        const observer = new MutationObserver(() => {
+            if (cardList.querySelector('ins-credit-card')) {
+                observer.disconnect();
+
+                // Show the button immediately in loading state while waiting for the token
+                submitButtons.classList.remove('hide');
+                if (guestCardForm) guestCardForm.classList.add('hide');
+                if (submitBtn) submitBtn.loading = true;
+
+                let attempts = 0;
+                const poll = setInterval(() => {
+                    attempts++;
+                    const hasToken = stripeCardInput && stripeCardInput.value;
+                    if (hasToken || attempts > 50) {
+                        clearInterval(poll);
+                        if (submitBtn) submitBtn.loading = false;
+                    }
+                }, 100);
+            }
+        });
+
+        observer.observe(cardList, { childList: true, subtree: true });
+    })();
+</script>
+{%- endunless -%}

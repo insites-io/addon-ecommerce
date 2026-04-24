@@ -34,13 +34,13 @@ metadata: {
         assign product_name = product.product_name                
 
         ## Check if the cart_item is a product or a variant of the product
-        if cart_item.variant_uuid == '' or cart_item.variant_uuid == null
+        if cart_item.product_variant_uuid == '' or cart_item.product_variant_uuid == null
             ## item is NOT a variant
             assign selected_prop = product
         else 
             ## cart_item is a variant                
             for variant in product.variants
-                if cart_item.variant_uuid == variant.uuid
+                if cart_item.product_variant_uuid == variant.uuid
                     assign selected_prop = variant
                 endif
             endfor
@@ -63,7 +63,7 @@ metadata: {
         assign properties = '' | parse_json
         assign properties = properties | add_hash_key: 'order.uuid', order_uuid
         assign properties = properties | add_hash_key: 'product.uuid', cart_item.product_uuid
-        assign properties = properties | add_hash_key: 'product_variant.uuid', cart_item.variant_uuid
+        assign properties = properties | add_hash_key: 'product_variant.uuid', cart_item.product_variant_uuid
         if order_item_image
             assign properties = properties | add_hash_key: 'order_item_image', order_item_image
         endif
@@ -72,30 +72,58 @@ metadata: {
         assign temp_cart_item_quantity = cart_item.quantity | plus: 0
         assign properties = properties | add_hash_key: 'quantity', temp_cart_item_quantity
         assign properties = properties | add_hash_key: 'is_fixed_tax_amount', selected_prop.is_fixed_tax_amount
+        assign properties = properties | add_hash_key: 'is_use_sale_price', selected_prop.is_on_sale
+        if selected_prop.is_on_sale == true
+            assign unit_price_includes_tax = selected_prop.is_sale_price_tax_included
+        else
+            assign unit_price_includes_tax = selected_prop.is_tax_included
+        endif
+        assign properties = properties | add_hash_key: 'unit_price_includes_tax', unit_price_includes_tax
         assign properties = properties | add_hash_key: 'unit_price', price
         assign temp_tax_amount = selected_prop.tax_amount | default: 0.0
         assign properties = properties | add_hash_key: 'tax_amount', temp_tax_amount
-        assign properties = properties | add_hash_key: 'item_tax', temp_tax_amount
+
+        ## Calculate item_price (per-unit price excluding tax) and item_tax (per-unit tax amount)
+        if unit_price_includes_tax == true
+            if selected_prop.is_fixed_tax_amount == true
+                assign item_price = price | minus: temp_tax_amount
+                assign item_tax = temp_tax_amount
+            else
+                assign temp_tax_rate = temp_tax_amount | divided_by: 100.0
+                assign temp_tax_divisor = temp_tax_rate | plus: 1
+                assign item_price = price | divided_by: temp_tax_divisor
+                assign item_tax = price | minus: item_price
+            endif
+        else
+            assign item_price = price
+            if selected_prop.is_fixed_tax_amount == true
+                assign item_tax = temp_tax_amount
+            else
+                assign item_tax = price | times: temp_tax_amount | divided_by: 100.0
+            endif
+        endif
+
+        assign item_price = item_price | round: 4
+        assign item_tax = item_tax | round: 4
+        assign properties = properties | add_hash_key: 'item_price', item_price
+        assign properties = properties | add_hash_key: 'item_tax', item_tax
+        assign temp_line_item_tax = item_tax | times: temp_cart_item_quantity | round: 4
+        assign properties = properties | add_hash_key: 'line_item_tax', temp_line_item_tax
         comment
             These items are to be readded when needed, consult Insites for changes in fields
             assign temp_line_item_price = price | times: temp_cart_item_quantity
             assign properties = properties | add_hash_key: 'line_item_price', temp_line_item_price
-            assign temp_line_item_tax = temp_tax_amount | times: temp_cart_item_quantity
-            assign properties = properties | add_hash_key: 'line_item_tax', temp_line_item_tax
-            assign properties = properties | add_hash_key: 'item_price', price
         endcomment
-        assign line_item_total = price | times: cart_item.quantity | times: 1.00
+        assign temp_item_subtotal = item_price | times: temp_cart_item_quantity
+        assign line_item_total = temp_item_subtotal | plus: temp_line_item_tax | round: 4
         assign properties = properties | add_hash_key: 'line_item_total', line_item_total
 
         assign order_items = order_items | array_add: properties
     endfor
+    
+    function create_order_item = "ecommerce/controller/order_items/add_bulk", params: order_items
 
-    assign order_items_payload = '{}' | parse_json
-    assign order_items_payload = order_items_payload | add_hash_key: 'payload', order_items
 %}
 
-{% graphql create_order_item = 'modules/ecommerce/system/trigger_api_call', 
-    name: "modules/ecommerce/add_order_items", 
-    data: order_items_payload %}
 
 {% export cart, total_preorder_items %}

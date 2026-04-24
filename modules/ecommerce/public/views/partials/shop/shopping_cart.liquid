@@ -3,15 +3,15 @@ metadata: {
     partial_name: 'Ecommerce | Shop | Shopping Cart'
 }
 ---
-{%- if carts.size > 0 -%}
-    <h4>Cart items</h4>
+{%- if cart_items.size > 0 -%}
+    <h2 class="heading-4">Cart items</h2>
     <div class="spacer x-large"></div>    
     <div id="shopping-cart-list">
         <div class="wrap shopping-cart grid-y">
 
-        {%- for item in carts -%}          
+        {%- for item in cart_items -%}          
 
-            {% include 'modules/ecommerce/carts/cart_details', products, item %}
+            {% include 'modules/ecommerce/carts/cart_item_details', products, item %}
             {% assign cart = context.exports.cart %}
             
                                                 
@@ -30,14 +30,14 @@ metadata: {
                     </div>
                     <div class="text-wrap">
                         <a href="/products/{{ cart.slug }}">
-                            <h6>
+                            <h3 class="heading-6">
                                 {{ cart.product_name }} 
 
                                 {% comment %} Pre-order Tag {% endcomment %}                                
                                 {% if cart.selected_prop.stock_level < item.quantity %}
                                     <ins-tag label="Pre-order" class='preorder-tag body-x-small' ></ins-tag>
                                 {% endif %}
-                            </h6> 
+                            </h3> 
                         </a>
                         <p class="body-small font-color-body">SKU: {{ cart.product_sku }}</p>                        
                         <div class="spacer small"></div>
@@ -57,12 +57,11 @@ metadata: {
                         <p class="cart-price compute-price">{{ cart.item_total_price | pricify: 'USD', no_cents_if_whole: false }}</p>
                         <div class="spacer small"></div>
                         <ins-input-stepper
-                            name="cart-stepper"
                             class="cart-stepper" 
                             data-id="{{ item.id }}"
                             data-product_uuid="{{ item.product_uuid }}"
                             data-product_sku="{{ item.product_sku }}"
-                            data-variant_uuid="{{ item.variant_uuid }}"
+                            data-variant_uuid="{{ item.product_variant_uuid }}"
                             data-product_name="{{ item.product_name }}"
                             data-stock_level="{{ selected_prop.stock_level | default: 0 }}"
                             value="{{ item.quantity }}" 

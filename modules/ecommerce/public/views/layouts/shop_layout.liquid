@@ -46,7 +46,6 @@ metadata: {
             type: slug_type,
             slug: slug -%}
     {%- else -%}
-        <meta include-used="modules/insites_cms/seo" slug="{{ slug }}">
         {%- include 'modules/insites_cms/seo' -%}
     {%- endif -%}
     
@@ -139,8 +138,6 @@ metadata: {
     {% if context.params.slug != 'shopping-cart' %}
         {% include 'modules/ecommerce/carts/cart_drawer' %}
     {% endif %}
-    
-    <script src="{{ 'modules/ecommerce/scripts/mega-menu-close.js' | asset_url }}"></script>
 
 </body>
 </html>

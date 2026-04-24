@@ -35,8 +35,10 @@ query get_order_items (
       quantity: property_int(name: "quantity")
       item_price: property_float(name: "item_price")
       unit_price: property_float(name: "unit_price")
-      is_fixed_tax_amount: property_boolean(name: "is_fixed_tax_amount")  
+      is_fixed_tax_amount: property_boolean(name: "is_fixed_tax_amount")
       tax_amount: property_float(name: "tax_amount")
+      unit_price_includes_tax: property_boolean(name: "unit_price_includes_tax")
+      line_item_tax: property_float(name: "line_item_tax")
       order_item_name: property(name: "order_item_name")
       order_item_image: property_upload(name: "order_item_image") {
         url

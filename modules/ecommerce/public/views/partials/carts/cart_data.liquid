@@ -1,0 +1,51 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Carts | Cart Data'
+}
+---
+{% comment %} 
+    Some pages may pass these parameters: 
+        - cart (previously user_cart)
+        - cart_items (previously carts)
+        - products
+
+    If these parameters were not passed, get their values here
+{% endcomment %}
+
+
+{% function user_uuid = 'modules/ecommerce/user/get_user_uuid' %}
+
+{% if user_uuid %}
+    {% comment %} Get cart {% endcomment %}
+    {%- if cart == '' or cart == blank -%}
+        {% graphql cart = 'modules/ecommerce/carts/get_cart', 
+            contact_uuid: user_uuid, show_discount_details: true | dig: 'items','results' | first %}
+    {%- endif -%}
+    
+    {% comment %} Get cart_items from cart if not provided as parameter {% endcomment %}
+    {%- if cart_items == '' or cart_items == blank -%}
+        {%- if cart.cart_items -%}
+            {%- liquid
+                assign cart_items = cart.cart_items
+                assign product_uuids = cart_items | array_map: 'product_uuid' | array_flatten
+                ## Product details
+                graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: cart_items.size | dig: 'items','results'
+            -%}
+        {%- endif -%}
+    {%- else -%}
+        {%- liquid
+            assign product_uuids = cart_items | array_map: 'product_uuid' | array_flatten
+            graphql products = 'modules/ecommerce/products/get_cart_products', uuid: product_uuids, size: cart_items.size | dig: 'items','results'
+        -%}
+    {%- endif -%}
+{% endif %}
+
+{% parse_json cart_data %}
+{
+    "cart": {{ cart | default: '[]' }},
+    "cart_items": {{ cart_items | default: '[]' }},
+    "products": {{ products | default: '[]' }}
+}
+{% endparse_json %}
+
+{% export cart_data %}

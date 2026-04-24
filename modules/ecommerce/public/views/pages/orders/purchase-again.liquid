@@ -190,12 +190,12 @@ authorization_policies:
 
             if item.product_variant_uuid == '' or item.product_variant_uuid == null
                 assign selected_prop = product
-                assign variant_uuid = null
+                assign product_variant_uuid = null
             else 
                 for variant in product.variants
                 if item.product_variant_uuid == variant.uuid
                     assign selected_prop = variant
-                    assign variant_uuid = variant.uuid
+                    assign product_variant_uuid = variant.uuid
                     assign is_variant = true
                 endif
                 endfor
@@ -227,7 +227,7 @@ authorization_policies:
             <div class="details flex-grow-1">
                 <h6>{{ product.product_name }}</h6>
                 <div class="spacer x-small"></div>                
-                <p>{{ category_name | default: 'Category' }}</p>
+                <p>{{ category_name }}</p>
                 <div class="spacer"></div>
                 <p class="product-current-price">{{ price | pricify }}
                     {% if selected_prop.is_on_sale == true %}
@@ -243,7 +243,7 @@ authorization_policies:
                     "id": "{{ selected_prop.id }}",
                     "product_uuid": "{{ product.uuid }}",
                     "product_sku": "{{ selected_prop.sku }}",
-                    "variant_uuid": "{{ variant_uuid }}",
+                    "product_variant_uuid": "{{ product_variant_uuid }}",
                     "product_name": "{{ product.product_name | replace: "'", "`" }}",
                     "price": "{{ price | default: 0 }}"
                 }

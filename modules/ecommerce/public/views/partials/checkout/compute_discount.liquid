@@ -5,16 +5,20 @@ metadata: {
 ---
 
 {% comment %} 
- - This only computes all discount codes added in modules/insites_ecommerce/cart.
- - No further validation is performed here to check whether the discount_code_uuids are still valid.
+ - This only computes all discount codes added in modules/insites_ecommerce/cart_discount.
+ - No further validation is performed here to check whether the cart_discounts are still valid.
+ - Use plus filter to convert null or String into number
 {% endcomment %}
 
-{% for discount in discounts %}    
+{% for discount in discounts %}
+         {% comment %} Get minimum_cart_value from related discount record (nested in discount table) {% endcomment %}
+         {% assign minimum_cart_value = discount.discount.minimum_cart_value | plus: 0| default: 0 %}         
 
-         {% if item_total_price >= discount.minimum_cart_value or discount.minimum_cart_value == blank %}
+         {% if sub_total_amount >= minimum_cart_value %}
 
-             {% assign discount_type = discount.discount_type | downcase %}
-             {% assign discount_value = discount.discount_value %}                        
+             {% comment %} Get discount_type and discount_value from cart_discount (denormalized) or nested discount {% endcomment %}
+             {% assign discount_type = discount.discount_type | default: discount.discount.discount_type | downcase %}
+             {% assign discount_value = discount.discount_value | default: discount.discount.discount_value %}                        
 
              {% if discount_type == "fixed_amount" %}
 
