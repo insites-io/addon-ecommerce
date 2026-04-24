@@ -86,11 +86,6 @@ async function addToCartPreProcess(event, type){
     cartDrawer.setDrawerState(true);
     await submitAddCart(data, type);
 
-    // Hide the loader and show the cart items and shopping cart list
-    if (shoppingCartLoaderEl) { shoppingCartLoaderEl.classList.add("hide"); }
-    if (cartItemsWrap) { cartItemsWrap.classList.remove("hide"); }
-    if (shoppingCartListEl) { shoppingCartListEl.classList.remove('hide'); }
-
     // If the type is 'buy now' or 'pre-order', go to /shopping-cart page
     if(type.toLowerCase() == 'buy now' || type.toLowerCase() == 'pre-order'){
         // It is either 'buy now' or 'pre-order', go to /shopping-cart page
@@ -129,6 +124,15 @@ async function submitAddCart(data, type){
         }         
         computeSubTotal();
     } 
+
+    if (page == 'shopping-cart') {
+
+    } else {
+        // Hide the loader and show the cart items and shopping cart list
+        if (shoppingCartLoaderEl) { shoppingCartLoaderEl.classList.add("hide"); }
+        if (cartItemsWrap) { cartItemsWrap.classList.remove("hide"); }
+        if (shoppingCartListEl) { shoppingCartListEl.classList.remove('hide'); }
+    }
 
 }
 
@@ -177,10 +181,6 @@ async function processStepperCall(event){
     
     await submitAddCart(data, 'stepper');
 
-    // Hide the loader and show the cart items and shopping cart list
-    if (shoppingCartLoaderEl) { shoppingCartLoaderEl.classList.add("hide"); }
-    if (cartItemsWrap) { cartItemsWrap.classList.remove("hide"); }
-    if (shoppingCartListEl) { shoppingCartListEl.classList.remove('hide'); }
 }
 
 
