@@ -86,7 +86,7 @@
   - Gradient background color for solid buttons
 - Text headings and labels ( except for Product Name )
   - Use sentence case ( Sample title ) instead of title case ( Sample Title )
-- New design for loader - https://cbo.d.pr/i/D0lLrp
+- New design for loader
 - Seed data
   - Added seed data for category_custom_field. This will display the featured categories in the Mega Menu
 - Mega Menu
