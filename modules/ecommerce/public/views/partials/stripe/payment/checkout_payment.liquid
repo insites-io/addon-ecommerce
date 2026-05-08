@@ -34,6 +34,7 @@ metadata: {
     {%- endcomment -%}
     {% assign stripe_amount = prop.total_amount | times: 100 %}
     {% function stripe_settings = "modules/portal/stripe/get_stripe_settings" %}
+    {% comment %} Stripe secret keys are read from instance settings; never log this payload. {% endcomment %}
     {% parse_json create_charge %}
     {
         "sk_key": "{{ stripe_settings.sk_key }}",
