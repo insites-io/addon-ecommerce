@@ -5,7 +5,31 @@ metadata: {
 ---
 {% assign params = context.params %}
 
-        <div class="filter">                                        
+{%- comment -%}
+    Admin-managed synonyms for the predictive search dropdown.
+    Built into a { "term": ["syn", ...] } map and exposed to predictive-search.js.
+    Falls back to the script's built-in defaults when no rows exist.
+{%- endcomment -%}
+{%- graphql product_synonyms = 'modules/ecommerce/products/get_product_search_synonyms' -%}
+{%- assign synonym_rows = product_synonyms.items.results -%}
+{%- if synonym_rows.size > 0 -%}
+    {%- capture synonym_json -%}
+    {
+    {%- for row in synonym_rows -%}
+        {%- assign term = row.term | strip | downcase | replace: '"', '' -%}
+        {%- assign synonym_parts = row.synonyms | split: ',' -%}
+        "{{ term }}": [
+        {%- for part in synonym_parts -%}
+            "{{ part | strip | downcase | replace: '"', '' }}"{%- unless forloop.last -%},{%- endunless -%}
+        {%- endfor -%}
+        ]{%- unless forloop.last -%},{%- endunless -%}
+    {%- endfor -%}
+    }
+    {%- endcapture -%}
+    <script>window.PRODUCT_SEARCH_SYNONYMS = {{ synonym_json }};</script>
+{%- endif -%}
+
+        <div class="filter">
             <ins-input
                 id="filter-keyword"
                 class="filter-keyword"

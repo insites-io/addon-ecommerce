@@ -1,4 +1,13 @@
  ## Change Log
+ ## App - Add-on Ecommerce V1.2.0
+
+- Predictive Search (Products)
+  - Added predictive/typeahead search to the products filter (`#filter-keyword`): suggestions appear as you type, with product thumbnail, name and price
+  - Intent-aware matching tolerant of word order, abbreviations, plurals and synonyms (e.g. "extra large" ⟷ "xl", "tee" ⟷ "t-shirt"); closest matches ranked highest
+  - Admin-managed synonyms via a new `product_search_synonym` database ("Product Search Synonyms") — terms can be added/edited without code changes; synonyms are bidirectional
+  - Keyboard (↑/↓/Enter/Esc) and mouse navigation, load-more on scroll; pressing Enter with no suggestion highlighted runs the standard results-page search
+  - New lightweight GraphQL query (`search_products_lite`) and JSON endpoint (`api/products/predictive-search`); ranking is performed client-side
+
  ## App - Add-on Ecommerce V1.1.1
 
 - Module Updates

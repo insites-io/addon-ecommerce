@@ -40,6 +40,11 @@ let productList = (function () {
                         productList.methods.keywordInputEvent(event, 'iconClick');
                     });
                     productList.methods.initSearchClear();
+
+                    // Predictive (typeahead) suggestions dropdown
+                    if (window.PredictiveSearch) {
+                        window.PredictiveSearch.init(keywordInput);
+                    }
                 }
             },
             initSearchClear(){
@@ -75,6 +80,7 @@ let productList = (function () {
                         if (!e.target.classList.contains('icon-close-1')) return;
                         inputEl.value = '';
                         hideClose();
+                        if (window.PredictiveSearch) window.PredictiveSearch.close();
                         if (productFilter.keyword) {
                             productList.methods.clearFilterToList();
                             window.location.href = productList.methods.buildURLLink();
@@ -182,10 +188,27 @@ let productList = (function () {
                 }
             },
             keywordInputEvent(event, type){
-                if (event.detail.keyCode === 13 || (type == "iconClick" && event.detail.value != "")){
+                let isEnter = event.detail.keyCode === 13;
+                let isIconClick = type == "iconClick" && event.detail.value != "";
+
+                if (isEnter || isIconClick){
+                    // If a predictive suggestion is highlighted, open that product instead of running a full search.
+                    if (isEnter && window.PredictiveSearch) {
+                        let activeSlug = window.PredictiveSearch.getActiveSlug();
+                        if (activeSlug) {
+                            window.PredictiveSearch.go(activeSlug);
+                            return;
+                        }
+                    }
                     productList.methods.clearFilterToList();
                     productFilter.keyword = event.detail.value;
                     window.location.href = productList.methods.buildURLLink();
+                    return;
+                }
+
+                // Typing: drive the predictive dropdown.
+                if (window.PredictiveSearch) {
+                    window.PredictiveSearch.onInput(event.detail.value);
                 }
             }
         },

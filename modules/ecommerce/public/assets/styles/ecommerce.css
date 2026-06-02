@@ -2919,3 +2919,104 @@ ins-button.add-credit-card button.ins-button>div,
         gap: 8px;
     }
 }
+/* ------------------------------------------------------------------ */
+/* Predictive product search dropdown (typeahead suggestions)         */
+/* ------------------------------------------------------------------ */
+.filter .filter-keyword {
+    position: relative;
+    display: block;
+}
+
+.filter .filter-keyword .input-wrap {
+    position: relative;
+}
+
+.predictive-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 50;
+    margin: 0;
+    padding: 4px 0;
+    list-style: none;
+    max-height: 360px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.predictive-dropdown.open {
+    display: block;
+}
+
+.predictive-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.predictive-option:hover,
+.predictive-option.active {
+    background: #f3f6fb;
+}
+
+.predictive-thumb {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #f5f5f5;
+}
+
+.predictive-thumb.placeholder-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #bbb;
+    font-size: 20px;
+}
+
+.predictive-name {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.predictive-price {
+    flex: 0 0 auto;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+.predictive-empty {
+    padding: 12px 16px;
+    color: #777;
+    font-style: italic;
+}
+
+.predictive-loading .input-wrap::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 44px;
+    width: 16px;
+    height: 16px;
+    margin-top: -8px;
+    border: 2px solid #ccc;
+    border-top-color: #2f8de4;
+    border-radius: 50%;
+    animation: predictive-spin 0.6s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes predictive-spin {
+    to { transform: rotate(360deg); }
+}

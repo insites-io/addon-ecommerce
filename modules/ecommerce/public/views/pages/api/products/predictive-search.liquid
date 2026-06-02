@@ -1,0 +1,37 @@
+---
+slug: api/products/predictive-search
+format: json
+method: get
+searchable: false
+metadata: {
+    "status": "published",
+    "api_endpoint_name": "Predictive product search"
+}
+---
+{% comment %}
+    Lightweight JSON endpoint for the predictive (typeahead) product search.
+    Called once per query variation by predictive-search.js, which merges,
+    dedupes and ranks the results client-side.
+
+    Params:
+      - keyword : single search term (one query variation)
+      - page    : page number (default 1)
+      - size    : results per page (default 50)
+{% endcomment %}
+
+{%- assign keyword = context.params.keyword | default: "" -%}
+{%- assign page = context.params.page | default: 1 -%}
+{%- assign size = context.params.size | default: 50 -%}
+
+{%- parse_json args -%}
+{
+    "page": {{ page | plus: 0 }},
+    "size": {{ size | plus: 0 }},
+    "keyword": "{{ keyword }}",
+    "keywords": ["{{ keyword }}"]
+}
+{%- endparse_json -%}
+
+{%- graphql products = 'modules/ecommerce/products/search_products_lite', args: args -%}
+
+{{ products }}

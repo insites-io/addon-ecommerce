@@ -86,8 +86,10 @@ URL Structures:
 
 {% if is_product_detail == false %}
     {%- if context.environment == "staging" -%}
+        <script src="{{ 'modules/ecommerce/scripts/predictive-search.js' | asset_url }}" defer></script>
         <script src="{{ 'modules/ecommerce/scripts/product-list.js' | asset_url }}" defer></script>
     {% else %}
+        <script src="{{ 'modules/ecommerce/scripts/predictive-search.min.js' | asset_url }}" defer></script>
         <script src="{{ 'modules/ecommerce/scripts/product-list.min.js' | asset_url }}" defer></script>
     {% endif %}
 {% endif %}
