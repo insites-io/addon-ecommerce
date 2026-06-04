@@ -1,0 +1,176 @@
+---
+slug: api/products/list-results
+format: json
+method: get
+searchable: false
+metadata: {
+    "page_name": "Products | List Results (AJAX)"
+}
+---
+{% comment %}
+    AJAX endpoint for the product listing page (/products).
+    Returns the rendered product grid for the current filters/search/pagination so
+    the page can swap only the list instead of reloading. Mirrors the filter logic
+    in partials/products/list.liquid.
+
+    Category is passed as query params (the page reads it from the path):
+    - slug2      : top-level category slug   (path segment on the page)
+    - category   : single sub-category slug  (?category=)
+    - categories : multi-select slugs        (?categories=a,b)
+{% endcomment %}
+
+{%- comment -%} Filter params {%- endcomment -%}
+{%- assign page_num = context.params.page | default: 1 | plus: 0 -%}
+{%- assign per_page = context.params.per_page | default: 9 | plus: 0 -%}
+{%- assign brand = context.params.brand | default: "" -%}
+{%- assign show = context.params.show | default: "all" -%}
+{%- assign keyword = context.params.keyword | default: "" -%}
+{%- assign min_price = context.params.min_price | default: "" -%}
+{%- assign max_price = context.params.max_price | default: "" -%}
+{%- assign brands_param = context.params.brands | default: "" -%}
+{%- assign availability = context.params.availability | default: "" -%}
+
+{%- liquid
+    assign stock_gt = ""
+    assign stock_lte = ""
+
+    if show == "in-stock"
+        assign stock_gt = "0"
+    endif
+
+    assign avail_instock = false
+    assign avail_outstock = false
+    if availability contains "in-stock"
+        assign avail_instock = true
+    endif
+    if availability contains "out-of-stock"
+        assign avail_outstock = true
+    endif
+
+    if avail_instock and avail_outstock
+        comment # both selected = no stock constraint
+        endcomment
+    elsif avail_instock
+        assign stock_gt = "0"
+    elsif avail_outstock
+        assign stock_lte = "0"
+    endif
+-%}
+
+{%- comment -%} Sorting {%- endcomment -%}
+{%- assign sort = context.params.sort | default: "newest" -%}
+{%- if sort == "newest" -%}
+    {%- parse_json sort_by -%}
+    { "created_at": { "order": "DESC" } }
+    {%- endparse_json -%}
+{%- elsif sort == "price-ascending" -%}
+    {%- parse_json sort_by -%}
+    [{ "properties": [
+        { "name" : "effective_price", "order": "ASC" },
+        { "name" : "name", "order": "ASC" }
+    ]
+    }]
+    {%- endparse_json -%}
+{%- elsif sort == "price-descending" -%}
+    {%- parse_json sort_by -%}
+    [{ "properties": [
+        { "name" : "effective_price", "order": "DESC" },
+        { "name" : "name", "order": "ASC" }
+    ]
+    }]
+    {%- endparse_json -%}
+{%- endif -%}
+
+{%- comment -%} Categories (need the catalog to resolve slugs to uuids and label cards) {%- endcomment -%}
+{%- parse_json cat_sort_by -%}
+{ "properties": [{ "name": "category_weighting", "order": "ASC" }] }
+{%- endparse_json -%}
+{%- graphql all_categories = 'modules/ecommerce/categories/get_categories' sort_by: cat_sort_by | dig: 'items','results' -%}
+
+{%- liquid
+    assign param_cat = context.params.category | strip
+    assign param_slug2 = context.params.slug2 | strip
+
+    comment # Legacy single category from the path (/products/{slug2}) or ?category=
+    endcomment
+    if param_cat != ''
+        assign category_uuids = all_categories | array_detect: slug: param_cat | dig: 'uuid' | split: ','
+    elsif param_slug2 != ''
+        assign category_uuids = all_categories | array_detect: slug: param_slug2 | dig: 'uuid' | split: ','
+    endif
+
+    comment # Multi-select categories (?categories=slug1,slug2) unioned with the legacy selection.
+    endcomment
+    assign filter_cat_uuids = ''
+    if category_uuids.size > 0
+        assign filter_cat_uuids = category_uuids | join: ','
+    endif
+    assign param_categories = context.params.categories | default: '' | strip
+    if param_categories != ''
+        assign sel_cat_slugs = param_categories | split: ','
+        for s in sel_cat_slugs
+            assign s_uuid = all_categories | array_detect: slug: s | dig: 'uuid'
+            if s_uuid and s_uuid != ''
+                if filter_cat_uuids != ''
+                    assign filter_cat_uuids = filter_cat_uuids | append: ',' | append: s_uuid
+                else
+                    assign filter_cat_uuids = s_uuid
+                endif
+            endif
+        endfor
+    endif
+    assign filter_category_uuids = filter_cat_uuids | split: ',' | uniq
+-%}
+
+{%- comment -%} Build GraphQL filters {%- endcomment -%}
+{%- parse_json filters -%}
+{
+    "page": {{ page_num }},
+    "size": {{ per_page }},
+    "brand": "{{ brand }}",
+    "keyword": "{{ keyword }}",
+    {%- if keyword and keyword != '' -%}
+        "keywords": ["{{ keyword }}"],
+    {%- endif -%}
+    {%- if filter_category_uuids.size > 0 -%}
+        "category_uuids": {{ filter_category_uuids | json }},
+    {%- endif -%}
+    {%- if brands_param != '' -%}
+        "brands": {{ brands_param | split: ',' | json }},
+    {%- endif -%}
+    {%- if min_price != '' -%}
+        "min_price": "{{ min_price }}",
+    {%- endif -%}
+    {%- if max_price != '' -%}
+        "max_price": "{{ max_price }}",
+    {%- endif -%}
+    {%- if show == "sale" -%}
+        "is_on_sale": true,
+    {%- endif -%}
+    {%- if stock_gt != '' -%}
+        "not_number": "{{ stock_gt }}",
+    {%- endif -%}
+    {%- if stock_lte != '' -%}
+        "stock_lte": "{{ stock_lte }}",
+    {%- endif -%}
+    "sort": {{ sort_by | json }}
+}
+{%- endparse_json -%}
+
+{%- comment -%} total_entries and results are separate queries for performance (matches list.liquid) {%- endcomment -%}
+{%- graphql products_total_entries = 'modules/ecommerce/products/search_products_total_entries', args: filters -%}
+{%- graphql products = 'modules/ecommerce/products/search_products', args: filters -%}
+
+{% log filters, type: "===test filters" %}
+{% log products, type: "===test products" %}
+
+{%- capture cards_html -%}
+{%- include 'modules/ecommerce/products/grid', products: products.items.results, all_categories: all_categories -%}
+{%- endcapture -%}
+
+{
+    "html": {{ cards_html | json }},
+    "totalCount": {{ products_total_entries.items.total_entries | default: 0 }},
+    "pageNumber": {{ page_num }},
+    "pageSize": {{ per_page }}
+}

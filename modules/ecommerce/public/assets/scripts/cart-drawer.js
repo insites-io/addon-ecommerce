@@ -54,12 +54,35 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* Add to cart */
-let addToCartBtn = document.querySelectorAll(".add-to-cart-btn");
-addToCartBtn.forEach(btn => {
-    btn.addEventListener('insClick', event => {  
-        addToCartPreProcess(event);
+// Binds add-to-cart + product-card click behaviour. Safe to call repeatedly
+// (e.g. after the product list is swapped in via AJAX) — already-bound nodes are skipped.
+function initProductCardInteractions(root){
+    root = root || document;
+
+    root.querySelectorAll(".add-to-cart-btn").forEach(btn => {
+        if (btn.dataset.cartBound) return;
+        btn.dataset.cartBound = "1";
+        btn.addEventListener('insClick', event => {
+            addToCartPreProcess(event);
+        });
     });
-});
+
+    // Clicking anywhere in a product card (except the add-to-cart button) opens the detail link.
+    root.querySelectorAll('.product-cards .cell').forEach(wrapper => {
+        if (wrapper.dataset.cardBound) return;
+        wrapper.dataset.cardBound = "1";
+        wrapper.addEventListener('click', function (event) {
+            if (!event.target.closest('ins-button.add-to-cart-btn')) {
+                const link = this.querySelector('a');
+                if (link) {
+                    link.click();
+                }
+            }
+        });
+    });
+}
+window.initProductCardInteractions = initProductCardInteractions;
+initProductCardInteractions(document);
 
 async function addToCartPreProcess(event, type){
     
@@ -511,18 +534,5 @@ function openDrawer(){
 }
 
 
-//Trigger a click event on a child <a> element when clicking anywhere inside an element '.product-cards .cell' 
-//(except for ins-button.add-to-cart-btn element and its children)
-const productWrappers = document.querySelectorAll('.product-cards .cell');
-if(productWrappers){
-    productWrappers.forEach(wrapper => {
-        wrapper.addEventListener('click', function (event) {
-            if (!event.target.closest('ins-button.add-to-cart-btn')) {
-                const link = this.querySelector('a');
-                if (link) {
-                    link.click();
-                }
-            }
-        });
-    });
-}
+// Product-card click handling is wired in initProductCardInteractions() above,
+// which also re-binds cards injected via AJAX on the product list.

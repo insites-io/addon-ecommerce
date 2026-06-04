@@ -552,6 +552,57 @@ ins-carousel .product-cards>div {
     border-radius: 12px;
 }
 
+/* ---- Product list AJAX: card skeleton loader + empty state ---- */
+@keyframes sk-shimmer {
+    0%   { background-position: -600px 0; }
+    100% { background-position:  600px 0; }
+}
+.product-card-skeleton {
+    border-radius: 20px;
+    background: var(--color-ui-02);
+    padding: 16px;
+    height: 100%;
+    pointer-events: none;
+}
+.product-card-skeleton .sk-image {
+    height: 300px;
+    width: 100%;
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+.product-card-skeleton .sk-line {
+    height: 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+.product-card-skeleton .sk-title { width: 80%; height: 20px; }
+.product-card-skeleton .sk-cat   { width: 40%; }
+.product-card-skeleton .sk-price { width: 30%; height: 20px; margin-bottom: 0; }
+.product-card-skeleton .sk-btn {
+    height: 44px;
+    width: 100%;
+    border-radius: 24px;
+    margin-top: 16px;
+}
+.product-card-skeleton .sk-image,
+.product-card-skeleton .sk-line,
+.product-card-skeleton .sk-btn {
+    background: linear-gradient(
+        90deg,
+        var(--color-ui-03) 25%,
+        var(--color-ui-04) 50%,
+        var(--color-ui-03) 75%
+    );
+    background-size: 1200px 100%;
+    animation: sk-shimmer 1.4s ease-in-out infinite;
+}
+/* Empty-state cell spans the full grid row instead of a single block-grid column. */
+.products-grid .product-grid-empty {
+    flex: 0 0 100%;
+    max-width: 100%;
+    width: 100%;
+}
+
 .product-cards img:hover,
 .purchase-again img:hover {
     transform: scale(1.1);
@@ -773,7 +824,7 @@ ins-carousel .product-cards .placeholder-img {
 }
 
 .sidebar-categories .ins-form-field-wrap .ins-form-field {
-    padding: 7px 10px;
+    /* padding: 7px 10px; */
 }
 
 .sidebar-categories .ins-form-field-wrap .ins-form-label,
@@ -3020,3 +3071,241 @@ ins-button.add-credit-card button.ins-button>div,
 @keyframes predictive-spin {
     to { transform: rotate(360deg); }
 }
+
+/* ==========================================================================
+   Advanced sidebar filter (PLP)  — Categories, Price, Brands, Availability
+   ========================================================================== */
+.sidebar-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+/* ---- Applied filters ---- */
+.filter-clear-all {
+    align-self: flex-start;
+    margin-top: 16px;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font-family: var(--font-family-02);
+    font-size: 14px;
+    color: var(--color-main, #3044FF);
+    text-decoration: underline;
+}
+.filter-refine__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid var(--color-ui-04, #DFDFDF);
+    border-radius: 999px;
+    background: var(--color-ui-01, #FFFFFF);
+    cursor: pointer;
+    font-family: var(--font-family-02);
+    font-size: 13px;
+    color: var(--font-color-body, #575757);
+}
+.filter-chip__text { line-height: 1; }
+.filter-chip .icon-close-1 { font-size: 12px; }
+.filter-chip:hover { border-color: var(--color-main, #3044FF); color: var(--color-main, #3044FF); }
+
+/* ---- Collapsible groups (ins-accordion) ---- */
+.filter-group { width: 100%; }
+/* Header pill: purple tint, rounded, bold purple title + plus/minus icon. */
+.sidebar-filter .ins-accordion-item_header > .inner-head,
+.sidebar-filter .ins-accordion-item.open > .ins-accordion-item_header > .inner-head,
+.sidebar-filter .ins-accordion-item_header > .inner-head:hover {
+    background: rgba(48, 68, 255, 0.06);
+    border: none !important;
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: var(--color-main, #3044FF);
+}
+.sidebar-filter .ins-accordion-item .inner-head .heading {
+    color: var(--color-main, #3044FF);
+    font-family: var(--font-family-02);
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 24px;
+}
+.sidebar-filter .ins-accordion-item_header .inner-head [class^="icon-"],
+.sidebar-filter .ins-accordion-item_header .inner-head [class*=" icon-"] {
+    color: var(--color-main, #3044FF);
+    font-size: 14px;
+}
+/* Body padding comes from .filter-group__body, not the component wrapper. */
+.sidebar-filter .ins-accordion-item_content .inner-content {
+    padding: 0;
+    border: none;
+}
+/* The component locks the open content to the height measured at load time, which clips
+   items revealed later by "Show more". Let an open group's content grow to its content. */
+.sidebar-filter .ins-accordion-item.open > .ins-accordion-item_content,
+.sidebar-filter .ins-accordion-item.open .ins-accordion-item_content .inner-content {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+}
+.filter-group__body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 0 4px;
+}
+
+/* ---- Hidden overflow items (Show more / less) ---- */
+.sidebar-filter .is-overflow { display: none; }
+.filter-group__body.show-all .filter-check.is-overflow { display: flex; }
+.filter-cats.show-all .filter-cat-item.is-overflow { display: block; }
+/* ---- Group footer: Show more / less  |  Clear ---- */
+.filter-group__footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 0 16px;
+}
+/* Collapse the footer (and its top margin) when nothing in it is shown. */
+.filter-group__footer:not(:has(> :not(.hide))) { display: none; }
+.filter-show-more,
+.filter-clear {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font-family: var(--font-family-02);
+    font-size: 14px;
+    color: var(--font-color-body, #575757);
+    text-decoration: underline;
+}
+.filter-foot-sep {
+    color: var(--color-ui-04, #DFDFDF);
+    text-decoration: none;
+    user-select: none;
+}
+
+/* ---- Categories ---- */
+.filter-cats { gap: 4px; }
+.filter-cat-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--font-color-body, #575757);
+    font-family: var(--font-family-02);
+    font-size: 16px;
+    line-height: 24px;
+}
+.filter-cat-link .ui-sidebar { flex: 1 0 0; }
+.filter-cat-link:hover { background: rgba(48, 68, 255, 0.06); }
+.filter-cat-link.is-active {
+    color: var(--color-main, #3044FF);
+    font-weight: 700;
+    background: rgba(48, 68, 255, 0.06);
+}
+.filter-cat-link--sub { padding-left: 32px; font-size: 15px; }
+/* Subcategories read as a nested list: indented under the parent with a guide line. */
+.filter-subcats {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 2px 0 2px 26px;
+    padding-left: 8px;
+    border-left: 1px solid var(--color-ui-04, #DFDFDF);
+}
+.filter-check--sub { font-size: 15px; }
+
+/* ---- Count badge ---- */
+.filter-count {
+    color: var(--color-ui-05, #84848F);
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+/* ---- Checkboxes (ins-checkbox) ---- */
+.filter-check {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 16px;
+    font-family: var(--font-family-02);
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--font-color-body, #575757);
+}
+.filter-check ins-checkbox { flex: 1 0 0; }
+/* Zero-count options are disabled (ins-checkbox greys itself; fade the count to match). */
+.filter-check.is-disabled { cursor: not-allowed; }
+.filter-check.is-disabled .filter-count { opacity: 0.5; }
+
+/* ---- Price ---- */
+.filter-price { gap: 16px; padding-top: 16px; }
+.filter-price__inputs {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+}
+.filter-price__input { flex: 1 0 0; min-width: 0; }
+.filter-price__dash { color: var(--font-color-body, #575757); }
+.filter-price__slider {
+    position: relative;
+    height: 20px;
+    margin: 0 16px;
+}
+.filter-price__track,
+.filter-price__range {
+    position: absolute;
+    top: 50%;
+    height: 2px;
+    transform: translateY(-50%);
+}
+.filter-price__track { left: 0; right: 0; background: var(--color-ui-04, #DFDFDF); }
+.filter-price__range { background: var(--color-main, #3044FF); }
+.filter-price__handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 20px;
+    margin: 0;
+    background: none;
+    pointer-events: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.filter-price__handle::-webkit-slider-runnable-track { background: none; border: 0; }
+.filter-price__handle::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    pointer-events: auto;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--color-main, #3044FF);
+    cursor: pointer;
+}
+.filter-price__handle::-moz-range-track { background: none; border: 0; }
+.filter-price__handle::-moz-range-thumb {
+    pointer-events: auto;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--color-main, #3044FF);
+    cursor: pointer;
+}
+
+/* ---- Mobile drawer: full-width groups ---- */
+#mobile-filter-drawer .sidebar-filter { gap: 20px; }

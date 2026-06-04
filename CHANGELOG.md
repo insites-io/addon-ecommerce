@@ -8,6 +8,18 @@
   - Keyboard (↑/↓/Enter/Esc) and mouse navigation, load-more on scroll; pressing Enter with no suggestion highlighted runs the standard results-page search
   - New lightweight GraphQL query (`search_products_lite`) and JSON endpoint (`api/products/predictive-search`); ranking is performed client-side
 
+- Product List — Sidebar Filters
+  - New advanced sidebar filters: multi-select categories, price range slider, brands, and availability — with a "Refine by" summary showing applied-filter chips and a clear-all
+  - Each filter option shows a live count of matching products; filters with no matches are disabled
+  - Fixed availability counts to match the results returned: "In Stock" counts products with stock on hand (`stock_level > 0`); "Out of Stock" counts zero and untracked (null) stock
+  - New `get_product_facets` GraphQL query providing the catalog data used to build the filter options
+
+- Product List — AJAX Result Loading
+  - Filtering, search, sorting and pagination now update only the product grid via AJAX instead of reloading the whole page
+  - URL query params are kept in sync so results are shareable and back/forward navigation works
+  - Added a total product count below the page heading (e.g. "3 products"), kept up to date as filters change
+  - New JSON endpoint (`api/products/list-results`) returns the rendered grid and result count for the current filters
+
  ## App - Add-on Ecommerce V1.1.1
 
 - Module Updates

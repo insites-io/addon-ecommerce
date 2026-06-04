@@ -1,0 +1,38 @@
+query get_product_facets(
+  $keyword : String,
+  $keywords : [String!],
+  $category_uuids: [String!],
+){
+  items: records(
+    page: 1
+    per_page: 500
+    filter:{
+      table:{ value:"modules/insites_ecommerce/product" }
+      properties:[
+      	{ name: "status", value: "enabled"}
+        { name: "category_uuids", value_in: $category_uuids }
+      ]
+      or:[
+        {
+          properties: { name: "product_name", contains: $keyword}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword}
+        }
+        {
+          properties: { name: "keywords", array_contains: $keywords}
+        }
+      ]
+    }
+  ){     
+     results {
+          brand: property(name: "brand_name")
+          category_uuids: property_array(name: "category_uuids")
+          stock_level: property_int(name: "stock_level")
+          effective_price: property_float(name: "effective_price")
+     }
+  }
+}

@@ -5,8 +5,12 @@ query search_products(
   $keywords : [String!],
   $category_uuids: [String!],
   $brand: String,
+  $brands: [String!],
   $is_on_sale: Boolean,
   $not_number: String,
+  $stock_lte: String,
+  $min_price: String,
+  $max_price: String,
   $sort:[RecordsSortInput!] = [
     { updated_at: { order: DESC } }
   ]
@@ -18,10 +22,13 @@ query search_products(
       table:{ value:"modules/insites_ecommerce/product" }
       properties:[
       	{ name: "status", value: "enabled"}
-        { name: "category_uuids", value_in: $category_uuids }
+        { name: "category_uuids", array_overlaps: $category_uuids }
         { name: "is_on_sale", value_boolean: $is_on_sale }
         { name: "stock_level", range: { gt: $not_number } }
+        { name: "stock_level", range: { lte: $stock_lte } }
         { name: "brand_name", contains: $brand }
+        { name: "brand_name", value_in: $brands }
+        { name: "effective_price", range: { gte: $min_price, lte: $max_price } }
       ]
       or:[
         {

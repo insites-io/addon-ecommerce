@@ -44,34 +44,7 @@ metadata: {
 
             <div class="grid-x">
                 <div class="main-filters large-auto small-12 cell grid-x flex-container align-justify">
-                    <div class="main-filter-by align-middle grid-x large-10 medium-12 small-12">
-                        <span class="form-label">Filter by:</span>
-
-                        {% graphql product_brands = 'modules/ecommerce/products/get_product_brand_uuid', args: filters 
-                            | dig: 'items','results' | map: 'brand' | array_uniq %}
-                        
-                        <ins-button-select 
-                            id="brandSelect"
-                            label="Brand"
-                            placeholder="{{ params.brand | default: 'All' }}" 
-                            small>
-                                <ins-button-select-option label="All" value="" {% if params.brand == blank %}activated{% endif %}></ins-button-select-option>
-                            {% for product_brand in product_brands %}
-                                <ins-button-select-option label="{{product_brand}}" value="{{product_brand}}" {% if params.brand == product_brand %}activated{% endif %}></ins-button-select-option>
-                            {% endfor %}
-                        </ins-button-select >
-                        <div class="show-for-small-only spacer x-small cell"></div>
-
-                        <ins-button-select 
-                            id="showSelect"
-                            label="Show" 
-                            placeholder="{{ params.show | capitalize | default: 'All' }}" 
-                            small>
-                            <ins-button-select-option label="All" value="all" {% if params.show == "all" %}activated{% endif %}></ins-button-select-option>
-                            <ins-button-select-option label="Sale" value="sale" {% if params.show == "sale" %}activated{% endif %}></ins-button-select-option>
-                            <ins-button-select-option label="In Stock" value="in-stock" {% if params.show == "in-stock" %}activated{% endif %}></ins-button-select-option>
-                        </ins-button-select>
-                        
+                    <div class="main-filter-by align-middle grid-x large-10 medium-12 small-12">                                               
                         {%  liquid
                             if params.sort == 'price-ascending'
                                 assign sortText = 'Price: Low-High'
