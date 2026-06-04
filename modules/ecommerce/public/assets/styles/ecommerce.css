@@ -798,6 +798,11 @@ ins-carousel .product-cards .placeholder-img {
 
 
 /* Filter panel Styles */
+.sidebar-categories {
+    border-radius: 12px;
+    background: var(--color-ui-02);
+    padding: 24px;
+}
 
 .sidebar-categories .ins-input-wrap,
 .product-list .sort-wrap .ins-select-wrap {
@@ -885,7 +890,7 @@ ins-carousel .product-cards .placeholder-img {
 
 #mobile-filter-drawer .ins-drawer-header.sticky+.ins-drawer-body {
     margin-top: 66px;
-    padding: 0px;
+    padding: 16px;
 }
 
 #mobile-filter-drawer .ins-accordion-item_header>.inner-head,
@@ -3105,13 +3110,14 @@ ins-button.add-credit-card button.ins-button>div,
     align-items: center;
     gap: 8px;
     padding: 6px 12px;
-    border: 1px solid var(--color-ui-04, #DFDFDF);
-    border-radius: 999px;
-    background: var(--color-ui-01, #FFFFFF);
+    border-radius: 8px;
+    border: 1px solid var(--font-color-body);
+    min-height: 40px;
+    background: var(--color-ui-01);
     cursor: pointer;
     font-family: var(--font-family-02);
-    font-size: 13px;
-    color: var(--font-color-body, #575757);
+    font-size: 16px;
+    color: var(--font-color-body);    
 }
 .filter-chip__text { line-height: 1; }
 .filter-chip .icon-close-1 { font-size: 12px; }
@@ -3139,12 +3145,16 @@ ins-button.add-credit-card button.ins-button>div,
 .sidebar-filter .ins-accordion-item_header .inner-head [class^="icon-"],
 .sidebar-filter .ins-accordion-item_header .inner-head [class*=" icon-"] {
     color: var(--color-main, #3044FF);
-    font-size: 14px;
+    font-size: 18px;
 }
 /* Body padding comes from .filter-group__body, not the component wrapper. */
 .sidebar-filter .ins-accordion-item_content .inner-content {
     padding: 0;
     border: none;
+}
+/* Applied filters panel: inset its content. */
+.sidebar-filter [data-group="applied"] .ins-accordion-item_content .inner-content {
+    padding: 0 16px;
 }
 /* The component locks the open content to the height measured at load time, which clips
    items revealed later by "Show more". Let an open group's content grow to its content. */
