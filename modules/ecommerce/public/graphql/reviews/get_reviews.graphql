@@ -1,0 +1,33 @@
+query get_reviews(
+  $reviewed_product: String,
+  $page: Int = 1,
+  $size: Int = 10,
+  $sort: [RecordsSortInput!] = [
+    { created_at: { order: DESC } }
+  ]
+){
+  items: records(
+    page: $page
+    per_page: $size
+    filter: {
+      table: { value: "modules/ecommerce/reviews" }
+      deleted_at: { exists: false }
+      properties: [
+        { name: "reviewed_product", value: $reviewed_product }
+        { name: "status", value: "Approved" }
+      ]
+    }
+    sort: $sort
+  ){
+    total_entries
+    results {
+      id
+      created_at
+      uuid: property(name: "uuid")
+      rating: property_int(name: "rating")
+      review_content: property(name: "review_content")
+      reviewer_first_name: property(name: "reviewer_first_name")
+      reviewer_last_name: property(name: "reviewer_last_name")
+    }
+  }
+}

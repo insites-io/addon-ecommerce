@@ -1,0 +1,173 @@
+---
+async_callback_actions:
+  delay: ''
+  priority:
+fields:
+  properties:
+    rating:
+      validation:
+        presence: {}
+    reviewed_product:
+      validation:
+        presence: {}
+    review_content:
+      validation:
+        presence:
+          message: Please write your review.
+    status:
+      validation: {}
+    reviewer_first_name:
+      validation:
+        presence:
+          message: Please enter your first name.
+    reviewer_last_name:
+      validation:
+        presence:
+          message: Please enter your last name.
+    reviewer_email:
+      validation:
+        presence:
+          message: Please enter your email.
+        email:
+          message: Please enter valid email.
+          allow_blank: true
+    is_guest:
+      validation: {}
+metadata:
+  label: Write a review
+  form_steps: []
+  properties:
+  - name: rating
+    form_step: d32303c8-2ee9-4f23-8e2f-c92758ab7209
+    conditions: []
+    field_type: integer
+    ui_element: stepper
+    column_size:
+    field_label: Rating
+    field_weighting: 0
+    is_field_hidden: false
+    validation_rules:
+      presence: {}
+  - name: reviewed_product
+    form_step: d32303c8-2ee9-4f23-8e2f-c92758ab7209
+    belongs_to: modules/insites_ecommerce/product
+    conditions: []
+    field_type: string
+    ui_element: select_data_source
+    column_size:
+    field_label: Reviewed Product
+    display_field: product_name
+    field_weighting: 1
+    is_field_hidden: true
+    validation_rules:
+      presence: {}
+  - name: review_content
+    form_step: d32303c8-2ee9-4f23-8e2f-c92758ab7209
+    conditions: []
+    field_type: string
+    ui_element: multi_line
+    column_size:
+    field_label: Review Content
+    field_weighting: 2
+    is_field_hidden: false
+    validation_rules:
+      presence:
+        message: Please write your review.
+  - name: status
+    options:
+    - Pending
+    - Approved
+    - Rejected
+    form_step: d32303c8-2ee9-4f23-8e2f-c92758ab7209
+    conditions: []
+    field_type: string
+    ui_element: select
+    column_size:
+    field_label: Status
+    field_weighting: 3
+    is_field_hidden: true
+    validation_rules: {}
+  - name: admin_approved
+    form_step: d32303c8-2ee9-4f23-8e2f-c92758ab7209
+    conditions: []
+    field_type: string
+    ui_element: input
+    column_size:
+    field_label: Admin Approved
+    field_weighting: 4
+    is_field_hidden: false
+    validation_rules: {}
+  - name: admin_approved_date
+    form_step: d32303c8-2ee9-4f23-8e2f-c92758ab7209
+    conditions: []
+    field_type: datetime
+    ui_element: date_time
+    column_size:
+    field_label: Admin Approved Date
+    field_weighting: 5
+    is_field_hidden: false
+    validation_rules: {}
+  - name: reviewer_first_name
+    form_step: 46a655b8-86e0-49c4-b84a-5d2fa1c16690
+    conditions: []
+    field_type: string
+    ui_element: input
+    column_size:
+    field_label: Reviewer First Name
+    field_weighting: 6
+    is_field_hidden: false
+    validation_rules:
+      presence:
+        message: Please enter your first name.
+  - name: reviewer_last_name
+    form_step: 46a655b8-86e0-49c4-b84a-5d2fa1c16690
+    conditions: []
+    field_type: string
+    ui_element: input
+    column_size:
+    field_label: Reviewer Last Name
+    field_weighting: 7
+    is_field_hidden: false
+    validation_rules:
+      presence:
+        message: Please enter your last name.
+  - name: reviewer_email
+    form_step: 46a655b8-86e0-49c4-b84a-5d2fa1c16690
+    conditions: []
+    field_type: string
+    ui_element: input
+    column_size:
+    field_label: Reviewer Email
+    placeholder:
+    field_weighting: 8
+    is_field_hidden: false
+    validation_rules:
+      email:
+        message: Please enter valid email.
+        allow_blank: true
+      presence:
+        message: Please enter your email.
+    is_field_label_hidden: false
+  - name: is_guest
+    form_step: 46a655b8-86e0-49c4-b84a-5d2fa1c16690
+    conditions: []
+    field_type: boolean
+    ui_element: toggle
+    column_size:
+    field_label: Is Guest
+    field_weighting: 9
+    is_field_hidden: true
+    validation_rules: {}
+  button_alignment: right
+  submit_button_icon:
+  submit_button_label: Submit review
+  primary_button_color:
+  is_button_icons_shown: true
+  secondary_button_color:
+  secondary_button_border_color:
+  primary_button_background_color:
+redirect_to: "/thank-you"
+resource: modules/ecommerce/reviews
+resource_owner: anyone
+---
+{%- include 'modules/ecommerce/forms/review/write_a_review_form' -%}

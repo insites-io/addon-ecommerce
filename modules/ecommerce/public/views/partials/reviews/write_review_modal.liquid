@@ -1,0 +1,26 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Reviews | Write Review Modal'
+}
+---
+{% comment %}
+    Write Review modal (Part A) — shell only.
+    The form body is intentionally left blank to be built separately.
+
+    Open from JS with: document.getElementById('review-modal').open()
+
+    Params:
+    - reviewed_product : product uuid the review is attached to (available on
+                         the body as data-reviewed-product for the form to read)
+    - has_profile      : boolean from the parent (check_if_user_has_profile) —
+                         selects the logged-in vs guest form variant
+{% endcomment %}
+<ins-modal id="review-modal" with-backdrop no-button>
+    <div class="review-modal-body" data-reviewed-product="{{ reviewed_product }}">
+        <h5 class="heading-3">Write a review</h5>
+        <div class="spacer"></div>
+
+        {%- include_form 'modules/ins_forms/write_a_review', has_profile, reviewed_product: reviewed_product -%}
+
+    </div>
+</ins-modal>

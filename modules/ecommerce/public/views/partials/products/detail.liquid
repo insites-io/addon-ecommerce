@@ -281,9 +281,15 @@ metadata: {
                 <div class="spacer small"></div>
                 <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ add_to_cart_data }}' icon="icon-shopping-cart" outlined {{disabledBtn}}></ins-button>
             </div>
-            
+
+            {% comment %} TEMPORARY: opens the Write Review modal (remove once the Reviews tab provides the real trigger) {% endcomment %}
+            <div>
+                <div class="spacer small"></div>
+                <ins-button id="write-review-btn" class="full" label="Write a review" icon="icon-star" outlined color="primary"></ins-button>
+            </div>
+
         </div>
-        
+
     </div>
 
     {% comment %} Mobile: Long Description {% endcomment %}
@@ -303,8 +309,25 @@ metadata: {
     <div class="cell">
         {% include 'modules/ecommerce/blocks/you_may_also_like', not_uuid: product.uuid, heading_level: 'h2' %}
     </div>
-    
+
 </div>
+
+{% comment %} Write Review modal (Part A). Temporary trigger wiring below; the Reviews tab (Part B) will provide the real button. {% endcomment %}
+{% comment %} has_profile (per-user) decides the logged-in vs guest form variant; safe to render here as the page cache is keyed by current_user.id. {% endcomment %}
+{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
+{% include 'modules/ecommerce/reviews/write_review_modal', reviewed_product: product.uuid, has_profile: has_profile %}
+
+<script>
+    (function () {
+        var writeReviewBtn = document.getElementById('write-review-btn');
+        var reviewModalEl = document.getElementById('review-modal');
+        if (writeReviewBtn && reviewModalEl) {
+            writeReviewBtn.addEventListener('insClick', function () {
+                reviewModalEl.open();
+            });
+        }
+    })();
+</script>
 
 <script>
     const variants = {{ variants }};

@@ -3319,3 +3319,115 @@ ins-button.add-credit-card button.ins-button>div,
 
 /* ---- Mobile drawer: full-width groups ---- */
 #mobile-filter-drawer .sidebar-filter { gap: 20px; }
+/* ============================================================
+   Reviews — Write Review modal, star input, confirmation (Part A)
+   ============================================================ */
+.review-modal-body {
+    padding: 8px 0;
+}
+
+.review-field-label {
+    display: block;
+    font-family: var(--font-family-02);
+    font-weight: 700;
+    color: var(--font-color-head);
+    margin-bottom: 8px;
+}
+
+/* Vertical rhythm: the ins-* fields carry their own wrapper margins, so only
+   the custom (reviewing-as, rating) blocks need spacing to match the design. */
+.review-modal-body .review-reviewing-as,
+.review-modal-body .rating {
+    margin-bottom: 20px;
+}
+
+.review-reviewing-as p {
+    margin: 0;
+}
+
+.review-reviewing-as p:first-child {
+    color: var(--font-color-sub);
+    margin-bottom: 4px;
+}
+
+.review-reviewing-as p:last-child {
+    color: var(--font-color-head);
+}
+
+/* Space the action buttons away from the review body */
+.review-modal-body .insites-form-buttons {
+    margin-top: 20px;
+}
+
+/* Interactive star rating input */
+.review-stars {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.review-star {
+    background: none;
+    border: 0;
+    padding: 2px;
+    cursor: pointer;
+    line-height: 1;
+    font-size: 28px;
+    color: var(--color-ui-04);
+    transition: color 0.12s ease;
+}
+
+.review-star:focus-visible {
+    outline: 2px solid var(--color-main);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.review-star.is-active,
+.review-star.is-hovered {
+    color: var(--notifications-warning);
+    cursor: pointer;
+}
+
+.review-error.has-error-text {
+    color: var(--error);
+    margin-top: 6px;
+    font-family: var(--font-family-02);
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 150%;
+    margin-top: 6px;
+}
+
+.review-char-count {
+    color: var(--font-color-sub);
+    margin-top: 6px;
+}
+
+/* Cancel + Submit row (mirrors checkout .modal-button) */
+.review-modal-body .modal-button {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Success confirmation view */
+.review-confirmation-inner {
+    padding: 24px 8px;
+}
+
+.review-confirmation-icon {
+    display: inline-block;
+    font-size: 48px;
+    color: var(--success);
+    margin-bottom: 12px;
+}
+
+@media screen and (max-width: 639px) {
+    .review-modal-body .modal-button {
+        flex-direction: column-reverse;
+    }
+    .review-modal-body .modal-button ins-button button {
+        width: 100%;
+    }
+}
