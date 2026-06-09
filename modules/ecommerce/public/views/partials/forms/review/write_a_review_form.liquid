@@ -161,7 +161,8 @@
 			data-properties="properties.is_guest"
 			label="Is Guest"
 			input-label="Is Guest"
-			check-load check-value
+			check-load check-value			
+			{% unless has_profile %}checked{% endunless %}
 			name="{{ form.fields.properties.is_guest.name }}"
 			value="{% if has_profile %}false{% else %}true{% endif %}"
 			error-message="{{ form.errors['properties.is_guest'] }}"
