@@ -1,0 +1,42 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Reviews | Star Rating (read-only)'
+}
+---
+{% comment %}
+    Read-only star rating display. Reusable (PDP review summary/list, PLP card).
+
+    Params:
+    - rating : average rating (float, 0-5)
+    - size   : optional pixel size for the stars (default 14)
+
+    Rounds to the nearest half per the design rule:
+      .0-.2 -> round down | .3-.7 -> half | .8-.9 -> round up
+{% endcomment %}
+{%- liquid
+    assign rating = rating | default: 0 | times: 1.0
+    assign whole = rating | floor
+    assign decimal = rating | minus: whole
+    assign has_half = false
+    if decimal <= 0.2
+        assign full = whole
+    elsif decimal <= 0.7
+        assign full = whole
+        assign has_half = true
+    else
+        assign full = whole | plus: 1
+    endif
+    assign half_index = full | plus: 1
+    assign star_size = size | default: 14
+-%}
+<span class="review-rating-stars" style="font-size: {{ star_size }}px;" aria-hidden="true">
+    {%- for i in (1..5) -%}
+        {%- if i <= full -%}
+            <span class="icon-star-full review-rating-star is-filled"></span>
+        {%- elsif has_half and i == half_index -%}
+            <span class="icon-star-half review-rating-star is-filled"></span>
+        {%- else -%}
+            <span class="icon-star-full review-rating-star is-empty"></span>
+        {%- endif -%}
+    {%- endfor -%}
+</span>

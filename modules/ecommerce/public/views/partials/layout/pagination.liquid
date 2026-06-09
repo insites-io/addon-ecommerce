@@ -23,7 +23,7 @@ metadata: {
 <script>
     var insBaseTable = document.getElementById('insBaseTable');
 
-    insBaseTable.pageSizeOptions = [9,15,30];
+    insBaseTable.pageSizeOptions = {{ page_size_options | default: '[9,15,30]' }};
     insBaseTable.totalCount = {{ data.total_entries }};
     insBaseTable.pageNumber = {{ data.current_page }};
     insBaseTable.pageSize = {{ data.per_page |  default: 10}};

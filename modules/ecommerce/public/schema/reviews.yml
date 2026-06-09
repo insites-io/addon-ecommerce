@@ -10,8 +10,10 @@ properties:
     label: "Admin Approved"
     weight: 4
     group_id: "d32303c8-2ee9-4f23-8e2f-c92758ab7209"
-    ui_element: "input"
+    ui_element: "select_data_source"
     is_required: false
+    display_field: "name"
+    is_shown_in_table: false
 - name: admin_approved_date
   type: datetime
   metadata:
@@ -32,7 +34,7 @@ properties:
   type: integer
   metadata:
     label: "Rating"
-    weight: 0
+    weight: 1
     group_id: "d32303c8-2ee9-4f23-8e2f-c92758ab7209"
     ui_element: "stepper"
     is_required: true
@@ -42,7 +44,7 @@ properties:
   type: string
   metadata:
     label: "Review Content"
-    weight: 2
+    weight: 3
     group_id: "d32303c8-2ee9-4f23-8e2f-c92758ab7209"
     ui_element: "multi_line"
     is_required: true
@@ -52,7 +54,7 @@ properties:
   belongs_to: modules/insites_ecommerce/product
   metadata:
     label: "Reviewed Product"
-    weight: 1
+    weight: 2
     group_id: "d32303c8-2ee9-4f23-8e2f-c92758ab7209"
     ui_element: "select_data_source"
     is_required: true
@@ -90,7 +92,7 @@ properties:
   type: string
   metadata:
     label: "Status"
-    weight: 3
+    weight: 0
     options: ["Pending","Approved","Rejected"]
     group_id: "d32303c8-2ee9-4f23-8e2f-c92758ab7209"
     ui_element: "select"

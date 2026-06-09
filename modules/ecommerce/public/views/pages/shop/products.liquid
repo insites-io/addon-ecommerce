@@ -20,11 +20,13 @@ dynamic_cache:
     [
       "modules/insites_ecommerce/category",
       "modules/insites_ecommerce/product",
-      "modules/insites_ecommerce/product_variant"
+      "modules/insites_ecommerce/product_variant",
+      "modules/ecommerce/reviews"
     ]
     {%- endparse_json -%}   
     {%- include "modules/website/cache/generate_cache_key", models: models -%}
-    {{ context.current_user.id }} 
+    {{ context.current_user.id }}
+    {{ 'now' | date: '%h%i%s'}}
 ---
 {% comment -%} 
 URL Structures: 

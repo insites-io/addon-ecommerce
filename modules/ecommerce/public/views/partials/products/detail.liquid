@@ -124,18 +124,6 @@ metadata: {
                 {%- include 'modules/website/layout/placeholder_image', size: 'large' -%}
             {%- endif -%}
         </div>
-        <div class="spacer xx-large hide-for-small-only"></div>
-
-        {% comment %} Desktop: Long Description {% endcomment %}
-        <div class="show-for-large">
-            {%- if product.long_description != blank -%}
-            <p class="heading-4">Key features</p>
-            <div class="spacer"></div>
-            <div class="body description">                
-                {{ product.long_description  | html_safe }}
-            </div>
-            {%- endif -%}
-        </div>
     </div>
 
     <div class="large-4 medium-12 small-12 large-offset-1 cell">
@@ -282,26 +270,27 @@ metadata: {
                 <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ add_to_cart_data }}' icon="icon-shopping-cart" outlined {{disabledBtn}}></ins-button>
             </div>
 
-            {% comment %} TEMPORARY: opens the Write Review modal (remove once the Reviews tab provides the real trigger) {% endcomment %}
-            <div>
-                <div class="spacer small"></div>
-                <ins-button id="write-review-btn" class="full" label="Write a review" icon="icon-star" outlined color="primary"></ins-button>
-            </div>
-
         </div>
 
     </div>
 
-    {% comment %} Mobile: Long Description {% endcomment %}
-    <div class="hide-for-large">        
-        {%- if product.long_description != blank -%}
-         <div class="spacer x-large"></div>
-        <p class="heading-4">Key features</p>
-        <div class="spacer large"></div>
-        <div class="body description">
-            {{ product.long_description  | html_safe }}
-        </div>
-        {%- endif -%}
+    {% comment %} Product tabs: Descriptions + Reviews {% endcomment %}
+    <div class="cell product-tabs">
+        <div class="spacer x-large"></div>
+        {%- function has_profile = "modules/website/layout/check_if_user_has_profile" -%}
+        {%- graphql review_summary = 'modules/ecommerce/reviews/get_review_summary', reviewed_product: product.uuid | dig: 'items' -%}
+        {%- assign review_count = review_summary.total_entries | default: 0 -%}
+        <ins-tab id="product-tabs">
+            {%- if product.long_description != blank -%}
+            <ins-tab-item label="Descriptions">
+                <div class="spacer"></div>
+                <div class="body description">{{ product.long_description | html_safe }}</div>
+            </ins-tab-item>
+            {%- endif -%}
+            <ins-tab-item label="Review ({{ review_count }})">
+                {% include 'modules/ecommerce/reviews/review_section', product: product, summary: review_summary %}
+            </ins-tab-item>
+        </ins-tab>
     </div>
 
     <div class="cell show-for-large spacer xxxx-large"></div>
@@ -312,19 +301,78 @@ metadata: {
 
 </div>
 
-{% comment %} Write Review modal (Part A). Temporary trigger wiring below; the Reviews tab (Part B) will provide the real button. {% endcomment %}
-{% comment %} has_profile (per-user) decides the logged-in vs guest form variant; safe to render here as the page cache is keyed by current_user.id. {% endcomment %}
-{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
+{% comment %} Write Review modal. has_profile (fetched in the tabs block above) picks the logged-in vs guest variant; safe to render here as the page cache is keyed by current_user.id. {% endcomment %}
 {% include 'modules/ecommerce/reviews/write_review_modal', reviewed_product: product.uuid, has_profile: has_profile %}
 
 <script>
     (function () {
-        var writeReviewBtn = document.getElementById('write-review-btn');
         var reviewModalEl = document.getElementById('review-modal');
-        if (writeReviewBtn && reviewModalEl) {
-            writeReviewBtn.addEventListener('insClick', function () {
-                reviewModalEl.open();
+
+        // Any "Write a review" button (summary block + empty state) opens the modal
+        var openBtns = document.querySelectorAll('.review-open-btn');
+        Array.prototype.forEach.call(openBtns, function (btn) {
+            btn.addEventListener('insClick', function () {
+                if (reviewModalEl) reviewModalEl.open();
             });
+        });
+
+        // Review pagination via AJAX — ins-table (per-page selector + page nav) swaps only the list.
+        // Mirrors product-list.js: listen to insPaginationChange, fetch list-results, swap the items.
+        var resultsEl = document.getElementById('review-list-results');
+        var reviewTable = document.getElementById('insBaseTable');
+
+        if (reviewTable && resultsEl) {
+            reviewTable.addEventListener('insPaginationChange', function (event) {
+                loadReviewPage(event.detail.pageNumber, event.detail.pageSize);
+            });
+        }
+
+        function buildReviewSkeleton(count) {
+            var row = '<div class="review-item-skeleton">'
+                + '<div class="sk-line sk-name"></div>'
+                + '<div class="sk-line sk-body"></div>'
+                + '<div class="sk-line sk-body short"></div>'
+                + '</div>';
+            var html = '';
+            for (var i = 0; i < count; i++) { html += row; }
+            return html;
+        }
+
+        async function loadReviewPage(pageNum, pageSize) {
+            if (typeof fetch === 'undefined') { window.location.href = '?page=' + pageNum + '&per_page=' + pageSize; return; }
+            var productUuid = resultsEl.getAttribute('data-product-uuid');
+            // Skeleton placeholders while the page loads
+            resultsEl.innerHTML = buildReviewSkeleton(parseInt(pageSize, 10) || 5);
+            try {
+                var res = await fetch('/api/reviews/list-results?product=' + encodeURIComponent(productUuid) + '&page=' + encodeURIComponent(pageNum) + '&per_page=' + encodeURIComponent(pageSize), {
+                    headers: { 'Accept': 'application/json' }
+                });
+                var data = await res.json();
+                resultsEl.innerHTML = data.html;
+                // Keep the persistent pager in sync
+                reviewTable.totalCount = data.totalCount;
+                reviewTable.pageNumber = data.pageNumber;
+                reviewTable.pageSize = data.pageSize;
+                // Reflect page/per_page in the URL without reloading
+                var url = new URL(window.location.href);
+                url.searchParams.set('page', pageNum);
+                url.searchParams.set('per_page', pageSize);
+                history.pushState({ reviewPage: pageNum }, '', url.toString());
+                var tabsTop = document.getElementById('product-tabs');
+                if (tabsTop) tabsTop.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (e) {
+                window.location.href = '?page=' + pageNum + '&per_page=' + pageSize;
+            }
+        }
+
+        // On a full load with ?page in the URL (shared link / no-JS fallback), open the Review tab
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('page')) {
+            var tabEl = document.getElementById('product-tabs');
+            if (tabEl) {
+                var headers = tabEl.querySelectorAll('.ins-tab-header');
+                if (headers.length) headers[headers.length - 1].click();
+            }
         }
     })();
 </script>
