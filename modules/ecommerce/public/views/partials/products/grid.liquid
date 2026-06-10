@@ -14,12 +14,17 @@ metadata: {
     - all_categories  : category list for the card's category label
 {% endcomment %}
 {%- if products and products.size > 0 -%}
+    {%- comment -%} Card enrichment (tags, rating, sold) — batched per page, looked up by uuid in the card. {%- endcomment -%}
+    {%- include 'modules/ecommerce/products/enrich_cards', products: products -%}
+    {%- assign cf_rows = context.exports.cf_rows -%}
+    {%- assign review_rows = context.exports.review_rows -%}
+    {%- assign sold_rows = context.exports.sold_rows -%}
     {%- for product in products -%}
         {%- assign fetchpriority = null -%}
         {%- if forloop.index < 4 -%}
             {%- assign fetchpriority = 'high' -%}
         {%- endif -%}
-        {% include "modules/ecommerce/products/product_card", product, all_categories, heading_level: 'h2', fetchpriority: fetchpriority %}
+        {% include "modules/ecommerce/products/product_card", product, all_categories, cf_rows: cf_rows, review_rows: review_rows, sold_rows: sold_rows, heading_level: 'h2', fetchpriority: fetchpriority %}
     {%- endfor -%}
 {%- else -%}
     <div class="cell product-grid-empty">

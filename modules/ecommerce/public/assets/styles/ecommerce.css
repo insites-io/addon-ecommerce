@@ -787,6 +787,91 @@ ins-carousel .product-cards .placeholder-img {
 }
 
 
+/* ---- Product card enhancements: brand, tags, rating/sold, stock indicator ---- */
+
+/* Brand name above the product title */
+.product-cards .product-brand {
+    color: var(--font-color-body);
+    margin: 0;
+}
+
+/* Rating (stars + count) and units-sold row */
+.product-cards .product-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.product-cards .product-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.product-cards .product-rating__count,
+.product-cards .product-sold {
+    color: var(--font-color-body);
+}
+
+/* Highlighted tags overlay (top-left of the product image) */
+.product-cards .product-tags {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    max-width: calc(100% - 16px);
+}
+
+/* Same tags overlay on the product detail (PDP) gallery — replaces the old ON SALE tag */
+.product-detail .gallery .product-tags {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    max-width: calc(100% - 32px);
+}
+
+/* Tags render as <ins-tag> (label class="tag-chip tag-chip--{slug}"). Style the
+   inner .ins-tag span and override ins-tag's default typography/shape to match
+   the card tag design. */
+ins-tag.tag-chip span.ins-tag {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: var(--font-family-02);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+    /* Default: brand blue + inverse text for any tag without a specific colour */
+    background: var(--color-main);
+    color: var(--font-color-inv);
+}
+
+/* Semantic tag colours (slug = label downcased, spaces -> dashes) */
+ins-tag.tag-chip--new-arrival span.ins-tag { background: var(--success); }
+ins-tag.tag-chip--sale        span.ins-tag { background: var(--error); }
+ins-tag.tag-chip--staff-pick  span.ins-tag { background: var(--warning-hover); }
+ins-tag.tag-chip--limited     span.ins-tag { background: var(--color-sub1); }
+ins-tag.tag-chip--bestseller  span.ins-tag { background: var(--color-main); }
+
+/* Stock indicator under the price — colour follows the stock state.
+   Uses the darker -hover tokens so the coloured text clears WCAG AA on the
+   near-white card background (same accessibility pattern as --warning-hover). */
+.product-cards .stock-indicator {
+    margin: 0;
+}
+.stock-indicator--in       { color: var(--success); }
+.stock-indicator--low      { color: var(--warning-hover); }
+.stock-indicator--very-low { color: var(--error); }
+.stock-indicator--out      { color: var(--font-color-sub); }
+
+
 /* Product List */
 
 #product-grid {

@@ -12,12 +12,18 @@ metadata: {
     {% endif %}  
     <div class="spacer x-large"></div>
 
-    {% graphql products = "modules/ecommerce/products/get_products", not_uuid: not_uuid, size: 4 | dig: 'items','results' %}    
+    {% graphql products = "modules/ecommerce/products/get_products", not_uuid: not_uuid, size: 4 | dig: 'items','results' %}
+
+    {% comment %} Card enrichment (tags, rating, sold) — batched, looked up by uuid in the card {% endcomment %}
+    {%- include 'modules/ecommerce/products/enrich_cards', products: products -%}
+    {%- assign cf_rows = context.exports.cf_rows -%}
+    {%- assign review_rows = context.exports.review_rows -%}
+    {%- assign sold_rows = context.exports.sold_rows -%}
 
     <div id="product-grid" class="product-cards products-grid grid-x grid-padding-x grid-padding-y large-up-4 medium-up-3 small-up-1">
-    
+
         {% for product in products %}
-            {% include "modules/ecommerce/products/product_card", product: product %}
+            {% include "modules/ecommerce/products/product_card", product: product, cf_rows: cf_rows, review_rows: review_rows, sold_rows: sold_rows %}
         {% endfor %}
 
     </div>

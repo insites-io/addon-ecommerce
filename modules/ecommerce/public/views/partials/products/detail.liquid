@@ -72,8 +72,14 @@ metadata: {
     assign price = context.exports.price
     assign price_strikethrough = context.exports.price_strikethrough
     assign is_tax_included = context.exports.is_tax_included
-    
-    assign variants = '[]'    
+
+    ## Highlighted tags (product-level, from product_custom_field) — same chips as the product card
+    assign pdp_product_uuids = product.uuid | split: ','
+    graphql pdp_cf_rows = 'modules/ecommerce/products/get_products_custom_fields', product_uuids: pdp_product_uuids | dig: 'items', 'results'
+    assign product_cf = pdp_cf_rows | where: 'product_uuid', product.uuid | first
+    assign product_tags = product_cf.tags
+
+    assign variants = '[]'
 %}
 
 <ins-button label="Go back" icon="icon-angle-left" class="inline go-back" onclick=window.history.back();></ins-button>
@@ -83,8 +89,14 @@ metadata: {
     <div class="large-7 medium-12 small-12 cell">                
         <div class="gallery">   
 
-            {% comment %} On sale {% endcomment %}
-            <div id="on-sale-tag" class="on-sale-tag {% unless selected_prop.is_on_sale == true %}hide{% endunless %}">ON SALE</div>
+            {% comment %} Highlighted tags (from product_custom_field) {% endcomment %}
+            {%- if product_tags and product_tags.size > 0 -%}
+                <div class="product-tags">
+                    {%- for tag in product_tags -%}
+                        {% include 'modules/ecommerce/products/tag_chip', tag: tag %}
+                    {%- endfor -%}
+                </div>
+            {%- endif -%}
 
 
             {% comment %} Out of Stock {% endcomment %}
@@ -390,7 +402,6 @@ metadata: {
     const pricingWrap = document.getElementById("pricing-wrap");
     const productPrice = document.getElementById("product-price");
     const regularProductPrice = document.getElementById("regular-product-price");
-    const onSaleTag = document.getElementById('on-sale-tag');
     const ourOfStockNotice = document.getElementById("out-of-stock-notice");
     const outOfStockOverlay = document.getElementById("out-of-stock-overlay");
 
@@ -462,14 +473,6 @@ metadata: {
                     outOfStockOverlay.classList.add("hide");
                 }
                 selected_variant.stock_level = selectedVariant.stock_level;
-                //Sale tag
-                if(onSaleTag){
-                    if(selectedVariant.is_on_sale == true){
-                        onSaleTag.classList.remove("hide");
-                    } else {
-                        onSaleTag.classList.add("hide");
-                    }
-                }
                 //product_options
                 selected_variant.product_options = selectedVariant.product_options;
                 // Sync add-to-cart button data with selected variant

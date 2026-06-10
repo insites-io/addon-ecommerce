@@ -27,6 +27,14 @@
   - Reviews list paginates via AJAX (with a per-page selector and skeleton loading) so only the list updates, and the view scrolls back to the tab
   - New `reviews` database for storing reviews, with GraphQL queries for the list and summary, and a write-a-review platform form
 
+- Product Card Enhancements
+  - Product cards now show the **brand name** above the title, an average **star rating** with review count, and a **units-sold** count
+  - **Highlighted tags** (e.g. "New Arrival", "Sale", "Staff Pick", "Limited", "Bestseller") render as coloured chips overlaid on the product image; tag colours follow the design-system semantic colours. Replaces the old hardcoded "SALE" tag (cards and product page)
+  - **Stock-level indicator** under the price: "In stock (N)", "Low stock (N)", "Very low stock (N)", or "Out of stock" — driven by a per-product low-stock override; coloured for WCAG AA contrast
+  - Tags are admin-managed per product (`tags` + `low_stock_override` custom fields); rating is pulled from approved reviews and sold count from completed orders
+  - Enhancements apply everywhere the product card is used: Product List, New Arrivals, What's Hot, and You May Also Like
+  - Card data is fetched in batched, per-page queries (keyed by the page's products) to avoid extra per-product lookups
+
  ## App - Add-on Ecommerce V1.1.1
 
 - Module Updates

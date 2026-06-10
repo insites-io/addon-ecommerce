@@ -1,0 +1,16 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Products | Tag Chip'
+}
+---
+{% comment %}
+    A single highlighted tag chip. Colour is driven by a slugified modifier
+    class (tag-chip--{slug}) so each known tag type maps to a semantic colour in
+    ecommerce.css (New Arrival = success, Sale = error, Staff Pick = warning-hover,
+    etc.). Unknown tags fall back to the base chip colour.
+
+    Params:
+    - tag : the tag label string (e.g. "New Arrival")
+{% endcomment %}
+{%- assign tag_slug = tag | downcase | strip | replace: ' ', '-' -%}
+<ins-tag label="{{ tag }}" class="tag-chip tag-chip--{{ tag_slug }}"></ins-tag>

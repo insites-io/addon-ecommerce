@@ -28,6 +28,13 @@ metadata: {
 
 {% graphql all_categories = 'modules/ecommerce/categories/get_categories' | dig: 'items','results'  %}
 
+{% comment %} Card enrichment (tags, rating, sold) — batched by the ordered products' uuids {% endcomment %}
+{%- assign pa_product_uuids = ordered_items | map: 'product_uuid' | uniq -%}
+{%- include 'modules/ecommerce/products/enrich_cards', product_uuids: pa_product_uuids -%}
+{%- assign cf_rows = context.exports.cf_rows -%}
+{%- assign review_rows = context.exports.review_rows -%}
+{%- assign sold_rows = context.exports.sold_rows -%}
+
 <section class="bg-color-ui-01">
     <div class="spacer x-large"></div>
     
@@ -67,8 +74,8 @@ metadata: {
                 %}
 
                 <div class="large-4 medium-12 small-12">
-                {% include "modules/ecommerce/products/product_card", 
-                    item: item, all_categories:all_categories, ordered_item: true, purchase_date: item.created_at %}
+                {% include "modules/ecommerce/products/product_card",
+                    item: item, all_categories:all_categories, cf_rows: cf_rows, review_rows: review_rows, sold_rows: sold_rows, ordered_item: true, purchase_date: item.created_at %}
                 </div>
             {% endfor %}
         </div>

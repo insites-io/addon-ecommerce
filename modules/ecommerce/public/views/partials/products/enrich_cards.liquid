@@ -1,0 +1,42 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Products | Enrich Cards'
+}
+---
+{% comment %}
+    Runs the per-page batch queries that power the enhanced product card
+    (tags + low_stock_override, approved review ratings, completed-order sold
+    counts) for a set of products, keyed by product uuid, so the card can look
+    up its own values without an N+1 across the grid/carousel. Shared by
+    products/grid.liquid and the New arrivals / What's hot / You may also like /
+    Purchase again blocks.
+
+    Pass EITHER:
+    - products      : array of product results (uuid is mapped out), OR
+    - product_uuids : array of product uuids (e.g. from ordered items)
+
+    Exports (read via context.exports.*):
+    - cf_rows      : product_custom_field rows (tags, low_stock_override)
+    - review_rows  : approved review ratings (reviewed_product, rating)
+    - sold_rows    : completed-order line items (product_uuid, quantity)
+{% endcomment %}
+{%- comment -%}
+    Derive uuids from `products` when given (overriding any `product_uuids` that
+    leaked in from a parent scope, e.g. the PDP setting its own product_uuids
+    before including 'You may also like'). Callers that have no products array
+    (e.g. Purchase again) pass `product_uuids` directly instead.
+{%- endcomment -%}
+{%- if products -%}
+    {%- assign product_uuids = products | map: 'uuid' -%}
+{%- endif -%}
+{%- assign cf_rows = '' | split: ',' -%}
+{%- assign review_rows = '' | split: ',' -%}
+{%- assign sold_rows = '' | split: ',' -%}
+{%- if product_uuids and product_uuids.size > 0 -%}
+    {%- graphql cf_rows = 'modules/ecommerce/products/get_products_custom_fields', product_uuids: product_uuids | dig: 'items', 'results' -%}
+    {%- graphql review_rows = 'modules/ecommerce/reviews/get_products_review_summary', product_uuids: product_uuids | dig: 'items', 'results' -%}
+    {%- graphql sold_rows = 'modules/ecommerce/order_items/get_products_sold_count', product_uuids: product_uuids | dig: 'items', 'results' -%}
+{%- endif -%}
+{%- export cf_rows -%}
+{%- export review_rows -%}
+{%- export sold_rows -%}

@@ -1,0 +1,25 @@
+query get_products_custom_fields(
+  $product_uuids: [String!],
+  $size: Int = 100
+){
+  ## Batch fetch of the product_custom_field rows for a page of products
+  ## (keyed by product_uuid) so the PLP card can render tags + the low-stock
+  ## override without an N+1 per-product subquery. One row per product.
+  items: records(
+    page: 1
+    per_page: $size
+    filter: {
+      table: { value: "modules/ins_ecommerce/product_custom_field" }
+      deleted_at: { exists: false }
+      properties: [
+        { name: "product_uuid", value_in: $product_uuids }
+      ]
+    }
+  ){
+    results {
+      product_uuid: property(name: "product_uuid")
+      tags: property_array(name: "tags")
+      low_stock_override: property_int(name: "low_stock_override")
+    }
+  }
+}
