@@ -20,6 +20,13 @@
   - Added a total product count below the page heading (e.g. "3 products"), kept up to date as filters change
   - New JSON endpoint (`api/products/list-results`) returns the rendered grid and result count for the current filters
 
+- Product Reviews
+  - Customers can write a product review from the product page via a modal form: interactive star rating (1–5), review text, and reviewer details; supports both logged-in users (details pre-filled) and guests
+  - Submitted reviews are saved with a "Pending" status and only appear publicly once approved (Pending / Approved / Rejected), giving admins moderation control
+  - New "Reviews" tab on the product page shows a rating summary (average score + stars + total count), the list of approved reviews (reviewer, stars, date, comment), and an empty state with a call-to-action when there are none
+  - Reviews list paginates via AJAX (with a per-page selector and skeleton loading) so only the list updates, and the view scrolls back to the tab
+  - New `reviews` database for storing reviews, with GraphQL queries for the list and summary, and a write-a-review platform form
+
  ## App - Add-on Ecommerce V1.1.1
 
 - Module Updates
