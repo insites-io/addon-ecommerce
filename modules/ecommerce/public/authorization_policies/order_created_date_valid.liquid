@@ -10,7 +10,9 @@ flash_alert: Order confirmation page has expired. Please login to view order det
 
 {% comment %} Using plus filter will convert string into int {% endcomment %}
 {% assign diff = order_details.created_at | time_diff: now, 'minutes' | plus: 0 %}
-{% comment %} Allow user to see confirmation page for 5 minutes {% endcomment %}
+{% comment %} Allow user to see confirmation page for 10 minutes {% endcomment %}
 {%- if diff < 10 -%}
     true
+{%- else -%}
+    false
 {%- endif -%}
