@@ -81,7 +81,7 @@ authorization_policies:
         "order_uuids": {{order_uuids}},
         "is_product_info_needed": true,
         "size": 100,
-        "product_name": "{{product_name}}",
+        "product_name": {{ product_name | default: '' | strip_html | json }},
         "category_uuid": "{{category_uuid_filter}}",
         "dateFrom": "{{dateFrom}}",
         "dateTo": "{{dateTo}}"
@@ -244,7 +244,7 @@ authorization_policies:
                     "product_uuid": "{{ product.uuid }}",
                     "product_sku": "{{ selected_prop.sku }}",
                     "product_variant_uuid": "{{ product_variant_uuid }}",
-                    "product_name": "{{ product.product_name | replace: "'", "`" }}",
+                    "product_name": {{ product.product_name | default: '' | strip_html | json }},
                     "price": "{{ price | default: 0 }}"
                 }
                 {% endparse_json %}

@@ -184,7 +184,7 @@ metadata: {
                     {
                         "id": "{{ selected_prop.id }}",
                         "slug": "{{ product.slug }}",
-                        "product_name": "{{ product.product_name | replace: "'", "`"}}",
+                        "product_name": {{ product.product_name | default: '' | strip_html | json }},
                         "image": "{{ image_url }}",
                         "product_sku": "{{ selected_prop.sku }}",
                         "product_uuid": "{{ product.uuid }}",

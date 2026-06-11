@@ -32,7 +32,7 @@
         placeholder="First Name"
         name="{{ prop.shipping_contact_first_name.name }}" 
         id="shipping-first-name" 
-        value="{{ context.session.shipping_contact_first_name | default: ''}}"
+        value="{{ context.session.shipping_contact_first_name | default: '' | escape }}"
         error-message="First name is required.">
       </ins-input>
     </div>

@@ -77,9 +77,9 @@ metadata: {
 
 {% parse_json customer_info %}
 {
-    "email": "{{ form.properties.billing_contact_email }}",
-    "first_name": "{{ form.properties.billing_contact_first_name }}",
-    "last_name": "{{ form.properties.billing_contact_last_name }}"
+    "email": {{ form.properties.billing_contact_email | default: '' | strip_html | json }},
+    "first_name": {{ form.properties.billing_contact_first_name | default: '' | strip_html | json }},
+    "last_name": {{ form.properties.billing_contact_last_name | default: '' | strip_html | json }}
 }
 {% endparse_json %}
 

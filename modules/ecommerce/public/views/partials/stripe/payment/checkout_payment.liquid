@@ -50,14 +50,14 @@ metadata: {
         "metadata": {
             "Insites Order ID": "{{ form.id }}",
             "Insites Customer UUID": "{{ user_uuid }}",
-            "Insites Company Name": "{{ prop.billing_company_name }}",
+            "Insites Company Name": {{ prop.billing_company_name | default: '' | strip_html | json }},
             "Insites Order": "https://{{ context.location.host }}/admin/insites#/ecommerce/orders/{{ prop.uuid }}"
         },
         "billing_details": {
-            "name": "{{ customer_name }}",
-            "email": "{{ customer_email }}"
+            "name": {{ customer_name | default: '' | strip_html | json }},
+            "email": {{ customer_email | default: '' | strip_html | json }}
         },
-        "statement_descriptor": "{{ prop.statement_descriptor }}"
+        "statement_descriptor": {{ prop.statement_descriptor | default: '' | strip_html | json }}
     }
     {% endparse_json %}
 

@@ -99,19 +99,19 @@ metadata: {
     "order_status": "{{ order_status }}",
     "order_company_phone_country_code": "{{ company.mobile_phone_country_code }}", 
     "order_company_phone_number": "{{ company.mobile_phone_number }}", 
-    "order_company_email": "{{ company.email_1 }}",
+    "order_company_email": {{ company.email_1 | default: '' | strip_html | json }},
     {% comment %} Shipping Details {% endcomment %}
     "shipping_company.uuid": "{{ shipping_company_uuid }}",
     "shipping_contact.uuid": "{{ shipping_contact_uuid }}",
-    "shipping_company_name": "{{ shipping_company_name }}",
-    "shipping_company_email": "{{ shipping_company_email }}",
+    "shipping_company_name": {{ shipping_company_name | default: '' | strip_html | json }},
+    "shipping_company_email": {{ shipping_company_email | default: '' | strip_html | json }},
     "shipping_company_phone_country_code": "{{ shipping_company_phone_country_code }}",
     "shipping_company_phone_number": "{{ shipping_company_phone_number }}",
     {% comment %} Billing Details {% endcomment %}
     "billing_company.uuid": "{{ billing_company_uuid }}",
     "billing_contact.uuid": "{{ billing_contact_uuid }}",
-    "billing_company_name": "{{ billing_company_name }}",
-    "billing_company_email": "{{ billing_company_email }}",
+    "billing_company_name": {{ billing_company_name | default: '' | strip_html | json }},
+    "billing_company_email": {{ billing_company_email | default: '' | strip_html | json }},
     "billing_company_phone_country_code": "{{ billing_company_phone_country_code }}",
     "billing_company_phone_number": "{{ billing_company_phone_number }}"
 }

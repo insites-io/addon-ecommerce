@@ -13,83 +13,83 @@ metadata: {
 
 {% parse_json param_contact %}
 {
-    "company_name": "{{ context.params.contact_company_name }}",
-    "contact_first_name": "{{ context.params.contact_first_name }}",
-    "contact_last_name": "{{ context.params.contact_last_name }}",
-    "contact_email": "{{ context.params.contact_email }}",
-    "contact_phone_number": "{{ context.params.contact_phone_number }}",
-    "contact_phone_country_code": "{{ context.params.contact_phone_country_code }}"
+    "company_name": {{ context.params.contact_company_name | json }},
+    "contact_first_name": {{ context.params.contact_first_name | json }},
+    "contact_last_name": {{ context.params.contact_last_name | json }},
+    "contact_email": {{ context.params.contact_email | json }},
+    "contact_phone_number": {{ context.params.contact_phone_number | json }},
+    "contact_phone_country_code": {{ context.params.contact_phone_country_code | json }}
 }
 {% endparse_json %}
 
 {% parse_json session_contact %}
 {
-    "company_name": "{{ context.session.contact_company_name }}",
-    "contact_first_name": "{{ context.session.contact_first_name }}",
-    "contact_last_name": "{{ context.session.contact_last_name }}",
-    "contact_email": "{{ context.session.contact_email }}",
-    "contact_phone_number": "{{ context.session.contact_phone_number }}",
-    "contact_phone_country_code": "{{ context.session.contact_phone_country_code }}"
+    "company_name": {{ context.session.contact_company_name | json }},
+    "contact_first_name": {{ context.session.contact_first_name | json }},
+    "contact_last_name": {{ context.session.contact_last_name | json }},
+    "contact_email": {{ context.session.contact_email | json }},
+    "contact_phone_number": {{ context.session.contact_phone_number | json }},
+    "contact_phone_country_code": {{ context.session.contact_phone_country_code | json }}
 }
 {% endparse_json %}
 
 {% parse_json param_shipping %}
 {
-    "company_name": "{{ context.params.shipping_company_name }}",
-    "contact_first_name": "{{ context.params.shipping_contact_first_name }}",
-    "contact_last_name": "{{ context.params.shipping_contact_last_name }}",
-    "contact_email": "{{ context.params.shipping_contact_email }}",
-    "contact_phone_number": "{{ context.params.shipping_contact_phone_number }}",
-    "contact_phone_country_code": "{{ context.params.shipping_contact_phone_country_code }}",
+    "company_name": {{ context.params.shipping_company_name | json }},
+    "contact_first_name": {{ context.params.shipping_contact_first_name | json }},
+    "contact_last_name": {{ context.params.shipping_contact_last_name | json }},
+    "contact_email": {{ context.params.shipping_contact_email | json }},
+    "contact_phone_number": {{ context.params.shipping_contact_phone_number | json }},
+    "contact_phone_country_code": {{ context.params.shipping_contact_phone_country_code | json }},
 
-    "address_1": "{{ context.params.shipping_address_1 }}",
-    "address_2": "{{ context.params.shipping_address_2 }}",
-    "suburb": "{{ context.params.shipping_suburb }}",
-    "state": "{{ context.params.shipping_state }}",
-    "postcode": "{{ context.params.shipping_postcode }}",
-    "country": "{{ context.params.shipping_country }}",
+    "address_1": {{ context.params.shipping_address_1 | json }},
+    "address_2": {{ context.params.shipping_address_2 | json }},
+    "suburb": {{ context.params.shipping_suburb | json }},
+    "state": {{ context.params.shipping_state | json }},
+    "postcode": {{ context.params.shipping_postcode | json }},
+    "country": {{ context.params.shipping_country | json }},
 
-    "instructions": "{{ context.params.shipping_instructions }}"    
+    "instructions": {{ context.params.shipping_instructions | json }}
 }
 {% endparse_json %}
 
 {% parse_json session_shipping %}
 {
-    "company_name": "{{ context.session.shipping_company_name }}",
-    "contact_first_name": "{{ context.session.shipping_contact_first_name }}",
-    "contact_last_name": "{{ context.session.shipping_contact_last_name }}",
-    "contact_email": "{{ context.session.shipping_contact_email }}",
-    "contact_phone_number": "{{ context.session.shipping_contact_phone_number }}",
-    "contact_phone_country_code": "{{ context.session.shipping_contact_phone_country_code }}",
+    "company_name": {{ context.session.shipping_company_name | json }},
+    "contact_first_name": {{ context.session.shipping_contact_first_name | json }},
+    "contact_last_name": {{ context.session.shipping_contact_last_name | json }},
+    "contact_email": {{ context.session.shipping_contact_email | json }},
+    "contact_phone_number": {{ context.session.shipping_contact_phone_number | json }},
+    "contact_phone_country_code": {{ context.session.shipping_contact_phone_country_code | json }},
 
-    "address_1": "{{ context.session.shipping_address_1 }}",
-    "address_2": "{{ context.session.shipping_address_2 }}",
-    "suburb": "{{ context.session.shipping_suburb }}",
-    "state": "{{ context.session.shipping_state }}",
-    "postcode": "{{ context.session.shipping_postcode }}",
-    "country": "{{ context.session.shipping_country }}",
+    "address_1": {{ context.session.shipping_address_1 | json }},
+    "address_2": {{ context.session.shipping_address_2 | json }},
+    "suburb": {{ context.session.shipping_suburb | json }},
+    "state": {{ context.session.shipping_state | json }},
+    "postcode": {{ context.session.shipping_postcode | json }},
+    "country": {{ context.session.shipping_country | json }},
 
-    "instructions": "{{ context.session.shipping_instructions }}"    
+    "instructions": {{ context.session.shipping_instructions | json }}
 }
 {% endparse_json %}
 
 {% parse_json param_billing %}
 {
-    "same_with_shipping": "{{ context.params.billing_same_with_shipping }}",
+    "same_with_shipping": {{ context.params.billing_same_with_shipping | json }},
 
-    "company_name": "{{ context.params.billing_company_name }}",
-    "contact_first_name": "{{ context.params.billing_contact_first_name }}",
-    "contact_last_name": "{{ context.params.billing_contact_last_name }}",
-    "contact_email": "{{ context.params.billing_contact_email }}",
-    "contact_phone_number": "{{ context.params.billing_contact_phone_number }}",
-    "contact_phone_country_code": "{{ context.params.billing_contact_phone_country_code }}",    
+    "company_name": {{ context.params.billing_company_name | json }},
+    "contact_first_name": {{ context.params.billing_contact_first_name | json }},
+    "contact_last_name": {{ context.params.billing_contact_last_name | json }},
+    "contact_email": {{ context.params.billing_contact_email | json }},
+    "contact_phone_number": {{ context.params.billing_contact_phone_number | json }},
+    "contact_phone_country_code": {{ context.params.billing_contact_phone_country_code | json }},
 
-    "address_1": "{{ context.params.billing_address_1 }}",
-    "address_2": "{{ context.params.billing_address_2 }}",
-    "suburb": "{{ context.params.billing_suburb }}",
-    "state": "{{ context.params.billing_state }}",
-    "postcode": "{{ context.params.billing_postcode }}",
-    "country": "{{ context.params.billing_country }}" 
+    "address_1": {{ context.params.billing_address_1 | json }},
+    "address_2": {{ context.params.billing_address_2 | json }},
+    "suburb": {{ context.params.billing_suburb | json }},
+    "state": {{ context.params.billing_state | json }},
+    "postcode": {{ context.params.billing_postcode | json }},
+    "country": {{ context.params.billing_country | json }}
 }
 {% endparse_json %}
 

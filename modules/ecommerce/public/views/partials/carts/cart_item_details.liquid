@@ -47,7 +47,7 @@ metadata: {
 {% parse_json cart %}
 {
     "slug": "{{ product.slug }}",
-    "product_name": "{{ product_name }}",
+    "product_name": {{ product_name | default: '' | strip_html | json }},
     "product_sku": "{{ selected_prop.product_sku }}",
     "is_variant": {{ is_variant | default: false }},
     "selected_prop": {{ selected_prop | default: '[]' }},

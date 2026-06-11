@@ -255,7 +255,7 @@ metadata: {
                 "id": "{{ product.id }}",
                 "slug": "{{ product.slug }}",
                 "product_uuid": "{{ product.uuid }}",
-                "product_name": "{{ product.product_name | replace: "'", "`" }}",
+                "product_name": {{ product.product_name | default: '' | strip_html | json }},
                 "price": "{{ price | default: 0 }}",
                 "product_sku": "{{ product.sku }}",
                 "stock_level": "{{ product.stock_level | default: 0 }}",
@@ -394,7 +394,7 @@ metadata: {
     const main_image = "{{ product.product_image.url }}";
     const galleryIndexes = {{ gallery_indexes | default: '[]' }};
     let selected_variant = {
-            "product_name": "{{ product.product_name }}"
+            "product_name": {{ product.product_name | default: '' | strip_html | json }}
         }; 
     
     const productGalleries = document.getElementById('product-galleries');    
