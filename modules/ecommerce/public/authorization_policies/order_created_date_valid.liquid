@@ -3,16 +3,25 @@ name: order_created_date_valid
 redirect_to: sign-in
 flash_alert: Order confirmation page has expired. Please login to view order details.
 ---
-{% graphql order_details = "modules/ecommerce/orders/get_order_details",
-    uuid: context.params.id | dig: 'items' | dig: 'results' | first %}
-
-{% assign now = 'now' | to_time %}
-
-{% comment %} Using plus filter will convert string into int {% endcomment %}
-{% assign diff = order_details.created_at | time_diff: now, 'minutes' | plus: 0 %}
-{% comment %} Allow user to see confirmation page for 10 minutes {% endcomment %}
-{%- if diff < 10 -%}
-    true
-{%- else -%}
+{%- comment -%} No order id in the URL — deny outright (a blank uuid would otherwise query nothing). {%- endcomment -%}
+{%- if context.params.id == blank -%}
     false
+{%- else -%}
+    {% graphql order_details = "modules/ecommerce/orders/get_order_details",
+        uuid: context.params.id | dig: 'items' | dig: 'results' | first %}
+
+    {%- comment -%} No matching order (bad/expired/forged id) — deny rather than treating a nil date as a 0-minute-old order. {%- endcomment -%}
+    {%- if order_details == blank or order_details.created_at == blank -%}
+        false
+    {%- else -%}
+        {% assign now = 'now' | to_time %}
+        {% comment %} Using plus filter will convert string into int {% endcomment %}
+        {% assign diff = order_details.created_at | time_diff: now, 'minutes' | plus: 0 %}
+        {% comment %} Allow user to see confirmation page for 10 minutes {% endcomment %}
+        {%- if diff < 10 -%}
+            true
+        {%- else -%}
+            false
+        {%- endif -%}
+    {%- endif -%}
 {%- endif -%}
