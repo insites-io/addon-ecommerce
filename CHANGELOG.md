@@ -35,6 +35,14 @@
   - Enhancements apply everywhere the product card is used: Product List, New Arrivals, What's Hot, and You May Also Like
   - Card data is fetched in batched, per-page queries (keyed by the page's products) to avoid extra per-product lookups
 
+- Promotional Popup
+  - A promotional popup can now be shown across the storefront to highlight a sale, offer, or campaign — image, heading, body line (with optional emphasis like a red "80% OFF"), and a call-to-action button
+  - Managed by a new **Popup Modal** database: each popup has an image, heading, content, button label/URL, enabled toggle, weighting, and optional start/end dates — no code changes needed to launch, schedule, or retire one
+  - Appears automatically ~1.5 seconds after the page loads; closeable via the ✕, clicking outside, or pressing Esc, and traps focus while open
+  - Only shows when enabled and within its scheduled window; blank start/end dates mean no limit (an enabled popup with no dates always shows). When multiple popups qualify, the lowest weighting wins
+  - Once dismissed it stays hidden for the rest of the browsing session, so it doesn't repeatedly interrupt visitors
+  - New eligible-popup GraphQL query and a default (disabled) sample record seeded on install
+
  ## App - Add-on Ecommerce V1.1.1
 
 - Module Updates

@@ -3683,3 +3683,110 @@ ins-button.add-credit-card button.ins-button>div,
         gap: 8px;
     }
 }
+
+
+/* ---- Promotional popup modal ---- */
+
+/* Strip ins-modal's card padding so the image can sit flush to the edge */
+.promo-popup-modal .ins-modal-content {
+    padding: 0;
+    overflow: hidden;
+}
+.promo-popup-modal .ins-modal-content,
+.promo-popup-modal .ins-modal-wrap.show-modal ins-card .ins-card-wrap {
+    border-radius: 14px;
+}
+.promo-popup-modal .ins-modal-wrap.show-modal .ins-modal-head.no-heading {
+    position: absolute;
+}
+.promo-popup-modal .ins-modal-wrap.show-modal .ins-modal-body {
+    padding: 0;
+}
+.promo-popup-modal .ins-modal-wrap .ins-card {
+    width: 690px;
+    max-width: 92vw;
+}
+
+/* Default head becomes a floating close (✕) over the top-right corner */
+.promo-popup-modal .ins-modal-head {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    min-height: 0;
+    padding: 16px;
+    background: transparent;
+    border: 0;
+}
+.promo-popup-modal .ins-modal-head-h1 {
+    display: none;
+}
+.promo-popup-modal .ins-modal-head .icon-close-1 {
+    color: var(--font-color-head);
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.promo-popup {
+    display: flex;
+    align-items: stretch;
+    min-height: 400px;
+}
+.promo-popup__content {
+    flex: 1 1 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 24px;
+    padding: 56px 32px;
+}
+.promo-popup__heading {
+    margin: 0;
+}
+.promo-popup__body {
+    color: var(--font-color-body);
+}
+.promo-popup__body p {
+    margin: 0;
+}
+/* Inline emphasis (e.g. "80% OFF") renders red-bold per the design */
+.promo-popup__body strong,
+.promo-popup__body b {
+    font-weight: 700;
+}
+.promo-popup__cta {
+    display: inline-block;
+}
+.promo-popup__media {
+    flex: 1 1 50%;
+    position: relative;
+    overflow: hidden;
+}
+.promo-popup__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Stack on mobile: image on top, text below */
+@media screen and (max-width: 639px) {
+    .promo-popup {
+        flex-direction: column;
+        min-height: 0;
+    }
+    .promo-popup__media {
+        order: -1;
+        flex-basis: auto;
+        height: 200px;
+    }
+    .promo-popup__content {
+        padding: 32px 24px;
+    }
+}
+
+@media screen and (max-width: 640px) {
+    .promo-popup-modal .ins-modal-wrap.show-modal ins-card .ins-card-wrap {
+        margin: 1.75rem 12px 1.75rem;
+    }
+}

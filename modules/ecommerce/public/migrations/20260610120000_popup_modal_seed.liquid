@@ -1,0 +1,52 @@
+{% comment %}
+    Seed a single DISABLED sample Popup Modal record on install so admins have a
+    template to edit. Guarded: only runs when the table has no records yet, so
+    it never overwrites configured popups or shows a broken popup (it is disabled
+    and has no schedule, so it stays hidden until an admin enables + configures it).
+    The popup_modal table itself is provisioned from schema/popup_modal.yml on deploy.
+{% endcomment %}
+
+{%- graphql existing -%}
+  query {
+    items: records(
+      per_page: 1
+      filter: {
+        table: { value: "modules/ecommerce/popup_modal" }
+        deleted_at: { exists: false }
+      }
+    ) {
+      total_entries
+    }
+  }
+{%- endgraphql -%}
+
+{%- assign existing_count = existing.items.total_entries | default: 0 -%}
+
+{%- if existing_count == 0 -%}
+    {% parse_json import_popups %}
+    [
+        {
+            "type_name": "modules/ecommerce/popup_modal",
+            "properties": {
+                "popup_heading": "The living room warehouse reset.",
+                "popup_content": "<p>Get premium sofas, cabinets, and lounge sets at up to <strong>80% OFF</strong>.</p>",
+                "popup_button_label": "Shop living room",
+                "popup_button_url": "/products",
+                "is_popup_enabled": false,
+                "popup_weight": 100
+            }
+        }
+    ]
+    {% endparse_json %}
+
+    {%- graphql results, models: import_popups -%}
+        mutation ($models: [CustomizationImport!]!) {
+            import_models(models: $models) {
+                ids
+            }
+        }
+    {%- endgraphql -%}
+    {% log results, type: "SEED DATA: Popup Modal (disabled sample)" %}
+{%- else -%}
+    {% log existing_count, type: "SEED DATA: Popup Modal skipped (records already exist)" %}
+{%- endif -%}
