@@ -37,9 +37,8 @@ metadata: {
     </div>
     <div class="large-4 large-offset-1 medium-12 small-12 cell">
         <div class="hide-for-large spacer xxx-large"></div>
-        {%- include 'modules/ecommerce/layout/order_summary', 
+        {%- include 'modules/ecommerce/layout/order_summary',
             show_product: true,
-            check
             form_update: true,
             form_delete: true,
             total_cart_value: total_cart_value -%}
