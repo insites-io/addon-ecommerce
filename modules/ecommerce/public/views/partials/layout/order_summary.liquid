@@ -110,8 +110,8 @@ metadata: {
                 {
                     "check_duplicates": false,
                     "delete_invalid": true,
-                    "contact_uuid": "{{ user_uuid }}",
-                    "discount_code": "{{ item.discount_code }}",
+                    "contact_uuid": {{ user_uuid | json }},
+                    "discount_code": {{ item.discount_code | json }},
                     "total_cart_value": {{ total_cart_value | default: 0 }}
                 }
                 {%- endparse_json -%}

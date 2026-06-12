@@ -186,6 +186,19 @@ metadata: {
 {%- graphql products = 'modules/ecommerce/products/search_products', args: filters -%}
 
 
+{% comment %} Category tree for the sidebar filters — fetched once here and shared
+   across the mobile + desktop sidebar_filters renders (avoids querying it twice). {% endcomment %}
+{%- liquid
+    if context.session.parent_categories.size > 0
+        assign filter_top_categories = context.session.parent_categories
+    else
+        graphql filter_top_categories = 'modules/ecommerce/categories/get_category_parent', parent_category_uuids: '[]' | dig: 'items','results'
+    endif
+    assign filter_topcat_uuids = filter_top_categories | map: 'uuid'
+    graphql filter_sub_categories = 'modules/ecommerce/categories/get_category_uuids', parent_category_uuids: filter_topcat_uuids | dig: 'items','results'
+-%}
+
+
 {% comment %} Title Heading {% endcomment %}
 <div class="grid-x grid-padding-x">
     <div class="small-10 small-offset-1 cell text-center">
@@ -218,14 +231,14 @@ metadata: {
                 bordered=false
                 id="mobile-filter-drawer">
                 <div class="wrap">
-                    {%- include 'modules/ecommerce/products/sidebar_filters', facets: product_facets.items.results, mode: 'mobile' -%}
+                    {%- include 'modules/ecommerce/products/sidebar_filters', facets: product_facets.items.results, mode: 'mobile', top_categories: filter_top_categories, sub_categories: filter_sub_categories -%}
                 </div>
             </ins-drawer>
         </div>
 
         {% comment %} Sidebar Filters for Desktop view {% endcomment %}
         <div class="sidebar-categories show-for-large">
-            {%- include 'modules/ecommerce/products/sidebar_filters', facets: product_facets.items.results, mode: 'desktop' -%}
+            {%- include 'modules/ecommerce/products/sidebar_filters', facets: product_facets.items.results, mode: 'desktop', top_categories: filter_top_categories, sub_categories: filter_sub_categories -%}
         </div>
     </div>
     

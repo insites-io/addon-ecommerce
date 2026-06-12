@@ -9,8 +9,12 @@ metadata: {
     (applied-filter count, removable chips, clear-all).
 
     Params passed from parent (list.liquid):
-    - facets : product_facets.items.results (enabled catalog in current context)
-    - mode   : 'desktop' | 'mobile' (keeps element ids unique across the two renders)
+    - facets         : product_facets.items.results (enabled catalog in current context)
+    - mode           : 'desktop' | 'mobile' (keeps element ids unique across the two renders)
+    - top_categories : (optional) parent categories — passed by list.liquid so the
+                       category tree is fetched once and shared across the mobile +
+                       desktop renders. Falls back to querying here if not provided.
+    - sub_categories : (optional) sub-categories — same sharing as top_categories.
 
     Interaction is handled by product-list.js via data-* attributes; the page
     reloads with updated URL query params (shareable / back-forward friendly).
@@ -21,14 +25,20 @@ metadata: {
     assign mode = mode | default: 'desktop'
 
     comment # ---- Categories ----
+    # top_categories / sub_categories may be passed by the caller (fetched once and
+    # reused across both sidebar renders); only query when they weren`t provided.
     endcomment
-    if context.session.parent_categories.size > 0
-        assign top_categories = context.session.parent_categories
-    else
-        graphql top_categories = 'modules/ecommerce/categories/get_category_parent', parent_category_uuids: '[]' | dig: 'items','results'
-    endif
+    unless top_categories
+        if context.session.parent_categories.size > 0
+            assign top_categories = context.session.parent_categories
+        else
+            graphql top_categories = 'modules/ecommerce/categories/get_category_parent', parent_category_uuids: '[]' | dig: 'items','results'
+        endif
+    endunless
     assign topCat_uuids = top_categories | map: 'uuid'
-    graphql sub_categories = 'modules/ecommerce/categories/get_category_uuids', parent_category_uuids: topCat_uuids | dig: 'items','results'
+    unless sub_categories
+        graphql sub_categories = 'modules/ecommerce/categories/get_category_uuids', parent_category_uuids: topCat_uuids | dig: 'items','results'
+    endunless
     assign parent_with_child = sub_categories | map: 'parent_category_uuids' | array_flatten | uniq
 
     if params.page

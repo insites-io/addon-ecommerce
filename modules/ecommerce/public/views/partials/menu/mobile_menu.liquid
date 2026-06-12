@@ -5,22 +5,11 @@ metadata: {
 ---
 
 {% comment %} This partial is used in the app-portal {% endcomment %}
- 
-{% parse_json sort_by %}
-{
-  "properties": [
-    { "name": "category_weighting", "order": "ASC" }
-  ]
-}
-{% endparse_json %}
 
-{% graphql all_categories = 'modules/ecommerce/categories/get_categories', sort_by: sort_by | dig: 'items','results'  %}
-{% assign parent_categories = all_categories | array_select: parent_category_uuids: '[]' %}
-{% session parent_categories = parent_categories %}
-
-{% graphql featured_categories = 'modules/ecommerce/categories/get_featured_categories' | dig: 'items','results' %}
-{% assign parent_category_uuids = featured_categories | map: 'uuid' %}
-{% graphql sub_categories = 'modules/ecommerce/categories/get_subcategories', parent_category_uuids: parent_category_uuids | dig: 'items','results' %}        
+{% comment %} Shared category data — fetched once per request, reused by mega_menu {% endcomment %}
+{% include 'modules/ecommerce/menu/menu_categories' %}
+{% assign featured_categories = context.exports.menu_featured_categories %}
+{% assign sub_categories = context.exports.menu_sub_categories %}
 
 <ins-accordion menu>
     <ins-accordion-item class="colorBlack has-subitems" heading="Shop" link="#" open-icon="icon-plus" close-icon="icon-minus" link-target="_self">
