@@ -642,6 +642,21 @@ ins-carousel .product-cards>div {
     animation: sk-shimmer 1.4s ease-in-out infinite;
 }
 
+/* ---- "You may also like" grid skeleton ----
+   Plain grid (not a carousel), so swap a shimmer skeleton for the real grid
+   until the cards' web components hydrate. The block's inline script removes
+   .is-loading once the cards' ins-buttons report hydrated; card skeletons reuse
+   .product-card-skeleton above. */
+.ymal-skeleton {
+    display: none;
+}
+.ymal-section.is-loading .ymal-skeleton {
+    display: flex;
+}
+.ymal-section.is-loading .ymal-grid {
+    display: none;
+}
+
 .product-cards img:hover,
 .purchase-again img:hover {
     transform: scale(1.1);
