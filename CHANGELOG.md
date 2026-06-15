@@ -50,6 +50,7 @@
   - Closing it (✕) hides the strip for the rest of the browsing session across all pages; it re-appears if the configured banner set changes
   - Appears across the storefront — home, product list/detail, and checkout pages
   - New eligible-banners GraphQL query and a default (disabled) sample record seeded on install
+  - Renders correctly on first paint — no longer flashes unstyled with its rotation messages briefly stacked while styles load; the banner script is deferred so it no longer blocks page rendering (improves FCP)
 
 - Micro-animations / Interaction Polish
   - Buttons now fill with their hover colour in a left-to-right sweep instead of changing instantly (applies across all buttons; colours unchanged)

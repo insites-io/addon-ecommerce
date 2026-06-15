@@ -45,6 +45,23 @@ metadata: {
 -%}
 
 {%- if eligible_count > 0 -%}
+{%- comment -%}
+    Critical CSS (inlined): the strip's full styling lives in the async-loaded
+    ecommerce.css, so without this it would paint unstyled — with every rotation
+    slide stacked — until that stylesheet applies. Inlining the banner rules here
+    (design tokens resolve from the render-blocking default.css) means it paints
+    correctly on the FIRST paint: no flash, no layout shift, and no JS needed to
+    show it (good for FCP/CLS). promo-banner.js is deferred (rotation/dismiss only).
+{%- endcomment -%}
+<style>
+    .promo-banner { position: relative; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 48px; background: var(--color-sub1-hover); color: var(--font-color-inv); font-family: var(--font-family-02); font-size: 16px; line-height: 1.5; text-align: center; }
+    .promo-banner__viewport { display: flex; align-items: center; justify-content: center; }
+    .promo-banner__slide { display: none; align-items: center; justify-content: center; gap: 8px; }
+    .promo-banner__slide.is-active { display: flex; }
+    .promo-banner__link { color: var(--font-color-inv); font-weight: 600; text-decoration: underline; }
+    .promo-banner__close { position: absolute; right: 24px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; margin: 0; padding: 4px; border: 0; background: none; color: var(--font-color-inv); font-size: 18px; line-height: 1; cursor: pointer; }
+    @media screen and (max-width: 639px) { .promo-banner { padding: 12px 40px; font-size: 14px; } .promo-banner__slide { flex-wrap: wrap; } .promo-banner__close { right: 12px; } }
+</style>
 <div class="promo-banner" id="promo-banner" role="region" aria-label="Promotional banner" data-banner-key="{{ sig | escape }}">
     <div class="promo-banner__viewport">
         {%- comment -%} Pass 2: render each eligible banner; first one is active, rest hidden for JS rotation. {%- endcomment -%}
@@ -86,9 +103,10 @@ metadata: {
         }
     })();
 </script>
+{%- comment -%} Deferred: rotation/dismiss only — must not block rendering of the page below. {%- endcomment -%}
 {%- if context.environment == "staging" -%}
-    <script src="{{ 'modules/ecommerce/scripts/promo-banner.js' | asset_url }}"></script>
+    <script src="{{ 'modules/ecommerce/scripts/promo-banner.js' | asset_url }}" defer></script>
 {%- else -%}
-    <script src="{{ 'modules/ecommerce/scripts/promo-banner.min.js' | asset_url }}"></script>
+    <script src="{{ 'modules/ecommerce/scripts/promo-banner.min.js' | asset_url }}" defer></script>
 {%- endif -%}
 {%- endif -%}
