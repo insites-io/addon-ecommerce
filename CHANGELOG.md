@@ -51,6 +51,14 @@
   - Appears across the storefront — home, product list/detail, and checkout pages
   - New eligible-banners GraphQL query and a default (disabled) sample record seeded on install
 
+- Micro-animations / Interaction Polish
+  - Buttons now fill with their hover colour in a left-to-right sweep instead of changing instantly (applies across all buttons; colours unchanged)
+  - The product **sort dropdown** opens with a smooth top-to-bottom reveal; when it flips upward (near the bottom of the screen) the reveal direction and position adjust to match, so it no longer covers the button
+  - **Sidebar filter** groups slide open and closed instead of snapping, and the "Show more" option still expands the full list
+  - The **filter sidebar** fades in once it's ready instead of briefly showing blank rows while its controls load
+  - Promo carousels (**New Arrivals**, **What's Hot**) and the **You May Also Like** grid show a shimmer placeholder while loading, then reveal the real cards — no more flash of partial or unstyled content
+  - All animations respect the operating-system "reduce motion" accessibility setting
+
  ## App - Add-on Ecommerce V1.1.1
 
 - Module Updates
