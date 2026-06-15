@@ -159,15 +159,14 @@ default_payload: >
             "date_time": "", 
             "notes": "", 
             "currency": "{{ settings.currency | default: 'AUD' }}", 
-            "processing_fee": "{{ computed.processing_fee }}",
-            "subtotal_amount": "{{ subtotal_amount }}",
-            "total_tax_amount": "{{ computed.tax_amount }}",
-            "total_shipping_amount": "{{ computed.shipping_amount  }}",
-            "total_discount_amount": "{{ computed.total_discount_amount }}",
-            "total_amount_paid": "{{ computed.total_amount }}",
+            "subtotal_amount": {{ subtotal_amount }},
+            "total_tax_amount": {{ computed.tax_amount }},
+            "total_shipping_amount": {{ computed.shipping_amount }},
+            "total_discount_amount": {{ computed.total_discount_amount }},
+            "total_amount_paid": {{ computed.total_amount }},
             "processing_fee": {{ computed.processing_fee }},
-            "order_total": "{{ computed.total_amount }}",
-            "total_amount": "{{ computed.total_amount }}",
+            "order_total": {{ computed.total_amount }},
+            "total_amount": {{ computed.total_amount }},
             "uuid": "{{ '' | uuid }}"                       
         }
     }
