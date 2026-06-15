@@ -2585,6 +2585,45 @@ ins-filter ins-button button.ins-button.size--small span {
     padding: 12px 16px;
 }
 
+/* Smooth-open for the buttonise select dropdown (e.g. #sortSelect).
+   The options-wrap is always positioned and only its opacity toggles
+   (0 <-> 1) on .activated, with no transition — so it snaps open. Reveal it
+   with a top-to-bottom wipe (clip-path) plus a fade, and gate pointer-events
+   so the hidden menu can't capture clicks. */
+.ins-select-wrap.buttonise .ins-select-options-wrap {
+    clip-path: inset(0 0 100% 0);
+    pointer-events: none;
+    transition: opacity 0.25s ease, clip-path 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ins-select-wrap.buttonise.activated .ins-select-options-wrap {
+    clip-path: inset(0 0 0 0);
+    pointer-events: auto;
+}
+/* Drop-up: the component flips the menu above the button when there's no room
+   below (.drop-up on the wrap). The component's generic drop-up offset
+   (bottom: 39px) is sized for the standard select and lets the menu overlap the
+   shorter buttonise button, so sit it fully above with a matching 8px gap.
+   Also reverse the wipe so it reveals upward from the bottom edge (nearest the
+   button) instead of top-to-bottom. Position is set in both states so it
+   doesn't jump back down while closing. */
+.ins-select-wrap.buttonise.drop-up .ins-select-options-wrap {
+    top: auto;
+    bottom: calc(100% + 8px);
+    clip-path: inset(100% 0 0 0);
+}
+.ins-select-wrap.buttonise.drop-up.activated .ins-select-options-wrap {
+    top: auto;
+    bottom: calc(100% + 8px) !important;
+    clip-path: inset(0 0 0 0);
+    border: 1px solid var(--ins-color-ink10) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+    .ins-select-wrap.buttonise .ins-select-options-wrap {
+        transition: none;
+        clip-path: none;
+    }
+}
+
 
 /* Ins-Table */
 
