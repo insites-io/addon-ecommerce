@@ -603,6 +603,45 @@ ins-carousel .product-cards>div {
     width: 100%;
 }
 
+/* ---- Carousel hydration skeleton (New Arrivals / What's Hot) ----
+   <ins-carousel> renders its cards as a tall vertical stack until it hydrates
+   (Siema init in componentDidLoad). While .product-carousel keeps .is-loading
+   we clip that stack and overlay a shimmer skeleton; the block script removes
+   .is-loading on the carousel's didLoad. Card skeletons reuse
+   .product-card-skeleton above. */
+.product-carousel {
+    position: relative;
+}
+.product-carousel.is-loading {
+    min-height: 540px;
+    max-height: 540px;
+    overflow: hidden;
+}
+.carousel-skeleton {
+    display: none;
+}
+.product-carousel.is-loading .carousel-skeleton {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: var(--color-ui-01);
+}
+.carousel-skeleton .sk-heading {
+    width: 220px;
+    max-width: 60%;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(
+        90deg,
+        var(--color-ui-03) 25%,
+        var(--color-ui-04) 50%,
+        var(--color-ui-03) 75%
+    );
+    background-size: 1200px 100%;
+    animation: sk-shimmer 1.4s ease-in-out infinite;
+}
+
 .product-cards img:hover,
 .purchase-again img:hover {
     transform: scale(1.1);

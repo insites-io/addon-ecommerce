@@ -1,0 +1,35 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Blocks | Carousel Skeleton'
+}
+---
+{% comment %}
+    Hydration skeleton for a product carousel block (New Arrivals / What's Hot).
+    Rendered as the first child of .product-carousel.is-loading and overlaid on
+    the carousel until <ins-carousel> hydrates (its didLoad event removes the
+    .is-loading class). Reuses the .product-card-skeleton styles from the PLP
+    filter loader. The <noscript> below restores the raw content if JS is off.
+{% endcomment %}
+<div class="carousel-skeleton" aria-hidden="true">
+    <div class="sk-line sk-heading"></div>
+    <div class="spacer xx-large"></div>
+    <div class="product-cards grid-x grid-padding-x">
+        {% for i in (1..4) %}
+        <div class="cell large-3 medium-4 small-12 {% if i > 1 %}hide-for-small-only{% endif %} {% if i > 3 %}hide-for-medium-only{% endif %}">
+            <div class="product-card-skeleton">
+                <div class="sk-image"></div>
+                <div class="sk-line sk-cat"></div>
+                <div class="sk-line sk-title"></div>
+                <div class="sk-line sk-price"></div>
+                <div class="sk-btn"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<noscript>
+    <style>
+        .product-carousel.is-loading { min-height: 0; max-height: none; }
+        .carousel-skeleton { display: none !important; }
+    </style>
+</noscript>

@@ -22,10 +22,12 @@ metadata: {
 
 <section class="wrapper">
     <div class="spacer xxxx-large"></div>
-    <div class="product-carousel">
-        
+    <div class="product-carousel is-loading">
+
+        {%- include 'modules/ecommerce/blocks/carousel_skeleton' -%}
+
         <!-- desktop carousel -->
-        <ins-carousel 
+        <ins-carousel
             id="newArrivalsCarouselDesktop"
             class="newArrivalsCarousel carouselDesktop show-for-large"
             layout="1"
@@ -98,19 +100,30 @@ metadata: {
 var newArrivalsCarousel = document.querySelectorAll('.newArrivalsCarousel');
 var showAllLink = {};
 
+function newArrivalsReveal() {
+    var wrap = document.querySelector('#newArrivalsCarouselDesktop')
+        && document.querySelector('#newArrivalsCarouselDesktop').closest('.product-carousel');
+    if (wrap) wrap.classList.remove('is-loading');
+}
+
 newArrivalsCarousel.forEach(carousel => {
     var carouselID = carousel.id;
-    carousel.addEventListener('didLoad', event => {     
-        var carouselCtrlBtns = document.querySelector(`#${carouselID} .ins-carousel_ctrl-btns`);  
-        if(carouselCtrlBtns && showAllLink[carouselID] !== true){            
+    carousel.addEventListener('didLoad', event => {
+        // Carousel has hydrated — drop the skeleton overlay.
+        newArrivalsReveal();
+        var carouselCtrlBtns = document.querySelector(`#${carouselID} .ins-carousel_ctrl-btns`);
+        if(carouselCtrlBtns && showAllLink[carouselID] !== true){
             var newLink = document.createElement('a');
                 newLink.href = "/products";
                 newLink.textContent = "Shop all";
-                newLink.className = "shop-all-link"; 
-            carouselCtrlBtns.appendChild(newLink);  
-            showAllLink[carouselID] = true;           
-        }               
-    });          
+                newLink.className = "shop-all-link";
+            carouselCtrlBtns.appendChild(newLink);
+            showAllLink[carouselID] = true;
+        }
+    });
 });
+
+// Safety net: never leave the skeleton up if didLoad doesn't fire.
+setTimeout(newArrivalsReveal, 4000);
 </script>
 {% endif %}
