@@ -812,3 +812,38 @@ setTimeout(() => {
     productList.init.initProductListInterface();
     productList.init.initFilterListeners();
 }, 200);
+
+
+// ---- Reveal the filter sidebar only once its web components have hydrated ----
+// The ins-checkbox / ins-filter / ins-accordion labels render on hydration, so an
+// un-hydrated sidebar paints blank rows (CSS hides .sidebar-filter until ready).
+// Poll each frame until every component reports .hydrated, then fade it in.
+(function () {
+    function watchSidebar(sb) {
+        if (sb.classList.contains('is-ready')) return;
+        var tries = 0;
+        var maxTries = 180; // ~3s safety net so it can never stay hidden
+        function check() {
+            tries++;
+            var comps = sb.querySelectorAll('ins-checkbox, ins-filter, ins-accordion-item');
+            var ready = comps.length === 0 || Array.prototype.every.call(comps, function (c) {
+                return c.classList.contains('hydrated');
+            });
+            if (ready || tries >= maxTries) {
+                sb.classList.add('is-ready');
+                return;
+            }
+            requestAnimationFrame(check);
+        }
+        requestAnimationFrame(check);
+    }
+    function revealSidebars() {
+        var sidebars = document.querySelectorAll('.sidebar-filter');
+        Array.prototype.forEach.call(sidebars, watchSidebar);
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', revealSidebars);
+    } else {
+        revealSidebars();
+    }
+})();

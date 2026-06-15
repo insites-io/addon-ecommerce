@@ -134,6 +134,8 @@ metadata: {
 -%}
 
 <div class="sidebar-filter" data-mode="{{ mode }}" data-price-floor="{{ price_floor }}" data-price-ceil="{{ price_ceil }}">
+    {% comment %} Without JS the sidebar can`t be revealed, so keep it visible. {% endcomment %}
+    <noscript><style>.sidebar-filter { opacity: 1 !important; }</style></noscript>
 
     {% comment %} ---------- Applied filters ----------
         Always rendered; product-list.js shows/hides it and rebuilds the chips + count

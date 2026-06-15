@@ -3248,6 +3248,21 @@ ins-button.add-credit-card button.ins-button>div,
     flex-direction: column;
     gap: 24px;
     width: 100%;
+    /* Hidden until its web components hydrate — their labels (ins-checkbox,
+       ins-filter, ins-accordion) only render on hydration, so an un-hydrated
+       sidebar paints blank rows. product-list.js adds .is-ready once every
+       component reports hydrated; the partial's <noscript> keeps it visible
+       without JS, and a JS timeout is the safety net. */
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+.sidebar-filter.is-ready {
+    opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+    .sidebar-filter {
+        transition: none;
+    }
 }
 
 /* ---- Applied filters ---- */
@@ -3314,18 +3329,33 @@ ins-button.add-credit-card button.ins-button>div,
 .sidebar-filter .ins-accordion-item_content .inner-content {
     padding: 0;
     border: none;
+    /* Grid child must be able to shrink below content size + clip while collapsing. */
+    min-height: 0;
+    overflow: hidden;
 }
 /* Applied filters panel: inset its content. */
 .sidebar-filter [data-group="applied"] .ins-accordion-item_content .inner-content {
     padding: 0 16px;
 }
-/* The component locks the open content to the height measured at load time, which clips
-   items revealed later by "Show more". Let an open group's content grow to its content. */
-.sidebar-filter .ins-accordion-item.open > .ins-accordion-item_content,
-.sidebar-filter .ins-accordion-item.open .ins-accordion-item_content .inner-content {
-    height: auto !important;
+/* The component animates open/close via an inline max-height measured at load
+   time — that both clips items later revealed by "Show more" and, being a fixed
+   px, makes the slide janky. Drive the slide with grid-template-rows (0fr ->
+   1fr) instead: it animates to the true content height, never clips, and Show
+   more still works. The inline max-height is neutralised with !important. */
+.sidebar-filter .ins-accordion-item_content {
+    display: grid;
+    grid-template-rows: 0fr;
     max-height: none !important;
-    overflow: visible !important;
+    overflow: hidden;
+    transition: grid-template-rows 0.35s ease;
+}
+.sidebar-filter .ins-accordion-item.open > .ins-accordion-item_content {
+    grid-template-rows: 1fr;
+}
+@media (prefers-reduced-motion: reduce) {
+    .sidebar-filter .ins-accordion-item_content {
+        transition: none;
+    }
 }
 .filter-group__body {
     display: flex;
