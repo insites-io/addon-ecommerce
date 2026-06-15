@@ -3790,3 +3790,77 @@ ins-button.add-credit-card button.ins-button>div,
         margin: 1.75rem 12px 1.75rem;
     }
 }
+
+/* ---------------------------------------------------------------------------
+   Promo banner strip — sitewide dismissible strip above the header.
+   Rendered by partials/banners/promo_banner.liquid; rotation + dismiss in
+   assets/scripts/promo-banner.js. Dark full-width strip, centered light text
+   with optional link, close control pinned right. (Figma 31914-31161)
+   --------------------------------------------------------------------------- */
+.promo-banner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    /* horizontal padding leaves room for the right-pinned close control so the
+       message stays optically centered */
+    padding: 16px 48px;
+    background: var(--color-sub1-hover);
+    color: var(--font-color-inv);
+    font-family: var(--font-family-02);
+    font-size: 16px;
+    line-height: 1.5;
+    text-align: center;
+}
+.promo-banner__viewport {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.promo-banner__slide {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.promo-banner__slide.is-active {
+    display: flex;
+}
+.promo-banner__link {
+    color: var(--font-color-inv);
+    font-weight: 600;
+    text-decoration: underline;
+}
+.promo-banner__close {
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 4px;
+    border: 0;
+    background: none;
+    color: var(--font-color-inv);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+.promo-banner__close:hover {
+    opacity: 0.8;
+}
+
+@media screen and (max-width: 639px) {
+    .promo-banner {
+        padding: 12px 40px;
+        font-size: 14px;
+    }
+    .promo-banner__slide {
+        flex-wrap: wrap;
+    }
+    .promo-banner__close {
+        right: 12px;
+    }
+}

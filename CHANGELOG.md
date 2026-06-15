@@ -43,6 +43,14 @@
   - Once dismissed it stays hidden for the rest of the browsing session, so it doesn't repeatedly interrupt visitors
   - New eligible-popup GraphQL query and a default (disabled) sample record seeded on install
 
+- Promo Banner Strip
+  - A dismissible promotional strip can now be shown sitewide at the very top of the storefront, above the header — e.g. "Free shipping on orders over $500!" — with an optional clickable link
+  - Managed by a new **Promo Banner** database: each banner has a message, optional link + link label, enabled toggle, weighting, rotation interval, and optional start/end dates — no code changes needed to launch, schedule, or retire one
+  - Only shows when enabled and within its scheduled window; blank start/end dates mean no limit. When multiple banners qualify they rotate in weighting order, each shown for its configured interval
+  - Closing it (✕) hides the strip for the rest of the browsing session across all pages; it re-appears if the configured banner set changes
+  - Appears across the storefront — home, product list/detail, and checkout pages
+  - New eligible-banners GraphQL query and a default (disabled) sample record seeded on install
+
  ## App - Add-on Ecommerce V1.1.1
 
 - Module Updates

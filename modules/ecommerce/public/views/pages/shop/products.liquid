@@ -14,7 +14,7 @@ metadata: {
     "sitemap_change_frequency": "monthly"    
 }
 dynamic_cache:
-  layout: false
+  layout: true
   key: |-
     {%- parse_json models -%}
     [
@@ -23,7 +23,8 @@ dynamic_cache:
       "modules/insites_ecommerce/product_variant",
       "modules/ins_ecommerce/product_custom_field",
       "modules/insites_ecommerce/order_item",
-      "modules/ecommerce/reviews"
+      "modules/ecommerce/reviews",
+      "modules/ecommerce/promo_banner"
     ]
     {%- endparse_json -%}   
     {%- include "modules/website/cache/generate_cache_key", models: models -%}

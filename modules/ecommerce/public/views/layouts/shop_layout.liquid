@@ -62,7 +62,10 @@ metadata: {
 </head>
 <body>
     <div class="main-wrap checkout">
-        
+
+        {% comment %} Promo banner strip — above the header, outside the header cache {% endcomment %}
+        {% include 'modules/ecommerce/banners/promo_banner' %}
+
         {%- capture website_header_key -%} {{ layout_cache_key }}-{{context.current_user.id}}-{{context.device.device_type}} {%- endcapture -%}
         {%- cache website_header_key -%}                    
             {% include 'modules/website/layout/header' %}

@@ -45,6 +45,9 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
 </head>
 <body>
     <div class="main-wrap checkout">
+        {% comment %} Promo banner strip — above the header {% endcomment %}
+        {% include 'modules/ecommerce/banners/promo_banner' %}
+
         {% include 'modules/website/layout/header' %}
 
         
