@@ -60,6 +60,18 @@
   - Promo carousels (**New Arrivals**, **What's Hot**) and the **You May Also Like** grid show a shimmer placeholder while loading, then reveal the real cards — no more flash of partial or unstyled content
   - All animations respect the operating-system "reduce motion" accessibility setting
 
+- Checkout & Orders — Hardening & Fixes
+  - Fixed: signed-in members could continue past the shipping/billing step without choosing a saved address — a browser auto-filler could populate the hidden field and bypass the check; a card selection is now properly required (guests, members with no saved addresses, and billing-same-as-shipping are unaffected)
+  - Checkout now handles names and addresses containing special characters (`"`, `<`, `>`, `&`) correctly across the payment, callback, order-email and Stripe payloads — previously these could break the order
+  - Order amounts are emitted as numeric JSON values in checkout data
+  - Fixed the order-history access policy (`order_created_date_valid`) to validate against the order details
+
+- Code Cleanup
+  - Category menus now fetch their GraphQL data once per request (shared `menu_categories` partial) instead of running the query twice (desktop + mobile) on every page
+  - Product list fetches the category tree once and shares it between the desktop and mobile sidebar filters
+  - Extracted the duplicated checkout address step (shipping/billing) into a single shared partial
+  - Removed dead, unreferenced sidebar category partials (`sidebar_categories`, `sidebar_categories_mobile`)
+
  ## App - Add-on Ecommerce V1.1.1
 
 - Module Updates
