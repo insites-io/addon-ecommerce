@@ -79,6 +79,20 @@ metadata: {
     assign product_cf = pdp_cf_rows | where: 'product_uuid', product.uuid | first
     assign product_tags = product_cf.tags
 
+    ## Reviews — approved-review summary (results feed the meta row; review_summary
+    ## is reused by the Review tab below). Sold — completed-order line items.
+    graphql review_summary = 'modules/ecommerce/reviews/get_review_summary', reviewed_product: product.uuid | dig: 'items'
+    graphql pdp_sold_rows = 'modules/ecommerce/order_items/get_products_sold_count', product_uuids: pdp_product_uuids | dig: 'items', 'results'
+
+    ## Rating + sold stats — computed in products/product_rating_sold (shared with the card)
+    include 'modules/ecommerce/products/product_rating_sold', review_list: review_summary.results, sold_list: pdp_sold_rows
+    assign review_count = context.exports.review_count
+    assign avg_rating = context.exports.avg_rating
+    assign sold_count = context.exports.sold_count
+
+    ## Stock indicator state is computed inside products/stock_indicator (shared with the card).
+    assign low_override = product_cf.low_stock_override
+
     assign variants = '[]'
 %}
 
@@ -144,25 +158,48 @@ metadata: {
         <div class="grid-y grid-padding-y product-details-column-2">
             {% comment %} Text heading {% endcomment %}
             <div>
-                <h1 class="heading-1">{{ product.product_name }}</h1>       
+                {%- if product.brand_name and product.brand_name != blank -%}
+                    <p class="product-brand">{{ product.brand_name }}</p>
+                    <div class="spacer x-small"></div>
+                {%- endif -%}
+                <h1 class="heading-1">{{ product.product_name }}</h1>
+                {%- if review_count > 0 or sold_count > 0 -%}
+                    <div class="spacer x-small"></div>
+                    <div class="product-meta">
+                        {%- if review_count > 0 -%}
+                            <span class="product-rating">
+                                {% include 'modules/ecommerce/reviews/star_rating', rating: avg_rating, size: 16 %}
+                                <span class="product-rating__count body-small">({{ review_count }})</span>
+                            </span>
+                        {%- endif -%}
+                        {%- if sold_count > 0 -%}
+                            <span class="product-sold body"><span class="product-sold__count">{{ sold_count }}</span> sold</span>
+                        {%- endif -%}
+                    </div>
+                {%- endif -%}
+            </div>
+
+            {% comment %} Price {% endcomment %}
+            {% if price == '' or price == blank %}
+                {% assign hidePrice = 'hide' %}
+            {% endif %}
+            <div id="pricing-wrap" class="wrap {{hidePrice}}">
+                <p id="product-price" class="heading-5-small">{{ price | pricify: 'USD', no_cents_if_whole: false }}</p>
+                <p id="regular-product-price" class="strikethrough">{{ price_strikethrough }}</p>
+            </div>
+
+            {% comment %} SKU + Short Description {% endcomment %}
+            {% if product.sku != '' or product.short_description %}
+            <div>
                 {% if product.sku != '' %}
                     <p>SKU: <span id="product-sku">{{ product.sku }}</span></p>
                 {% endif %}
-            </div>
-            
-            {% comment %} Price {% endcomment %}            
-            {% if price == '' or price == blank %}                                
-                {% assign hidePrice = 'hide' %}
-            {% endif %}
-            <div id="pricing-wrap" class="wrap {{hidePrice}}">                                                
-                <p id="product-price" class="heading-5-small">{{ price | pricify: 'USD', no_cents_if_whole: false }}</p>                
-                <p id="regular-product-price" class="strikethrough">{{ price_strikethrough }}</p>                
-            </div>
-
-            {% comment %} Short Description {% endcomment %}
-            {% if product.short_description %}
-            <div>
-                <p>{{ product.short_description }}</p>
+                {% if product.sku != '' and product.short_description %}
+                    <div class="spacer x-small"></div>
+                {% endif %}
+                {% if product.short_description %}
+                    <p>{{ product.short_description }}</p>
+                {% endif %}
             </div>
             {% endif %}
                     
@@ -238,15 +275,18 @@ metadata: {
             {%- endif -%} 
             
             {% comment %} Quantity {% endcomment %}
-            <div>                                                    
+            <div>
                 <p class="form-label">Quantity</p>
-                <ins-input-stepper
-                    id="cart-quantity" 
-                    value="1" 
-                    step="1" min="1" 
-                    max="100" 
-                    small>
-                </ins-input-stepper>                
+                <div class="quantity-row">
+                    <ins-input-stepper
+                        id="cart-quantity"
+                        value="1"
+                        step="1" min="1"
+                        max="100"
+                        small>
+                    </ins-input-stepper>
+                    {% include 'modules/ecommerce/products/stock_indicator', selected_prop: selected_prop, product: product, low_override: low_override, id: 'stock-indicator' %}
+                </div>
             </div>
             {% comment %} Buttons {% endcomment %}            
             {% parse_json add_to_cart_data_old %}
@@ -282,6 +322,21 @@ metadata: {
                 <ins-button class="full add-to-cart-btn" label="Add to cart" data='{{ add_to_cart_data }}' icon="icon-shopping-cart" outlined {{disabledBtn}}></ins-button>
             </div>
 
+            {% comment %} Trust messaging — reassurance on shipping, returns & checkout security {% endcomment %}
+            <div class="product-trust">
+                <ins-accordion>
+                    <ins-accordion-item icon="icon-truck" heading="Free shipping" active>
+                        <p>Standard ground delivery included at no extra cost.</p>
+                    </ins-accordion-item>
+                    <ins-accordion-item icon="icon-box" heading="Hassle-free returns">
+                        <p>Not a fan? Return it within 30 days for a full refund.</p>
+                    </ins-accordion-item>
+                    <ins-accordion-item icon="icon-shield" heading="Secure checkout">
+                        <p>Your personal and payment data is 100% encrypted and private.</p>
+                    </ins-accordion-item>
+                </ins-accordion>
+            </div>
+
         </div>
 
     </div>
@@ -290,8 +345,6 @@ metadata: {
     <div class="cell product-tabs">
         <div class="spacer x-large"></div>
         {%- function has_profile = "modules/website/layout/check_if_user_has_profile" -%}
-        {%- graphql review_summary = 'modules/ecommerce/reviews/get_review_summary', reviewed_product: product.uuid | dig: 'items' -%}
-        {%- assign review_count = review_summary.total_entries | default: 0 -%}
         <ins-tab id="product-tabs">
             {%- if product.long_description != blank -%}
             <ins-tab-item label="Descriptions">

@@ -56,48 +56,17 @@ metadata: {
     assign product_tags = cf.tags
     assign low_override = cf.low_stock_override
 
-    ## Stock indicator state — purchasable stock vs the per-product low-stock override.
-    ## selected_prop is the product (non-variant) or the active variant, matching the
-    ## out-of-stock overlay; fall back to product-level stock if the variant is blank.
-    assign stock_now = selected_prop.stock_level
-    if stock_now == blank
-        assign stock_now = product.stock_level
-    endif
-    assign stock_now = stock_now | default: 0 | plus: 0
-    assign stock_state = 'in'
-    if stock_now <= 0
-        assign stock_state = 'out'
-    elsif low_override == blank
-        assign stock_state = 'in'
-    else
-        assign half_override = low_override | times: 1.0 | divided_by: 2.0
-        if half_override > stock_now
-            assign stock_state = 'very-low'
-        elsif low_override >= stock_now
-            assign stock_state = 'low'
-        else
-            assign stock_state = 'in'
-        endif
-    endif
+    ## Stock indicator state is computed inside products/stock_indicator (shared with the PDP);
+    ## low_override + selected_prop are passed through below.
 
-    ## Rating — average + count of this product`s approved reviews
+    ## Rating + sold stats — computed in products/product_rating_sold (shared with the PDP)
+    ## from this product`s rows in the page-level batch fetches (enrich_cards).
     assign my_reviews = review_rows | where: 'reviewed_product', product.uuid
-    assign review_count = my_reviews | size
-    assign rating_sum = 0
-    for rv in my_reviews
-        assign rating_sum = rating_sum | plus: rv.rating
-    endfor
-    assign avg_rating = 0
-    if review_count > 0
-        assign avg_rating = rating_sum | times: 1.0 | divided_by: review_count
-    endif
-
-    ## Sold — total units sold across completed orders
-    assign sold_items = sold_rows | where: 'product_uuid', product.uuid
-    assign sold_count = 0
-    for si in sold_items
-        assign sold_count = sold_count | plus: si.quantity
-    endfor
+    assign my_sold = sold_rows | where: 'product_uuid', product.uuid
+    include 'modules/ecommerce/products/product_rating_sold', review_list: my_reviews, sold_list: my_sold
+    assign review_count = context.exports.review_count
+    assign avg_rating = context.exports.avg_rating
+    assign sold_count = context.exports.sold_count
 %}
     <div class="cell">
         <div class="wrap grid-y">
@@ -154,7 +123,7 @@ metadata: {
                                 </span>
                             {%- endif -%}
                             {%- if sold_count > 0 -%}
-                                <span class="product-sold body-small bold">{{ sold_count }} sold</span>
+                                <span class="product-sold body"><span class="product-sold__count">{{ sold_count }}</span> sold</span>
                             {%- endif -%}
                         </div>
                     {%- endif -%}
@@ -165,14 +134,7 @@ metadata: {
                         {% endif %}
                     </p>
                     <div class="spacer x-small"></div>
-                    <p class="stock-indicator stock-indicator--{{ stock_state }} body-small">
-                        {%- case stock_state -%}
-                            {%- when 'out' -%}Out of stock
-                            {%- when 'low' -%}Low stock ({{ stock_now }})
-                            {%- when 'very-low' -%}Very low stock ({{ stock_now }})
-                            {%- else -%}In stock ({{ stock_now }})
-                        {%- endcase -%}
-                    </p>
+                    {% include 'modules/ecommerce/products/stock_indicator', selected_prop: selected_prop, product: product, low_override: low_override %}
                     <div class="spacer"></div>
                     {% if purchase_date  %}
                     <p class="body-x-small">Purchase Date: {{purchase_date | date: '%d/%m/%Y'}}</p>
