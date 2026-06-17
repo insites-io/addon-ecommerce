@@ -21,14 +21,19 @@ dynamic_cache:
       "modules/insites_ecommerce/category",
       "modules/insites_ecommerce/product",
       "modules/insites_ecommerce/product_variant",
+      "modules/insites_core/attachment",
       "modules/ins_ecommerce/product_custom_field",
+      "modules/insites_ecommerce/order",
       "modules/insites_ecommerce/order_item",
       "modules/ecommerce/reviews",
-      "modules/ecommerce/promo_banner"
+      "modules/ecommerce/product_search_synonym",
+      "modules/ecommerce/promo_banner",
+      "modules/insites_ecommerce/cart",
+      "modules/insites_ecommerce/cart_item"
     ]
-    {%- endparse_json -%}   
+    {%- endparse_json -%}
     {%- include "modules/website/cache/generate_cache_key", models: models -%}
-    {{ context.current_user.id }}
+    {{ context.current_user.id }}-{{ context.session.guest_temp_uuid }}
 ---
 {% comment -%} 
 URL Structures: 
