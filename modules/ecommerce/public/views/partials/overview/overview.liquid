@@ -60,10 +60,11 @@ metadata: {
                </div>
                <div class="spacer"></div>
                <div class="overview-button">
-                    <a href="{{ details.location }}">
-                         <ins-button 
+                    <a href="{{ details.location }}" aria-label="View details: {{ details.card-header | strip_html | escape }}">
+                         <ins-button
                               size="small"
-                              label="View details">
+                              label="View details"
+                              aria-hidden="true">
                          </ins-button>
                     </a>
                </div>

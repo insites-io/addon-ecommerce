@@ -49,8 +49,8 @@ metadata: {
                 <div class="promo-popup__body">{{ chosen.popup_content | html_safe }}</div>
             {%- endif -%}
             {%- if chosen.popup_button_label != blank and chosen.popup_button_url != blank -%}
-                <a href="{{ chosen.popup_button_url | escape }}" class="promo-popup__cta">
-                    <ins-button label="{{ chosen.popup_button_label }}" solid color="primary"></ins-button>
+                <a href="{{ chosen.popup_button_url | escape }}" class="promo-popup__cta" aria-label="{{ chosen.popup_button_label | strip_html | escape }}">
+                    <ins-button label="{{ chosen.popup_button_label }}" solid color="primary" aria-hidden="true"></ins-button>
                 </a>
             {%- endif -%}
         </div>

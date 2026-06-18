@@ -130,6 +130,7 @@ metadata: {
                     <div class="spacer"></div>
                     <p class="product-current-price">{{ price | pricify }}
                         {% if product.is_on_sale == true or variant.is_on_sale == true %}
+                        <span class="show-for-sr">Original price </span>
                         <span class="body-x-small strikethrough">{{ price_strikethrough }}</span>
                         {% endif %}
                     </p>
@@ -168,8 +169,8 @@ metadata: {
 
                     <ins-button class="full {{class_add_to_cart_btn}}" label="{{ label_add_tocart_btn }}" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
                     <div class="spacer x-small"></div>
-                    <a href="/products/{{ product.slug }}">
-                        <ins-button class="full" label="View details" outlined icon="icon-eye"></ins-button>
+                    <a href="/products/{{ product.slug }}" aria-label="View details for {{ product.product_name | strip_html | escape }}">
+                        <ins-button class="full" label="View details" outlined icon="icon-eye" aria-hidden="true"></ins-button>
                     </a>
                 </div>
             </div>

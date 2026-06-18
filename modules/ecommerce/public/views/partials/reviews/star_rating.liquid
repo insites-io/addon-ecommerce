@@ -29,6 +29,7 @@ metadata: {
     assign half_index = full | plus: 1
     assign star_size = size | default: 14
 -%}
+<span class="show-for-sr">Rated {{ rating | round: 1 }} out of 5</span>
 <span class="review-rating-stars" style="font-size: {{ star_size }}px;" aria-hidden="true">
     {%- for i in (1..5) -%}
         {%- if i <= full -%}

@@ -212,7 +212,7 @@ metadata: {
             {%- endif -%}
         {%- endif -%}
         {%- assign product_total = products_total_entries.items.total_entries | default: 0 -%}
-        <p class="font-color-sub" data-product-count>{{ product_total }} {% if product_total == 1 %}product{% else %}products{% endif %}</p>
+        <p class="font-color-sub" data-product-count role="status" aria-live="polite">{{ product_total }} {% if product_total == 1 %}product{% else %}products{% endif %}</p>
         <div class="spacer xxx-large hide-for-small-only"></div>
         <div class="spacer large show-for-small-only"></div>
     </div>

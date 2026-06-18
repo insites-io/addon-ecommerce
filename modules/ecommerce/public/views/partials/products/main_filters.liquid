@@ -34,6 +34,7 @@ metadata: {
                 id="filter-keyword"
                 class="filter-keyword"
                 icon-event
+                title="Search products"
                 placeholder="Search"
                 value="{{ params.keyword | default: '' }}"
                 field="search"
@@ -67,8 +68,8 @@ metadata: {
                     </div>
                     <div class="main-filter-views align-middle align-right grid-x hide-for-small-only">
                         <div><p class="form-label pr-8 text">View:</p></div>
-                        <ins-button id="view-grid-btn" icon="icon-grid" color="white" size="normal" label="" class="view-button active"></ins-button>
-                        <ins-button id="view-list-btn" icon="icon-list" color="white" size="normal" label="" class="view-button"></ins-button>
+                        <ins-button id="view-grid-btn" icon="icon-grid" color="white" size="normal" label="" title="Grid view" class="view-button active"></ins-button>
+                        <ins-button id="view-list-btn" icon="icon-list" color="white" size="normal" label="" title="List view" class="view-button"></ins-button>
                     </div>
                 </div>
             </div>

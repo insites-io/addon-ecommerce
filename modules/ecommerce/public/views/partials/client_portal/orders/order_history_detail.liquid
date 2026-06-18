@@ -12,7 +12,7 @@ metadata: {
             <div class="grid-y">
                 {% comment %} Payment Details {% endcomment %}
                 <div class="wrap">
-                    <h3 class="heading-5 color-font-sub">Contact details</h3>
+                    <h2 class="heading-5 color-font-sub">Contact details</h2>
                     <div class="spacer small"></div>
                     {%- if order.order_company_name -%}
                         <p>{{ order.order_company_name }}</p>
@@ -28,7 +28,7 @@ metadata: {
 
                 {% comment %} Shipping Details {% endcomment %}
                 <div class="wrap">
-                    <h3 class="heading-5 color-font-sub">Shipping details</h3>
+                    <h2 class="heading-5 color-font-sub">Shipping details</h2>
                     <div class="spacer small"></div>
                     {%- if order.shipping_company_name -%}
                         <p>{{ order.shipping_company_name }}</p>
@@ -68,7 +68,7 @@ metadata: {
 
                 {% comment %} Shipping Instructions {% endcomment %}
                 <div class="wrap">
-                    <h3 class="heading-5 color-font-sub">Shipping instructions</h3>
+                    <h2 class="heading-5 color-font-sub">Shipping instructions</h2>
                     <div class="spacer small"></div>
                     <div class="preserve-line-break">{{ order.shipping_instructions | default: '-' }}</div>
                     <div class="spacer large"></div>
@@ -76,7 +76,7 @@ metadata: {
 
                 {% comment %} Notes {% endcomment %}
                 <div class="wrap">
-                    <h3 class="heading-5 color-font-sub">Notes</h3>
+                    <h2 class="heading-5 color-font-sub">Notes</h2>
                     <div class="spacer small"></div>
                     <div class="preserve-line-break">{{ order.notes | default: '-' }}</div>
                     <div class="spacer large"></div>
@@ -91,7 +91,7 @@ metadata: {
 
                 {% comment %} Billing Details {% endcomment %}
                 <div class="wrap">
-                    <h3 class="heading-5 color-font-sub">Billing details</h3>
+                    <h2 class="heading-5 color-font-sub">Billing details</h2>
                     <div class="spacer small"></div>
                     {%- if order.billing_company_name -%}
                         <p>{{ order.billing_company_name }}</p>
@@ -131,7 +131,7 @@ metadata: {
 
                 {% comment %} Payment Details {% endcomment %}
                 <div class="wrap">
-                    <h3 class="heading-5 color-font-sub">Payment details</h3>
+                    <h2 class="heading-5 color-font-sub">Payment details</h2>
                     <div class="spacer small"></div>
                     {%- if order.payment.card_last_four_digits -%}
                         <p>{{ order.payment.card_brand | upcase }} **** **** **** {{ order.payment.card_last_four_digits }}</p>
@@ -149,7 +149,7 @@ metadata: {
                 {% comment %} Order Status {% endcomment %}
                 {%- assign order_status_display = order.order_status | replace: "_", " " | capitalize -%}
                 <div class="wrap">
-                    <h3 class="heading-5 color-font-sub">Order status</h3>
+                    <h2 class="heading-5 color-font-sub">Order status</h2>
                     <div class="spacer small"></div>
                     <ins-tag label="{{ order_status_display | titleize }}" class="tagged {{ order_status_display | titleize }}"></ins-tag>
                     <div class="spacer large"></div>
@@ -158,7 +158,7 @@ metadata: {
                 {% comment %} Payment Status {% endcomment %}
                 {%- assign payment_status_display = order.order_payment_status | replace: "_", " " | capitalize -%}
                 <div class="wrap">
-                    <h3 class="heading-5 color-font-sub">Payment status</h3>
+                    <h2 class="heading-5 color-font-sub">Payment status</h2>
                     <div class="spacer small"></div>
                     <ins-tag label="{{ payment_status_display }}" class="tagged {{ payment_status_display }}"></ins-tag>
                     <div class="spacer large"></div>
@@ -167,7 +167,7 @@ metadata: {
                 {% comment %} Shipping Status {% endcomment %}
                  {%- assign shipping_status_display = order.order_shipping_status | default: 'Processing' | replace: "_", " " | capitalize -%}
                 <div class="wrap">
-                    <h3 class="heading-5 color-font-sub">Shipping status</h3>
+                    <h2 class="heading-5 color-font-sub">Shipping status</h2>
                     <div class="spacer small"></div>
                     <ins-tag label="{{ shipping_status_display }}" class="tagged {{ shipping_status_display }}"></ins-tag>
                 </div>

@@ -53,17 +53,27 @@ metadata: {
   var megaMenu = document.getElementById('mega-menu');
   var megaMenuBtn = document.getElementById('mega-menu-btn');
 
+  // Expose the trigger's disclosure state to assistive tech (the button opens
+  // the mega-menu dialog). Set once, then kept in sync on open/close below.
+  if (megaMenuBtn) {
+    megaMenuBtn.setAttribute('aria-haspopup', 'dialog');
+    megaMenuBtn.setAttribute('aria-controls', 'mega-menu');
+    megaMenuBtn.setAttribute('aria-expanded', 'false');
+  }
+
   megaMenu.addEventListener('didLoad', () => {
     megaMenu.classList.remove('hide');
   });
-  
+
   megaMenuBtn.addEventListener('insClick', () => {
     megaMenu.open();
-    megaMenuBtn.classList.add('show-modal');    
+    megaMenuBtn.classList.add('show-modal');
+    megaMenuBtn.setAttribute('aria-expanded', 'true');
   });
 
   megaMenu.addEventListener('insClose', () => {
     megaMenuBtn.classList.remove('show-modal');
+    megaMenuBtn.setAttribute('aria-expanded', 'false');
   });
 
   // Close mega menu on scroll (also used in app-portal template)

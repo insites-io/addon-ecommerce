@@ -414,6 +414,9 @@ metadata: {
                 });
                 var data = await res.json();
                 resultsEl.innerHTML = data.html;
+                // Announce the update to screen readers (the list isn't a live region itself)
+                var reviewStatusEl = document.querySelector('[data-review-status]');
+                if (reviewStatusEl) { reviewStatusEl.textContent = 'Reviews updated, page ' + data.pageNumber; }
                 // Keep the persistent pager in sync
                 reviewTable.totalCount = data.totalCount;
                 reviewTable.pageNumber = data.pageNumber;

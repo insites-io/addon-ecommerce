@@ -1621,6 +1621,7 @@ ins-drawer.cart-drawer .ins-drawer-header h4 {
 }
 
 .cart-drawer #bottom-wrap {
+    z-index: 100;
     bottom: 0px;
     width: inherit;
     max-width: 100%;

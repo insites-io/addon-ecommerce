@@ -58,6 +58,8 @@ metadata: {
     <div id="review-list-results" data-product-uuid="{{ product.uuid }}">
         {% include 'modules/ecommerce/reviews/review_list', reviews: reviews %}
     </div>
+    {%- comment -%} Announces AJAX page changes to screen readers (the list itself isn't a live region to avoid re-reading every review). {%- endcomment -%}
+    <div class="show-for-sr" role="status" aria-live="polite" data-review-status></div>
 
     {% comment %} Pager: persistent ins-table in AJAX mode (insPaginationChange handled in detail.liquid), with a 5/10/20 per-page selector {% endcomment %}
     {%- assign pagination_data = '{}' | parse_json -%}
