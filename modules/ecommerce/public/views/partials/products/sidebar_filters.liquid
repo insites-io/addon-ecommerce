@@ -134,8 +134,8 @@ metadata: {
 -%}
 
 <div class="sidebar-filter" data-mode="{{ mode }}" data-price-floor="{{ price_floor }}" data-price-ceil="{{ price_ceil }}">
-    {% comment %} Without JS the sidebar can`t be revealed, so keep it visible. {% endcomment %}
-    <noscript><style>.sidebar-filter { opacity: 1 !important; }</style></noscript>
+    {% comment %} Without JS the sidebar can`t be revealed, so keep it visible — the
+        `html.no-js .sidebar-filter` rule in ecommerce.css handles that. {% endcomment %}
 
     {% comment %} ---------- Applied filters ----------
         Always rendered; product-list.js shows/hides it and rebuilds the chips + count
@@ -310,10 +310,10 @@ metadata: {
         <div class="filter-group__body filter-price">
             <div class="filter-price__inputs">
                 <ins-input class="filter-price__input" data-price="min" field="number" unit-left="$"
-                           value="{{ sel_min }}" placeholder="{{ price_floor }}" aria-label="Minimum price"></ins-input>
+                           value="{{ sel_min }}" placeholder="{{ price_floor }}" title="Minimum price"></ins-input>
                 <span class="filter-price__dash">-</span>
                 <ins-input class="filter-price__input" data-price="max" field="number" unit-left="$"
-                           value="{{ sel_max }}" placeholder="{{ price_ceil }}" aria-label="Maximum price"></ins-input>
+                           value="{{ sel_max }}" placeholder="{{ price_ceil }}" title="Maximum price"></ins-input>
             </div>
             <div class="filter-price__slider">
                 <div class="filter-price__track"></div>

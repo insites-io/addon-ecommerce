@@ -72,6 +72,11 @@
   - Extracted the duplicated checkout address step (shipping/billing) into a single shared partial
   - Removed dead, unreferenced sidebar category partials (`sidebar_categories`, `sidebar_categories_mobile`)
 
+- W3C / HTML Validation
+  - Resolved all storefront HTML-validation errors flagged by the W3C Nu Html Checker on the product list, product detail and cart pages (product list and cart now pass with no errors)
+  - Removed invalid in-`<body>` `<style>` blocks: the promo banner's critical CSS now lives in the layout `<head>`, and the skeleton/sidebar no-JS fallbacks moved to `ecommerce.css` (driven by the layout's `no-js`→`js` flag) — same first-paint/no-JS behaviour, valid markup
+  - Fixed invalid `aria-label` on the price-range filter inputs and corrected heading-level order (cart "Order summary"/empty-cart and the product-page "Write a review" headings) so document outlines no longer skip levels
+
  ## App - Add-on Ecommerce V1.1.1
 
 - Module Updates

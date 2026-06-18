@@ -8,7 +8,7 @@ metadata: {
     Rendered as the first child of .product-carousel.is-loading and overlaid on
     the carousel until <ins-carousel> hydrates (its didLoad event removes the
     .is-loading class). Reuses the .product-card-skeleton styles from the PLP
-    filter loader. The <noscript> below restores the raw content if JS is off.
+    filter loader. The html.no-js rules in ecommerce.css restore the raw content if JS is off.
 {% endcomment %}
 <div class="carousel-skeleton" aria-hidden="true">
     <div class="sk-line sk-heading"></div>
@@ -27,9 +27,5 @@ metadata: {
         {% endfor %}
     </div>
 </div>
-<noscript>
-    <style>
-        .product-carousel.is-loading { min-height: 0; max-height: none; }
-        .carousel-skeleton { display: none !important; }
-    </style>
-</noscript>
+{% comment %} Without JS the carousel never hydrates, so the `html.no-js` rules in
+    ecommerce.css hide the skeleton and un-clip the raw content. {% endcomment %}

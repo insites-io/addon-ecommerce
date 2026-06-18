@@ -657,6 +657,30 @@ ins-carousel .product-cards>div {
     display: none;
 }
 
+/* ---- No-JS fallbacks ----
+   The sidebar filter, carousel skeleton and "You may also like" grid are
+   hidden/skeletoned by default and revealed by JS on hydration (rules above).
+   Without JS that reveal never fires, so when scripting is off — the layout's
+   head script flips <html class="no-js"> to "js", so the flag survives only when
+   JS is disabled — force the visible/hydrated end state. Replaces the former
+   in-partial <noscript><style> blocks (<style> is invalid in <body>, W3C). */
+.no-js .sidebar-filter {
+    opacity: 1;
+}
+.no-js .product-carousel.is-loading {
+    min-height: 0;
+    max-height: none;
+}
+.no-js .product-carousel.is-loading .carousel-skeleton {
+    display: none;
+}
+.no-js .ymal-section.is-loading .ymal-skeleton {
+    display: none;
+}
+.no-js .ymal-section.is-loading .ymal-grid {
+    display: flex;
+}
+
 .product-cards img:hover,
 .purchase-again img:hover {
     transform: scale(1.1);

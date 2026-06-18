@@ -48,13 +48,8 @@ metadata: {
 
     </div>
 
-    {% comment %} Without JS, never leave the skeleton up. {% endcomment %}
-    <noscript>
-        <style>
-            #ymal-{{ ymal_id }}.is-loading .ymal-skeleton { display: none; }
-            #ymal-{{ ymal_id }}.is-loading .ymal-grid { display: flex; }
-        </style>
-    </noscript>
+    {% comment %} Without JS, never leave the skeleton up — the `html.no-js` rules in
+        ecommerce.css hide the skeleton and show the grid. {% endcomment %}
 </section>
 
 <script>
