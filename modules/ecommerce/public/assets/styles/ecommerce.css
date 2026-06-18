@@ -1121,6 +1121,10 @@ ins-drawer#mobile-menu .menu .ins-accordion-item_content .ins-accordion-link>a {
     line-height: 34px;
 }
 
+ins-drawer#mobile-menu ins-accordion-item ins-accordion-item .ins-accordion-item>.ins-accordion-item_header>.inner-head {
+    padding-left: 40px !important;
+}
+
 #mobile-filter-drawer .ins-accordion-item_header>.inner-head {
     border: none;
     border-bottom: 1px solid var(--color-ui-03, #F3F4F4);
