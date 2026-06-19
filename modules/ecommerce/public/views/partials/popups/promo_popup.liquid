@@ -56,7 +56,7 @@ metadata: {
         </div>
         {%- if chosen.popup_image.url -%}
             <div class="promo-popup__media">
-                <img src="{{ chosen.popup_image.url | replace: ' ', '%20' | escape }}" alt="{{ chosen.popup_heading | escape }}">
+                <img src="{{ chosen.popup_image.url | replace: ' ', '%20' | escape }}" alt="{{ chosen.popup_heading | escape }}" fetchpriority="high">
             </div>
         {%- endif -%}
     </div>

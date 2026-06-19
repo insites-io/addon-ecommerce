@@ -771,10 +771,6 @@ ins-carousel .product-cards .placeholder-img {
     margin-right: -12px;
 }
 
-.overflow-hidden {
-    overflow: hidden;
-}
-
 
 /* Out of Stock - Product Card */
 
@@ -886,40 +882,6 @@ ins-carousel .product-cards .placeholder-img {
     margin: 0;
 }
 
-
-/* Sale */
-
-.sale-tag,
-.on-sale-tag {
-    background: var(--error);
-    color: var(--font-color-inv);
-    font-family: var(--font-family-02);
-}
-
-.sale-tag {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    z-index: 1;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 20px;
-    /* 142.857% */
-}
-
-.on-sale-tag {
-    position: absolute;
-    z-index: 1;
-    left: 16px;
-    top: 16px;
-    padding: 4px 8px;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 18px;
-    border-radius: 4px;
-}
 
 
 /* ---- Product card enhancements: brand, tags, rating/sold, stock indicator ---- */
@@ -1047,8 +1009,7 @@ ins-tag.tag-chip--bestseller  span.ins-tag { background: var(--color-main); }
     padding: 24px;
 }
 
-.sidebar-categories .ins-input-wrap,
-.product-list .sort-wrap .ins-select-wrap {
+.sidebar-categories .ins-input-wrap {
     margin-bottom: 0px;
 }
 
@@ -1082,12 +1043,6 @@ ins-tag.tag-chip--bestseller  span.ins-tag { background: var(--color-main); }
 
 .sidebar-categories .ins-select-wrap .ins-select-value-wrap.multiple .multiple-item-wrap {
     padding: 0px 8px;
-}
-
-.sidebar-categories .filter-price .price-dash {
-    align-self: flex-end;
-    margin-bottom: 5px;
-    font-weight: 700;
 }
 
 
@@ -2530,8 +2485,7 @@ ins-checkbox.inline .ins-radio-checkbox label .ins-checkbox-radio-label {
     padding-top: 0px;
 }
 
-.ins-select,
-.no-margin .ins-form-field-wrap {
+.ins-select {
     margin-bottom: 0px;
 }
 
@@ -2933,31 +2887,9 @@ ins-gallery-image.active .ins-gallery-image {
     content: "\f104";
 }
 
-.no-stock {
-    border-radius: 4px;
-    border: 1px dashed var(--color-warning);
-    background-color: var(--color-ui-01);
-    color: var(--color-warning);
-    padding: 8px;
-}
-
-.product-detail .no-stock-text {
-    background-color: rgba(242, 116, 116, 0.2);
-    padding: 8px 0px;
-}
-
 .product-detail .gallery {
     position: relative;
     text-align: center;
-}
-
-.cart-item-cont .ins-input-stepper_input {
-    padding-top: 0px;
-    vertical-align: bottom;
-}
-
-.cart-item-cont .ins-input-stepper_input-wrap input {
-    margin-bottom: 0px;
 }
 
 .product-detail .description p {
@@ -2980,15 +2912,6 @@ ins-gallery-image.active .ins-gallery-image {
 
 #credit-card-fields .ins-credit-card-compact-size {
     margin-bottom: 0px !important;
-}
-
-.empty-card .ins-card-wrap {
-    padding: 56px 24px;
-    align-items: center;
-    border-radius: 4px;
-    border: 1px solid var(-color-ui-04);
-    background: var(--color-ui-02);
-    box-shadow: none !important;
 }
 
 #stripe-modal .ins-modal-head {
@@ -3519,26 +3442,6 @@ ins-button.add-credit-card button.ins-button>div,
 
 /* ---- Categories ---- */
 .filter-cats { gap: 4px; }
-.filter-cat-link {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 4px 16px;
-    border-radius: 12px;
-    text-decoration: none;
-    color: var(--font-color-body, #575757);
-    font-family: var(--font-family-02);
-    font-size: 16px;
-    line-height: 24px;
-}
-.filter-cat-link .ui-sidebar { flex: 1 0 0; }
-.filter-cat-link:hover { background: rgba(48, 68, 255, 0.06); }
-.filter-cat-link.is-active {
-    color: var(--color-main, #3044FF);
-    font-weight: 700;
-    background: rgba(48, 68, 255, 0.06);
-}
-.filter-cat-link--sub { padding-left: 32px; font-size: 15px; }
 /* Subcategories read as a nested list: indented under the parent with a guide line. */
 .filter-subcats {
     display: flex;
@@ -3724,18 +3627,6 @@ ins-button.add-credit-card button.ins-button>div,
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-}
-
-/* Success confirmation view */
-.review-confirmation-inner {
-    padding: 24px 8px;
-}
-
-.review-confirmation-icon {
-    display: inline-block;
-    font-size: 48px;
-    color: var(--success);
-    margin-bottom: 12px;
 }
 
 @media screen and (max-width: 639px) {

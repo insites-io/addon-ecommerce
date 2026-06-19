@@ -161,8 +161,6 @@ metadata: {
 {%- graphql products_total_entries = 'modules/ecommerce/products/search_products_total_entries', args: filters -%}
 {%- graphql products = 'modules/ecommerce/products/search_products', args: filters -%}
 
-{% log filters, type: "===test filters" %}
-{% log products, type: "===test products" %}
 
 {%- capture cards_html -%}
 {%- include 'modules/ecommerce/products/grid', products: products.items.results, all_categories: all_categories -%}
