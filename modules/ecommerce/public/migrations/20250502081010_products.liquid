@@ -1,4 +1,19 @@
-{% comment %} Import Categories {% endcomment %}
+{% comment %} Import Categories — guarded: only seed when the table has no records yet {% endcomment %}
+{%- graphql existing_categories -%}
+  query {
+    items: records(
+      per_page: 1
+      filter: {
+        table: { value: "modules/insites_ecommerce/category" }
+        deleted_at: { exists: false }
+      }
+    ) {
+      total_entries
+    }
+  }
+{%- endgraphql -%}
+{%- assign existing_categories_count = existing_categories.items.total_entries | default: 0 -%}
+{%- if existing_categories_count == 0 -%}
 {% parse_json import_categories %}
 [
      {
@@ -258,9 +273,27 @@
      }
 {%- endgraphql -%}
 {% log results, type: "SEED DATA: Cateogries" %}
+{%- else -%}
+{% log existing_categories_count, type: "SEED DATA: Categories skipped (records already exist)" %}
+{%- endif -%}
 
 
-{% comment %} Import Products {% endcomment %}
+{% comment %} Import Products — guarded: only seed when the table has no records yet {% endcomment %}
+{%- graphql existing_products -%}
+  query {
+    items: records(
+      per_page: 1
+      filter: {
+        table: { value: "modules/insites_ecommerce/product" }
+        deleted_at: { exists: false }
+      }
+    ) {
+      total_entries
+    }
+  }
+{%- endgraphql -%}
+{%- assign existing_products_count = existing_products.items.total_entries | default: 0 -%}
+{%- if existing_products_count == 0 -%}
 {% parse_json import_products %}
 [
      {
@@ -497,3 +530,6 @@
      }
 {%- endgraphql -%}
 {% log results, type: "SEED DATA: Products" %}
+{%- else -%}
+{% log existing_products_count, type: "SEED DATA: Products skipped (records already exist)" %}
+{%- endif -%}

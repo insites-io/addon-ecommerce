@@ -42,7 +42,22 @@ mutation save_custom_fields($properties: [NestedPropertyInputType]!) {
 {% log result, type: "SEED DATA: is_featured" %}
 
 
-{% comment %} Add items to category_custom_field {% endcomment %}
+{% comment %} Add items to category_custom_field — guarded: only seed when the table has no records yet {% endcomment %}
+{%- graphql existing_ccf -%}
+  query {
+    items: records(
+      per_page: 1
+      filter: {
+        table: { value: "modules/ins_ecommerce/category_custom_field" }
+        deleted_at: { exists: false }
+      }
+    ) {
+      total_entries
+    }
+  }
+{%- endgraphql -%}
+{%- assign existing_ccf_count = existing_ccf.items.total_entries | default: 0 -%}
+{%- if existing_ccf_count == 0 -%}
 {% parse_json import_category_custom_field %}
 [
      {
@@ -86,3 +101,6 @@ mutation save_custom_fields($properties: [NestedPropertyInputType]!) {
      }
 {%- endgraphql -%}
 {% log results, type: "SEED DATA: category_custom_field" %}
+{%- else -%}
+{% log existing_ccf_count, type: "SEED DATA: category_custom_field skipped (records already exist)" %}
+{%- endif -%}
