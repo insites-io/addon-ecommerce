@@ -10,3 +10,16 @@
 }
 {% endgraphql %}
 {% log create_constant, type: "Constants Created" %}
+
+{% graphql create_price_round_off_constant, name: 'ecommerce_addon_is_price_round_off', value: 'true' %}
+  mutation constant_set(
+  $name: String
+  $value: String
+) {
+  constant_set(name: $name, value: $value) {
+    value
+    name
+  }
+}
+{% endgraphql %}
+{% log create_price_round_off_constant, type: "Constants Created" %}

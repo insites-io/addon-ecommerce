@@ -461,10 +461,14 @@ function reloadIfShoppingCartPage() {
 
 function formatNumber(num) {
     const value = typeof num === "number" ? num : parseFloat(num);
-    if (isNaN(value)) return "0.00"; // fallback
+    // round_prices (ecommerce_addon_is_price_round_off) toggles whole-number display;
+    // it's set inline in cart_drawer.liquid before this script loads. Defaults off.
+    const roundOff = typeof round_prices !== "undefined" && round_prices;
+    const digits = roundOff ? 0 : 2;
+    if (isNaN(value)) return roundOff ? "0" : "0.00"; // fallback
     return value.toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
     });
 }
 

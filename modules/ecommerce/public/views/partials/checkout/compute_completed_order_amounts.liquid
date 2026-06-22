@@ -22,12 +22,17 @@ metadata: {
     ## processing_fee = back-calculated from stored total
     assign processing_fee = total_amount | times: 0.017 | divided_by: 1.017
 
-    ## sub_total_amount = sum of display prices (unit_price × quantity) from order items.
-    ## This matches what compute_order_summary shows as "Subtotal".
+    ## sub_total_amount = sum of GROSS display prices (unit_price × quantity).
+    ## net_subtotal_amount = sum of NET prices (item_price × quantity) — the ex-tax
+    ## basis now shown as "Subtotal" (line items render item_price, GST is a separate
+    ## line, Total stays the gross amount paid).
     assign sub_total_amount = 0
+    assign net_subtotal_amount = 0
     for order_item in order_items_result
         assign line_total = order_item.unit_price | times: order_item.quantity
         assign sub_total_amount = sub_total_amount | plus: line_total
+        assign net_line_total = order_item.item_price | times: order_item.quantity
+        assign net_subtotal_amount = net_subtotal_amount | plus: net_line_total
     endfor
 
     ## Tax value comes from the order record`s total_tax_amount (sub_total_tax) — the
@@ -62,6 +67,7 @@ metadata: {
 {% parse_json computed %}
 {
     "sub_total_amount": {{ sub_total_amount | default: 0 }},
+    "net_subtotal_amount": {{ net_subtotal_amount | default: 0 }},
     "shipping_amount": {{ sub_total_shipping | default: 0 }},
     "total_discount_amount": {{ sub_total_discount | default: 0 }},
     "processing_fee": {{ processing_fee | default: 0 }},

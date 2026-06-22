@@ -33,16 +33,27 @@ metadata: {
 
 {% comment %} Prices {% endcomment %}
 {%  liquid
-    if selected_prop.is_on_sale == true 
+    if selected_prop.is_on_sale == true
         assign price = selected_prop.sale_price
         assign price_strikethrough = selected_prop.regular_price
-    else 
+    else
         assign price = selected_prop.regular_price
         assign price_strikethrough = ''
-    endif          
-    
+    endif
+
     assign item_total_price = price | times: item.quantity
-%}      
+
+    ## Net (ex-tax) price for DISPLAY only — effective_price (module-ecommerce v5.11.3).
+    ## Kept separate from the gross `price` above: the discount/GST engine
+    ## (compute_order_summary) still reads `price` and divides tax out of it, and the
+    ## charged total / stored order unit_price stay gross. Fall back to gross if the
+    ## platform has not populated effective_price for this record.
+    assign price_display = selected_prop.effective_price
+    if price_display == blank or price_display == null
+        assign price_display = price
+    endif
+    assign item_total_display = price_display | times: item.quantity
+%}
 
 {% parse_json cart %}
 {
@@ -52,8 +63,10 @@ metadata: {
     "is_variant": {{ is_variant | default: false }},
     "selected_prop": {{ selected_prop | default: '[]' }},
     "price": {{ price | default: 0 }},
+    "price_display": {{ price_display | default: 0 }},
     "price_strikethrough": "{{ price_strikethrough }}",
     "item_total_price": {{ item_total_price | default: 0 }},
+    "item_total_display": {{ item_total_display | default: 0 }},
     "imgsrc": "{{ imgsrc }}"
 }
 {% endparse_json %}

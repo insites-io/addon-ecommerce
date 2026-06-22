@@ -441,6 +441,7 @@
             is_on_sale: product.is_on_sale,
             regular_price: product.regular_price,
             sale_price: product.sale_price,
+            effective_price: product.effective_price,
             score: scoreProduct(name, variations)
           });
         });
@@ -470,8 +471,13 @@
    * -------------------------------------------------------------------- */
 
   var formatPrice = function (entry) {
-    var price =
-      entry.is_on_sale && entry.sale_price ? entry.sale_price : entry.regular_price;
+    // Use the platform-maintained effective_price (matches the product list/facets);
+    // fall back to the sale/regular derivation if it's missing.
+    var price = entry.effective_price;
+    if (price === null || price === undefined || price === "") {
+      price =
+        entry.is_on_sale && entry.sale_price ? entry.sale_price : entry.regular_price;
+    }
     if (price === null || price === undefined || price === "") return "";
     var num = parseFloat(price);
     if (isNaN(num)) return "";

@@ -58,20 +58,30 @@ metadata: {
             graphql product_variant_data = 'modules/ecommerce/products/get_product_variant', uuid: product_variant_uuid | dig: 'items','results' | first
 
             assign product_sku = product_variant_data.product_sku
-            if product_variant_data.is_on_sale == true or product_variant_data.is_on_sale == 'true'
-                assign product_price = product_variant_data.sale_price
-            else
-                assign product_price = product_variant_data.regular_price
+            ## Net (ex-tax) price for the client-side cart drawer — effective_price
+            ## (v5.11.3). Response-only: never persisted to the cart_item record.
+            assign product_price = product_variant_data.effective_price
+            if product_price == blank or product_price == null
+                if product_variant_data.is_on_sale == true or product_variant_data.is_on_sale == 'true'
+                    assign product_price = product_variant_data.sale_price
+                else
+                    assign product_price = product_variant_data.regular_price
+                endif
             endif
 
             assign prod_details = prod_details | add_hash_key: 'product_options', product_variant_data.product_options
         else
             ## The product is NOT a variant
             assign product_sku = product_data.sku
-            if product_data.is_on_sale == true or product_data.is_on_sale == 'true'
-                assign product_price = product_data.sale_price
-            else
-                assign product_price = product_data.regular_price
+            ## Net (ex-tax) price for the client-side cart drawer — effective_price
+            ## (v5.11.3). Response-only: never persisted to the cart_item record.
+            assign product_price = product_data.effective_price
+            if product_price == blank or product_price == null
+                if product_data.is_on_sale == true or product_data.is_on_sale == 'true'
+                    assign product_price = product_data.sale_price
+                else
+                    assign product_price = product_data.regular_price
+                endif
             endif
         endif
 

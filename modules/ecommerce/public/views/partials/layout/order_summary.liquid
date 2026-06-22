@@ -58,11 +58,15 @@ metadata: {
             {%- for item in cart_items -%}
 
                 {%- if params.slug == 'confirmation' and params.id != '' -%}
-                    {%-  
-                        liquid 
+                    {%-
+                        liquid
                         assign cart = '' | parse_json
                         assign cart = cart | add_hash_key: 'product_name', item.order_item_name
                         assign cart = cart | add_hash_key: 'price', item.unit_price
+                        ## Net (ex-tax) per-unit price stored on the order_item — the
+                        ## effective_price equivalent for a completed order. Shown like
+                        ## the live cart/checkout net line items.
+                        assign cart = cart | add_hash_key: 'price_display', item.item_price
                     -%}
                 {%- else -%}
                     {%- include 'modules/ecommerce/carts/cart_item_details', products, item -%}
@@ -77,7 +81,7 @@ metadata: {
                         <p>{{ item.quantity }}x</p>
                     </div>
                     <div class="text-right large-3 medium-12 small-4 cell">
-                        {%- assign item_amount = cart.price | advanced_format: '%.2f' | default: "0.00" -%}
+                        {%- assign item_amount = cart.price_display | default: cart.price | advanced_format: '%.2f' | default: "0.00" -%}
                         {%- assign item_amount = item_amount | pricify -%}
                         {%- unless item_amount contains '.' -%}
                             {%- assign item_amount = item_amount | append: '.00' -%}
@@ -146,7 +150,8 @@ metadata: {
             <p class="font-color-sub bold">Subtotal</p>
         </div>
         <div class="large-6 medium-6 small-6 cell text-right">
-            {%- assign sub_total = computed.sub_total_amount | advanced_format: '%.2f' | default: "0.00" -%}
+            {%- comment -%} Net (ex-tax) subtotal; line items are net, GST is a separate line, Total stays gross. {%- endcomment -%}
+            {%- assign sub_total = computed.net_subtotal_amount | advanced_format: '%.2f' | default: "0.00" -%}
             {%- assign sub_total = sub_total | pricify -%}
             {%- unless sub_total contains '.' -%}
                 {%- assign sub_total = sub_total | append: '.00' -%}
@@ -241,29 +246,24 @@ metadata: {
     
 
     {% comment %} Tax {% endcomment %}
-    {%- assign tax_included_display = computed.sub_total_tax_included | advanced_format: '%.2f' | default: "0.00" | pricify -%}
-    {%- unless tax_included_display contains '.' -%}{%- assign tax_included_display = tax_included_display | append: '.00' -%}{%- endunless -%}
-    {%- assign tax_not_included_display = computed.sub_total_tax_not_included | advanced_format: '%.2f' | default: "0.00" | pricify -%}
-    {%- unless tax_not_included_display contains '.' -%}{%- assign tax_not_included_display = tax_not_included_display | append: '.00' -%}{%- endunless -%}
-    <div class="grid-x grid-padding-x">
-        {%- if computed.sub_total_tax_included > 0 -%}
-            <div class="large-6 medium-6 small-6 cell{%- if computed.tax_applied == 'both' %} pb-8{%- endif -%}">
-                <p class="font-color-sub bold" id="summary_tax_label">Includes tax</p>
-            </div>
-            <div class="large-6 medium-6 small-6 cell text-right">
-                <p id="summary_tax">({{ tax_included_display }})</p>
-            </div>
-        {%- endif -%}
-        {%- if computed.sub_total_tax_not_included > 0 -%}
+    {%- comment -%}
+        Line items + subtotal are net (ex-tax) for both the live cart/checkout and
+        completed orders, so GST is an explicit added line. Subtotal(net) − discount +
+        shipping + GST + processing reconciles to the unchanged gross total.
+    {%- endcomment -%}
+    {%- if computed.tax_amount > 0 -%}
+        {%- assign gst_display = computed.tax_amount | advanced_format: '%.2f' | default: "0.00" | pricify -%}
+        {%- unless gst_display contains '.' -%}{%- assign gst_display = gst_display | append: '.00' -%}{%- endunless -%}
+        <div class="grid-x grid-padding-x">
             <div class="large-6 medium-6 small-6 cell">
                 <p class="font-color-sub bold" id="summary_tax_label">Tax</p>
             </div>
             <div class="large-6 medium-6 small-6 cell text-right">
-                <p id="summary_tax">{{ tax_not_included_display }}</p>
+                <p id="summary_tax">{{ gst_display }}</p>
             </div>
-        {%- endif -%}
-    </div>
-    <div class="spacer x-small"></div>    
+        </div>
+        <div class="spacer x-small"></div>
+    {%- endif -%}
 
 
     {% comment %} Processing Fee {% endcomment %}
