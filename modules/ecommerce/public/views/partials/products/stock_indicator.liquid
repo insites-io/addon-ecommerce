@@ -39,7 +39,8 @@ metadata: {
 -%}
 <p {% if id %}id="{{ id }}" {% endif %}class="stock-indicator stock-indicator--{{ si_state }} body-small">
     {%- case si_state -%}
-        {%- when 'out' -%}Out of stock
+        {%- comment -%} Out-of-stock is already shown via the image overlay, so the text is left empty here. {%- endcomment -%}
+        {%- when 'out' -%}
         {%- when 'low' -%}Low stock ({{ si_stock }})
         {%- when 'very-low' -%}Very low stock ({{ si_stock }})
         {%- else -%}In stock ({{ si_stock }})

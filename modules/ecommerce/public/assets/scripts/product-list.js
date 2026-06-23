@@ -378,6 +378,14 @@ let productList = (function () {
                     productList.methods.selectAllCategories();
                     return;
                 }
+                if(group === 'price'){
+                    // Price isn't a list filter — reset the min/max bounds (mirrors the price chip remove).
+                    delete productFilter.min_price;
+                    delete productFilter.max_price;
+                    productFilter.page = "1";
+                    productList.methods.applyFilters();
+                    return;
+                }
                 productList.methods.setList(group, []);
                 productFilter.page = "1";
                 productList.methods.applyFilters();
@@ -566,6 +574,10 @@ let productList = (function () {
                         hasSel = productList.methods.getList('categories').length > 0
                             || (selectCatergory && selectCatergory !== '')
                             || (productFilter.category && productFilter.category !== '');
+                    } else if(group === 'price'){
+                        // Price isn't a list filter — selected when a min/max bound is set.
+                        hasSel = (productFilter.min_price != null && productFilter.min_price !== '')
+                            || (productFilter.max_price != null && productFilter.max_price !== '');
                     } else {
                         hasSel = productList.methods.getList(group).length > 0;
                     }

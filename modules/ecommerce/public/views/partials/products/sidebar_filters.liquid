@@ -91,7 +91,7 @@ metadata: {
     assign brand_names = facet_results | map: 'brand' | compact | uniq | sort
     comment # In stock = stock_level > 0; out of stock = everything else (stock_level == 0
     # or a null/unset stock_level). This mirrors search_products: range gt:0 excludes null
-    # (so null isn't in-stock) while range lte:0 includes null (so null is out-of-stock).
+    # (so null isn`t in-stock) while range lte:0 includes null (so null is out-of-stock).
     endcomment
     assign in_count = 0
     assign out_count = 0
@@ -251,11 +251,13 @@ metadata: {
                 {%- assign hide_class = '' -%}
                 {%- if is_overflow -%}{%- assign hide_class = 'is-overflow' -%}{%- endif -%}
 
+                {%- comment -%} Don't render categories with no matching products (unless selected or the current path). {%- endcomment -%}
+                {%- if t_count > 0 or t_checked or t_is_path -%}
                 <div class="filter-cat-item {{ hide_class }}">
-                    <div class="filter-check{% if t_count == 0 %} is-disabled{% endif %}">
+                    <div class="filter-check">
                         <ins-checkbox data-filter="categories" data-cat-parent value="{{ topCat.slug }}"
                                       label="{{ topCat.category_name | capitalize }}"
-                                      {% if t_count == 0 %}disabled{% endif %} {% if t_is_path %}data-path-category{% endif %} {% if t_checked or t_is_path %}checked{% endif %}></ins-checkbox>
+                                      {% if t_is_path %}data-path-category{% endif %} {% if t_checked or t_is_path %}checked{% endif %}></ins-checkbox>
                         <span class="filter-count">({{ t_count }})</span>
                     </div>
 
@@ -278,17 +280,20 @@ metadata: {
                                             assign s_is_path = true
                                         endif
                                     -%}
-                                    <div class="filter-check filter-check--sub{% if s_count == 0 %} is-disabled{% endif %}">
+                                    {%- if s_count > 0 or s_checked or s_is_path -%}
+                                    <div class="filter-check filter-check--sub">
                                         <ins-checkbox data-filter="categories" value="{{ subCat.slug }}"
                                                       label="{{ subCat.category_name | capitalize }}"
-                                                      {% if s_count == 0 %}disabled{% endif %} {% if s_is_path %}data-path-category{% endif %} {% if s_checked or s_is_path %}checked{% endif %}></ins-checkbox>
+                                                      {% if s_is_path %}data-path-category{% endif %} {% if s_checked or s_is_path %}checked{% endif %}></ins-checkbox>
                                         <span class="filter-count">({{ s_count }})</span>
                                     </div>
+                                    {%- endif -%}
                                 {%- endif -%}
                             {%- endfor -%}
                         </div>
                     {%- endif -%}
                 </div>
+                {%- endif -%}
             {%- endfor -%}
 
             {%- assign cat_has_sel = false -%}
@@ -324,6 +329,11 @@ metadata: {
                 <input type="range" class="filter-price__handle" data-price="max"
                        min="{{ price_floor }}" max="{{ price_ceil }}" step="1"
                        value="{{ sel_max | default: price_ceil }}" aria-label="Maximum price slider">
+            </div>
+            {%- assign price_has_sel = false -%}
+            {%- if sel_min != '' or sel_max != '' -%}{%- assign price_has_sel = true -%}{%- endif -%}
+            <div class="filter-group__footer">
+                <button type="button" class="filter-clear{% unless price_has_sel %} hide{% endunless %}" data-filter-clear="price">Clear</button>
             </div>
         </div>
         </ins-accordion-item>
@@ -364,14 +374,19 @@ metadata: {
         <div class="filter-group__body">
             {%- assign in_checked = sel_availability | array_any: 'in-stock' -%}
             {%- assign out_checked = sel_availability | array_any: 'out-of-stock' -%}
-            <div class="filter-check{% if in_count == 0 %} is-disabled{% endif %}">
-                <ins-checkbox data-filter="availability" value="in-stock" label="In Stock" {% if in_count == 0 %}disabled{% endif %} {% if in_checked %}checked{% endif %}></ins-checkbox>
+            {%- comment -%} Hide an availability option with no matching products (unless currently selected). {%- endcomment -%}
+            {%- if in_count > 0 or in_checked -%}
+            <div class="filter-check">
+                <ins-checkbox data-filter="availability" value="in-stock" label="In Stock" {% if in_checked %}checked{% endif %}></ins-checkbox>
                 <span class="filter-count">({{ in_count }})</span>
             </div>
-            <div class="filter-check{% if out_count == 0 %} is-disabled{% endif %}">
-                <ins-checkbox data-filter="availability" value="out-of-stock" label="Out of Stock" {% if out_count == 0 %}disabled{% endif %} {% if out_checked %}checked{% endif %}></ins-checkbox>
+            {%- endif -%}
+            {%- if out_count > 0 or out_checked -%}
+            <div class="filter-check">
+                <ins-checkbox data-filter="availability" value="out-of-stock" label="Out of Stock" {% if out_checked %}checked{% endif %}></ins-checkbox>
                 <span class="filter-count">({{ out_count }})</span>
             </div>
+            {%- endif -%}
             <div class="filter-group__footer">
                 <button type="button" class="filter-clear{% unless sel_availability.size > 0 %} hide{% endunless %}" data-filter-clear="availability">Clear</button>
             </div>
@@ -380,4 +395,3 @@ metadata: {
     </ins-accordion>
 
 </div>
-<div class="spacer x-large"></div>

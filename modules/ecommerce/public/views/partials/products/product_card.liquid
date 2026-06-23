@@ -24,9 +24,14 @@ metadata: {
         assign product_variant_uuid = product.variant.uuid
     else
         assign class_add_to_cart_btn = 'add-to-cart-btn'
-        assign label_add_tocart_btn = 'Add to Cart'
         assign selected_prop = product
         assign product_variant_uuid = null
+        ## Out-of-stock simple products can still be ordered ahead — show "Pre-Order".
+        if product.stock_level < 1 or product.stock_level == blank
+            assign label_add_tocart_btn = 'Pre-Order'
+        else
+            assign label_add_tocart_btn = 'Add to Cart'
+        endif
     endif
 
 
@@ -135,9 +140,32 @@ metadata: {
                 <div class="out-of-stock"></div>
             {% endif %}
             {%- if product_tags and product_tags.size > 0 -%}
+                {%- comment -%}
+                    Cap the card at two badges, highest priority first, to avoid a noisy
+                    stack of chips: Sale > Bestseller > New Arrival > Staff Pick > Limited.
+                    Walk the priority list and render only the (up to two) tags the product
+                    actually has; rendering the canonical label also normalises casing and
+                    drives the correct tag-chip--{slug} colour. Tags outside this list are
+                    not shown (only these five have a defined style/priority).
+                {%- endcomment -%}
+                {%- assign tag_priority = 'Sale,Bestseller,New Arrival,Staff Pick,Limited' | split: ',' -%}
+                {%- assign tags_shown = 0 -%}
                 <div class="product-tags">
-                    {%- for tag in product_tags -%}
-                        {% include 'modules/ecommerce/products/tag_chip', tag: tag %}
+                    {%- for pt in tag_priority -%}
+                        {%- if tags_shown >= 2 -%}{%- break -%}{%- endif -%}
+                        {%- assign pt_norm = pt | downcase | strip -%}
+                        {%- assign matched = false -%}
+                        {%- for tag in product_tags -%}
+                            {%- assign tag_norm = tag | downcase | strip -%}
+                            {%- if tag_norm == pt_norm -%}
+                                {%- assign matched = true -%}
+                                {%- break -%}
+                            {%- endif -%}
+                        {%- endfor -%}
+                        {%- if matched -%}
+                            {% include 'modules/ecommerce/products/tag_chip', tag: pt %}
+                            {%- assign tags_shown = tags_shown | plus: 1 -%}
+                        {%- endif -%}
                     {%- endfor -%}
                 </div>
             {%- endif -%}
@@ -146,9 +174,9 @@ metadata: {
                 {%- capture img_cache_key -%} product_image-{{ product.id }}-{{ product.updated_at }} {%- endcapture -%}
                 {% cache img_cache_key %}
                 {% if fetchpriority == 'high' %}
-                <img src="{{ image_url }}" alt="{{ product.product_name }}" fetchpriority="high" width="300" height="286">
+                <img src="{{ image_url }}" alt="{{ product.product_name }}" fetchpriority="high" width="300" height="300">
                 {% else %}
-                <img src="{{ image_url }}" alt="{{ product.product_name }}" loading="lazy" width="300" height="286">
+                <img src="{{ image_url }}" alt="{{ product.product_name }}" loading="lazy" width="300" height="300">
                 {% endif %}
                 {% endcache %}
             {% else %}
@@ -158,10 +186,8 @@ metadata: {
             <div class="spacer medium"></div>
             <div class="container grid-y flex-grow-1">
                 <div class="details">
-                    {%- if product.brand and product.brand != blank -%}
-                        <p class="product-brand">{{ product.brand }}</p>
-                        <div class="spacer x-small"></div>
-                    {%- endif -%}
+                    <p class="product-brand">{{ product.brand | default: 'Unbranded' }}</p>
+                    <div class="spacer x-small"></div>
                     {% if heading_level == 'h2' %}
                         <h2 class="heading-6">{{ product.product_name }}</h2>
                     {% elsif heading_level == 'h3' %}
@@ -173,20 +199,17 @@ metadata: {
                     {% else %}
                         <h6>{{ product.product_name }}</h6>
                     {% endif %}
-                    {%- if review_count > 0 or sold_count > 0 -%}
-                        <div class="spacer x-small"></div>
-                        <div class="product-meta">
-                            {%- if review_count > 0 -%}
-                                <span class="product-rating">
-                                    {% include 'modules/ecommerce/reviews/star_rating', rating: avg_rating, size: 16 %}
-                                    <span class="product-rating__count body-small bold">({{ review_count }})</span>
-                                </span>
-                            {%- endif -%}
-                            {%- if sold_count > 0 -%}
-                                <span class="product-sold body"><span class="product-sold__count">{{ sold_count }}</span> sold</span>
-                            {%- endif -%}
-                        </div>
-                    {%- endif -%}
+                    <div class="spacer x-small"></div>
+                    <div class="product-meta">
+                        {%- comment -%} Always show the rating; products with no reviews yet read as empty stars + "(0)". {%- endcomment -%}
+                        <span class="product-rating">
+                            {% include 'modules/ecommerce/reviews/star_rating', rating: avg_rating, size: 16 %}
+                            <span class="product-rating__count body-small bold">({{ review_count }})</span>
+                        </span>
+                        {%- if sold_count > 0 -%}
+                            <span class="product-sold body"><span class="product-sold__count">{{ sold_count }}</span> sold</span>
+                        {%- endif -%}
+                    </div>
                     <div class="spacer"></div>
                     <p class="product-current-price" title="price={{ diag_price }}; tax_included?={{ diag_tax }}; tax_amount={{ diag_tax_amount }}; tax_type={{ diag_tax_type }}">{{ price_out }}
                         {% if product.is_on_sale == true or variant.is_on_sale == true %}

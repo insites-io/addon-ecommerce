@@ -485,29 +485,45 @@ ins-input.hidden-input input {
     /* height: 100%; */
 }
 
-.product-cards.list-view .cell .grid-y {
-    flex-direction: row;
-    gap: 24px;
-}
+/* List view is a desktop/tablet affordance only. At <=639px the row layout is
+   too cramped, so the list-view overrides are gated to >=640px — below that the
+   grid (.product-cards) base rules apply and #product-grid.list-view renders
+   identically to the normal card grid. */
+@media screen and (min-width: 640px) {
+    .product-cards.list-view .cell .grid-y {
+        flex-direction: row;
+        gap: 24px;
+    }
 
-.product-cards.list-view .cell .grid-y .spacer.medium {
-    display: none;
-}
+    .product-cards.list-view .cell .grid-y .spacer.medium {
+        display: none;
+    }
 
-.product-cards.list-view img,
-.product-cards.list-view .placeholder-img {
-    width: 250px;
-    max-width: initial;
-    height: 184px;
-    min-height: initial;
-}
+    /* Pin the image column so every row's image is the same width. Without
+       flex:0 0 the img-wrap shrinks (default flex-shrink:1) when a card's
+       details column has a wide min-content (e.g. a long product title),
+       making that row's image narrower than the others. */
+    .product-cards.list-view .img-wrap {
+        flex: 0 0 250px;
+    }
 
-.product-cards.list-view .container {
-    min-height: initial;
-}
+    .product-cards.list-view img,
+    .product-cards.list-view .placeholder-img {
+        width: 250px;
+        max-width: initial;
+        height: 184px;
+        min-height: initial;
+    }
 
-.product-cards.list-view .buttons {
-    min-width: 186px;
+    .product-cards.list-view .container {
+        min-height: initial;
+        /* Let the details column absorb the shrink instead of the image. */
+        min-width: 0;
+    }
+
+    .product-cards.list-view .buttons {
+        min-width: 186px;
+    }
 }
 
 ins-carousel .product-cards .cell {
@@ -539,8 +555,9 @@ ins-carousel .product-cards>div {
 
 .product-cards img,
 .product-cards .placeholder-img {
-    height: 300px;
     width: 100%;
+    aspect-ratio: 1 / 1;
+    height: auto;
     object-fit: cover;
     transition: transform 0.3s ease, filter 0.3s ease;
 }
@@ -2896,6 +2913,59 @@ ins-gallery-image.active .ins-gallery-image {
     margin-bottom: 16px;
 }
 
+/* Rich-text headings inside the product description tab — mirror the heading
+   scale used in addon-locator's .locator-profile-section__body (per-level Figma
+   gaps; h2/h3 are the common levels, hence the 24px-above/16px-below default). */
+#product-tabs .description h1,
+#product-tabs .description h2,
+#product-tabs .description h3,
+#product-tabs .description h4,
+#product-tabs .description h5,
+#product-tabs .description h6 {
+    font-family: var(--font-family-01);
+    font-size: var(--font-xx-large) !important;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.24px;
+    color: var(--font-color-head);
+    margin: 24px 0 16px;
+}
+
+#product-tabs .description h1 { font-size: var(--font-x-large) !important; }
+#product-tabs .description h2 { font-size: var(--font-x-large) !important; }
+#product-tabs .description h3 { font-size: var(--font-large) !important; }
+#product-tabs .description h4 { font-size: var(--font-medium) !important; margin-top: 16px; }
+#product-tabs .description h5 { font-size: var(--font-small) !important; margin-top: 16px; margin-bottom: 8px; }
+#product-tabs .description h6 { font-size: var(--font-x-small) !important; margin-top: 16px; margin-bottom: 8px; }
+
+#product-tabs .description :is(h1, h2, h3, h4, h5, h6):first-child {
+    margin-top: 0;
+}
+
+/* Lists — mirror .locator-profile-section__body. margin (not padding) on lists
+   so they collapse with the following heading's margin-top; li uses padding for
+   inter-item spacing so it doesn't collapse with neighbours. */
+#product-tabs .description ul,
+#product-tabs .description ol {
+    padding-left: 12px;
+    margin-bottom: 16px;
+}
+
+#product-tabs .description li ul,
+#product-tabs .description li ol {
+    padding-top: 8px;
+    margin-bottom: 8px;
+}
+
+#product-tabs .description li {
+    padding-bottom: 8px;
+    margin-bottom: 0;
+}
+
+#product-tabs .description li:last-child {
+    padding-bottom: 0;
+}
+
 @media screen and (max-width: 639px) {
     .product-detail .ins-gallery_current-image img {
         max-height: 204px;
@@ -3409,6 +3479,16 @@ ins-button.add-credit-card button.ins-button>div,
     padding: 16px 0 4px;
 }
 
+/* Filter checkbox labels (Categories, Brands, Availability, …) */
+.sidebar-filter .ins-checkbox-radio-label {
+    color: var(--font-color-body);
+    font-family: var(--font-family-02);
+    font-size: 16px !important;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px; /* 150% */
+}
+
 /* ---- Hidden overflow items (Show more / less) ---- */
 .sidebar-filter .is-overflow { display: none; }
 .filter-group__body.show-all .filter-check.is-overflow { display: flex; }
@@ -3828,6 +3908,27 @@ ins-button.add-credit-card button.ins-button>div,
     max-width: 92vw;
 }
 
+/* Centre the popup in the viewport (Figma 31929-28371).
+   The component pins the card at position:fixed; top:10% and only centres it
+   horizontally via an inline left. Rather than fight that (a transform override
+   is defeated if any ancestor is itself transformed), turn the full-screen wrap
+   into a flex container and let the card centre itself. margin:auto + overflow-y
+   centres on both axes AND lets the card scroll if it ever exceeds the viewport,
+   instead of clipping. The backdrop is position:fixed so it stays out of flow. */
+.promo-popup-modal .ins-modal-wrap.show-modal {
+    display: flex;
+    overflow-y: auto;
+}
+.promo-popup-modal .ins-modal-wrap.show-modal ins-card {
+    position: relative;
+    top: auto;
+    left: auto !important; /* override the component's inline left: calc(50% - …) */
+    transform: none;
+    margin: auto;
+}
+.promo-popup-modal .ins-modal-wrap.show-modal ins-card .ins-card-wrap {
+    margin: 0 auto;
+}
 /* Default head becomes a floating close (✕) over the top-right corner */
 .promo-popup-modal .ins-modal-head {
     position: absolute;

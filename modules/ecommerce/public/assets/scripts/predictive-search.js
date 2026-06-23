@@ -657,7 +657,7 @@
         if (entry.image) {
           html +=
             '<img class="predictive-thumb" src="' +
-            encodeURI(entry.image) +
+            self.escapeHtml(entry.image) +
             '" alt="" loading="lazy" width="40" height="40">';
         } else {
           html += PLACEHOLDER_IMAGE;
