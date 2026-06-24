@@ -178,8 +178,10 @@ metadata:
   secondary_button_color:
   secondary_button_border_color:
   primary_button_background_color:
-redirect_to: "/thank-you"
+redirect_to: "/thank-you?page=write-a-review"
 resource: modules/ecommerce/reviews
 resource_owner: anyone
+spam_protection:
+  recaptcha_v2: {}
 ---
 {%- include 'modules/ecommerce/forms/review/write_a_review_form' -%}

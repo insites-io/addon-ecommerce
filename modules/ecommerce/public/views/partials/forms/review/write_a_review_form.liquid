@@ -4,7 +4,7 @@
 {%- assign form_uuid = '' | uuid -%}
 {%- assign reviewer_name = context.current_user.name | default: context.current_user.first_name -%}
 <div class="insites-form-wrap">
-{%- form html-class: 'insites-form insites-form-code' html-novalidate: 'novalidate' html-data-uuid: form_uuid -%}
+{%- form html-class: 'insites-form insites-form-code write-review-form' html-novalidate: 'novalidate' html-data-uuid: form_uuid -%}
 
 <ins-alert-box type="error" class="validation-error" close-icon="icon-close-1" hidden>
 	<div>Failed to submit form. Please fix the error(s) found.</div>
@@ -170,6 +170,14 @@
 		</ins-toggle-switch>
 	</div>
 
+</div>
+
+<div class="insites-form-grid">
+	<!-- start reCAPTCHA -->
+	<div class="column-2">
+		{%- spam_protection 'recaptcha_v2' -%}
+	</div>
+	<!-- end reCAPTCHA -->
 </div>
 
 <div class="insites-form-grid">

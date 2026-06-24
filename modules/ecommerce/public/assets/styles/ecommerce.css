@@ -3680,6 +3680,18 @@ ins-button.add-credit-card button.ins-button>div,
     margin-top: 20px;
 }
 
+/* Narrow screens: stack the review form's action buttons full-width */
+@media screen and (max-width: 400px) {
+    .write-review-form .insites-form-buttons {
+        flex-direction: column-reverse;
+        gap: 24px;
+    }
+    .write-review-form .insites-form-buttons button {
+        width: 100%;
+        margin: 0px;
+    }
+}
+
 /* Interactive star rating input */
 .review-stars {
     display: inline-flex;
