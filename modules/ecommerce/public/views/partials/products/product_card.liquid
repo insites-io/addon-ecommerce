@@ -139,36 +139,7 @@ metadata: {
             {% if selected_prop.stock_level < 1 or selected_prop.stock_level == blank %}
                 <div class="out-of-stock"></div>
             {% endif %}
-            {%- if product_tags and product_tags.size > 0 -%}
-                {%- comment -%}
-                    Cap the card at two badges, highest priority first, to avoid a noisy
-                    stack of chips: Sale > Bestseller > New Arrival > Staff Pick > Limited.
-                    Walk the priority list and render only the (up to two) tags the product
-                    actually has; rendering the canonical label also normalises casing and
-                    drives the correct tag-chip--{slug} colour. Tags outside this list are
-                    not shown (only these five have a defined style/priority).
-                {%- endcomment -%}
-                {%- assign tag_priority = 'Sale,Bestseller,New Arrival,Staff Pick,Limited' | split: ',' -%}
-                {%- assign tags_shown = 0 -%}
-                <div class="product-tags">
-                    {%- for pt in tag_priority -%}
-                        {%- if tags_shown >= 2 -%}{%- break -%}{%- endif -%}
-                        {%- assign pt_norm = pt | downcase | strip -%}
-                        {%- assign matched = false -%}
-                        {%- for tag in product_tags -%}
-                            {%- assign tag_norm = tag | downcase | strip -%}
-                            {%- if tag_norm == pt_norm -%}
-                                {%- assign matched = true -%}
-                                {%- break -%}
-                            {%- endif -%}
-                        {%- endfor -%}
-                        {%- if matched -%}
-                            {% include 'modules/ecommerce/products/tag_chip', tag: pt %}
-                            {%- assign tags_shown = tags_shown | plus: 1 -%}
-                        {%- endif -%}
-                    {%- endfor -%}
-                </div>
-            {%- endif -%}
+            {% include 'modules/ecommerce/products/product_tags', tags: product_tags %}
             {% if product.product_image.url %}
                 {% assign image_url = product.product_image.url | replace: ' ', '%20' | escape %}
                 {%- capture img_cache_key -%} product_image-{{ product.id }}-{{ product.updated_at }} {%- endcapture -%}

@@ -7,10 +7,17 @@ metadata: {
     A single highlighted tag chip. Colour is driven by a slugified modifier
     class (tag-chip--{slug}) so each known tag type maps to a semantic colour in
     ecommerce.css (New Arrival = success, Sale = error, Staff Pick = warning-hover,
-    etc.). Unknown tags fall back to the base chip colour.
+    etc.). Unknown tags fall back to the base chip colour. Any tag whose label
+    contains "sale" (e.g. "Flash Sale") uses the sale colour.
 
     Params:
     - tag : the tag label string (e.g. "New Arrival")
 {% endcomment %}
-{%- assign tag_slug = tag | downcase | strip | replace: ' ', '-' -%}
-<ins-tag label="{{ tag }}" class="tag-chip tag-chip--{{ tag_slug }}"></ins-tag>
+{%- assign tag_lower = tag | downcase -%}
+{%- assign tag_slug = tag_lower | strip | replace: ' ', '-' -%}
+{%- comment -%} Any tag containing the word "sale" (e.g. "Flash Sale") takes the sale colour. {%- endcomment -%}
+{%- assign tag_color_class = 'tag-chip--' | append: tag_slug -%}
+{%- if tag_lower contains 'sale' -%}
+    {%- assign tag_color_class = 'tag-chip--sale' -%}
+{%- endif -%}
+<ins-tag label="{{ tag }}" class="tag-chip {{ tag_color_class }}"></ins-tag>

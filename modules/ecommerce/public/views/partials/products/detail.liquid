@@ -104,13 +104,7 @@ metadata: {
         <div class="gallery">   
 
             {% comment %} Highlighted tags (from product_custom_field) {% endcomment %}
-            {%- if product_tags and product_tags.size > 0 -%}
-                <div class="product-tags">
-                    {%- for tag in product_tags -%}
-                        {% include 'modules/ecommerce/products/tag_chip', tag: tag %}
-                    {%- endfor -%}
-                </div>
-            {%- endif -%}
+            {% include 'modules/ecommerce/products/product_tags', tags: product_tags %}
 
 
             {% comment %} Out of Stock {% endcomment %}

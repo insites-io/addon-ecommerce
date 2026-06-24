@@ -95,11 +95,17 @@ metadata: {
     endcomment
     assign in_count = 0
     assign out_count = 0
+    assign unbranded_count = 0
     for f in facet_results
         if f.stock_level > 0
             assign in_count = in_count | plus: 1
         else
             assign out_count = out_count | plus: 1
+        endif
+        comment # Unbranded = null/empty brand_name (excluded from brand_names by `compact`).
+        endcomment
+        if f.brand == blank
+            assign unbranded_count = unbranded_count | plus: 1
         endif
     endfor
     assign price_values = facet_results | map: 'effective_price' | compact | sort
@@ -217,12 +223,6 @@ metadata: {
             {%- for topCat in top_categories -%}
                 {%- liquid
                     assign t_uuid = topCat.uuid
-                    assign t_count = 0
-                    for f in facet_results
-                        if f.category_uuids contains t_uuid
-                            assign t_count = t_count | plus: 1
-                        endif
-                    endfor
                     assign withChild = parent_with_child | array_any: topCat.uuid
                     assign t_checked = sel_categories | array_any: topCat.slug
                     assign t_is_path = false
@@ -230,13 +230,37 @@ metadata: {
                         assign t_is_path = true
                     endif
 
-                    comment # block size = this parent + its subcategories
+                    comment # Subtree uuids = this parent + each of its subcategories. Both the count
+                    # below and the parent filter span the whole subtree (checking a parent cascades
+                    # to all child slugs in product-list.js), so a parent`s count includes products
+                    # directly in it AND products in its subcategories — matching the filtered result.
+                    # Also computes subcount (the block size used by the Show more logic).
                     endcomment
+                    assign t_subtree_uuids = '' | split: ','
+                    assign t_subtree_uuids = t_subtree_uuids | array_add: topCat.uuid
                     assign subcount = 0
                     for subCat in sub_categories
                         assign sc_is_child = subCat.parent_category_uuids | array_any: topCat.uuid
                         if sc_is_child
                             assign subcount = subcount | plus: 1
+                            assign t_subtree_uuids = t_subtree_uuids | array_add: subCat.uuid
+                        endif
+                    endfor
+
+                    comment # Count each product once if its category_uuids overlap the subtree
+                    # (parent + subcategories). The per-product flag keeps the count unique even
+                    # when a product belongs to the parent and a sub, or to two subs at once.
+                    endcomment
+                    assign t_count = 0
+                    for f in facet_results
+                        assign f_in_subtree = false
+                        for su in t_subtree_uuids
+                            if f.category_uuids contains su
+                                assign f_in_subtree = true
+                            endif
+                        endfor
+                        if f_in_subtree
+                            assign t_count = t_count | plus: 1
                         endif
                     endfor
 
@@ -340,7 +364,7 @@ metadata: {
     </ins-accordion>
 
     {% comment %} ---------- Brands ---------- {% endcomment %}
-    {%- if brand_names.size > 0 -%}
+    {%- if brand_names.size > 0 or unbranded_count > 0 -%}
         <ins-accordion class="filter-group" data-group="brands">
             <ins-accordion-item heading="Brands" active open-icon="icon-plus" close-icon="icon-minus">
             <div class="filter-group__body">
@@ -354,6 +378,15 @@ metadata: {
                         <span class="filter-count">({{ b_count }})</span>
                     </div>
                 {%- endfor -%}
+                {%- comment -%} "Unbranded" option — products with a null brand_name. Sentinel value
+                    "Unbranded" is translated to brand_exists:false in list.liquid. {%- endcomment -%}
+                {%- if unbranded_count > 0 -%}
+                    {%- assign unbranded_checked = sel_brands | array_any: 'Unbranded' -%}
+                    <div class="filter-check">
+                        <ins-checkbox data-filter="brands" value="Unbranded" label="Unbranded" {% if unbranded_checked %}checked{% endif %}></ins-checkbox>
+                        <span class="filter-count">({{ unbranded_count }})</span>
+                    </div>
+                {%- endif -%}
                 {%- assign brand_has_sel = false -%}
                 {%- if sel_brands.size > 0 -%}{%- assign brand_has_sel = true -%}{%- endif -%}
                 <div class="filter-group__footer">

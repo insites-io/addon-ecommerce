@@ -10,32 +10,44 @@ metadata: {
 {% include 'modules/ecommerce/menu/menu_categories' %}
 {% assign featured_categories = context.exports.menu_featured_categories %}
 {% assign sub_categories = context.exports.menu_sub_categories %}
+{% assign product_category_uuids = context.exports.menu_product_category_uuids %}
 
 <ins-accordion menu>
     <ins-accordion-item class="colorBlack has-subitems" heading="Shop" link="#" open-icon="icon-plus" close-icon="icon-minus" link-target="_self">
         <ins-accordion-link class="colorBlack" label="All" link="/products" link-target="_self"></ins-accordion-link>
         <ins-accordion-link class="colorBlack" label="New arrivals" link="/products?sort=newest" link-target="_self"></ins-accordion-link>
         <ins-accordion-link class="colorBlack" label="Sale" link="/products?show=sale" link-target="_self"></ins-accordion-link>
+        {%- comment -%} Track subcategories already rendered so one shared across featured parents shows once. {%- endcomment -%}
+        {%- assign rendered_subs = '' | split: ',' -%}
         {%- for parent_category in featured_categories -%}
-            {%- assign has_sub = false -%}
-            {%- for sub_category in sub_categories -%}
-                {%- if sub_category.parent_category_uuids contains parent_category.uuid -%}
-                    {%- assign has_sub = true -%}
-                {%- endif -%}
-            {%- endfor -%}
+            {%- comment -%} Only show categories that have products. {%- endcomment -%}
+            {%- if product_category_uuids contains parent_category.uuid -%}
+                {%- comment -%} Peek: does this parent still have an unrendered sub that has products? (no mutation) {%- endcomment -%}
+                {%- assign has_sub = false -%}
+                {%- for sub_category in sub_categories -%}
+                    {%- if sub_category.parent_category_uuids contains parent_category.uuid and product_category_uuids contains sub_category.uuid -%}
+                        {%- unless rendered_subs contains sub_category.uuid -%}
+                            {%- assign has_sub = true -%}
+                        {%- endunless -%}
+                    {%- endif -%}
+                {%- endfor -%}
 
-            {%- if has_sub -%}
-                <ins-accordion menu>
-                    <ins-accordion-item class="colorBlack has-subitems" heading="{{ parent_category.category_name | capitalize }}" link="/products/{{parent_category.slug}}" open-icon="icon-plus" close-icon="icon-minus" link-target="_self">
-                        {% for sub_category in sub_categories %}
-                            {% if sub_category.parent_category_uuids contains parent_category.uuid %}
-                                <ins-accordion-link class="colorBlack" label="{{ sub_category.category_name | capitalize }}" link="/products/{{sub_category.slug}}" link-target="_self"></ins-accordion-link>
-                            {% endif %}
-                        {% endfor %}
-                    </ins-accordion-item>
-                </ins-accordion>
-            {%- else -%}
-                <ins-accordion-link class="colorBlack" label="{{ parent_category.category_name | capitalize }}" link="/products/{{parent_category.slug}}" link-target="_self"></ins-accordion-link>
+                {%- if has_sub -%}
+                    <ins-accordion menu>
+                        <ins-accordion-item class="colorBlack has-subitems" heading="{{ parent_category.category_name | capitalize }}" link="/products?categories={{parent_category.slug}}" open-icon="icon-plus" close-icon="icon-minus" link-target="_self">
+                            {%- for sub_category in sub_categories -%}
+                                {%- if sub_category.parent_category_uuids contains parent_category.uuid and product_category_uuids contains sub_category.uuid -%}
+                                    {%- unless rendered_subs contains sub_category.uuid -%}
+                                        <ins-accordion-link class="colorBlack" label="{{ sub_category.category_name | capitalize }}" link="/products?categories={{sub_category.slug}}" link-target="_self"></ins-accordion-link>
+                                        {%- assign rendered_subs = rendered_subs | array_add: sub_category.uuid -%}
+                                    {%- endunless -%}
+                                {%- endif -%}
+                            {%- endfor -%}
+                        </ins-accordion-item>
+                    </ins-accordion>
+                {%- else -%}
+                    <ins-accordion-link class="colorBlack" label="{{ parent_category.category_name | capitalize }}" link="/products?categories={{parent_category.slug}}" link-target="_self"></ins-accordion-link>
+                {%- endif -%}
             {%- endif -%}
         {%- endfor -%}
         {% for item in features %} 

@@ -90,6 +90,11 @@ metadata: {
         var m = document.cookie.match('(?:^|; )ecom_promo_banner=([^;]*)');
         if (m && decodeURIComponent(m[1]) === el.getAttribute('data-banner-key')) {
             el.style.display = 'none';
+        } else {
+            // Banner is showing — it pushes the header down by its height. Expose that
+            // height so viewport-fixed overlays anchored to the header (the mega-menu)
+            // can drop by the same amount. Cleared on dismiss in promo-banner.js.
+            document.documentElement.style.setProperty('--promo-banner-h', el.offsetHeight + 'px');
         }
     })();
 </script>

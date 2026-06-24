@@ -1,0 +1,68 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Products | Product Tags'
+}
+---
+{% comment %}
+    Shared .product-tags badge strip — used by the product list card (product_card)
+    and the product detail page (detail), so the tag rules stay identical.
+
+    IMPORTANT: pass the tag array as `tags`, NOT `product_tags`. A param whose name
+    matches the partial's own filename gets clobbered (it arrives empty) — that's why
+    the first shared-partial attempt failed. The working shared partials confirm the
+    rule: star_rating takes `rating`, tag_chip takes `tag` — param name != partial name.
+
+    Caps the strip at two badges, highest priority first, to avoid a noisy stack:
+    Sale > Bestseller > New Arrival > Staff Pick > Limited.
+    Pass 1 walks the priority order: "Sale" (#1) matches ANY tag containing the word
+    "sale" (e.g. "20% sale") and keeps that custom label; the rest match exactly and
+    render the canonical label. Tags are database-driven, so Pass 2 fills any remaining
+    slot with the product's other tags in their stored order. Rendered tags are tracked
+    by index so none renders twice.
+
+    Params:
+    - tags : array of tag label strings (from the product's custom fields)
+{% endcomment %}
+{%- if tags and tags.size > 0 -%}
+    {%- assign tag_priority = 'Sale,Bestseller,New Arrival,Staff Pick,Limited' | split: ',' -%}
+    {%- assign tags_shown = 0 -%}
+    {%- assign rendered_idx = '' | split: ',' -%}
+    <div class="product-tags">
+        {%- for pt in tag_priority -%}
+            {%- if tags_shown >= 2 -%}{%- break -%}{%- endif -%}
+            {%- assign pt_norm = pt | downcase | strip -%}
+            {%- for tag in tags -%}
+                {%- if tags_shown >= 2 -%}{%- break -%}{%- endif -%}
+                {%- assign idx_str = forloop.index0 | append: '' -%}
+                {%- unless rendered_idx contains idx_str -%}
+                    {%- assign tag_norm = tag | downcase | strip -%}
+                    {%- assign is_match = false -%}
+                    {%- assign render_label = pt -%}
+                    {%- if pt_norm == 'sale' -%}
+                        {%- if tag_norm contains 'sale' -%}
+                            {%- assign is_match = true -%}
+                            {%- assign render_label = tag -%}
+                        {%- endif -%}
+                    {%- elsif tag_norm == pt_norm -%}
+                        {%- assign is_match = true -%}
+                    {%- endif -%}
+                    {%- if is_match -%}
+                        {% include 'modules/ecommerce/products/tag_chip', tag: render_label %}
+                        {%- assign tags_shown = tags_shown | plus: 1 -%}
+                        {%- assign rendered_idx = rendered_idx | array_add: idx_str -%}
+                    {%- endif -%}
+                {%- endunless -%}
+            {%- endfor -%}
+        {%- endfor -%}
+        {%- comment -%} Pass 2: fill remaining slots with not-yet-rendered (non-priority) tags in stored order. {%- endcomment -%}
+        {%- for tag in tags -%}
+            {%- if tags_shown >= 2 -%}{%- break -%}{%- endif -%}
+            {%- assign idx_str = forloop.index0 | append: '' -%}
+            {%- unless rendered_idx contains idx_str -%}
+                {% include 'modules/ecommerce/products/tag_chip', tag: tag %}
+                {%- assign tags_shown = tags_shown | plus: 1 -%}
+                {%- assign rendered_idx = rendered_idx | array_add: idx_str -%}
+            {%- endunless -%}
+        {%- endfor -%}
+    </div>
+{%- endif -%}

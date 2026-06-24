@@ -263,7 +263,9 @@ ins-input.hidden-input input {
     max-width: 1344px;
     background: var(--color-ui-01);
     border-top: 1px solid var(--color-ui-04);
-    margin-top: 88px;
+    /* 88px = header height; --promo-banner-h (set by promo-banner JS when the strip
+       is showing, 0 otherwise) drops the menu below the banner-pushed header. */
+    margin-top: calc(88px + var(--promo-banner-h, 0px));
     box-shadow: none;
 }
 
@@ -2966,10 +2968,31 @@ ins-gallery-image.active .ins-gallery-image {
     padding-bottom: 0;
 }
 
+/* Links: brand colour, underline on hover only. */
+#product-tabs .description a {
+    color: var(--color-main);
+    text-decoration: none;
+}
+#product-tabs .description a:hover {
+    text-decoration: underline;
+}
+
+/* Blockquote: brand left-rule, muted italic. margin (not padding) on the bottom so
+   it collapses with a following heading's margin-top, matching p/lists. */
+#product-tabs .description blockquote {
+    margin: 0 0 16px;
+    padding: 8px 16px;    
+    font-family: var(--font-family-02);
+}
+#product-tabs .description blockquote p:last-child {
+    margin-bottom: 0;
+}
+
 @media screen and (max-width: 639px) {
     .product-detail .ins-gallery_current-image img {
         max-height: 204px;
         object-fit: contain;
+        min-width: initial;
     }
     .product-detail .ins-gallery_current-image {
         max-height: 206px;

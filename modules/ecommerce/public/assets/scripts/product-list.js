@@ -281,7 +281,20 @@ let productList = (function () {
             toggleFilterValue(key, value){
                 let list = productList.methods.getList(key);
                 let idx = list.indexOf(value);
+                let adding = idx < 0;
                 if(idx >= 0){ list.splice(idx, 1); } else { list.push(value); }
+                // Brands: "Unbranded" (null brand_uuid) is mutually exclusive with named brands,
+                // because the query can't OR exists:false with value_in. So selecting Unbranded
+                // clears named brands, and selecting a named brand clears Unbranded. The cleared
+                // checkboxes are un-ticked by syncSidebarState() after applyFilters().
+                if(key === 'brands' && adding){
+                    if(value === 'Unbranded'){
+                        list = ['Unbranded'];
+                    } else {
+                        let ub = list.indexOf('Unbranded');
+                        if(ub >= 0){ list.splice(ub, 1); }
+                    }
+                }
                 productList.methods.setList(key, list);
                 productFilter.page = "1";
                 productList.methods.applyFilters();

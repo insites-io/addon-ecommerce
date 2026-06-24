@@ -122,6 +122,22 @@ metadata: {
     assign filter_category_uuids = filter_cat_uuids | split: ',' | uniq
 -%}
 
+{%- comment -%} Split the "Unbranded" sentinel (products with a null brand_uuid) from named
+    brands, mirroring list.liquid: named brands use value_in; unbranded-only uses
+    brand_exists:false; mixed degrades to named-only (the query can't OR them). {%- endcomment -%}
+{%- assign brands_named = '' | split: ',' -%}
+{%- assign brands_has_unbranded = false -%}
+{%- if brands_param != '' -%}
+    {%- assign brands_param_arr = brands_param | split: ',' -%}
+    {%- for b in brands_param_arr -%}
+        {%- if b == 'Unbranded' -%}
+            {%- assign brands_has_unbranded = true -%}
+        {%- else -%}
+            {%- assign brands_named = brands_named | array_add: b -%}
+        {%- endif -%}
+    {%- endfor -%}
+{%- endif -%}
+
 {%- comment -%} Build GraphQL filters {%- endcomment -%}
 {%- parse_json filters -%}
 {
@@ -135,8 +151,10 @@ metadata: {
     {%- if filter_category_uuids.size > 0 -%}
         "category_uuids": {{ filter_category_uuids | json }},
     {%- endif -%}
-    {%- if brands_param != '' -%}
-        "brands": {{ brands_param | split: ',' | json }},
+    {%- if brands_named.size > 0 -%}
+        "brands": {{ brands_named | json }},
+    {%- elsif brands_has_unbranded -%}
+        "brand_exists": false,
     {%- endif -%}
     {%- if min_price != '' -%}
         "min_price": "{{ min_price }}",

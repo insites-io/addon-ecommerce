@@ -29,8 +29,23 @@ metadata: {
         assign featured_uuids = menu_featured_categories | map: 'uuid'
         graphql menu_sub_categories = 'modules/ecommerce/categories/get_subcategories', parent_category_uuids: featured_uuids | dig: 'items', 'results'
 
+        # Category uuids that have at least one enabled product — drives "show only
+        # categories that have products" in the menus. Reuses the PLP facet query with
+        # an empty keyword (= the full enabled catalog); we only need category_uuids.
+        # Products carry their ancestor category uuids, so a parent appears here when any
+        # product in its subtree exists. Not deduped — `contains` membership is unaffected.
+        assign menu_facet_args = '{"keyword":""}' | parse_json
+        graphql menu_facet_products = 'modules/ecommerce/products/get_product_facets', args: menu_facet_args | dig: 'items', 'results'
+        assign menu_product_category_uuids = '' | split: ','
+        for p in menu_facet_products
+            for cu in p.category_uuids
+                assign menu_product_category_uuids = menu_product_category_uuids | array_add: cu
+            endfor
+        endfor
+
         export menu_parent_categories
         export menu_featured_categories
         export menu_sub_categories
+        export menu_product_category_uuids
     endunless
 -%}

@@ -62,6 +62,9 @@
   function dismiss() {
     if (rotateTimer) window.clearTimeout(rotateTimer);
     banner.style.display = 'none';
+    // Banner no longer occupies space — reset the height var so the mega-menu
+    // returns to its normal (header-only) offset without a reload.
+    document.documentElement.style.setProperty('--promo-banner-h', '0px');
     setSessionCookie(COOKIE, key);
   }
 

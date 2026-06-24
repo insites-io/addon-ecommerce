@@ -10,6 +10,7 @@ metadata: {
 {% include 'modules/ecommerce/menu/menu_categories' %}
 {% assign featured_categories = context.exports.menu_featured_categories %}
 {% assign sub_categories = context.exports.menu_sub_categories %}
+{% assign product_category_uuids = context.exports.menu_product_category_uuids %}
 
 
 <ins-modal 
@@ -32,17 +33,25 @@ metadata: {
     </div>
     <div class="featured-categories cell large-9 medium-9 grid-x align-justify">
 
+        {%- comment -%} Track subcategories already rendered so one shared across featured parents shows once. {%- endcomment -%}
+        {% assign rendered_subs = '' | split: ',' %}
         {% for parent_category in featured_categories %}
+            {%- comment -%} Only show categories that have products. {%- endcomment -%}
+            {% if product_category_uuids contains parent_category.uuid %}
             <div class="wrap">
-                <a class="heading" href="/products/{{parent_category.slug}}">{{ parent_category.category_name | capitalize }}</a>
+                <a class="heading" href="/products?categories={{parent_category.slug}}">{{ parent_category.category_name | capitalize }}</a>
                 <ul class="subcat">
                     {% for sub_category in sub_categories %}
-                        {% if sub_category.parent_category_uuids contains parent_category.uuid %}
-                            <li><a href="/products/{{parent_category.slug}}?category={{sub_category.slug}}">{{ sub_category.category_name | capitalize }}</a></li>
+                        {% if sub_category.parent_category_uuids contains parent_category.uuid and product_category_uuids contains sub_category.uuid %}
+                            {% unless rendered_subs contains sub_category.uuid %}
+                                <li><a href="/products?categories={{sub_category.slug}}">{{ sub_category.category_name | capitalize }}</a></li>
+                                {% assign rendered_subs = rendered_subs | array_add: sub_category.uuid %}
+                            {% endunless %}
                         {% endif %}
                     {% endfor %}
                 </ul>
             </div>
+            {% endif %}
         {% endfor %}
     </div>
   </div>

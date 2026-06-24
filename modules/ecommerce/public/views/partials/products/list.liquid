@@ -136,10 +136,29 @@ metadata: {
     {%- assign filters = filters | add_hash_key: 'category_uuids', filter_category_uuids -%}
 {%- endif -%}
 
-{%- comment -%} Multi-select brands {%- endcomment -%}
+{%- comment -%} Multi-select brands. "Unbranded" is a sentinel (products with a null
+    brand_name) handled via brand_exists:false rather than value_in. Cases:
+    - unbranded only  -> brand_exists:false (no `brands`)
+    - named only      -> value_in `brands` (unchanged)
+    - mixed (unbranded + named) -> value_in `brands` AND exists:false would be empty, and
+      the query can't OR them, so this degrades to named-only (unbranded is dropped).
+      A fully-correct OR would need a dynamic-filter refactor of search_products. {%- endcomment -%}
 {%- if brands_param != '' -%}
     {%- assign brands_arr = brands_param | split: ',' -%}
-    {%- assign filters = filters | add_hash_key: 'brands', brands_arr -%}
+    {%- assign named_brands = '' | split: ',' -%}
+    {%- assign has_unbranded = false -%}
+    {%- for b in brands_arr -%}
+        {%- if b == 'Unbranded' -%}
+            {%- assign has_unbranded = true -%}
+        {%- else -%}
+            {%- assign named_brands = named_brands | array_add: b -%}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- if named_brands.size > 0 -%}
+        {%- assign filters = filters | add_hash_key: 'brands', named_brands -%}
+    {%- elsif has_unbranded -%}
+        {%- assign filters = filters | add_hash_key: 'brand_exists', false -%}
+    {%- endif -%}
 {%- endif -%}
 
 {%- comment -%} Price range {%- endcomment -%}
