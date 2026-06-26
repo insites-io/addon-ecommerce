@@ -2839,10 +2839,13 @@ ins-filter ins-button button.ins-button.size--small span {
 
 .product-detail .ins-gallery_current-image,
 .product-detail .ins-gallery_current-image img {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
+    height: 609px;
+    object-fit: contain;
+}
+
+.product-detail .ins-gallery_current-image {
+    height: 611px;
+    /* 609px + 2 for border */
 }
 
 .product-detail .ins-gallery_current-image img {
@@ -2989,7 +2992,13 @@ ins-gallery-image.active .ins-gallery-image {
 
 @media screen and (max-width: 639px) {
     .product-detail .ins-gallery_current-image img {
+        max-height: 204px;
+        object-fit: contain;
         min-width: initial;
+    }
+    .product-detail .ins-gallery_current-image {
+        max-height: 206px;
+        /* 204px + 2 for border 1px */
     }
 }
 
