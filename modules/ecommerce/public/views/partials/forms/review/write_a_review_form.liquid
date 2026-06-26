@@ -197,7 +197,7 @@
 <script>
 	{% if context.params.review_submitted == "true" -%}
 	setTimeout(() => {
-		App.events.notyf('success', "Review submitted successfully, thank you for your feedback!");
+		App.events.notyf('success', "Thanks for your review. It will appear once approved.");
 	}, 200);
 	{% endif -%}
 

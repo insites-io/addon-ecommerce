@@ -990,7 +990,7 @@ ins-tag.tag-chip--new-arrival span.ins-tag { background: var(--success); }
 ins-tag.tag-chip--sale        span.ins-tag { background: var(--error); }
 ins-tag.tag-chip--staff-pick  span.ins-tag { background: var(--warning-hover); }
 ins-tag.tag-chip--limited     span.ins-tag { background: var(--color-sub1); }
-ins-tag.tag-chip--bestseller  span.ins-tag { background: var(--color-main); }
+ins-tag.tag-chip--bestseller  span.ins-tag { background: var(--ins-color-purple); }
 
 /* Stock indicator under the price — colour follows the stock state.
    Uses the darker -hover tokens so the coloured text clears WCAG AA on the
@@ -1072,6 +1072,10 @@ ins-tag.tag-chip--bestseller  span.ins-tag { background: var(--color-main); }
 #mobile-filter-drawer .ins-accordion-item_header>.inner-head,
 #mobile-filter-drawer .ins-accordion-item {
     background: var(--color-ui-01);
+}
+
+#mobile-filter-drawer .ins-drawer-wrap .ins-content {
+    padding-bottom: initial;
 }
 
 #mobile-filter-drawer .open .ins-accordion-item_header>.inner-head {
@@ -1406,7 +1410,6 @@ ins-drawer#mobile-menu .menu .ins-accordion-item_content .sign-out-wrapper {
 .product-list .filter .ins-select-wrap.buttonise {
     border-radius: 8px;
     background: var(--color-ui-03);
-    margin-left: 16px;
 }
 
 .product-list .filter .ins-select-label-wrap.ripple:hover {
@@ -1415,7 +1418,6 @@ ins-drawer#mobile-menu .menu .ins-accordion-item_content .sign-out-wrapper {
 
 .product-list .filter .ins-select-wrap {
     margin-bottom: 0px;
-    margin-left: 8px;
 }
 
 .product-list .ibt-table-wrap__prev-next button.page {
