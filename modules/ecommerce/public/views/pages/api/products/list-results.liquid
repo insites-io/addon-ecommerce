@@ -122,9 +122,10 @@ metadata: {
     assign filter_category_uuids = filter_cat_uuids | split: ',' | uniq
 -%}
 
-{%- comment -%} Split the "Unbranded" sentinel (products with a null brand_uuid) from named
+{%- comment -%} Split the "Unbranded" sentinel (products with a blank brand_name) from named
     brands, mirroring list.liquid: named brands use value_in; unbranded-only uses
-    brand_exists:false; mixed degrades to named-only (the query can't OR them). {%- endcomment -%}
+    brand_exists:false (brand_name absent); mixed degrades to named-only (the query can't OR
+    them). {%- endcomment -%}
 {%- assign brands_named = '' | split: ',' -%}
 {%- assign brands_has_unbranded = false -%}
 {%- if brands_param != '' -%}

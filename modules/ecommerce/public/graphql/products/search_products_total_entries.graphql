@@ -24,11 +24,14 @@ query search_products_total_entries(
         { name: "is_on_sale", value_boolean: $is_on_sale }
         { name: "stock_level", range: { gt: $not_number } }
         { name: "stock_level", range: { lte: $stock_lte } }
-        ## Brand filter (named brands match on brand_name; "Unbranded" = no brand_uuid FK).
-        ## The three are one group but mutually exclusive in practice — see list.liquid.
+        ## Brand filter — all three key on brand_name so the count matches the sidebar facet,
+        ## which counts "Unbranded" as a blank brand_name (see sidebar_filters.liquid). Using
+        ## brand_uuid for unbranded diverged from the facet (products with a blank brand_name
+        ## but a non-null brand_uuid FK were miscounted). The three are mutually exclusive in
+        ## practice — see list.liquid.
         { name: "brand_name", contains: $brand }
         { name: "brand_name", value_in: $brands }
-        { name: "brand_uuid", exists: $brand_exists }
+        { name: "brand_name", exists: $brand_exists }
         { name: "effective_price", range: { gte: $min_price, lte: $max_price } }
       ]
       or:[

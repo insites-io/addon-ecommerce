@@ -136,8 +136,9 @@ metadata: {
     {%- assign filters = filters | add_hash_key: 'category_uuids', filter_category_uuids -%}
 {%- endif -%}
 
-{%- comment -%} Multi-select brands. "Unbranded" is a sentinel (products with a null
-    brand_name) handled via brand_exists:false rather than value_in. Cases:
+{%- comment -%} Multi-select brands. "Unbranded" is a sentinel (products with a blank
+    brand_name) handled via brand_exists:false (brand_name exists:false) rather than value_in.
+    This matches the sidebar facet, which counts unbranded as a blank brand_name. Cases:
     - unbranded only  -> brand_exists:false (no `brands`)
     - named only      -> value_in `brands` (unchanged)
     - mixed (unbranded + named) -> value_in `brands` AND exists:false would be empty, and
