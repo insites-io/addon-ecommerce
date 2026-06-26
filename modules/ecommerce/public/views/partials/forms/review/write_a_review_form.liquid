@@ -191,10 +191,16 @@
 </div>
 
 <script id="{{ form_uuid }}">
-	InsitesFormProcessor.initialize("{{ form_uuid }}", "{{ context.authenticity_token }}", {%- include "modules/insites_forms/form_properties", form: form -%}, {{ form.metadata.form_steps | default: "[]" }}, {%- include "modules/insites_forms/form_redirect", name: form.name -%});
+	InsitesFormProcessor.initialize("{{ form_uuid }}", "{{ context.authenticity_token }}", {%- include "modules/insites_forms/form_properties", form: form -%}, {{ form.metadata.form_steps | default: "[]" }}, { "redirect_to": "/products/{{ context.params.slug2 }}?review_submitted=true" });
 </script>
 
 <script>
+	{% if context.params.review_submitted == "true" -%}
+	setTimeout(() => {
+		App.events.notyf('success', "Review submitted successfully, thank you for your feedback!");
+	}, 200);
+	{% endif -%}
+
 	(function () {
 		var stars = document.getElementById('review-stars-{{ form_uuid }}');
 		var ratingInput = document.querySelector('.review-rating-value');
