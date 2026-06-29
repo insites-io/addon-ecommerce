@@ -254,8 +254,7 @@ async function addToCart(data, type){
         const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
         for (const item of data) {
-            item["contact_uuid"] = user_uuid;
-            await delay(1000); 
+            await delay(1000);
             const response = await apiServices.processRequest("post", "/add-to-cart.json", item);
             responses.push(response);
         }
@@ -267,7 +266,7 @@ async function addToCart(data, type){
         // Reload the page to reflect the added items in the cart drawer.            
         location.reload();           
     } else {
-        data["contact_uuid"] = user_uuid;
+        // contact_uuid is resolved server-side from current_user/session.
         goToCartButtonDisabled();
         let response = await apiServices.processRequest("post", "/add-to-cart.json", data);
         if(response.state) {

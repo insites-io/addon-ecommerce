@@ -199,6 +199,10 @@
 	setTimeout(() => {
 		App.events.notyf('success', "Thanks for your review. It will appear once approved.");
 	}, 200);
+	// Strip ?review_submitted=true so the toast doesn't re-fire on refresh.
+	if (window.history && window.history.replaceState) {
+		window.history.replaceState({}, document.title, window.location.pathname);
+	}
 	{% endif -%}
 
 	(function () {

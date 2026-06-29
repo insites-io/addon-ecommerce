@@ -499,6 +499,7 @@
     loading: false,
     hasNextPage: false,
     debounceTimer: null,
+    lastValue: null,
 
     init: function (inputEl) {
       if (!inputEl) return;
@@ -570,6 +571,13 @@
 
     onInput: function (value) {
       var self = this;
+      // <ins-input> emits insInput on every keyup (incl. ArrowUp/ArrowDown),
+      // not just on value changes. Without this guard, navigating the dropdown
+      // with the arrow keys would re-trigger runSearch, reset activeIndex to -1
+      // and re-render mid-navigation — so the highlight could never move past
+      // the first item. Ignore events that don't actually change the query.
+      if (value === this.lastValue) return;
+      this.lastValue = value;
       clearTimeout(this.debounceTimer);
       this.debounceTimer = setTimeout(function () {
         self.runSearch(value);
@@ -635,7 +643,7 @@
       if (this.items.length === 0) {
         var empty = document.createElement("li");
         empty.className = "predictive-empty";
-        empty.textContent = "No matches — press Enter to search";
+        empty.textContent = "No matches";
         this.dropdown.appendChild(empty);
         this.open();
         return;

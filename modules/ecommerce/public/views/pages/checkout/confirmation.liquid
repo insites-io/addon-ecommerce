@@ -10,8 +10,8 @@ metadata: {
     "is_visible_to_search_engines": false,
     "is_sitemap_enabled": false    
 }
-#authorization_policies:
-#    - modules/ecommerce/order_created_date_valid
+authorization_policies:
+    - modules/ecommerce/order_created_date_valid
 ---
 {% assign order_uuid = context.params.id %}
 {% if order_uuid != blank %}
@@ -21,8 +21,19 @@ metadata: {
 
 {% include 'modules/ecommerce/checkout/clear_session' %}
 
+{% comment %} Ownership: only the user who placed the order may view its confirmation.
+   The order stores order_contact_uuid at checkout — current_user.external_id for
+   members, session.guest_uuid for guests. The viewer must match that same identity;
+   anyone else (e.g. the link opened in a different browser/session) is treated as
+   not-found and falls through to /404 below, so we don't leak that the order exists. {% endcomment %}
+{%- assign viewer_uuid = context.current_user.external_id | default: context.session.guest_uuid -%}
+{%- assign is_owner = false -%}
+{%- if order and viewer_uuid != blank and order.order_contact_uuid == viewer_uuid -%}
+    {%- assign is_owner = true -%}
+{%- endif -%}
 
-{%- if order -%}
+
+{%- if order and is_owner -%}
 
     <div class="grid-x grid-padding-x">
         <div class="large-12 medium-12 small-12 cell text-center">
@@ -167,6 +178,9 @@ metadata: {
     {% include 'modules/ecommerce/checkout/clear_session' %}
     
 {%- else -%}
+    {% comment %} Invalid / forged id, or a valid order viewed by someone who didn't
+       place it — deny access (404) rather than leaking to an empty cart or exposing
+       another customer's order. {% endcomment %}
     {% include 'modules/ecommerce/checkout/clear_session' %}
-    {%- redirect_to '/shopping-cart' -%}
+    {%- redirect_to '/404' -%}
 {%- endif -%}

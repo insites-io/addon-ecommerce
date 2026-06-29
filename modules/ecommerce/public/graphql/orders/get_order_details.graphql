@@ -23,8 +23,9 @@ query get_order_details (
       date_time: property(name: "date_time")       
       notes: property(name: "notes")
 
+      order_contact_uuid: property(name: "order_contact_uuid")
       order_contact_email: property(name: "order_contact_email")
-      order_company_name: property(name: "order_company_name")      
+      order_company_name: property(name: "order_company_name")
       order_contact_first_name: property(name: "order_contact_first_name")
       order_contact_last_name: property(name: "order_contact_last_name")
       order_contact_phone_number: property(name: "order_contact_phone_number") 

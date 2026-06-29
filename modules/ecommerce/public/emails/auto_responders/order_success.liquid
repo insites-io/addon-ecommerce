@@ -150,24 +150,36 @@ metadata: {
 -%}
 
 {%- liquid
-    assign props = order
+    ## Derive the amounts the same way the on-site order summary does
+    ## (compute_completed_order_amounts) so the email totals match exactly: net
+    ## subtotal, discount, delivery, GST and the gross total all foot together.
+    ## Reading the raw order fields gave a GROSS subtotal next to a separate tax
+    ## (rows did not reconcile, so tax looked wrong) and omitted the discount.
+    assign order_uuid = order.uuid | default: form.properties.uuid
+    include 'modules/ecommerce/checkout/compute_completed_order_amounts', uuid: order_uuid
+    assign computed = context.exports.computed
 
     ## Build the order amounts as a hash (values are server-derived currency strings)
     assign order_props = '{}' | parse_json
 
-    assign subtotal_amount = props.subtotal_amount | advanced_format: '%.2f' | pricify | default: '-invalid'
+    assign subtotal_amount = computed.net_subtotal_amount | advanced_format: '%.2f' | pricify | default: '-'
     assign order_props = order_props | add_hash_key: 'subtotal', subtotal_amount
 
-    assign total_shipping_amount = props.total_shipping_amount | advanced_format: '%.2f' | pricify | default: '-'
+    assign total_shipping_amount = computed.shipping_amount | advanced_format: '%.2f' | pricify | default: '-'
     assign order_props = order_props | add_hash_key: 'delivery_&_handling', total_shipping_amount
 
-    assign processing_fee = form.properties.processing_fee | advanced_format: '%.2f' | pricify | default: '-'
-    assign order_props = order_props | add_hash_key: 'processing_fee', processing_fee
+    ## Discount: pricified value plus the raw number (partial shows the row only when raw > 0)
+    assign total_discount_amount = computed.total_discount_amount | advanced_format: '%.2f' | pricify | default: '-'
+    assign order_props = order_props | add_hash_key: 'discount', total_discount_amount
+    assign order_props = order_props | add_hash_key: 'discount_raw', computed.total_discount_amount
 
-    assign total_tax_amount = props.total_tax_amount | advanced_format: '%.2f' | pricify | default: '-invalid'
+    assign total_tax_amount = computed.tax_amount | advanced_format: '%.2f' | pricify | default: '-'
     assign order_props = order_props | add_hash_key: 'tax', total_tax_amount
 
-    assign total_amount = props.total_amount | advanced_format: '%.2f' | pricify | default: '-invalid'
+    assign processing_fee = computed.processing_fee | advanced_format: '%.2f' | pricify | default: '-'
+    assign order_props = order_props | add_hash_key: 'processing_fee', processing_fee
+
+    assign total_amount = computed.total_amount | advanced_format: '%.2f' | pricify | default: '-'
     assign order_props = order_props | add_hash_key: 'total', total_amount
 
     ## Wrap with id + errors
