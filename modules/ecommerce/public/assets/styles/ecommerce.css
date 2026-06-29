@@ -777,7 +777,7 @@ ins-carousel .product-cards .placeholder-img {
     }
 }
 
-.filter-item__options {
+#order-filter .filter-item__options {
     height: 288px;
     overflow-y: scroll;
 }
@@ -2830,7 +2830,11 @@ ins-filter ins-button button.ins-button.size--small span {
 }
 
 .product-detail .ins-gallery_slide {
-    border: 1px solid var(--color-ui-04, #DFDFDF);
+    /* border moved onto the image so it hugs the picture, not the full-width
+       box; center the auto-width image so portrait shots get even L/R space */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .product-detail .ins-gallery_current-image {
@@ -2839,17 +2843,22 @@ ins-filter ins-button button.ins-button.size--small span {
 
 .product-detail .ins-gallery_current-image,
 .product-detail .ins-gallery_current-image img {
-    height: 609px;
+    /* height: 609px; */
+    max-height: 609px;
     object-fit: contain;
 }
 
 .product-detail .ins-gallery_current-image {
-    height: 611px;
+    /* height: 611px; */
     /* 609px + 2 for border */
 }
 
 .product-detail .ins-gallery_current-image img {
     background: none;
+    /* height:609 + auto width sizes the element to the picture's own ratio,
+       so this border hugs the image: portrait => L/R padding (looks ~4:3),
+       landscape => fills the width with no side spacing */
+    border: 1px solid var(--color-ui-04, #DFDFDF);
 }
 
 .product-detail .ins-gallery_thumb-slider {
