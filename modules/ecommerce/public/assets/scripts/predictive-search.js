@@ -15,6 +15,7 @@
 
   var ENDPOINT = "/api/products/predictive-search";
   var PAGE_SIZE = 50;
+  var MAX_RESULTS = 10;
   var MIN_CHARS = 2;
   var DEBOUNCE_MS = 250;
 
@@ -394,11 +395,11 @@
    * -------------------------------------------------------------------- */
 
   // Fetch and merge results across query variations.
-  var fetchPredictiveProducts = function (query, page, minScore, seen) {
+  var fetchPredictiveProducts = function (query) {
     var searchTerms = buildSearchTerms(query);
     var variations = buildQueryVariations(query);
     if (!searchTerms.length) {
-      return Promise.resolve({ results: [], hasNextPage: false });
+      return Promise.resolve({ results: [] });
     }
 
     var requests = searchTerms.map(function (term) {
@@ -406,9 +407,7 @@
         ENDPOINT +
         "?keyword=" +
         encodeURIComponent(term) +
-        "&page=" +
-        page +
-        "&size=" +
+        "&page=1&size=" +
         PAGE_SIZE;
       return fetch(url, { headers: { Accept: "application/json" } })
         .then(function (response) {
@@ -421,16 +420,12 @@
 
     return Promise.all(requests).then(function (responses) {
       var uniqueMap = new Map();
-      var nextPageAvailable = false;
 
       responses.forEach(function (response) {
         var results = (response && response.items && response.items.results) || [];
-        // If any variation filled a full page, assume more results exist.
-        if (results.length >= PAGE_SIZE) nextPageAvailable = true;
-
         results.forEach(function (product) {
           var uuid = product && product.uuid;
-          if (!uuid || uniqueMap.has(uuid) || (seen && seen.has(uuid))) return;
+          if (!uuid || uniqueMap.has(uuid)) return;
           var name = product.product_name || "";
           uniqueMap.set(uuid, {
             uuid: uuid,
@@ -447,23 +442,18 @@
         });
       });
 
-      var ranked = Array.from(uniqueMap.values())
-        .filter(function (entry) {
-          return entry.score >= minScore;
-        })
-        .sort(function (a, b) {
-          return b.score - a.score || a.name.localeCompare(b.name);
-        });
+      // Sort by relevance only — do NOT exclude low-scoring entries. Every product
+      // here is already a real DB match (the lite query matched its name, brand,
+      // descriptions or keywords); the name-only scorer cannot "see" a match that
+      // landed in a description/keyword field, so filtering by score would hide
+      // products the full results page still returns. Scoring now controls order, not inclusion. The
+      // top MAX_RESULTS are kept so the dropdown stays an honest relevance shortlist.
+      var ranked = Array.from(uniqueMap.values()).sort(function (a, b) {
+        return b.score - a.score || a.name.localeCompare(b.name);
+      });
 
-      return { results: ranked, hasNextPage: nextPageAvailable };
+      return { results: ranked.slice(0, MAX_RESULTS) };
     });
-  };
-
-  // Lower score threshold for very short queries.
-  var thresholdFor = function (normalized) {
-    if (normalized.length <= 1) return 5;
-    if (normalized.length <= 2) return 15;
-    return 25;
   };
 
   /* ----------------------------------------------------------------------
@@ -492,19 +482,14 @@
     items: [],
     activeIndex: -1,
     query: "",
-    page: 1,
-    minScore: 25,
-    seen: null,
     activeToken: 0,
     loading: false,
-    hasNextPage: false,
     debounceTimer: null,
     lastValue: null,
 
     init: function (inputEl) {
       if (!inputEl) return;
       this.inputEl = inputEl;
-      this.seen = new Map();
 
       var self = this;
       // The <ins-input> hydrates asynchronously; wait for its inner DOM.
@@ -553,16 +538,6 @@
         }
       });
 
-      // Load more when scrolled near the bottom of the list.
-      this.dropdown.addEventListener("scroll", function () {
-        var nearBottom =
-          self.dropdown.scrollTop + self.dropdown.clientHeight >=
-          self.dropdown.scrollHeight - 24;
-        if (nearBottom && self.hasNextPage && !self.loading && self.query) {
-          self.loadMore();
-        }
-      });
-
       // Close on outside click.
       document.addEventListener("click", function (event) {
         if (!self.inputEl.contains(event.target)) self.close();
@@ -596,49 +571,19 @@
       }
 
       var token = ++this.activeToken;
-      this.page = 1;
-      this.seen.clear();
-      this.minScore = thresholdFor(normalizeQuery(query));
       this.setLoading(true);
 
-      fetchPredictiveProducts(query, this.page, this.minScore, this.seen).then(
-        function (data) {
-          if (token !== self.activeToken) return; // stale response, discard
-          self.setLoading(false);
-          self.hasNextPage = data.hasNextPage;
-          self.items = data.results;
-          data.results.forEach(function (entry) {
-            self.seen.set(entry.uuid, true);
-          });
-          self.render(false);
-        }
-      );
+      fetchPredictiveProducts(query).then(function (data) {
+        if (token !== self.activeToken) return; // stale response, discard
+        self.setLoading(false);
+        self.items = data.results;
+        self.render();
+      });
     },
 
-    loadMore: function () {
+    render: function () {
       var self = this;
-      var token = this.activeToken;
-      this.page += 1;
-      this.setLoading(true);
-      fetchPredictiveProducts(this.query, this.page, this.minScore, this.seen).then(
-        function (data) {
-          if (token !== self.activeToken) return;
-          self.setLoading(false);
-          self.hasNextPage = data.hasNextPage;
-          data.results.forEach(function (entry) {
-            self.seen.set(entry.uuid, true);
-            self.items.push(entry);
-          });
-          self.render(true);
-        }
-      );
-    },
-
-    render: function (append) {
-      var self = this;
-      if (!append) this.dropdown.innerHTML = "";
-
-      var startIndex = append ? this.dropdown.querySelectorAll(".predictive-option").length : 0;
+      this.dropdown.innerHTML = "";
 
       if (this.items.length === 0) {
         var empty = document.createElement("li");
@@ -649,12 +594,7 @@
         return;
       }
 
-      // Remove any previous empty-state node when appending.
-      var emptyNode = this.dropdown.querySelector(".predictive-empty");
-      if (emptyNode) emptyNode.remove();
-
-      this.items.slice(startIndex).forEach(function (entry, offset) {
-        var index = startIndex + offset;
+      this.items.forEach(function (entry, index) {
         var li = document.createElement("li");
         li.className = "predictive-option";
         li.setAttribute("role", "option");
