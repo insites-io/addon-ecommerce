@@ -1,0 +1,431 @@
+{% comment %} Import Categories — guarded: only seed when the table has no records yet {% endcomment %}
+{%- graphql existing_categories -%}
+  query {
+    items: records(
+      per_page: 1
+      filter: {
+        table: { value: "modules/insites_ecommerce/category" }
+        deleted_at: { exists: false }
+      }
+    ) {
+      total_entries
+    }
+  }
+{%- endgraphql -%}
+{%- assign existing_categories_count = existing_categories.items.total_entries | default: 0 -%}
+{%- if existing_categories_count == 0 -%}
+{% parse_json import_categories %}
+[
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "storage",
+               "uuid": "79025531-2a9e-48e7-9f49-cd9d5ae394ae",
+               "status": "enabled",
+               "category_name": "Storage",
+               "sitemap_order": 0,
+               "category_weighting": 102,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "cd9882a8-e858-4594-a924-4d6d5689ff94"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "accent-chairs",
+               "uuid": "d0a5cf85-daf5-49d5-8d9c-67671a1f1714",
+               "status": "enabled",
+               "meta_title": "Ottomans",
+               "category_name": "Accent chairs",
+               "sitemap_order": 0,
+               "category_title": "Accent Chairs",
+               "category_weighting": 104,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "cd9882a8-e858-4594-a924-4d6d5689ff94"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "others",
+               "uuid": "12d2d4e3-e9f2-4afa-8319-84353942440c",
+               "status": "enabled",
+               "category_name": "Others",
+               "category_weighting": 702,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "f0dd8b60-a3d8-4070-b6e4-b7c682f2099d"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "cooking-ware",
+               "uuid": "297a6628-668f-4962-87f1-10adcb1919e0",
+               "status": "enabled",
+               "category_name": "Cooking ware",
+               "category_weighting": 202,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "b61500a9-9948-483a-be1b-d0cbbc4b530e"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "book-shelves",
+               "uuid": "f8c4af1d-54df-4cbb-8031-e5ecd80c42d8",
+               "status": "enabled",
+               "category_name": "Book shelves",
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "6dc5edbd-5bf8-41d9-a8ae-66017f971eb2"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "dining-sets",
+               "uuid": "82d87aa2-7808-4ddb-aee6-2f6361fea763",
+               "status": "enabled",
+               "category_name": "Dining sets",
+               "category_title": "Dining Room",
+               "long_description": "<p>A dining table is a central piece of furniture in a dining room or kitchen. It comes in various shapes (round, rectangular, oval), sizes, and materials (wood, glass, metal). It's often paired with dining chairs.</p>\n",
+               "short_description": "Essential pieces for your dining room, including tables and chairs.",
+               "category_weighting": 201,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "b61500a9-9948-483a-be1b-d0cbbc4b530e"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "drawers",
+               "uuid": "ceea52ed-5122-4243-bcb3-b8824d3322f1",
+               "status": "enabled",
+               "category_name": "Drawers",
+               "sitemap_order": 0,
+               "category_weighting": 3,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "79025531-2a9e-48e7-9f49-cd9d5ae394ae"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "tv-stands",
+               "uuid": "ba0587f0-bcd4-4ba1-90b5-629d05a875ca",
+               "status": "enabled",
+               "category_name": "TV stands",
+               "sitemap_order": 0,
+               "category_weighting": 2,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "79025531-2a9e-48e7-9f49-cd9d5ae394ae"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "decorative",
+               "uuid": "f0dd8b60-a3d8-4070-b6e4-b7c682f2099d",
+               "status": "enabled",
+               "category_name": "Decorative",
+               "sitemap_order": 0,
+               "category_weighting": 7,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "bathroom",
+               "uuid": "ba6017b8-82fe-467c-8882-7fd86a48445c",
+               "status": "enabled",
+               "category_name": "Bathroom",
+               "sitemap_order": 0,
+               "category_weighting": 6,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "garden",
+               "uuid": "d2f96003-ca68-44dd-95a8-52cd83ce8ace",
+               "status": "enabled",
+               "category_name": "Garden",
+               "sitemap_order": 0,
+               "category_weighting": 5,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "cabinets",
+               "uuid": "3eadddad-904c-43d5-a78b-b766f95a7366",
+               "status": "enabled",
+               "category_name": "Cabinets",
+               "sitemap_order": 0,
+               "category_weighting": 0,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "79025531-2a9e-48e7-9f49-cd9d5ae394ae"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "leather-sofas",
+               "uuid": "c9d19fd9-5b75-414d-a522-7c22accf4ec3",
+               "status": "enabled",
+               "category_name": "Leather sofas",
+               "sitemap_order": 0,
+               "category_weighting": 0,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "fb3204f1-8189-492e-9dfa-1093f64bf8f0"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "recliners",
+               "uuid": "b4c9fa46-fbb6-4e56-8b6d-6d05bd0e7408",
+               "status": "enabled",
+               "category_name": "Recliners",
+               "sitemap_order": 0,
+               "category_weighting": 0,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "fb3204f1-8189-492e-9dfa-1093f64bf8f0"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "fabric-sofas",
+               "uuid": "a8316e56-2afe-4311-a465-a7b20f9c1e8c",
+               "status": "enabled",
+               "category_name": "Fabric sofas",
+               "sitemap_order": 0,
+               "category_weighting": 0,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "fb3204f1-8189-492e-9dfa-1093f64bf8f0"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "vases-and-figurines",
+               "uuid": "9595445b-a7d5-41ec-8e8a-fdad31a68913",
+               "status": "enabled",
+               "category_name": "Vases and figurines",
+               "sitemap_order": 0,
+               "category_weighting": 701,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "f0dd8b60-a3d8-4070-b6e4-b7c682f2099d"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "ottomans",
+               "uuid": "8b6795ca-3ff9-4ace-86b4-3c50b9b31b04",
+               "status": "enabled",
+               "category_name": "Ottomans",
+               "sitemap_order": 0,
+               "category_weighting": 1,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "d0a5cf85-daf5-49d5-8d9c-67671a1f1714"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "end-table",
+               "uuid": "6ef1ec6f-3146-41b9-ad31-41f1be6fcc7e",
+               "status": "enabled",
+               "category_name": "End table",
+               "sitemap_order": 0,
+               "category_weighting": 1,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "a47693c0-89a9-414f-a6da-6592249d088d"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "side-tables",
+               "uuid": "a47693c0-89a9-414f-a6da-6592249d088d",
+               "status": "enabled",
+               "category_name": "Side tables",
+               "sitemap_order": 0,
+               "category_weighting": 103,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "cd9882a8-e858-4594-a924-4d6d5689ff94"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "sofas-and-sectionals",
+               "uuid": "fb3204f1-8189-492e-9dfa-1093f64bf8f0",
+               "status": "enabled",
+               "category_name": "Sofas and sectionals",
+               "sitemap_order": 0,
+               "category_title": "Sofas and Sectionals",
+               "category_weighting": 101,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [
+                    "cd9882a8-e858-4594-a924-4d6d5689ff94"
+               ],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "kitchen",
+               "uuid": "b61500a9-9948-483a-be1b-d0cbbc4b530e",
+               "status": "enabled",
+               "meta_title": "Kitchen",
+               "canonical_url": "https://insites-add-on-ecommerce-110-staging.staging.oregon.platform-os.com/products/kitchen",
+               "category_name": "Kitchen",
+               "sitemap_order": 0,
+               "category_heading": "Kitchen",
+               "meta_description": "All about kitchen",
+               "category_weighting": 4,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "bedroom",
+               "uuid": "54ad6fdf-9653-4eaa-a66f-ca0585e8bdf6",
+               "status": "enabled",
+               "category_name": "Bedroom",
+               "sitemap_order": 0,
+               "category_weighting": 3,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "office",
+               "uuid": "cf875c20-06a2-4859-8133-1a85cff5c920",
+               "status": "enabled",
+               "meta_title": "Office",
+               "category_name": "Office",
+               "sitemap_order": 0,
+               "category_title": "Office",
+               "category_heading": "Office",
+               "meta_description": "Products | Office",
+               "open_graph_title": "Office",
+               "category_weighting": 2,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [],
+               "open_graph_description": "Products | Office",
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "other-categories",
+               "uuid": "6dc5edbd-5bf8-41d9-a8ae-66017f971eb2",
+               "status": "enabled",
+               "category_name": "Other categories",
+               "category_heading": "Other categories",
+               "category_weighting": 8,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [],
+               "is_visible_to_search_engines": true
+          }
+     },
+     {
+          "type_name": "modules/insites_ecommerce/category",
+          "properties": {
+               "slug": "living-room",
+               "uuid": "cd9882a8-e858-4594-a924-4d6d5689ff94",
+               "status": "enabled",
+               "meta_title": "Living Room",
+               "category_name": "Living room",
+               "sitemap_order": 0,
+               "category_heading": "Living room",
+               "category_weighting": 1,
+               "is_sitemap_enabled": false,
+               "parent_category_uuids": [],
+               "is_visible_to_search_engines": true
+          }
+     }
+]
+{% endparse_json %}
+
+{%- graphql results, models: import_categories -%}
+     mutation ($models: [CustomizationImport!]!) {
+          import_models(
+               models: $models
+          ) {
+               ids
+          }
+     }
+{%- endgraphql -%}
+{% log results, type: "SEED DATA: Categories" %}
+{%- else -%}
+{% log existing_categories_count, type: "SEED DATA: Categories skipped (records already exist)" %}
+{%- endif -%}

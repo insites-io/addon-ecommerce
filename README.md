@@ -69,12 +69,12 @@ application first.
 
 **Module dependencies**
 
-| Module    | Version  |
-| --------- | -------- |
-| API       | `5.2.1`  |
-| CMS       | `5.7.0`  |
-| CRM       | `5.13.2` |
-| Ecommerce | `5.11.1` |
+| Module    |
+| --------- |
+| API       |
+| CMS       |
+| CRM       |
+| Ecommerce |
 
 ## Installation
 
@@ -92,21 +92,22 @@ Set automatically on install:
 
 | Constant                            | Value  | Purpose                                                                                |
 | ----------------------------------- | ------ | -------------------------------------------------------------------------------------- |
-| `ecommerce_addon`                   | `true` | Enables the add-on per-instance                                                        |
-| `ecommerce_addon_is_price_round_off` | `true` | Display prices as whole numbers (no cents) on product-list cards and the cart drawer; set to `false` to show cents |
+| `ecommerce_addon`                   | `true`       | Enables the add-on per-instance                                                        |
+| `ecommerce_addon_is_price_round_off` | `true`       | Display prices as whole numbers (no cents) on product-list cards and the cart drawer; set to `false` to show cents |
+| `insites_stripe_sk_live_key`        | `sk_live_key` | Stripe live secret key (Stripe Connect) — replace per-site in the admin                |
+| `insites_stripe_sk_test_key`        | `sk_test_key` | Stripe test secret key (Stripe Connect) — replace per-site in the admin                |
 
-Add manually after installation:
-
-| Constant                      | Purpose                  |
-| ----------------------------- | ------------------------ |
-| `insites_stripe_sk_live_key`  | Stripe live secret key   |
-| `insites_stripe_sk_test_key`  | Stripe test secret key   |
+The Stripe keys are seeded with a placeholder (`sk_live_key` / `sk_test_key`)
+rather than an empty value because `constant_set` rejects a blank value. Replace
+them with the real keys per-site after installation.
 
 ### Custom Fields
 
-| Module    | Entity     | Field         |
-| --------- | ---------- | ------------- |
-| Ecommerce | Categories | `is_featured` |
+| Module    | Entity     | Field                 | Type    |
+| --------- | ---------- | --------------------- | ------- |
+| Ecommerce | Categories | `is_featured`         | boolean |
+| Ecommerce | Products   | `tags`                | array   |
+| Ecommerce | Products   | `low_stock_override`  | integer |
 
 ### Third-party Integrations
 

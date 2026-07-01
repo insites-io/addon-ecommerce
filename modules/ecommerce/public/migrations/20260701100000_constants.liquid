@@ -1,0 +1,35 @@
+{% comment %}
+  All ecommerce addon constants are provisioned here.
+  - ecommerce_addon: install flag read by host sites to detect the ecommerce addon.
+  - ecommerce_addon_is_price_round_off: toggles price round-off behaviour across
+    the storefront (PLP/PDP/cart/checkout).
+  - insites_stripe_sk_live_key / insites_stripe_sk_test_key: Stripe secret keys
+    for Stripe Connect. Seeded with a REPLACE_ME placeholder; the real value is
+    set per-site in the admin after installation.
+
+  Note: constant_set rejects a blank value (it trims first, so "" and " " both
+  fail with "Value cant be blank"). Always seed a real non-whitespace value.
+{% endcomment %}
+{% parse_json constants %}
+[
+  { "name": "ecommerce_addon", "value": "true" },
+  { "name": "ecommerce_addon_is_price_round_off", "value": "true" },
+  { "name": "insites_stripe_sk_live_key", "value": "sk_live_key" },
+  { "name": "insites_stripe_sk_test_key", "value": "sk_test_key" }
+]
+{% endparse_json %}
+
+{% for constant in constants %}
+  {% graphql create_constant, name: constant.name, value: constant.value %}
+    mutation constant_set(
+      $name: String
+      $value: String
+    ) {
+      constant_set(name: $name, value: $value) {
+        value
+        name
+      }
+    }
+  {% endgraphql %}
+  {% log create_constant, type: "Constants Created" %}
+{% endfor %}

@@ -1,0 +1,125 @@
+{% comment %} Create Product Custom Fields: tags, low_stock_override {% endcomment %}
+{% parse_json product_properties %}
+[
+    {
+        "attribute_type": "array",
+        "name": "tags",
+        "metadata": {
+            "label": "tags",
+            "weight": 0,
+            "options": [
+                { "value": "Bestseller", "content": "Bestseller" },
+                { "value": "20% Sale", "content": "20% Sale" },
+                { "value": "Sale", "content": "Sale" },
+                { "value": "New Arrival", "content": "New Arrival" },
+                { "value": "Limited", "content": "Limited" },
+                { "value": "Staff Pick", "content": "Staff Pick" }
+            ],
+            "ui_element": "card_select_multiple"
+        }
+    },
+    {
+        "attribute_type": "integer",
+        "name": "low_stock_override",
+        "metadata": {
+            "label": "Low stock override",
+            "weight": 1,
+            "ui_element": "number"
+        }
+    }
+]
+{% endparse_json %}
+
+{% graphql product_result, properties: product_properties %}
+mutation save_custom_fields($properties: [NestedPropertyInputType]!) {
+  items: admin_table_update(
+    physical_file_path: "modules/ins_ecommerce/public/schema/product_custom_field.yml"
+    table: { properties: $properties }
+  ) {
+    id
+    name
+    parameterized_name
+    physical_file_path
+    metadata
+    properties {
+      id
+      name
+      attribute_type
+      belongs_to
+      metadata
+      options
+      default_value
+      target_type
+      target_id
+    }
+  }
+}
+
+{% endgraphql %}
+{% log product_result, type: "SEED DATA: product_custom_field tags, low_stock_override" %}
+
+
+{% comment %} Add items to product_custom_field — guarded: only seed when the table has no records yet {% endcomment %}
+{%- graphql existing_pcf -%}
+  query {
+    items: records(
+      per_page: 1
+      filter: {
+        table: { value: "modules/ins_ecommerce/product_custom_field" }
+        deleted_at: { exists: false }
+      }
+    ) {
+      total_entries
+    }
+  }
+{%- endgraphql -%}
+{%- assign existing_pcf_count = existing_pcf.items.total_entries | default: 0 -%}
+{%- if existing_pcf_count == 0 -%}
+{% parse_json import_product_custom_field %}
+[
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "7540eaa8-d25c-4ce7-9763-1bb4b942023e", "tags": ["Bestseller"], "low_stock_override": 40 } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "50a6fe87-9114-4f84-aa7d-1c05f4d5fe6d", "tags": ["20% Sale", "Limited"], "low_stock_override": 10 } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "8f817d26-8b44-49e6-b0ad-70d797a35bf8", "tags": [] } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "1a6ca125-3f8d-4396-ae85-b4cc2b31396a", "tags": ["Sale", "Limited"], "low_stock_override": 10 } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "6916c760-35c1-438c-8ce1-a907f1d3fecf", "tags": [], "low_stock_override": 10 } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "05035af0-5b85-4c5a-aa03-097663e2195f", "tags": ["Staff Pick", "New Arrival"], "low_stock_override": 20 } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "2e5ed60e-b7df-45ce-ad40-594e4764341c", "tags": ["New Arrival", "Sale"], "low_stock_override": 10 } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "3b027ff0-8307-4fa5-a9c5-73d9e8ae8305", "tags": [], "low_stock_override": 10 } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "e9d0ebcc-2d3b-42da-920d-48c78ff44074", "tags": ["20% Sale"] } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "f5ece196-d400-4fb1-8e99-d0b1ae211618", "tags": ["Sale"], "low_stock_override": 20 } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "3fb737b8-3737-446f-b093-51b098c45b55", "tags": ["Limited"] } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "215d180e-054f-4c3c-8ea0-3e4299e74c36", "tags": [] } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "c2c829be-38dc-4b1c-89ae-51e944b750d4", "tags": ["New Arrival"] } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "8e009e34-4798-4a7d-8f95-07f19224ccbf", "tags": ["20% Sale"], "low_stock_override": 10 } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "8187ae6b-34f7-479f-b7d5-63f3ec9cd50c", "tags": ["Limited", "Bestseller"], "low_stock_override": 15 } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "62ed0b16-6e8e-4a20-87d3-68fa7ef2236e", "tags": ["Sale", "New Arrival"], "low_stock_override": 15 } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "5b2b6ac5-5b59-464b-9dc6-c617e6d34667", "tags": [] } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "937d53bc-201b-4747-94bb-c760a21408f2", "tags": ["Bestseller"] } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "3f7d19ec-1e06-49fb-be8f-709218fe537d", "tags": ["Limited", "Sale"] } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "f8e0728c-6743-4d62-94a5-485035823b29", "tags": ["Limited"] } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "d0880847-9986-4585-8fa3-53ee2c35fc27", "tags": [], "low_stock_override": 10 } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "e3d4a970-cdff-412e-9a38-332f87820d9d", "tags": ["Staff Pick"] } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "dbdd8983-645f-4888-8653-c281034bce58", "tags": ["Staff Pick"], "low_stock_override": 20 } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "1271b0e6-188a-49b2-8087-b7a7f1349d04", "tags": ["Sale"] } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "ea27f379-9866-4375-8981-8cb5878dc089", "tags": ["Bestseller", "New Arrival"], "low_stock_override": 15 } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "fa4ccdbb-bdc8-41a5-9cca-824f67148744", "tags": [], "low_stock_override": 10 } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "c742a4db-7d00-4c66-9665-ba4c1694a95b", "tags": ["20% Sale", "Limited"] } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "ec671e8e-d46b-4863-a406-b36c76b2b31f", "tags": [] } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "924f28ae-4452-4fc5-ba8c-486fb11db916", "tags": ["Limited"] } },
+     { "type_name": "modules/ins_ecommerce/product_custom_field", "properties": { "product_uuid": "a507b438-fa44-4c0f-99ca-8621615dcfb0", "tags": [] } }
+]
+{% endparse_json %}
+
+{%- graphql product_seed_results, models: import_product_custom_field -%}
+     mutation ($models: [CustomizationImport!]!) {
+          import_models(
+               models: $models
+          ) {
+               ids
+          }
+     }
+{%- endgraphql -%}
+{% log product_seed_results, type: "SEED DATA: product_custom_field" %}
+{%- else -%}
+{% log existing_pcf_count, type: "SEED DATA: product_custom_field skipped (records already exist)" %}
+{%- endif -%}

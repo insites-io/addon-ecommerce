@@ -2,6 +2,15 @@ query search_products_total_entries(
   $page: Int = 1,
   $size: Int = 10,
   $keyword : String,
+  $keyword2 : String,
+  $keyword3 : String,
+  $keyword4 : String,
+  $keyword5 : String,
+  $keyword6 : String,
+  $keyword7 : String,
+  $keyword8 : String,
+  $keyword9 : String,
+  $keyword10 : String,
   $keywords : [String!],
   $category_uuids: [String!],
   $brand: String,
@@ -43,7 +52,88 @@ query search_products_total_entries(
         },
         {
           properties: { name: "short_description", contains: $keyword}           
-        }
+        },
+        {
+          properties: { name: "product_name", contains: $keyword2}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword2}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword2}
+        },
+        {
+          properties: { name: "product_name", contains: $keyword3}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword3}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword3}
+        },
+        {
+          properties: { name: "product_name", contains: $keyword4}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword4}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword4}
+        },
+        {
+          properties: { name: "product_name", contains: $keyword5}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword5}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword5}
+        },
+        {
+          properties: { name: "product_name", contains: $keyword6}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword6}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword6}
+        },
+        {
+          properties: { name: "product_name", contains: $keyword7}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword7}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword7}
+        },
+        {
+          properties: { name: "product_name", contains: $keyword8}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword8}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword8}
+        },
+        {
+          properties: { name: "product_name", contains: $keyword9}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword9}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword9}
+        },
+        {
+          properties: { name: "product_name", contains: $keyword10}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword10}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword10}
+        },
         {
           properties: { name: "keywords", array_contains: $keywords}           
         }

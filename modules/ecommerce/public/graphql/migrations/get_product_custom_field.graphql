@@ -1,0 +1,19 @@
+query get_product_custom_field {
+  ## Fetch the current product_custom_field rows so the seed data in the
+  ## custom_fields_product migration can be refreshed/kept in sync with the
+  ## live values (tags, low_stock_override) for each product_uuid.
+  items: records(
+    page: 1
+    per_page: 100
+    filter: {
+      table: { value: "modules/ins_ecommerce/product_custom_field" }
+      deleted_at: { exists: false }
+    }
+  ){
+    results {
+      product_uuid: property(name: "product_uuid")
+      tags: property_array(name: "tags")
+      low_stock_override: property_int(name: "low_stock_override")
+    }
+  }
+}

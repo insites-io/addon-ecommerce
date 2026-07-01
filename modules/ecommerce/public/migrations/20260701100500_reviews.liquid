@@ -1,0 +1,1767 @@
+{% comment %}
+    Seed Product Reviews on install. Guarded: only runs when the reviews table has
+    no records yet, so it never duplicates or overwrites real reviews.
+    The reviews table itself is provisioned from schema/reviews.yml on deploy.
+{% endcomment %}
+{%- graphql existing_reviews -%}
+  query {
+    items: records(
+      per_page: 1
+      filter: {
+        table: { value: "modules/ecommerce/reviews" }
+        deleted_at: { exists: false }
+      }
+    ) {
+      total_entries
+    }
+  }
+{%- endgraphql -%}
+{%- assign existing_reviews_count = existing_reviews.items.total_entries | default: 0 -%}
+{%- if existing_reviews_count == 0 -%}
+{% parse_json import_reviews %}
+[
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Excellent quality and exactly as described. Very happy with the purchase.",
+               "reviewer_email": "hazel.dawson51@example.com",
+               "reviewed_product": "5b2b6ac5-5b59-464b-9dc6-c617e6d34667",
+               "reviewer_last_name": "Dawson",
+               "reviewer_first_name": "Hazel"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Looks fantastic in our living room. Solid build.",
+               "reviewer_email": "charlotte.ramos94@example.com",
+               "reviewed_product": "5b2b6ac5-5b59-464b-9dc6-c617e6d34667",
+               "reviewer_last_name": "Ramos",
+               "reviewer_first_name": "Charlotte"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Pending",
+               "is_guest": true,
+               "review_content": "Great value for the price. Would buy again.",
+               "reviewer_email": "ruby.mercer36@example.com",
+               "reviewed_product": "5b2b6ac5-5b59-464b-9dc6-c617e6d34667",
+               "reviewer_last_name": "Mercer",
+               "reviewer_first_name": "Ruby"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 1,
+               "status": "Rejected",
+               "is_guest": true,
+               "review_content": "Not as sturdy as I hoped. Wouldn't buy again.",
+               "reviewer_email": "emma.foster96@example.com",
+               "reviewed_product": "5b2b6ac5-5b59-464b-9dc6-c617e6d34667",
+               "reviewer_last_name": "Foster",
+               "reviewer_first_name": "Emma"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Rejected",
+               "is_guest": true,
+               "review_content": "Great value for the price. Would buy again.",
+               "reviewer_email": "henry.bailey40@example.com",
+               "reviewed_product": "05035af0-5b85-4c5a-aa03-097663e2195f",
+               "reviewer_last_name": "Bailey",
+               "reviewer_first_name": "Henry"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Reasonable quality for the price, assembly was a bit fiddly.",
+               "reviewer_email": "grace.ramos60@example.com",
+               "reviewed_product": "05035af0-5b85-4c5a-aa03-097663e2195f",
+               "reviewer_last_name": "Ramos",
+               "reviewer_first_name": "Grace"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Better than expected. Highly recommend.",
+               "reviewer_email": "nora.mercer58@example.com",
+               "reviewed_product": "5b2b6ac5-5b59-464b-9dc6-c617e6d34667",
+               "reviewer_last_name": "Mercer",
+               "reviewer_first_name": "Nora"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 1,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Disappointed with the build quality for the price.",
+               "reviewer_email": "liam.dawson35@example.com",
+               "reviewed_product": "05035af0-5b85-4c5a-aa03-097663e2195f",
+               "reviewer_last_name": "Dawson",
+               "reviewer_first_name": "Liam"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 1,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Not as sturdy as I hoped. Wouldn't buy again.",
+               "reviewer_email": "ava.hughes33@example.com",
+               "reviewed_product": "05035af0-5b85-4c5a-aa03-097663e2195f",
+               "reviewer_last_name": "Hughes",
+               "reviewer_first_name": "Ava"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Pending",
+               "is_guest": true,
+               "review_content": "Better than expected. Highly recommend.",
+               "reviewer_email": "charlotte.reyes62@example.com",
+               "reviewed_product": "05035af0-5b85-4c5a-aa03-097663e2195f",
+               "reviewer_last_name": "Reyes",
+               "reviewer_first_name": "Charlotte"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Exceeded my expectations. Lovely addition to the home.",
+               "reviewer_email": "emma.frost95@example.com",
+               "reviewed_product": "05035af0-5b85-4c5a-aa03-097663e2195f",
+               "reviewer_last_name": "Frost",
+               "reviewer_first_name": "Emma"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Comfortable, stylish, and arrived well packaged.",
+               "reviewer_email": "lucas.frost97@example.com",
+               "reviewed_product": "05035af0-5b85-4c5a-aa03-097663e2195f",
+               "reviewer_last_name": "Frost",
+               "reviewer_first_name": "Lucas"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Pending",
+               "is_guest": true,
+               "review_content": "It's okay. Comfortable enough but the finish could be better.",
+               "reviewer_email": "amelia.reyes96@example.com",
+               "reviewed_product": "05035af0-5b85-4c5a-aa03-097663e2195f",
+               "reviewer_last_name": "Reyes",
+               "reviewer_first_name": "Amelia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Excellent quality and exactly as described. Very happy with the purchase.",
+               "reviewer_email": "henry.carter81@example.com",
+               "reviewed_product": "215d180e-054f-4c3c-8ea0-3e4299e74c36",
+               "reviewer_last_name": "Carter",
+               "reviewer_first_name": "Henry"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 1,
+               "status": "Rejected",
+               "is_guest": false,
+               "review_content": "Not as sturdy as I hoped. Wouldn't buy again.",
+               "reviewer_email": "liam.foster82@example.com",
+               "reviewed_product": "215d180e-054f-4c3c-8ea0-3e4299e74c36",
+               "reviewer_last_name": "Foster",
+               "reviewer_first_name": "Liam"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Better than expected. Highly recommend.",
+               "reviewer_email": "liam.coleman3@example.com",
+               "reviewed_product": "3f7d19ec-1e06-49fb-be8f-709218fe537d",
+               "reviewer_last_name": "Coleman",
+               "reviewer_first_name": "Liam"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Pending",
+               "is_guest": true,
+               "review_content": "Excellent quality and exactly as described. Very happy with the purchase.",
+               "reviewer_email": "lily.mercer73@example.com",
+               "reviewed_product": "215d180e-054f-4c3c-8ea0-3e4299e74c36",
+               "reviewer_last_name": "Mercer",
+               "reviewer_first_name": "Lily"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 1,
+               "status": "Pending",
+               "is_guest": false,
+               "review_content": "Looks cheaper in person than in the photos.",
+               "reviewer_email": "grace.cross20@example.com",
+               "reviewed_product": "3f7d19ec-1e06-49fb-be8f-709218fe537d",
+               "reviewer_last_name": "Cross",
+               "reviewer_first_name": "Grace"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 2,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Arrived with a minor defect, support was slow to respond.",
+               "reviewer_email": "owen.pearce83@example.com",
+               "reviewed_product": "3f7d19ec-1e06-49fb-be8f-709218fe537d",
+               "reviewer_last_name": "Pearce",
+               "reviewer_first_name": "Owen"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Excellent quality and exactly as described. Very happy with the purchase.",
+               "reviewer_email": "mason.carter17@example.com",
+               "reviewed_product": "f5ece196-d400-4fb1-8e99-d0b1ae211618",
+               "reviewer_last_name": "Carter",
+               "reviewer_first_name": "Mason"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Pending",
+               "is_guest": false,
+               "review_content": "Fast delivery and the product is top notch.",
+               "reviewer_email": "liam.reyes86@example.com",
+               "reviewed_product": "f5ece196-d400-4fb1-8e99-d0b1ae211618",
+               "reviewer_last_name": "Reyes",
+               "reviewer_first_name": "Liam"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Comfortable, stylish, and arrived well packaged.",
+               "reviewer_email": "ethan.knight28@example.com",
+               "reviewed_product": "f5ece196-d400-4fb1-8e99-d0b1ae211618",
+               "reviewer_last_name": "Knight",
+               "reviewer_first_name": "Ethan"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 1,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Arrived with a minor defect, support was slow to respond.",
+               "reviewer_email": "olivia.frost65@example.com",
+               "reviewed_product": "f5ece196-d400-4fb1-8e99-d0b1ae211618",
+               "reviewer_last_name": "Frost",
+               "reviewer_first_name": "Olivia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Fast delivery and the product is top notch.",
+               "reviewer_email": "noah.webb84@example.com",
+               "reviewed_product": "f5ece196-d400-4fb1-8e99-d0b1ae211618",
+               "reviewer_last_name": "Webb",
+               "reviewer_first_name": "Noah"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Looks fantastic in our living room. Solid build.",
+               "reviewer_email": "sophia.ramos58@example.com",
+               "reviewed_product": "3fb737b8-3737-446f-b093-51b098c45b55",
+               "reviewer_last_name": "Ramos",
+               "reviewer_first_name": "Sophia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Rejected",
+               "is_guest": false,
+               "review_content": "Comfortable, stylish, and arrived well packaged.",
+               "reviewer_email": "mia.carter24@example.com",
+               "reviewed_product": "3fb737b8-3737-446f-b093-51b098c45b55",
+               "reviewer_last_name": "Carter",
+               "reviewer_first_name": "Mia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Rejected",
+               "is_guest": false,
+               "review_content": "Does the job. Nothing remarkable but no complaints.",
+               "reviewer_email": "noah.lambert2@example.com",
+               "reviewed_product": "6916c760-35c1-438c-8ce1-a907f1d3fecf",
+               "reviewer_last_name": "Lambert",
+               "reviewer_first_name": "Noah"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Excellent quality and exactly as described. Very happy with the purchase.",
+               "reviewer_email": "mia.pearce17@example.com",
+               "reviewed_product": "6916c760-35c1-438c-8ce1-a907f1d3fecf",
+               "reviewer_last_name": "Pearce",
+               "reviewer_first_name": "Mia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Does the job. Nothing remarkable but no complaints.",
+               "reviewer_email": "olivia.sharma12@example.com",
+               "reviewed_product": "2e5ed60e-b7df-45ce-ad40-594e4764341c",
+               "reviewer_last_name": "Sharma",
+               "reviewer_first_name": "Olivia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Looks fantastic in our living room. Solid build.",
+               "reviewer_email": "emma.patel8@example.com",
+               "reviewed_product": "2e5ed60e-b7df-45ce-ad40-594e4764341c",
+               "reviewer_last_name": "Patel",
+               "reviewer_first_name": "Emma"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Does the job. Nothing remarkable but no complaints.",
+               "reviewer_email": "ava.fischer87@example.com",
+               "reviewed_product": "2e5ed60e-b7df-45ce-ad40-594e4764341c",
+               "reviewer_last_name": "Fischer",
+               "reviewer_first_name": "Ava"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Better than expected. Highly recommend.",
+               "reviewer_email": "charlotte.hughes67@example.com",
+               "reviewed_product": "924f28ae-4452-4fc5-ba8c-486fb11db916",
+               "reviewer_last_name": "Hughes",
+               "reviewer_first_name": "Charlotte"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 2,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Disappointed with the build quality for the price.",
+               "reviewer_email": "cooper.sullivan14@example.com",
+               "reviewed_product": "924f28ae-4452-4fc5-ba8c-486fb11db916",
+               "reviewer_last_name": "Sullivan",
+               "reviewer_first_name": "Cooper"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Does the job. Nothing remarkable but no complaints.",
+               "reviewer_email": "owen.brooks3@example.com",
+               "reviewed_product": "924f28ae-4452-4fc5-ba8c-486fb11db916",
+               "reviewer_last_name": "Brooks",
+               "reviewer_first_name": "Owen"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 2,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Not as sturdy as I hoped. Wouldn't buy again.",
+               "reviewer_email": "logan.mercer52@example.com",
+               "reviewed_product": "924f28ae-4452-4fc5-ba8c-486fb11db916",
+               "reviewer_last_name": "Mercer",
+               "reviewer_first_name": "Logan"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Pending",
+               "is_guest": true,
+               "review_content": "Fast delivery and the product is top notch.",
+               "reviewer_email": "lucas.frost13@example.com",
+               "reviewed_product": "d0880847-9986-4585-8fa3-53ee2c35fc27",
+               "reviewer_last_name": "Frost",
+               "reviewer_first_name": "Lucas"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Looks fantastic in our living room. Solid build.",
+               "reviewer_email": "ruby.webb47@example.com",
+               "reviewed_product": "d0880847-9986-4585-8fa3-53ee2c35fc27",
+               "reviewer_last_name": "Webb",
+               "reviewer_first_name": "Ruby"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Pending",
+               "is_guest": true,
+               "review_content": "Better than expected. Highly recommend.",
+               "reviewer_email": "logan.reyes28@example.com",
+               "reviewed_product": "d0880847-9986-4585-8fa3-53ee2c35fc27",
+               "reviewer_last_name": "Reyes",
+               "reviewer_first_name": "Logan"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Fast delivery and the product is top notch.",
+               "reviewer_email": "ava.fischer16@example.com",
+               "reviewed_product": "d0880847-9986-4585-8fa3-53ee2c35fc27",
+               "reviewer_last_name": "Fischer",
+               "reviewer_first_name": "Ava"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Comfortable, stylish, and arrived well packaged.",
+               "reviewer_email": "max.dawson65@example.com",
+               "reviewed_product": "a507b438-fa44-4c0f-99ca-8621615dcfb0",
+               "reviewer_last_name": "Dawson",
+               "reviewer_first_name": "Max"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Decent product overall, though delivery took longer than expected.",
+               "reviewer_email": "mia.carter99@example.com",
+               "reviewed_product": "8e009e34-4798-4a7d-8f95-07f19224ccbf",
+               "reviewer_last_name": "Carter",
+               "reviewer_first_name": "Mia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Comfortable, stylish, and arrived well packaged.",
+               "reviewer_email": "jack.mercer78@example.com",
+               "reviewed_product": "a507b438-fa44-4c0f-99ca-8621615dcfb0",
+               "reviewer_last_name": "Mercer",
+               "reviewer_first_name": "Jack"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Exceeded my expectations. Lovely addition to the home.",
+               "reviewer_email": "ava.murphy19@example.com",
+               "reviewed_product": "dbdd8983-645f-4888-8653-c281034bce58",
+               "reviewer_last_name": "Murphy",
+               "reviewer_first_name": "Ava"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Pending",
+               "is_guest": true,
+               "review_content": "Exceeded my expectations. Lovely addition to the home.",
+               "reviewer_email": "grace.mercer3@example.com",
+               "reviewed_product": "dbdd8983-645f-4888-8653-c281034bce58",
+               "reviewer_last_name": "Mercer",
+               "reviewer_first_name": "Grace"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Pending",
+               "is_guest": true,
+               "review_content": "Exceeded my expectations. Lovely addition to the home.",
+               "reviewer_email": "isabella.webb67@example.com",
+               "reviewed_product": "dbdd8983-645f-4888-8653-c281034bce58",
+               "reviewer_last_name": "Webb",
+               "reviewer_first_name": "Isabella"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Pending",
+               "is_guest": false,
+               "review_content": "Does the job. Nothing remarkable but no complaints.",
+               "reviewer_email": "logan.foster8@example.com",
+               "reviewed_product": "1a6ca125-3f8d-4396-ae85-b4cc2b31396a",
+               "reviewer_last_name": "Foster",
+               "reviewer_first_name": "Logan"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 1,
+               "status": "Pending",
+               "is_guest": false,
+               "review_content": "Arrived with a minor defect, support was slow to respond.",
+               "reviewer_email": "sophia.ramos65@example.com",
+               "reviewed_product": "1a6ca125-3f8d-4396-ae85-b4cc2b31396a",
+               "reviewer_last_name": "Ramos",
+               "reviewer_first_name": "Sophia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Pending",
+               "is_guest": true,
+               "review_content": "Comfortable, stylish, and arrived well packaged.",
+               "reviewer_email": "cooper.foster56@example.com",
+               "reviewed_product": "1a6ca125-3f8d-4396-ae85-b4cc2b31396a",
+               "reviewer_last_name": "Foster",
+               "reviewer_first_name": "Cooper"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 1,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Arrived with a minor defect, support was slow to respond.",
+               "reviewer_email": "chloe.lambert84@example.com",
+               "reviewed_product": "1a6ca125-3f8d-4396-ae85-b4cc2b31396a",
+               "reviewer_last_name": "Lambert",
+               "reviewer_first_name": "Chloe"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Looks fantastic in our living room. Solid build.",
+               "reviewer_email": "mason.foster71@example.com",
+               "reviewed_product": "1a6ca125-3f8d-4396-ae85-b4cc2b31396a",
+               "reviewer_last_name": "Foster",
+               "reviewer_first_name": "Mason"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Beautiful finish and the materials feel premium.",
+               "reviewer_email": "james.fischer82@example.com",
+               "reviewed_product": "1a6ca125-3f8d-4396-ae85-b4cc2b31396a",
+               "reviewer_last_name": "Fischer",
+               "reviewer_first_name": "James"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Looks fantastic in our living room. Solid build.",
+               "reviewer_email": "owen.reyes93@example.com",
+               "reviewed_product": "1a6ca125-3f8d-4396-ae85-b4cc2b31396a",
+               "reviewer_last_name": "Reyes",
+               "reviewer_first_name": "Owen"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Rejected",
+               "is_guest": true,
+               "review_content": "Great value for the price. Would buy again.",
+               "reviewer_email": "mason.sharma11@example.com",
+               "reviewed_product": "1a6ca125-3f8d-4396-ae85-b4cc2b31396a",
+               "reviewer_last_name": "Sharma",
+               "reviewer_first_name": "Mason"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Reasonable quality for the price, assembly was a bit fiddly.",
+               "reviewer_email": "sophia.hughes27@example.com",
+               "reviewed_product": "8f817d26-8b44-49e6-b0ad-70d797a35bf8",
+               "reviewer_last_name": "Hughes",
+               "reviewer_first_name": "Sophia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Beautiful finish and the materials feel premium.",
+               "reviewer_email": "cooper.frost45@example.com",
+               "reviewed_product": "8f817d26-8b44-49e6-b0ad-70d797a35bf8",
+               "reviewer_last_name": "Frost",
+               "reviewer_first_name": "Cooper"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Comfortable, stylish, and arrived well packaged.",
+               "reviewer_email": "nora.coleman95@example.com",
+               "reviewed_product": "8f817d26-8b44-49e6-b0ad-70d797a35bf8",
+               "reviewer_last_name": "Coleman",
+               "reviewer_first_name": "Nora"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Reasonable quality for the price, assembly was a bit fiddly.",
+               "reviewer_email": "olivia.bennett36@example.com",
+               "reviewed_product": "8f817d26-8b44-49e6-b0ad-70d797a35bf8",
+               "reviewer_last_name": "Bennett",
+               "reviewer_first_name": "Olivia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "It's okay. Comfortable enough but the finish could be better.",
+               "reviewer_email": "lucas.holland70@example.com",
+               "reviewed_product": "1271b0e6-188a-49b2-8087-b7a7f1349d04",
+               "reviewer_last_name": "Holland",
+               "reviewer_first_name": "Lucas"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Better than expected. Highly recommend.",
+               "reviewer_email": "eli.reyes90@example.com",
+               "reviewed_product": "1271b0e6-188a-49b2-8087-b7a7f1349d04",
+               "reviewer_last_name": "Reyes",
+               "reviewer_first_name": "Eli"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Pending",
+               "is_guest": false,
+               "review_content": "Excellent quality and exactly as described. Very happy with the purchase.",
+               "reviewer_email": "grace.brooks19@example.com",
+               "reviewed_product": "1271b0e6-188a-49b2-8087-b7a7f1349d04",
+               "reviewer_last_name": "Brooks",
+               "reviewer_first_name": "Grace"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Looks fantastic in our living room. Solid build.",
+               "reviewer_email": "owen.patel62@example.com",
+               "reviewed_product": "1271b0e6-188a-49b2-8087-b7a7f1349d04",
+               "reviewer_last_name": "Patel",
+               "reviewer_first_name": "Owen"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Better than expected. Highly recommend.",
+               "reviewer_email": "amelia.dawson62@example.com",
+               "reviewed_product": "1271b0e6-188a-49b2-8087-b7a7f1349d04",
+               "reviewer_last_name": "Dawson",
+               "reviewer_first_name": "Amelia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 2,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Not as sturdy as I hoped. Wouldn't buy again.",
+               "reviewer_email": "mia.brooks78@example.com",
+               "reviewed_product": "1271b0e6-188a-49b2-8087-b7a7f1349d04",
+               "reviewer_last_name": "Brooks",
+               "reviewer_first_name": "Mia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Pending",
+               "is_guest": false,
+               "review_content": "Great value for the price. Would buy again.",
+               "reviewer_email": "mason.pearce4@example.com",
+               "reviewed_product": "1271b0e6-188a-49b2-8087-b7a7f1349d04",
+               "reviewer_last_name": "Pearce",
+               "reviewer_first_name": "Mason"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 2,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Arrived with a minor defect, support was slow to respond.",
+               "reviewer_email": "ruby.coleman8@example.com",
+               "reviewed_product": "e3d4a970-cdff-412e-9a38-332f87820d9d",
+               "reviewer_last_name": "Coleman",
+               "reviewer_first_name": "Ruby"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 2,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Disappointed with the build quality for the price.",
+               "reviewer_email": "isabella.pearce7@example.com",
+               "reviewed_product": "1271b0e6-188a-49b2-8087-b7a7f1349d04",
+               "reviewer_last_name": "Pearce",
+               "reviewer_first_name": "Isabella"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Rejected",
+               "is_guest": true,
+               "review_content": "Beautiful finish and the materials feel premium.",
+               "reviewer_email": "mason.pearce73@example.com",
+               "reviewed_product": "e3d4a970-cdff-412e-9a38-332f87820d9d",
+               "reviewer_last_name": "Pearce",
+               "reviewer_first_name": "Mason"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Fast delivery and the product is top notch.",
+               "reviewer_email": "eli.cross88@example.com",
+               "reviewed_product": "e3d4a970-cdff-412e-9a38-332f87820d9d",
+               "reviewer_last_name": "Cross",
+               "reviewer_first_name": "Eli"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Looks fantastic in our living room. Solid build.",
+               "reviewer_email": "olivia.dawson76@example.com",
+               "reviewed_product": "ea27f379-9866-4375-8981-8cb5878dc089",
+               "reviewer_last_name": "Dawson",
+               "reviewer_first_name": "Olivia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Great value for the price. Would buy again.",
+               "reviewer_email": "charlotte.sullivan20@example.com",
+               "reviewed_product": "ea27f379-9866-4375-8981-8cb5878dc089",
+               "reviewer_last_name": "Sullivan",
+               "reviewer_first_name": "Charlotte"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Pending",
+               "is_guest": false,
+               "review_content": "Looks fantastic in our living room. Solid build.",
+               "reviewer_email": "sophia.cross37@example.com",
+               "reviewed_product": "ea27f379-9866-4375-8981-8cb5878dc089",
+               "reviewer_last_name": "Cross",
+               "reviewer_first_name": "Sophia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Better than expected. Highly recommend.",
+               "reviewer_email": "amelia.reyes12@example.com",
+               "reviewed_product": "ea27f379-9866-4375-8981-8cb5878dc089",
+               "reviewer_last_name": "Reyes",
+               "reviewer_first_name": "Amelia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Pending",
+               "is_guest": false,
+               "review_content": "Better than expected. Highly recommend.",
+               "reviewer_email": "nora.fischer71@example.com",
+               "reviewed_product": "ea27f379-9866-4375-8981-8cb5878dc089",
+               "reviewer_last_name": "Fischer",
+               "reviewer_first_name": "Nora"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Looks fantastic in our living room. Solid build.",
+               "reviewer_email": "eli.dawson11@example.com",
+               "reviewed_product": "ea27f379-9866-4375-8981-8cb5878dc089",
+               "reviewer_last_name": "Dawson",
+               "reviewer_first_name": "Eli"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Beautiful finish and the materials feel premium.",
+               "reviewer_email": "mason.bennett60@example.com",
+               "reviewed_product": "ea27f379-9866-4375-8981-8cb5878dc089",
+               "reviewer_last_name": "Bennett",
+               "reviewer_first_name": "Mason"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 2,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Not as sturdy as I hoped. Wouldn't buy again.",
+               "reviewer_email": "logan.murphy97@example.com",
+               "reviewed_product": "8187ae6b-34f7-479f-b7d5-63f3ec9cd50c",
+               "reviewer_last_name": "Murphy",
+               "reviewer_first_name": "Logan"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 1,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Looks cheaper in person than in the photos.",
+               "reviewer_email": "zoe.ramos83@example.com",
+               "reviewed_product": "ea27f379-9866-4375-8981-8cb5878dc089",
+               "reviewer_last_name": "Ramos",
+               "reviewer_first_name": "Zoe"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Beautiful finish and the materials feel premium.",
+               "reviewer_email": "leo.reyes98@example.com",
+               "reviewed_product": "8187ae6b-34f7-479f-b7d5-63f3ec9cd50c",
+               "reviewer_last_name": "Reyes",
+               "reviewer_first_name": "Leo"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Excellent quality and exactly as described. Very happy with the purchase.",
+               "reviewer_email": "ruby.sharma75@example.com",
+               "reviewed_product": "fa4ccdbb-bdc8-41a5-9cca-824f67148744",
+               "reviewer_last_name": "Sharma",
+               "reviewer_first_name": "Ruby"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Exceeded my expectations. Lovely addition to the home.",
+               "reviewer_email": "logan.cross41@example.com",
+               "reviewed_product": "8187ae6b-34f7-479f-b7d5-63f3ec9cd50c",
+               "reviewer_last_name": "Cross",
+               "reviewer_first_name": "Logan"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Pending",
+               "is_guest": true,
+               "review_content": "Great value for the price. Would buy again.",
+               "reviewer_email": "charlotte.sharma7@example.com",
+               "reviewed_product": "fa4ccdbb-bdc8-41a5-9cca-824f67148744",
+               "reviewer_last_name": "Sharma",
+               "reviewer_first_name": "Charlotte"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Exceeded my expectations. Lovely addition to the home.",
+               "reviewer_email": "hazel.hughes94@example.com",
+               "reviewed_product": "8187ae6b-34f7-479f-b7d5-63f3ec9cd50c",
+               "reviewer_last_name": "Hughes",
+               "reviewer_first_name": "Hazel"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 1,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Arrived with a minor defect, support was slow to respond.",
+               "reviewer_email": "lucas.carter72@example.com",
+               "reviewed_product": "fa4ccdbb-bdc8-41a5-9cca-824f67148744",
+               "reviewer_last_name": "Carter",
+               "reviewer_first_name": "Lucas"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 2,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Disappointed with the build quality for the price.",
+               "reviewer_email": "zoe.reyes73@example.com",
+               "reviewed_product": "8187ae6b-34f7-479f-b7d5-63f3ec9cd50c",
+               "reviewer_last_name": "Reyes",
+               "reviewer_first_name": "Zoe"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Good but the colour was slightly different from the photos.",
+               "reviewer_email": "lucas.murphy90@example.com",
+               "reviewed_product": "8187ae6b-34f7-479f-b7d5-63f3ec9cd50c",
+               "reviewer_last_name": "Murphy",
+               "reviewer_first_name": "Lucas"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Looks fantastic in our living room. Solid build.",
+               "reviewer_email": "chloe.ramos72@example.com",
+               "reviewed_product": "fa4ccdbb-bdc8-41a5-9cca-824f67148744",
+               "reviewer_last_name": "Ramos",
+               "reviewer_first_name": "Chloe"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Excellent quality and exactly as described. Very happy with the purchase.",
+               "reviewer_email": "liam.mercer28@example.com",
+               "reviewed_product": "fa4ccdbb-bdc8-41a5-9cca-824f67148744",
+               "reviewer_last_name": "Mercer",
+               "reviewer_first_name": "Liam"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 1,
+               "status": "Pending",
+               "is_guest": true,
+               "review_content": "Disappointed with the build quality for the price.",
+               "reviewer_email": "emma.holland55@example.com",
+               "reviewed_product": "fa4ccdbb-bdc8-41a5-9cca-824f67148744",
+               "reviewer_last_name": "Holland",
+               "reviewer_first_name": "Emma"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Does the job. Nothing remarkable but no complaints.",
+               "reviewer_email": "cooper.carter12@example.com",
+               "reviewed_product": "ec671e8e-d46b-4863-a406-b36c76b2b31f",
+               "reviewer_last_name": "Carter",
+               "reviewer_first_name": "Cooper"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Does the job. Nothing remarkable but no complaints.",
+               "reviewer_email": "jack.bailey92@example.com",
+               "reviewed_product": "ec671e8e-d46b-4863-a406-b36c76b2b31f",
+               "reviewer_last_name": "Bailey",
+               "reviewer_first_name": "Jack"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 2,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Disappointed with the build quality for the price.",
+               "reviewer_email": "hazel.foster34@example.com",
+               "reviewed_product": "ec671e8e-d46b-4863-a406-b36c76b2b31f",
+               "reviewer_last_name": "Foster",
+               "reviewer_first_name": "Hazel"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Pending",
+               "is_guest": false,
+               "review_content": "Excellent quality and exactly as described. Very happy with the purchase.",
+               "reviewer_email": "james.lambert70@example.com",
+               "reviewed_product": "f8e0728c-6743-4d62-94a5-485035823b29",
+               "reviewer_last_name": "Lambert",
+               "reviewer_first_name": "James"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Rejected",
+               "is_guest": true,
+               "review_content": "Great value for the price. Would buy again.",
+               "reviewer_email": "grace.patel17@example.com",
+               "reviewed_product": "f8e0728c-6743-4d62-94a5-485035823b29",
+               "reviewer_last_name": "Patel",
+               "reviewer_first_name": "Grace"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Great value for the price. Would buy again.",
+               "reviewer_email": "cooper.reyes2@example.com",
+               "reviewed_product": "f8e0728c-6743-4d62-94a5-485035823b29",
+               "reviewer_last_name": "Reyes",
+               "reviewer_first_name": "Cooper"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Better than expected. Highly recommend.",
+               "reviewer_email": "isabella.sullivan34@example.com",
+               "reviewed_product": "937d53bc-201b-4747-94bb-c760a21408f2",
+               "reviewer_last_name": "Sullivan",
+               "reviewer_first_name": "Isabella"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Better than expected. Highly recommend.",
+               "reviewer_email": "chloe.vance67@example.com",
+               "reviewed_product": "937d53bc-201b-4747-94bb-c760a21408f2",
+               "reviewer_last_name": "Vance",
+               "reviewer_first_name": "Chloe"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 2,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Disappointed with the build quality for the price.",
+               "reviewer_email": "hazel.vance32@example.com",
+               "reviewed_product": "937d53bc-201b-4747-94bb-c760a21408f2",
+               "reviewer_last_name": "Vance",
+               "reviewer_first_name": "Hazel"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Comfortable, stylish, and arrived well packaged.",
+               "reviewer_email": "emma.murphy9@example.com",
+               "reviewed_product": "937d53bc-201b-4747-94bb-c760a21408f2",
+               "reviewer_last_name": "Murphy",
+               "reviewer_first_name": "Emma"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 1,
+               "status": "Rejected",
+               "is_guest": true,
+               "review_content": "Arrived with a minor defect, support was slow to respond.",
+               "reviewer_email": "chloe.dawson65@example.com",
+               "reviewed_product": "937d53bc-201b-4747-94bb-c760a21408f2",
+               "reviewer_last_name": "Dawson",
+               "reviewer_first_name": "Chloe"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Pending",
+               "is_guest": false,
+               "review_content": "Decent product overall, though delivery took longer than expected.",
+               "reviewer_email": "sophia.carter75@example.com",
+               "reviewed_product": "937d53bc-201b-4747-94bb-c760a21408f2",
+               "reviewer_last_name": "Carter",
+               "reviewer_first_name": "Sophia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Rejected",
+               "is_guest": true,
+               "review_content": "Exceeded my expectations. Lovely addition to the home.",
+               "reviewer_email": "ethan.fischer90@example.com",
+               "reviewed_product": "937d53bc-201b-4747-94bb-c760a21408f2",
+               "reviewer_last_name": "Fischer",
+               "reviewer_first_name": "Ethan"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Fast delivery and the product is top notch.",
+               "reviewer_email": "hazel.carter22@example.com",
+               "reviewed_product": "c2c829be-38dc-4b1c-89ae-51e944b750d4",
+               "reviewer_last_name": "Carter",
+               "reviewer_first_name": "Hazel"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Exceeded my expectations. Lovely addition to the home.",
+               "reviewer_email": "eli.sullivan22@example.com",
+               "reviewed_product": "c2c829be-38dc-4b1c-89ae-51e944b750d4",
+               "reviewer_last_name": "Sullivan",
+               "reviewer_first_name": "Eli"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Excellent quality and exactly as described. Very happy with the purchase.",
+               "reviewer_email": "eli.holland13@example.com",
+               "reviewed_product": "c2c829be-38dc-4b1c-89ae-51e944b750d4",
+               "reviewer_last_name": "Holland",
+               "reviewer_first_name": "Eli"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Pending",
+               "is_guest": false,
+               "review_content": "Great value for the price. Would buy again.",
+               "reviewer_email": "mia.lambert32@example.com",
+               "reviewed_product": "c2c829be-38dc-4b1c-89ae-51e944b750d4",
+               "reviewer_last_name": "Lambert",
+               "reviewer_first_name": "Mia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Exceeded my expectations. Lovely addition to the home.",
+               "reviewer_email": "isabella.nguyen32@example.com",
+               "reviewed_product": "c2c829be-38dc-4b1c-89ae-51e944b750d4",
+               "reviewer_last_name": "Nguyen",
+               "reviewer_first_name": "Isabella"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Great value for the price. Would buy again.",
+               "reviewer_email": "owen.carter87@example.com",
+               "reviewed_product": "c2c829be-38dc-4b1c-89ae-51e944b750d4",
+               "reviewer_last_name": "Carter",
+               "reviewer_first_name": "Owen"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Fast delivery and the product is top notch.",
+               "reviewer_email": "noah.nguyen85@example.com",
+               "reviewed_product": "c2c829be-38dc-4b1c-89ae-51e944b750d4",
+               "reviewer_last_name": "Nguyen",
+               "reviewer_first_name": "Noah"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Good but the colour was slightly different from the photos.",
+               "reviewer_email": "ava.frost74@example.com",
+               "reviewed_product": "7540eaa8-d25c-4ce7-9763-1bb4b942023e",
+               "reviewer_last_name": "Frost",
+               "reviewer_first_name": "Ava"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 1,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Not as sturdy as I hoped. Wouldn't buy again.",
+               "reviewer_email": "liam.hughes10@example.com",
+               "reviewed_product": "7540eaa8-d25c-4ce7-9763-1bb4b942023e",
+               "reviewer_last_name": "Hughes",
+               "reviewer_first_name": "Liam"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Excellent quality and exactly as described. Very happy with the purchase.",
+               "reviewer_email": "lucas.vance29@example.com",
+               "reviewed_product": "7540eaa8-d25c-4ce7-9763-1bb4b942023e",
+               "reviewer_last_name": "Vance",
+               "reviewer_first_name": "Lucas"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Beautiful finish and the materials feel premium.",
+               "reviewer_email": "amelia.nguyen32@example.com",
+               "reviewed_product": "7540eaa8-d25c-4ce7-9763-1bb4b942023e",
+               "reviewer_last_name": "Nguyen",
+               "reviewer_first_name": "Amelia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Beautiful finish and the materials feel premium.",
+               "reviewer_email": "zoe.bailey92@example.com",
+               "reviewed_product": "7540eaa8-d25c-4ce7-9763-1bb4b942023e",
+               "reviewer_last_name": "Bailey",
+               "reviewer_first_name": "Zoe"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Rejected",
+               "is_guest": true,
+               "review_content": "Does the job. Nothing remarkable but no complaints.",
+               "reviewer_email": "james.lambert1@example.com",
+               "reviewed_product": "c742a4db-7d00-4c66-9665-ba4c1694a95b",
+               "reviewer_last_name": "Lambert",
+               "reviewer_first_name": "James"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Pending",
+               "is_guest": true,
+               "review_content": "Beautiful finish and the materials feel premium.",
+               "reviewer_email": "henry.cross35@example.com",
+               "reviewed_product": "c742a4db-7d00-4c66-9665-ba4c1694a95b",
+               "reviewer_last_name": "Cross",
+               "reviewer_first_name": "Henry"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Excellent quality and exactly as described. Very happy with the purchase.",
+               "reviewer_email": "jack.lambert68@example.com",
+               "reviewed_product": "c742a4db-7d00-4c66-9665-ba4c1694a95b",
+               "reviewer_last_name": "Lambert",
+               "reviewer_first_name": "Jack"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 2,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Looks cheaper in person than in the photos.",
+               "reviewer_email": "liam.nguyen20@example.com",
+               "reviewed_product": "c742a4db-7d00-4c66-9665-ba4c1694a95b",
+               "reviewer_last_name": "Nguyen",
+               "reviewer_first_name": "Liam"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Rejected",
+               "is_guest": false,
+               "review_content": "Looks fantastic in our living room. Solid build.",
+               "reviewer_email": "charlotte.brooks29@example.com",
+               "reviewed_product": "c742a4db-7d00-4c66-9665-ba4c1694a95b",
+               "reviewer_last_name": "Brooks",
+               "reviewer_first_name": "Charlotte"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Pending",
+               "is_guest": false,
+               "review_content": "Better than expected. Highly recommend.",
+               "reviewer_email": "mia.foster32@example.com",
+               "reviewed_product": "c742a4db-7d00-4c66-9665-ba4c1694a95b",
+               "reviewer_last_name": "Foster",
+               "reviewer_first_name": "Mia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 3,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Reasonable quality for the price, assembly was a bit fiddly.",
+               "reviewer_email": "sophia.vance92@example.com",
+               "reviewed_product": "62ed0b16-6e8e-4a20-87d3-68fa7ef2236e",
+               "reviewer_last_name": "Vance",
+               "reviewer_first_name": "Sophia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Pending",
+               "is_guest": false,
+               "review_content": "Beautiful finish and the materials feel premium.",
+               "reviewer_email": "lily.carter30@example.com",
+               "reviewed_product": "62ed0b16-6e8e-4a20-87d3-68fa7ef2236e",
+               "reviewer_last_name": "Carter",
+               "reviewer_first_name": "Lily"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Comfortable, stylish, and arrived well packaged.",
+               "reviewer_email": "lucas.murphy60@example.com",
+               "reviewed_product": "62ed0b16-6e8e-4a20-87d3-68fa7ef2236e",
+               "reviewer_last_name": "Murphy",
+               "reviewer_first_name": "Lucas"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Pending",
+               "is_guest": true,
+               "review_content": "Great value for the price. Would buy again.",
+               "reviewer_email": "sophia.webb35@example.com",
+               "reviewed_product": "62ed0b16-6e8e-4a20-87d3-68fa7ef2236e",
+               "reviewer_last_name": "Webb",
+               "reviewer_first_name": "Sophia"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Beautiful finish and the materials feel premium.",
+               "reviewer_email": "charlotte.patel59@example.com",
+               "reviewed_product": "62ed0b16-6e8e-4a20-87d3-68fa7ef2236e",
+               "reviewer_last_name": "Patel",
+               "reviewer_first_name": "Charlotte"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 1,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Disappointed with the build quality for the price.",
+               "reviewer_email": "leo.sullivan99@example.com",
+               "reviewed_product": "62ed0b16-6e8e-4a20-87d3-68fa7ef2236e",
+               "reviewer_last_name": "Sullivan",
+               "reviewer_first_name": "Leo"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Pending",
+               "is_guest": true,
+               "review_content": "Beautiful finish and the materials feel premium.",
+               "reviewer_email": "nora.sharma80@example.com",
+               "reviewed_product": "50a6fe87-9114-4f84-aa7d-1c05f4d5fe6d",
+               "reviewer_last_name": "Sharma",
+               "reviewer_first_name": "Nora"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Great value for the price. Would buy again.",
+               "reviewer_email": "max.carter94@example.com",
+               "reviewed_product": "3b027ff0-8307-4fa5-a9c5-73d9e8ae8305",
+               "reviewer_last_name": "Carter",
+               "reviewer_first_name": "Max"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": false,
+               "review_content": "Beautiful finish and the materials feel premium.",
+               "reviewer_email": "isabella.nguyen12@example.com",
+               "reviewed_product": "3b027ff0-8307-4fa5-a9c5-73d9e8ae8305",
+               "reviewer_last_name": "Nguyen",
+               "reviewer_first_name": "Isabella"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Looks fantastic in our living room. Solid build.",
+               "reviewer_email": "james.knight55@example.com",
+               "reviewed_product": "3b027ff0-8307-4fa5-a9c5-73d9e8ae8305",
+               "reviewer_last_name": "Knight",
+               "reviewer_first_name": "James"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Better than expected. Highly recommend.",
+               "reviewer_email": "zoe.holland54@example.com",
+               "reviewed_product": "3b027ff0-8307-4fa5-a9c5-73d9e8ae8305",
+               "reviewer_last_name": "Holland",
+               "reviewer_first_name": "Zoe"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 4,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Excellent quality and exactly as described. Very happy with the purchase.",
+               "reviewer_email": "liam.bennett12@example.com",
+               "reviewed_product": "3b027ff0-8307-4fa5-a9c5-73d9e8ae8305",
+               "reviewer_last_name": "Bennett",
+               "reviewer_first_name": "Liam"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 2,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Disappointed with the build quality for the price.",
+               "reviewer_email": "owen.patel32@example.com",
+               "reviewed_product": "3b027ff0-8307-4fa5-a9c5-73d9e8ae8305",
+               "reviewer_last_name": "Patel",
+               "reviewer_first_name": "Owen"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/reviews",
+          "properties": {
+               "rating": 5,
+               "status": "Approved",
+               "is_guest": true,
+               "review_content": "Excellent product. Build quality exceeded my expectations and delivery was fast. Would happily recommend to others.",
+               "reviewer_email": "marcus.bennett@example.com",
+               "reviewed_product": "7540eaa8-d25c-4ce7-9763-1bb4b942023e",
+               "reviewer_last_name": "Bennett",
+               "reviewer_first_name": "Marcus"
+          }
+     }
+]
+{% endparse_json %}
+
+{%- graphql results, models: import_reviews -%}
+     mutation ($models: [CustomizationImport!]!) {
+          import_models(
+               models: $models
+          ) {
+               ids
+          }
+     }
+{%- endgraphql -%}
+{% log results, type: "SEED DATA: Reviews" %}
+{%- else -%}
+{% log existing_reviews_count, type: "SEED DATA: Reviews skipped (records already exist)" %}
+{%- endif -%}

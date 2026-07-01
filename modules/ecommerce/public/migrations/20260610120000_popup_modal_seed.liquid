@@ -1,8 +1,6 @@
 {% comment %}
-    Seed a single DISABLED sample Popup Modal record on install so admins have a
-    template to edit. Guarded: only runs when the table has no records yet, so
-    it never overwrites configured popups or shows a broken popup (it is disabled
-    and has no schedule, so it stays hidden until an admin enables + configures it).
+    Seed the default Popup Modal record on install. Guarded: only runs when the
+    table has no records yet, so it never overwrites a popup an admin has configured.
     The popup_modal table itself is provisioned from schema/popup_modal.yml on deploy.
 {% endcomment %}
 
@@ -29,10 +27,10 @@
             "type_name": "modules/ecommerce/popup_modal",
             "properties": {
                 "popup_heading": "The living room warehouse reset.",
-                "popup_content": "<p>Get premium sofas, cabinets, and lounge sets at up to <strong>80% OFF</strong>.</p>",
+                "popup_content": "<p>Get premium sofas, cabinets, and lounge sets at up to <strong><span style=\"color:#F24B4B;\">80% OFF</span></strong>.</p>\n",
                 "popup_button_label": "Shop living room",
-                "popup_button_url": "/products",
-                "is_popup_enabled": false,
+                "popup_button_url": "/products?page=1&per_page=9&categories=living-room,sofas-and-sectionals,storage,side-tables,accent-chairs",
+                "is_popup_enabled": true,
                 "popup_weight": 100
             }
         }
@@ -46,7 +44,7 @@
             }
         }
     {%- endgraphql -%}
-    {% log results, type: "SEED DATA: Popup Modal (disabled sample)" %}
+    {% log results, type: "SEED DATA: Popup Modal" %}
 {%- else -%}
     {% log existing_count, type: "SEED DATA: Popup Modal skipped (records already exist)" %}
 {%- endif -%}

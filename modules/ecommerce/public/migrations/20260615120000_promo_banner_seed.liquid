@@ -1,8 +1,6 @@
 {% comment %}
-    Seed a single DISABLED sample Promo Banner record on install so admins have a
-    template to edit. Guarded: only runs when the table has no records yet, so it
-    never overwrites configured banners or shows a broken strip (it is disabled and
-    has no schedule, so it stays hidden until an admin enables + configures it).
+    Seed the default Promo Banner records on install. Guarded: only runs when the
+    table has no records yet, so it never overwrites banners an admin has configured.
     The promo_banner table itself is provisioned from schema/promo_banner.yml on deploy.
 {% endcomment %}
 
@@ -28,10 +26,21 @@
         {
             "type_name": "modules/ecommerce/promo_banner",
             "properties": {
+                "promo_message": "Sign up for 10% off your first order!",
+                "promo_link": "/products",
+                "promo_link_label": "See more",
+                "is_promo_enabled": true,
+                "promo_weight": 101,
+                "promo_interval_ms": 5000
+            }
+        },
+        {
+            "type_name": "modules/ecommerce/promo_banner",
+            "properties": {
                 "promo_message": "Free shipping on orders over $500!",
-                "promo_link": "",
-                "promo_link_label": "",
-                "is_promo_enabled": false,
+                "promo_link": "/products",
+                "promo_link_label": "See more",
+                "is_promo_enabled": true,
                 "promo_weight": 100,
                 "promo_interval_ms": 5000
             }
@@ -46,7 +55,7 @@
             }
         }
     {%- endgraphql -%}
-    {% log results, type: "SEED DATA: Promo Banner (disabled sample)" %}
+    {% log results, type: "SEED DATA: Promo Banner" %}
 {%- else -%}
     {% log existing_count, type: "SEED DATA: Promo Banner skipped (records already exist)" %}
 {%- endif -%}
