@@ -10,13 +10,13 @@ metadata: {
  
 {% if company_uuid and company_uuid != '' %}
      {% assign status = 'back_ordered,Back ordered,Back Ordered' | split: ',' %}
-     {%- graphql get_backorders = 'modules/ecommerce/orders/get_orders_by_status', order_company_uuid: company_uuid, orderStatus: status | dig: "items" -%}
+     {%- graphql get_backorders = 'modules/ecommerce/orders/get_orders_total_entries_by_status', order_company_uuid: company_uuid, orderStatus: status | dig: "items" -%}
 
      {% assign status = 'completed,Completed' | split: ',' %}
-     {%- graphql get_completed_orders = 'modules/ecommerce/orders/get_orders_by_status', order_company_uuid: company_uuid, orderStatus: status | dig: "items" -%}
+     {%- graphql get_completed_orders = 'modules/ecommerce/orders/get_orders_total_entries_by_status', order_company_uuid: company_uuid, orderStatus: status | dig: "items" -%}
 
      {% assign status = 'processing,Processing,open,Open' | split: ',' %}
-     {%- graphql get_orders_in_progress = 'modules/ecommerce/orders/get_orders_by_status', order_company_uuid: company_uuid, orderStatus: status | dig: "items" -%}
+     {%- graphql get_orders_in_progress = 'modules/ecommerce/orders/get_orders_total_entries_by_status', order_company_uuid: company_uuid, orderStatus: status | dig: "items" -%}
 {% endif %}
 
 {% comment %} ? Ecommerce Addon Payload {% endcomment %}

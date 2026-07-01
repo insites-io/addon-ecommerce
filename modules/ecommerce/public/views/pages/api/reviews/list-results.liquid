@@ -21,6 +21,8 @@ metadata: {
 {%- assign per_page = context.params.per_page | default: 5 | plus: 0 -%}
 {%- assign product_uuid = context.params.product | strip -%}
 
+{% comment %} total_entries and results in separate queries for optimal performance {% endcomment %}
+{%- graphql reviews_total_entries = 'modules/ecommerce/reviews/get_reviews_total_entries', reviewed_product: product_uuid, page: page, size: per_page | dig: 'items' -%}
 {%- graphql reviews = 'modules/ecommerce/reviews/get_reviews', reviewed_product: product_uuid, page: page, size: per_page | dig: 'items' -%}
 
 {%- capture html -%}
@@ -29,7 +31,7 @@ metadata: {
 
 {
     "html": {{ html | json }},
-    "totalCount": {{ reviews.total_entries | default: 0 }},
+    "totalCount": {{ reviews_total_entries.total_entries | default: 0 }},
     "pageNumber": {{ page }},
     "pageSize": {{ per_page }}
 }

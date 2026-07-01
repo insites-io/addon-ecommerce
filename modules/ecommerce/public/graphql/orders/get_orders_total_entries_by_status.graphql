@@ -1,4 +1,4 @@
-query get_orders_by_status (
+query get_orders_total_entries_by_status (
   $page: Int = 1,
   $size: Int = 1,
   $order_company_uuid: String,

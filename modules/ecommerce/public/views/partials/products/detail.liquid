@@ -298,11 +298,7 @@ metadata: {
                 "is_fixed_tax_amount": "{{ product.is_fixed_tax_amount | default: false }}"
             }
             {% endparse_json %}
-            {%-  comment -%}
-            {% if galleries.size > 0 %}
-                {% assign add_to_cart_data = add_to_cart_data | add_hash_key: 'image', galleries[0] %}
-            {% endif %}   
-            {%- endcomment -%}
+
             {% parse_json add_to_cart_data %}
             {
                 "product_uuid": "{{ product.uuid }}",

@@ -19,7 +19,6 @@ query get_reviews(
     }
     sort: $sort
   ){
-    total_entries
     results {
       id
       created_at

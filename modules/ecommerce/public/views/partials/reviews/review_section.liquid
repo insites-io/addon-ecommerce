@@ -18,7 +18,7 @@ metadata: {
     unless summary
         graphql summary = 'modules/ecommerce/reviews/get_review_summary', reviewed_product: product.uuid | dig: 'items'
     endunless
-    assign rating_count = summary.total_entries | default: 0
+    assign rating_count = summary.results.size
 
     assign sum = 0
     for r in summary.results
@@ -53,7 +53,8 @@ metadata: {
         <ins-button label="Write a review" outlined color="primary" class="review-open-btn"></ins-button>
     </div>
 
-    {% comment %} Reviews list (swap target — items only) {% endcomment %}
+    {% comment %} Reviews list (swap target — items only). total_entries and results in separate queries for optimal performance {% endcomment %}
+    {%- graphql reviews_total_entries = 'modules/ecommerce/reviews/get_reviews_total_entries', reviewed_product: product.uuid, page: page, size: per_page | dig: 'items' -%}
     {%- graphql reviews = 'modules/ecommerce/reviews/get_reviews', reviewed_product: product.uuid, page: page, size: per_page | dig: 'items' -%}
     <div id="review-list-results" data-product-uuid="{{ product.uuid }}">
         {% include 'modules/ecommerce/reviews/review_list', reviews: reviews %}
@@ -63,7 +64,7 @@ metadata: {
 
     {% comment %} Pager: persistent ins-table in AJAX mode (insPaginationChange handled in detail.liquid), with a 5/10/20 per-page selector {% endcomment %}
     {%- assign pagination_data = '{}' | parse_json -%}
-    {%- assign pagination_data = pagination_data | add_hash_key: 'total_entries', reviews.total_entries -%}
+    {%- assign pagination_data = pagination_data | add_hash_key: 'total_entries', reviews_total_entries.total_entries -%}
     {%- assign pagination_data = pagination_data | add_hash_key: 'current_page', page -%}
     {%- assign pagination_data = pagination_data | add_hash_key: 'per_page', per_page -%}
     <div class="review-pagination">

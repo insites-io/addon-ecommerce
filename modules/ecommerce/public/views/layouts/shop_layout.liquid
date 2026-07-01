@@ -50,11 +50,6 @@ metadata: {
     {%- endif -%}
     
     {% include 'modules/website/layout/pixel_tracking' %}
-
-    {%- comment -%}
-    <!-- Try to limit assets that are part of the head / technical head to minimize page size & improve page performance.
-    Assets like 'Google Map API', should only be referenced as needed. -->
-    {%- endcomment -%}
     
     <!-- [Project Assets] -->
     {% include 'modules/website/layout/technical_head' %}

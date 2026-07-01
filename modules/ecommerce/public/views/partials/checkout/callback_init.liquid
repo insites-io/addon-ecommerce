@@ -15,7 +15,7 @@ metadata: {
         Stripe payment process. 
         Export: payment_response 
     {%- endcomment -%}
-    {%- include 'modules/ecommerce/stripe/payment/checkout_payment', form, currency -%}
+    {%- include 'modules/ecommerce/checkout/checkout_payment', form, currency -%}
     {% assign payment_response = context.exports.payment_response %}
 
 {%- else -%}

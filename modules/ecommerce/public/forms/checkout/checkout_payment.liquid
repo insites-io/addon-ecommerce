@@ -280,7 +280,7 @@ callback_actions: >
                     {% comment %} Use block stripe form for Guest Chackout {% endcomment %}
                     <div class="spacer x-small"></div>
                     <div id="guest-add-card-form" class="temp {% if cards.results.size > 0 %}hide{% endif %}">
-                        {% include 'modules/ecommerce/forms/stripe_form', cards: cards %}
+                        {% include 'modules/ecommerce/forms/stripe/stripe_form', cards: cards %}
                     </div>
                 {%- endif -%}
             {% endif %}
@@ -330,10 +330,10 @@ callback_actions: >
         height="255px" 
         width="520px"
         heading="Add new card">
-            {% include 'modules/ecommerce/forms/stripe_form', has_profile %}
+            {% include 'modules/ecommerce/forms/stripe/stripe_form', has_profile %}
     </ins-modal>
 {% endif %}
-{%- include 'modules/ecommerce/forms/stripe_element',
+{%- include 'modules/ecommerce/forms/stripe/stripe_element',
     cc_field_id: "stripe-card",
     public_key: stripe_settings.pk_key,
     has_profile: has_profile -%}

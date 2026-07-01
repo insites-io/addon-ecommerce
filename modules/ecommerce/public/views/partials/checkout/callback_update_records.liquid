@@ -39,7 +39,6 @@ metadata: {
 }
 {% endparse_json %}
 {% assign payment_data = payment_data | add_hash_key: "payment_gateway_details", payment_gateway_details %}
-{% comment %} {% assign payment_data = payment_data | add_hash_key: "computed", temp_computed %} {% endcomment %}
 {%- graphql add_payment = 'modules/ecommerce/system/trigger_api_call', name: "modules/portal/add_payment", data: payment_data | dig: 'items','response','body' | parse_json -%}   
 
 {% comment %} 
