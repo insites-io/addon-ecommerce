@@ -7,6 +7,8 @@
   - Admin-managed synonyms via a new `product_search_synonym` database ("Product Search Synonyms") — terms can be added/edited without code changes; synonyms are bidirectional
   - Keyboard (↑/↓/Enter/Esc) and mouse navigation, load-more on scroll; pressing Enter with no suggestion highlighted runs the standard results-page search
   - New lightweight GraphQL query (`search_products_lite`) and JSON endpoint (`api/products/predictive-search`); ranking is performed client-side
+  - Synonyms now also apply to the full results page: previously typing a synonym (e.g. "parasol") showed matches in the dropdown, but pressing Enter returned an empty list. The server-side product search now expands the keyword to its synonym group so the results page, result count and sidebar facet counts stay in sync with the dropdown
+  - New shared `expand_search_terms` partial; `search_products`, `search_products_total_entries` and `get_product_facets` gained keyword slots for the expanded terms
 
 - Product List — Sidebar Filters
   - New advanced sidebar filters: multi-select categories, price range slider, brands, and availability — with a "Refine by" summary showing applied-filter chips and a clear-all
@@ -65,6 +67,11 @@
   - Checkout now handles names and addresses containing special characters (`"`, `<`, `>`, `&`) correctly across the payment, callback, order-email and Stripe payloads — previously these could break the order
   - Order amounts are emitted as numeric JSON values in checkout data
   - Fixed the order-history access policy (`order_created_date_valid`) to validate against the order details
+
+- Demo / Seed Data
+  - Installing the add-on now seeds a sample furniture catalogue so the storefront is populated out of the box: 25 categories, 30 products (with highlighted tags + low-stock overrides), 133 product reviews, 4 featured categories, a promo banner, a promo popup, and 49 search synonyms
+  - Every seed is guarded — it runs only when its table is empty, so it never overwrites real data. Seed migrations are organised one entity per file and ordered by dependency (constants → categories → category custom fields → products → product custom fields → reviews → search synonyms)
+  - Constants are provisioned from a single migration; added `insites_stripe_sk_live_key` / `insites_stripe_sk_test_key` (seeded with placeholders, set per-site after install)
 
 - Code Cleanup
   - Category menus now fetch their GraphQL data once per request (shared `menu_categories` partial) instead of running the query twice (desktop + mobile) on every page

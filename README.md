@@ -35,8 +35,9 @@ host Website & Portal application.
 
 ## Features
 
-- **Products** — catalogue with predictive/typeahead search, advanced sidebar filters
-  (categories, price range, brands, availability), AJAX result loading, and product reviews.
+- **Products** — catalogue with predictive/typeahead search (synonym-aware, in both the
+  dropdown and the results page), advanced sidebar filters (categories, price range, brands,
+  availability), AJAX result loading, and product reviews.
 - **Cart** — slide-out cart drawer and full cart page.
 - **Discounts** — admin-managed discount codes applied at checkout.
 - **Checkout** — multi-step flow with address lookup; supports guest checkout.
@@ -108,6 +109,24 @@ them with the real keys per-site after installation.
 | Ecommerce | Categories | `is_featured`         | boolean |
 | Ecommerce | Products   | `tags`                | array   |
 | Ecommerce | Products   | `low_stock_override`  | integer |
+
+### Seed Data
+
+Installing the add-on seeds a sample furniture catalogue so the storefront is
+populated out of the box. Each seed migration is **guarded** — it runs only when its
+table is empty, so it never overwrites real data — and they run in dependency order:
+
+| Migration | Seeds |
+| --------- | ----- |
+| `…_constants` | `ecommerce_addon`, price round-off, Stripe key placeholders |
+| `…_categories` | 25 categories (with parent/child hierarchy) |
+| `…_custom_fields_category` | `is_featured` field + 4 featured categories |
+| `…_products` | 30 products |
+| `…_custom_fields_product` | `tags` + `low_stock_override` fields + 30 rows |
+| `…_reviews` | 133 product reviews |
+| `…_product_search_synonyms` | 49 search synonyms |
+| `…_popup_modal_seed` | 1 promo popup |
+| `…_promo_banner_seed` | 2 promo banners |
 
 ### Third-party Integrations
 
