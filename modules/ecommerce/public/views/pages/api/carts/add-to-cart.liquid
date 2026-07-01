@@ -55,6 +55,14 @@ metadata: {
             endif
         endif
 
+        ## Never allow a non-positive quantity. Client steppers use min=1 and removal
+        ## has its own endpoint, so <= 0 only arrives via a tampered request; without
+        ## this it would persist a zero/negative line and undercharge the order (the
+        ## checkout total is quantity * price, summed across items).
+        if quantity < 1
+            assign quantity = 1
+        endif
+
         ## Resolve product SKU and price from product/variant for client-side response
         if product_variant_uuid != blank
             ## The product is a variant

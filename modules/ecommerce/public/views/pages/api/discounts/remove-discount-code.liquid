@@ -12,7 +12,9 @@ metadata: {
 {%- assign status = 200 -%}
 {%- assign payload = context.params.payload -%}
 {%- assign discount_uuid = payload.uuid -%}
-{%- assign user_uuid = payload.contact_uuid -%}
+{%- comment -%} Resolve the cart owner server-side; never trust a client-supplied
+    contact_uuid (it would let a caller remove discounts from another users cart). {%- endcomment -%}
+{%- function user_uuid = 'modules/ecommerce/user/get_user_uuid' -%}
 
 
 {%- if user_uuid and discount_uuid -%}

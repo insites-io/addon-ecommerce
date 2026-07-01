@@ -29,8 +29,11 @@ metadata: {
    
 
 
-    {%- comment -%} 
-        - STEP 2: Prepare Stripe Charge API request with relevant details
+    {%- comment -%}
+        - STEP 2: Prepare Stripe Charge API request with relevant details.
+        prop.total_amount is authoritative: the order form sets it in default_payload
+        (compute_order_summary, server-side), which overwrites any submitted value on
+        the server side — a crafted POST cannot change it.
     {%- endcomment -%}
     {% assign stripe_amount = prop.total_amount | times: 100 %}
     {% function stripe_settings = "modules/portal/stripe/get_stripe_settings" %}

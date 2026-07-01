@@ -10,24 +10,8 @@ metadata: {
     "is_sitemap_enabled": true,
     "sitemap_priority": "1.0",
     "sitemap_order": "1", 
-    "sitemap_change_frequency": "monthly"  
+    "sitemap_change_frequency": "monthly"
 }
-dynamic_cache:
-  layout: true
-  key: |-
-    {%- parse_json models -%}
-    [
-      "modules/insites_ecommerce/cart",
-      "modules/insites_ecommerce/cart_item",
-      "modules/insites_ecommerce/cart_discount",
-      "modules/insites_ecommerce/discount",
-      "modules/insites_ecommerce/product",
-      "modules/insites_ecommerce/product_variant",
-      "modules/ecommerce/promo_banner"
-    ]
-    {%- endparse_json -%}
-    {%- include "modules/website/cache/generate_cache_key", models: models -%}
-    {{ context.current_user.id }}-{{ context.session.guest_temp_uuid }}
 ---
 {% function user_uuid = 'modules/ecommerce/user/get_user_uuid' %}
 

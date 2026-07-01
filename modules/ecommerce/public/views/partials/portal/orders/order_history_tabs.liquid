@@ -15,24 +15,38 @@ metadata: {
 
   graphql order = "modules/ecommerce/orders/get_order_details", id: context.params.slug2, is_shipping_info_needed: true | dig: 'items','results' | first
 
-  function localisation_date_format = 'modules/ecommerce/localisation/get_localisation'
-  if localisation_date_format == 'DD/MM/YYYY'
-    assign date_time = order.date_time | date: '%d/%m/%Y'
-  else
-    assign date_time = order.date_time | date: '%m/%d/%Y'
+  ## Access control: the order id comes straight from the URL (params.slug2) and ids
+  ## are sequential, so without this check any logged-in user could read any order.
+  ## Mirror the list view scope: allow orders belonging to the viewers company; also
+  ## allow the viewers own orders (covers individual accounts with no company). Anything
+  ## else is treated as not-found (/404) so we do not leak that the order exists.
+  graphql viewer_company_uuid = 'modules/ecommerce/account/get_current_user' | dig: 'current_user','crm_contact' | first | dig: 'company_uuid'
+  assign is_owner = false
+  if viewer_company_uuid != blank and viewer_company_uuid != '' and order.order_company_uuid == viewer_company_uuid
+    assign is_owner = true
+  elsif order.order_contact_uuid != blank and order.order_contact_uuid == context.current_user.external_id
+    assign is_owner = true
+  endif
+  ## Only fetch/format the order for an authorised viewer; the HTML body below is
+  ## gated on is_owner and non-owners are redirected to /404 (see the wrapping
+  ## if/else), so another persons order is never rendered into the response.
+  if is_owner
+    function localisation_date_format = 'modules/ecommerce/localisation/get_localisation'
+    if localisation_date_format == 'DD/MM/YYYY'
+      assign date_time = order.date_time | date: '%d/%m/%Y'
+    else
+      assign date_time = order.date_time | date: '%m/%d/%Y'
+    endif
+
+    comment
+      Get products info
+    endcomment
+    graphql ordered_items = 'modules/ecommerce/order_items/get_order_items', order_uuid: order.uuid, is_product_info_needed: true | dig: 'items','results'
   endif
 
-  comment
-    Get products info 
-  endcomment
-  if order.uuid
-    graphql ordered_items = 'modules/ecommerce/order_items/get_order_items', order_uuid: order.uuid, is_product_info_needed: true | dig: 'items','results'
-  else 
-    redirect_to '/404'
-  endif
-  
 %}
 
+{%- if is_owner -%}
 
  {% comment %} Get items to be reordered {% endcomment %}
 {% assign reorder_items = '' | split: ',' %}
@@ -152,9 +166,13 @@ metadata: {
 <script>
   const reorderBtn = document.getElementById("reorder-btn");
   if(reorderBtn){
-    reorderBtn.addEventListener('insClick', async event => {   
+    reorderBtn.addEventListener('insClick', async event => {
       reorderBtn.loading = true;
       await addToCartPreProcess(event, 'reorder');
     });
   }
 </script>
+
+{%- else -%}
+  {%- redirect_to '/404' -%}
+{%- endif -%}

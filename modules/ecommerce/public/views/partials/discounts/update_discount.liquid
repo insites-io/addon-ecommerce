@@ -27,7 +27,11 @@ metadata: {
                 discount_uuid: discount_uuid | dig: 'items','results' | first %}
             
             {% if discount_details.uuid %}
+                {% comment %} uuid is a custom property on this table and is not auto-filled;
+                   generate it here so the record matches cart/cart_item (which set theirs). {% endcomment %}
+                {% assign new_cart_discount_uuid = '' | uuid %}
                 {% graphql create_cart_discount = 'modules/ecommerce/cart_discounts/add_cart_discount',
+                    uuid: new_cart_discount_uuid,
                     cart_uuid: user_cart.uuid,
                     discount_uuid: discount_uuid,
                     discount_name: discount_details.discount_name,
