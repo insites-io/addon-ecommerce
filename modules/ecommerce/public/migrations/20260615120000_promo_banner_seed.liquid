@@ -1,0 +1,61 @@
+{% comment %}
+    Seed the default Promo Banner records on install. Guarded: only runs when the
+    table has no records yet, so it never overwrites banners an admin has configured.
+    The promo_banner table itself is provisioned from schema/promo_banner.yml on deploy.
+{% endcomment %}
+
+{%- graphql existing -%}
+  query {
+    items: records(
+      per_page: 1
+      filter: {
+        table: { value: "modules/ecommerce/promo_banner" }
+        deleted_at: { exists: false }
+      }
+    ) {
+      total_entries
+    }
+  }
+{%- endgraphql -%}
+
+{%- assign existing_count = existing.items.total_entries | default: 0 -%}
+
+{%- if existing_count == 0 -%}
+    {% parse_json import_banners %}
+    [
+        {
+            "type_name": "modules/ecommerce/promo_banner",
+            "properties": {
+                "promo_message": "Sign up for 10% off your first order!",
+                "promo_link": "/products",
+                "promo_link_label": "See more",
+                "is_promo_enabled": true,
+                "promo_weight": 101,
+                "promo_interval_ms": 5000
+            }
+        },
+        {
+            "type_name": "modules/ecommerce/promo_banner",
+            "properties": {
+                "promo_message": "Free shipping on orders over $500!",
+                "promo_link": "/products",
+                "promo_link_label": "See more",
+                "is_promo_enabled": true,
+                "promo_weight": 100,
+                "promo_interval_ms": 5000
+            }
+        }
+    ]
+    {% endparse_json %}
+
+    {%- graphql results, models: import_banners -%}
+        mutation ($models: [CustomizationImport!]!) {
+            import_models(models: $models) {
+                ids
+            }
+        }
+    {%- endgraphql -%}
+    {% log results, type: "SEED DATA: Promo Banner" %}
+{%- else -%}
+    {% log existing_count, type: "SEED DATA: Promo Banner skipped (records already exist)" %}
+{%- endif -%}

@@ -72,7 +72,6 @@ metadata: {
         assign temp_cart_item_quantity = cart_item.quantity | plus: 0
         assign properties = properties | add_hash_key: 'quantity', temp_cart_item_quantity
         assign properties = properties | add_hash_key: 'is_fixed_tax_amount', selected_prop.is_fixed_tax_amount
-        assign properties = properties | add_hash_key: 'is_use_sale_price', selected_prop.is_on_sale
         if selected_prop.is_on_sale == true
             assign unit_price_includes_tax = selected_prop.is_sale_price_tax_included
         else

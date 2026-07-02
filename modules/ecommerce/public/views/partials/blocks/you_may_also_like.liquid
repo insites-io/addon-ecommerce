@@ -3,23 +3,74 @@ metadata: {
     partial_name: 'Ecommerce | Blocks | You May Also Like'
 }
 ---
-<section class="bg-color-ui-01">
+{%- assign ymal_id = '' | uuid -%}
+<section class="bg-color-ui-01 ymal-section is-loading" id="ymal-{{ ymal_id }}">
     <div class="spacer xxxx-large"></div>
     {% if heading_level == 'h2' %}
         <h2 class="heading-5">You may also like</h2>
     {% else %}
         <h5>You may also like</h5>
-    {% endif %}  
+    {% endif %}
     <div class="spacer x-large"></div>
 
-    {% graphql products = "modules/ecommerce/products/get_products", not_uuid: not_uuid, size: 4 | dig: 'items','results' %}    
+    {% graphql products = "modules/ecommerce/products/get_products", not_uuid: not_uuid, size: 4 | dig: 'items','results' %}
 
-    <div id="product-grid" class="product-cards products-grid grid-x grid-padding-x grid-padding-y large-up-4 medium-up-3 small-up-1">
-    
+    {% comment %} Card enrichment (tags, rating, sold) — batched, looked up by uuid in the card {% endcomment %}
+    {%- include 'modules/ecommerce/products/enrich_cards', products: products -%}
+    {%- assign cf_rows = context.exports.cf_rows -%}
+    {%- assign review_rows = context.exports.review_rows -%}
+    {%- assign sold_rows = context.exports.sold_rows -%}
+
+    {%- if products.size > 0 -%}
+    {% comment %} Skeleton shown until the cards' web components hydrate (matches the
+        New Arrivals / What's Hot carousels). The inline script swaps it for the real
+        grid once the cards' ins-buttons report hydrated. {% endcomment %}
+    <div class="ymal-skeleton product-cards grid-x grid-padding-x grid-padding-y large-up-4 medium-up-3 small-up-1" aria-hidden="true">
+        {% for i in (1..4) %}
+        <div class="cell">
+            <div class="product-card-skeleton">
+                <div class="sk-image"></div>
+                <div class="sk-line sk-cat"></div>
+                <div class="sk-line sk-title"></div>
+                <div class="sk-line sk-price"></div>
+                <div class="sk-btn"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {%- endif -%}
+
+    <div class="ymal-grid product-cards products-grid grid-x grid-padding-x grid-padding-y large-up-4 medium-up-3 small-up-1">
+
         {% for product in products %}
-            {% include "modules/ecommerce/products/product_card", product: product %}
+            {% include "modules/ecommerce/products/product_card", product: product, cf_rows: cf_rows, review_rows: review_rows, sold_rows: sold_rows %}
         {% endfor %}
 
     </div>
-    
+
+    {% comment %} Without JS, never leave the skeleton up — the `html.no-js` rules in
+        ecommerce.css hide the skeleton and show the grid. {% endcomment %}
 </section>
+
+<script>
+(function () {
+    var section = document.getElementById('ymal-{{ ymal_id }}');
+    if (!section) { return; }
+    function reveal() { section.classList.remove('is-loading'); }
+    var grid = section.querySelector('.ymal-grid');
+    if (!grid) { reveal(); return; }
+
+    var tries = 0;
+    var maxTries = 180; // ~3s safety net so the skeleton can't stay up
+    function check() {
+        tries++;
+        var btns = grid.querySelectorAll('ins-button');
+        var ready = btns.length === 0 || Array.prototype.every.call(btns, function (b) {
+            return b.classList.contains('hydrated');
+        });
+        if (ready || tries >= maxTries) { reveal(); return; }
+        requestAnimationFrame(check);
+    }
+    requestAnimationFrame(check);
+})();
+</script>

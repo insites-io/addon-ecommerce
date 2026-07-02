@@ -1,0 +1,93 @@
+name: popup_modal
+metadata:
+  label: "Popup Modal"
+  groups: [{"id":"428ecb48-f265-407b-9233-ec86a196ae67","name":"Popup","weight":0}]
+  is_archived: false
+properties:
+- name: popup_image
+  type: upload
+  metadata:
+    label: "Popup Image"
+    weight: 0
+    group_id: "428ecb48-f265-407b-9233-ec86a196ae67"
+    ui_element: "media_image"
+    is_required: false
+    max_file_size: 10
+  options:
+    acl: public
+    cache_control: ""
+    content_disposition: inline
+- name: popup_heading
+  type: string
+  metadata:
+    label: "Popup Heading"
+    weight: 1
+    group_id: "428ecb48-f265-407b-9233-ec86a196ae67"
+    ui_element: "input"
+    is_required: true
+    is_searchable: true
+    is_shown_in_table: true
+- name: popup_content
+  type: string
+  metadata:
+    label: "Popup Content"
+    weight: 2
+    group_id: "428ecb48-f265-407b-9233-ec86a196ae67"
+    ui_element: "multi_line"
+    is_required: false
+    is_searchable: true
+- name: popup_button_label
+  type: string
+  metadata:
+    label: "Popup Button Label"
+    weight: 3
+    group_id: "428ecb48-f265-407b-9233-ec86a196ae67"
+    ui_element: "input"
+    is_required: false
+- name: popup_button_url
+  type: string
+  metadata:
+    label: "Popup Button URL"
+    weight: 4
+    group_id: "428ecb48-f265-407b-9233-ec86a196ae67"
+    ui_element: "input"
+    is_required: false
+- name: is_popup_enabled
+  type: boolean
+  metadata:
+    label: "Is Popup Enabled"
+    weight: 5
+    group_id: "428ecb48-f265-407b-9233-ec86a196ae67"
+    ui_element: "toggle"
+    is_required: true
+    is_shown_in_table: true
+- name: popup_weight
+  type: integer
+  metadata:
+    label: "Popup Weight"
+    weight: 6
+    group_id: "428ecb48-f265-407b-9233-ec86a196ae67"
+    ui_element: "number"
+    is_required: false
+    is_sortable: true
+    is_shown_in_table: true
+- name: popup_start_at
+  type: datetime
+  metadata:
+    label: "Popup Start At"
+    weight: 7
+    group_id: "428ecb48-f265-407b-9233-ec86a196ae67"
+    ui_element: "date_time"
+    is_required: false
+    is_sortable: true
+    is_shown_in_table: true
+- name: popup_end_at
+  type: datetime
+  metadata:
+    label: "Popup End At"
+    weight: 8
+    group_id: "428ecb48-f265-407b-9233-ec86a196ae67"
+    ui_element: "date_time"
+    is_required: false
+    is_sortable: true
+    is_shown_in_table: true

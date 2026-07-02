@@ -1,8 +1,7 @@
 //This script is included in the app-portal
 var apiServices = (function () { 
-    const
-        defaultApiUrl = "/api";
-        request = axios.create({});
+    const defaultApiUrl = "/api";
+    const request = axios.create({});
 
     let config = {
         headers: {
@@ -13,11 +12,11 @@ var apiServices = (function () {
     };
 
     // Axios Processor
-    async function processRequest(method, url, payload, headers = config.headers, customApiUrl = null) {
-        let endpoint = (customApiUrl || defaultApiUrl) + url;
+    async function processRequest(method, url, payload) {
+        let endpoint = defaultApiUrl + url;
         let process = method.toLowerCase() === 'get'
-            ? request.get(endpoint, { headers })
-            : request[method](endpoint, payload, { headers });
+            ? request.get(endpoint, { headers: config.headers })
+            : request[method](endpoint, payload, { headers: config.headers });
 
         return await process.then(response => {
             if (response.data.errors) {

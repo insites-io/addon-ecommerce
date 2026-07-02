@@ -12,12 +12,20 @@ metadata: {
 
 {% assign all_categories = context.exports.all_categories %}
 
+{% comment %} Card enrichment (tags, rating, sold) — batched once, reused across the 3 carousels {% endcomment %}
+{%- include 'modules/ecommerce/products/enrich_cards', products: products -%}
+{%- assign cf_rows = context.exports.cf_rows -%}
+{%- assign review_rows = context.exports.review_rows -%}
+{%- assign sold_rows = context.exports.sold_rows -%}
+
 <section class="wrapper">
     <div class="spacer xxxx-large"></div>
-    <div class="product-carousel">
+    <div class="product-carousel is-loading">
+
+        {%- include 'modules/ecommerce/blocks/carousel_skeleton' -%}
 
         <!-- desktop carousel -->
-        <ins-carousel 
+        <ins-carousel
             id="whatsHotCarouselDesktop"
             class="whatsHotCarousel carouselDesktop show-for-large"
             layout="1"
@@ -29,7 +37,7 @@ metadata: {
             <div class="spacer xx-large"></div>
             <div id="whatsHotCardsDesktop" class="product-cards">
                 {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, heading_level: 'h4' %}
+                    {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, cf_rows: cf_rows, review_rows: review_rows, sold_rows: sold_rows, heading_level: 'h4' %}
                 {% endfor %}
             </div>
         </ins-carousel>
@@ -53,7 +61,7 @@ metadata: {
             <div class="spacer xx-large"></div>
             <div id="whatsHotCardsTablet" class="product-cards">
                 {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, heading_level: 'h4' %}
+                    {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, cf_rows: cf_rows, review_rows: review_rows, sold_rows: sold_rows, heading_level: 'h4' %}
                 {% endfor %}
             </div>
         </ins-carousel>
@@ -74,7 +82,7 @@ metadata: {
                 <div class="spacer"></div>
                 <div id="whatsHotCardsMobile" class="product-cards">
                     {% for product in products %}
-                        {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, heading_level: 'h4' %}
+                        {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, cf_rows: cf_rows, review_rows: review_rows, sold_rows: sold_rows, heading_level: 'h4' %}
                     {% endfor %}
                 </div>
             </ins-carousel>
@@ -89,19 +97,30 @@ metadata: {
 var whatsHotCarousel = document.querySelectorAll('.whatsHotCarousel');
 var showAllLink = {};
 
+function whatsHotReveal() {
+    var wrap = document.querySelector('#whatsHotCarouselDesktop')
+        && document.querySelector('#whatsHotCarouselDesktop').closest('.product-carousel');
+    if (wrap) wrap.classList.remove('is-loading');
+}
+
 whatsHotCarousel.forEach(carousel => {
     var carouselID = carousel.id;
-    carousel.addEventListener('didLoad', event => {     
-        var carouselCtrlBtns = document.querySelector(`#${carouselID} .ins-carousel_ctrl-btns`);  
-        if(carouselCtrlBtns && showAllLink[carouselID] !== true){            
+    carousel.addEventListener('didLoad', event => {
+        // Carousel has hydrated — drop the skeleton overlay.
+        whatsHotReveal();
+        var carouselCtrlBtns = document.querySelector(`#${carouselID} .ins-carousel_ctrl-btns`);
+        if(carouselCtrlBtns && showAllLink[carouselID] !== true){
             var newLink = document.createElement('a');
                 newLink.href = "/products";
                 newLink.textContent = "Shop all";
-                newLink.className = "shop-all-link"; 
-            carouselCtrlBtns.appendChild(newLink);  
-            showAllLink[carouselID] = true;           
-        }               
-    });          
+                newLink.className = "shop-all-link";
+            carouselCtrlBtns.appendChild(newLink);
+            showAllLink[carouselID] = true;
+        }
+    });
 });
+
+// Safety net: never leave the skeleton up if didLoad doesn't fire.
+setTimeout(whatsHotReveal, 4000);
 </script>
 {% endif %}

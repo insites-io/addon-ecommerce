@@ -50,11 +50,6 @@ metadata: {
     {%- endif -%}
     
     {% include 'modules/website/layout/pixel_tracking' %}
-
-    {%- comment -%}
-    <!-- Try to limit assets that are part of the head / technical head to minimize page size & improve page performance.
-    Assets like 'Google Map API', should only be referenced as needed. -->
-    {%- endcomment -%}
     
     <!-- [Project Assets] -->
     {% include 'modules/website/layout/technical_head' %}
@@ -62,7 +57,10 @@ metadata: {
 </head>
 <body>
     <div class="main-wrap checkout">
-        
+
+        {% comment %} Promo banner strip — above the header, outside the header cache {% endcomment %}
+        {% include 'modules/ecommerce/banners/promo_banner' %}
+
         {%- capture website_header_key -%} {{ layout_cache_key }}-{{context.current_user.id}}-{{context.device.device_type}} {%- endcapture -%}
         {%- cache website_header_key -%}                    
             {% include 'modules/website/layout/header' %}
@@ -73,7 +71,7 @@ metadata: {
             {% assign category = categories.first %}
             {% assign product = products.first %}            
 
-            <div class="breadbrumbs__wrapper">
+            <nav class="breadbrumbs__wrapper" aria-label="Breadcrumb">
                 <div class="breadcrumbs grid-x">
                     <a href="/products">All products</a>                        
                     
@@ -81,47 +79,47 @@ metadata: {
 
                         {% comment %} top tier category {% endcomment %}
                         {%- if category.parent_category.main_category.slug -%}
-                            <i class="icon-chevron-right"></i>
+                            <i class="icon-chevron-right" aria-hidden="true"></i>
                             <a href="/products/{{ category.parent_category.main_category.slug }}">{{ category.parent_category.main_category.category_name }}</a>                                 
                         {%- endif -%}
 
                         {% comment %} sub tier category {% endcomment %}
                         {%- if category.parent_category.slug -%}
-                            <i class="icon-chevron-right"></i>
+                            <i class="icon-chevron-right" aria-hidden="true"></i>
                             <a href="/products/{{ category.parent_category.slug }}">{{ category.parent_category.category_name }}</a> 
                         {%- endif -%}
 
                         {% comment %} category {% endcomment %}
-                        <i class="icon-chevron-right"></i>
-                        <span class="active">{{ category.category_name }}</span>                          
+                        <i class="icon-chevron-right" aria-hidden="true"></i>
+                        <span class="active" aria-current="page">{{ category.category_name }}</span>                          
 
                     {%- elsif product.id -%}
 
                         {%- if product.category.parent_category.main_category.slug -%}
-                            <i class="icon-chevron-right"></i>
+                            <i class="icon-chevron-right" aria-hidden="true"></i>
                             <a href="/products/{{ product.category.parent_category.main_category.slug }}">{{ product.category.parent_category.main_category.category_name }}</a>
                         {%- endif -%}
 
                         {%- if product.category.parent_category.slug -%}
-                            <i class="icon-chevron-right"></i>
+                            <i class="icon-chevron-right" aria-hidden="true"></i>
                             <a href="/products/{{ product.category.parent_category.slug }}">{{ product.category.parent_category.category_name }}</a>
                         {%- endif -%}
 
                         {%- if product.category.parent_category.slug and product.category.slug -%}
-                            <i class="icon-chevron-right"></i>
+                            <i class="icon-chevron-right" aria-hidden="true"></i>
                             <a href="/products/{{ product.category.parent_category.slug }}?category={{ product.category.slug }}">{{ product.category.category_name }}</a>
                         {%- elsif product.category.slug -%}
-                            <i class="icon-chevron-right"></i>
+                            <i class="icon-chevron-right" aria-hidden="true"></i>
                             <a href="/products/{{ product.category.slug }}">{{ product.category.category_name }}</a>
                         {%- endif -%}
 
-                        <i class="icon-chevron-right"></i>
-                        <span class="active">{{ product.product_name }}</span> 
+                        <i class="icon-chevron-right" aria-hidden="true"></i>
+                        <span class="active" aria-current="page">{{ product.product_name }}</span> 
 
                     {%- endif -%}   
                                 
                 </div>
-            </div>
+            </nav>
         {%- endif -%}
         <div class="wrapper">
             <div class="grid-container">

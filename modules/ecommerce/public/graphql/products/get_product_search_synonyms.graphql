@@ -1,0 +1,21 @@
+query get_product_search_synonyms(
+  $page: Int = 1,
+  $size: Int = 200
+){
+  ## Admin-managed synonyms for the predictive product search.
+  ## Rows are maintained in the "Product Search Synonyms" database; the
+  ## front-end (predictive-search.js) reads them via the page injection.
+  items: records(
+    page: $page
+    per_page: $size
+    filter:{
+      table:{ value:"modules/ecommerce/product_search_synonym" }
+    }
+    sort: [{ properties: [{ name: "term", order: ASC }] }]
+  ){
+    results {
+      term: property(name: "term")
+      synonyms: property(name: "synonyms")
+    }
+  }
+}

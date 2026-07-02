@@ -1,0 +1,177 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Client Portal | Order History Detail'
+}
+---
+
+{%- if order -%}
+    <div class="grid-x grid-padding-x">
+
+        {% comment %} 1st Column {% endcomment %}
+        <div class="large-6 medium-12 small-12 cell">
+            <div class="grid-y">
+                {% comment %} Payment Details {% endcomment %}
+                <div class="wrap">
+                    <h2 class="heading-5 color-font-sub">Contact details</h2>
+                    <div class="spacer small"></div>
+                    {%- if order.order_company_name -%}
+                        <p>{{ order.order_company_name }}</p>
+                    {%- endif -%}
+                    <p>{{ order.order_contact_first_name | append: " " | append: order.order_contact_last_name }}</p>
+                    <p>
+                        {%- if order.order_contact_phone_country_code -%} ({{ order.order_contact_phone_country_code }}) {%- endif -%}
+                        {{ order.order_contact_phone_number }}
+                    </p>
+                    <p>{{ order.order_contact_email }}</p>
+                    <div class="spacer x-large"></div>
+                </div>
+
+                {% comment %} Shipping Details {% endcomment %}
+                <div class="wrap">
+                    <h2 class="heading-5 color-font-sub">Shipping details</h2>
+                    <div class="spacer small"></div>
+                    {%- if order.shipping_company_name -%}
+                        <p>{{ order.shipping_company_name }}</p>
+                    {%- endif -%}
+                    <p>{{ order.shipping_contact_first_name | append: " " | append: order.shipping_contact_last_name }}</p>
+                    <p>{{ order.shipping_contact_email }}</p>
+                    <p>
+                        {%- if order.shipping_contact_phone_country_code -%} ({{ order.shipping_contact_phone_country_code }}) {%- endif -%}
+                        {{ order.shipping_contact_phone_number }}
+                    </p>
+                    {%- assign shipping_address = '' | split: ',' -%}
+                    {%- if order.shipping_address_1 and order.shipping_address_1 != '' -%}
+                        {%- assign shipping_address = shipping_address | array_add: order.shipping_address_1 -%}
+                    {%- endif -%}
+                    {%- if order.shipping_address_2 and order.shipping_address_2 != '' -%}
+                        {%- assign shipping_address = shipping_address | array_add: order.shipping_address_2 -%}
+                    {%- endif -%}
+                    {%- if order.shipping_address_3 and order.shipping_address_3 != '' -%}
+                        {%- assign shipping_address = shipping_address | array_add: order.shipping_address_3 -%}
+                    {%- endif -%}
+                    {%- if order.shipping_suburb and order.shipping_suburb != '' -%}
+                        {%- assign shipping_address = shipping_address | array_add: order.shipping_suburb -%}
+                    {%- endif -%}
+                    {%- if order.shipping_state and order.shipping_state != '' -%}
+                        {%- assign shipping_address = shipping_address | array_add: order.shipping_state -%}
+                    {%- endif -%}
+                    {%- if order.shipping_postcode and order.shipping_postcode != '' -%}
+                        {%- assign shipping_address = shipping_address | array_add: order.shipping_postcode -%}
+                    {%- endif -%}
+                    {%- if order.shipping_country and order.shipping_country != '' -%}
+                        {%- assign shipping_address = shipping_address | array_add: order.shipping_country -%}
+                    {%- endif -%}
+                    
+                    <p>{{ shipping_address | join: ', ' | replace: ' ,', ',' }}</p>
+                    <div class="spacer large"></div>
+                </div>
+
+                {% comment %} Shipping Instructions {% endcomment %}
+                <div class="wrap">
+                    <h2 class="heading-5 color-font-sub">Shipping instructions</h2>
+                    <div class="spacer small"></div>
+                    <div class="preserve-line-break">{{ order.shipping_instructions | default: '-' }}</div>
+                    <div class="spacer large"></div>
+                </div>
+
+                {% comment %} Notes {% endcomment %}
+                <div class="wrap">
+                    <h2 class="heading-5 color-font-sub">Notes</h2>
+                    <div class="spacer small"></div>
+                    <div class="preserve-line-break">{{ order.notes | default: '-' }}</div>
+                    <div class="spacer large"></div>
+                </div>
+
+            </div>
+        </div>
+
+        {% comment %} 2nd Column {% endcomment %}
+        <div class="large-6 medium-12 small-12 cell">
+            <div class="grid-y">
+
+                {% comment %} Billing Details {% endcomment %}
+                <div class="wrap">
+                    <h2 class="heading-5 color-font-sub">Billing details</h2>
+                    <div class="spacer small"></div>
+                    {%- if order.billing_company_name -%}
+                        <p>{{ order.billing_company_name }}</p>
+                    {%- endif -%}
+                    <p>{{ order.billing_contact_first_name | append: " " | append: order.billing_contact_last_name }}</p>
+                    <p>{{ order.billing_contact_email }}</p>
+                    <p>
+                        {%- if order.billing_contact_phone_country_code -%} ({{ order.billing_contact_phone_country_code }}) {%- endif -%}
+                        {{ order.billing_contact_phone_number }}
+                    </p>
+
+                    {%- assign billing_address = '' | split: ',' -%}
+                    {%- if order.billing_address_1 and order.billing_address_1 != '' -%}
+                        {%- assign billing_address = billing_address | array_add: order.billing_address_1 -%}
+                    {%- endif -%}
+                    {%- if order.billing_address_2 and order.billing_address_2 != '' -%}
+                        {%- assign billing_address = billing_address | array_add: order.billing_address_2 -%}
+                    {%- endif -%}
+                    {%- if order.billing_address_3 and order.billing_address_3 != '' -%}
+                        {%- assign billing_address = billing_address | array_add: order.billing_address_3 -%}
+                    {%- endif -%}
+                    {%- if order.billing_suburb and order.billing_suburb != '' -%}
+                        {%- assign billing_address = billing_address | array_add: order.billing_suburb -%}
+                    {%- endif -%}
+                    {%- if order.billing_state and order.billing_state != '' -%}
+                        {%- assign billing_address = billing_address | array_add: order.billing_state -%}
+                    {%- endif -%}
+                    {%- if order.billing_postcode and order.billing_postcode != '' -%}
+                        {%- assign billing_address = billing_address | array_add: order.billing_postcode -%}
+                    {%- endif -%}
+                    {%- if order.billing_country and order.billing_country != '' -%}
+                        {%- assign billing_address = billing_address | array_add: order.billing_country -%}
+                    {%- endif -%}
+                    <p>{{ billing_address | join: ', ' | replace: ' ,', ',' }}</p>
+                    <div class="spacer large"></div>
+                </div>
+
+                {% comment %} Payment Details {% endcomment %}
+                <div class="wrap">
+                    <h2 class="heading-5 color-font-sub">Payment details</h2>
+                    <div class="spacer small"></div>
+                    {%- if order.payment.card_last_four_digits -%}
+                        <p>{{ order.payment.card_brand | upcase }} **** **** **** {{ order.payment.card_last_four_digits }}</p>
+                        {%- assign month = order.payment.card_expiry_month -%}
+                        {%- if order.payment.card_expiry_month.size < 2 -%}
+                            {%- assign month = "0" | append: order.payment.card_expiry_month -%}
+                        {%- endif -%}
+                        <p>{{ month }} / {{ order.payment.card_expiry_year }}</p>
+                    {%- else -%}
+                        <p>-</p>
+                    {%- endif -%}
+                    <div class="spacer large"></div>
+                </div>
+
+                {% comment %} Order Status {% endcomment %}
+                {%- assign order_status_display = order.order_status | replace: "_", " " | capitalize -%}
+                <div class="wrap">
+                    <h2 class="heading-5 color-font-sub">Order status</h2>
+                    <div class="spacer small"></div>
+                    <ins-tag label="{{ order_status_display | titleize }}" class="tagged {{ order_status_display | titleize }}"></ins-tag>
+                    <div class="spacer large"></div>
+                </div>
+
+                {% comment %} Payment Status {% endcomment %}
+                {%- assign payment_status_display = order.order_payment_status | replace: "_", " " | capitalize -%}
+                <div class="wrap">
+                    <h2 class="heading-5 color-font-sub">Payment status</h2>
+                    <div class="spacer small"></div>
+                    <ins-tag label="{{ payment_status_display }}" class="tagged {{ payment_status_display }}"></ins-tag>
+                    <div class="spacer large"></div>
+                </div>
+
+                {% comment %} Shipping Status {% endcomment %}
+                 {%- assign shipping_status_display = order.order_shipping_status | default: 'Processing' | replace: "_", " " | capitalize -%}
+                <div class="wrap">
+                    <h2 class="heading-5 color-font-sub">Shipping status</h2>
+                    <div class="spacer small"></div>
+                    <ins-tag label="{{ shipping_status_display }}" class="tagged {{ shipping_status_display }}"></ins-tag>
+                </div>
+            </div>
+        </div>      
+    </div>
+{%- endif -%}

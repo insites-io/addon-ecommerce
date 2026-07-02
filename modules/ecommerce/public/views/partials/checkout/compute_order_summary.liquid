@@ -271,6 +271,7 @@ metadata: {
 {% parse_json computed %}
 {
     "sub_total_amount": {{ sub_total_amount | default: 0 }},
+    "net_subtotal_amount": {{ combined_base | default: 0 }},
     "shipping_amount": {{ sub_total_shipping | default: 0 }},
     "total_discount_amount": {{ total_discount | default: 0 }},
     "processing_fee": {{ processing_fee | default: 0 }},

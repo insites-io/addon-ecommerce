@@ -13,7 +13,11 @@ metadata: {
     liquid
 
     assign params = context.params
-    assign contact_uuid = params.contact_uuid
+    ## Resolve the cart owner server-side — never trust a client-supplied
+    ## contact_uuid (it would let a caller read or modify carts belonging to
+    ## others). A member is identified by current_user.external_id, a guest by
+    ## their session guest_temp_uuid (same resolution used across the storefront).
+    function contact_uuid = 'modules/ecommerce/user/get_user_uuid'
     assign product_uuid = params.product_uuid
     assign product_variant_uuid = params.product_variant_uuid
     assign quantity = params.quantity | times: 1.0
@@ -51,6 +55,14 @@ metadata: {
             endif
         endif
 
+        ## Never allow a non-positive quantity. Client steppers use min=1 and removal
+        ## has its own endpoint, so <= 0 only arrives via a tampered request; without
+        ## this it would persist a zero/negative line and undercharge the order (the
+        ## checkout total is quantity * price, summed across items).
+        if quantity < 1
+            assign quantity = 1
+        endif
+
         ## Resolve product SKU and price from product/variant for client-side response
         if product_variant_uuid != blank
             ## The product is a variant
@@ -58,20 +70,30 @@ metadata: {
             graphql product_variant_data = 'modules/ecommerce/products/get_product_variant', uuid: product_variant_uuid | dig: 'items','results' | first
 
             assign product_sku = product_variant_data.product_sku
-            if product_variant_data.is_on_sale == true or product_variant_data.is_on_sale == 'true'
-                assign product_price = product_variant_data.sale_price
-            else
-                assign product_price = product_variant_data.regular_price
+            ## Net (ex-tax) price for the client-side cart drawer — effective_price
+            ## (v5.11.3). Response-only: never persisted to the cart_item record.
+            assign product_price = product_variant_data.effective_price
+            if product_price == blank or product_price == null
+                if product_variant_data.is_on_sale == true or product_variant_data.is_on_sale == 'true'
+                    assign product_price = product_variant_data.sale_price
+                else
+                    assign product_price = product_variant_data.regular_price
+                endif
             endif
 
             assign prod_details = prod_details | add_hash_key: 'product_options', product_variant_data.product_options
         else
             ## The product is NOT a variant
             assign product_sku = product_data.sku
-            if product_data.is_on_sale == true or product_data.is_on_sale == 'true'
-                assign product_price = product_data.sale_price
-            else
-                assign product_price = product_data.regular_price
+            ## Net (ex-tax) price for the client-side cart drawer — effective_price
+            ## (v5.11.3). Response-only: never persisted to the cart_item record.
+            assign product_price = product_data.effective_price
+            if product_price == blank or product_price == null
+                if product_data.is_on_sale == true or product_data.is_on_sale == 'true'
+                    assign product_price = product_data.sale_price
+                else
+                    assign product_price = product_data.regular_price
+                endif
             endif
         endif
 
@@ -95,13 +117,21 @@ metadata: {
 
         else
             
-            ## User has no cart yet add cart 
+            ## User has no cart yet — create it.
+            ## NOTE: create via the add_cart GraphQL mutation directly, NOT the
+            ## cart/create controller. The controller validates contact_uuid against a
+            ## real CRM contact, which a guest does not have (their id is a session
+            ## guest-* uuid), so it fails to create the cart and the cart_item then
+            ## errors with missing_cart_uuid. The mutation stores contact_uuid as-is
+            ## and uses the uuid we pass, so we know the cart_uuid up front.
+            assign new_cart_uuid = '' | uuid
             assign cart_data = '{}' | parse_json
-            assign cart_data = cart_data | add_hash_key: 'contact_uuid', contact_uuid            
-            function add_cart = "ecommerce/controller/cart/create", params: cart_data
-            
-            ## Add cart_item 
-            assign add_cart_item_data = add_cart_item_data | add_hash_key: 'cart_uuid', add_cart.uuid
+            assign cart_data = cart_data | add_hash_key: 'uuid', new_cart_uuid
+            assign cart_data = cart_data | add_hash_key: 'contact_uuid', contact_uuid
+            graphql add_cart = 'modules/ecommerce/carts/add_cart', args: cart_data
+
+            ## Add cart_item
+            assign add_cart_item_data = add_cart_item_data | add_hash_key: 'cart_uuid', new_cart_uuid
             assign int_qty = quantity | round: 0
             assign add_cart_item_data = add_cart_item_data | add_hash_key: 'quantity', int_qty
             function add_cart_item = "ecommerce/controller/cart_items/create", params: add_cart_item_data 

@@ -1,0 +1,430 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Products | Sidebar Filters'
+}
+---
+{% comment %}
+    Advanced sidebar filter for the PLP. Renders collapsible groups:
+    Categories, Price, Brands, Availability — plus a "Refine by" summary
+    (applied-filter count, removable chips, clear-all).
+
+    Params passed from parent (list.liquid):
+    - facets         : product_facets.items.results (enabled catalog in current context)
+    - mode           : 'desktop' | 'mobile' (keeps element ids unique across the two renders)
+    - top_categories : (optional) parent categories — passed by list.liquid so the
+                       category tree is fetched once and shared across the mobile +
+                       desktop renders. Falls back to querying here if not provided.
+    - sub_categories : (optional) sub-categories — same sharing as top_categories.
+
+    Interaction is handled by product-list.js via data-* attributes; the page
+    reloads with updated URL query params (shareable / back-forward friendly).
+{% endcomment %}
+
+{%- liquid
+    assign params = context.params
+    assign mode = mode | default: 'desktop'
+
+    comment # ---- Categories ----
+    # top_categories / sub_categories may be passed by the caller (fetched once and
+    # reused across both sidebar renders); only query when they weren`t provided.
+    endcomment
+    unless top_categories
+        if context.session.parent_categories.size > 0
+            assign top_categories = context.session.parent_categories
+        else
+            graphql top_categories = 'modules/ecommerce/categories/get_category_parent', parent_category_uuids: '[]' | dig: 'items','results'
+        endif
+    endunless
+    assign topCat_uuids = top_categories | map: 'uuid'
+    unless sub_categories
+        graphql sub_categories = 'modules/ecommerce/categories/get_category_uuids', parent_category_uuids: topCat_uuids | dig: 'items','results'
+    endunless
+    assign parent_with_child = sub_categories | map: 'parent_category_uuids' | array_flatten | uniq
+
+    if params.page
+        assign paramPerPage = '&per_page=' | append: params.per_page
+    endif
+
+    comment # ---- Selections ----
+    endcomment
+    assign sel_categories = '' | split: ','
+    if params.categories and params.categories != ''
+        assign sel_categories = params.categories | split: ','
+    endif
+    comment # Child slugs that belong to a selected parent — represented by the parent chip, so hidden as individual chips.
+    endcomment
+    assign top_slugs = top_categories | map: 'slug'
+    assign covered_str = ''
+    for c in sel_categories
+        assign c_is_parent = top_slugs | array_any: c
+        if c_is_parent
+            assign c_parent = top_categories | array_detect: slug: c
+            assign c_parent_uuid = c_parent.uuid
+            for subCat in sub_categories
+                assign c_is_child = subCat.parent_category_uuids | array_any: c_parent_uuid
+                if c_is_child
+                    if covered_str != ''
+                        assign covered_str = covered_str | append: ',' | append: subCat.slug
+                    else
+                        assign covered_str = subCat.slug
+                    endif
+                endif
+            endfor
+        endif
+    endfor
+    assign covered_children = covered_str | split: ',' | uniq
+    assign sel_brands = '' | split: ','
+    if params.brands and params.brands != ''
+        assign sel_brands = params.brands | split: ','
+    endif
+    assign sel_availability = '' | split: ','
+    if params.availability and params.availability != ''
+        assign sel_availability = params.availability | split: ','
+    endif
+    assign sel_min = params.min_price | default: ''
+    assign sel_max = params.max_price | default: ''
+
+    comment # ---- Facet data + counts ----
+    endcomment
+    assign facet_results = facets | default: empty
+    assign total_products = facet_results | size
+    assign brand_names = facet_results | map: 'brand' | compact | uniq | sort
+    comment # In stock = stock_level > 0; out of stock = everything else (stock_level == 0
+    # or a null/unset stock_level). This mirrors search_products: range gt:0 excludes null
+    # (so null isn`t in-stock) while range lte:0 includes null (so null is out-of-stock).
+    endcomment
+    assign in_count = 0
+    assign out_count = 0
+    assign unbranded_count = 0
+    for f in facet_results
+        if f.stock_level > 0
+            assign in_count = in_count | plus: 1
+        else
+            assign out_count = out_count | plus: 1
+        endif
+        comment # Unbranded = null/empty brand_name (excluded from brand_names by `compact`).
+        endcomment
+        if f.brand == blank
+            assign unbranded_count = unbranded_count | plus: 1
+        endif
+    endfor
+    assign price_values = facet_results | map: 'effective_price' | compact | sort
+    assign price_floor = price_values | first | default: 0 | floor
+    assign price_ceil = price_values | last | default: 1000 | plus: 0.999999 | floor
+
+    comment # ---- Applied filter count ----
+    endcomment
+    assign applied_count = 0
+    assign cat_visible = 0
+    for c in sel_categories
+        assign c_covered = covered_children | array_any: c
+        unless c_covered
+            assign cat_visible = cat_visible | plus: 1
+        endunless
+    endfor
+    assign applied_count = applied_count | plus: cat_visible
+    assign applied_count = applied_count | plus: sel_brands.size
+    assign applied_count = applied_count | plus: sel_availability.size
+    if sel_min != '' or sel_max != ''
+        assign applied_count = applied_count | plus: 1
+    endif
+    if params.category and params.category != ''
+        assign applied_count = applied_count | plus: 1
+    elsif params.slug2 and params.slug2 != ''
+        assign applied_count = applied_count | plus: 1
+    endif
+
+    comment # how many options to show per group before "Show more" collapses the rest
+    endcomment
+    assign show_limit = 4
+-%}
+
+<div class="sidebar-filter" data-mode="{{ mode }}" data-price-floor="{{ price_floor }}" data-price-ceil="{{ price_ceil }}">
+    {% comment %} Without JS the sidebar can`t be revealed, so keep it visible — the
+        `html.no-js .sidebar-filter` rule in ecommerce.css handles that. {% endcomment %}
+
+    {% comment %} ---------- Applied filters ----------
+        Always rendered; product-list.js shows/hides it and rebuilds the chips + count
+        live as filters change (the sidebar itself isn't reloaded on AJAX). The markup
+        below is the initial (page-load) state and must match the JS-built chips. {% endcomment %}
+    <ins-accordion class="filter-group filter-refine{% if applied_count == 0 %} hide{% endif %}" data-group="applied" data-applied-panel>
+        <ins-accordion-item data-applied-item heading="Applied filters ({{ applied_count }})" active open-icon="icon-plus" close-icon="icon-minus">
+        <div class="filter-group__body">
+            <div class="filter-refine__chips" data-applied-chips>
+                {%- for c in sel_categories -%}
+                    {%- assign c_covered = covered_children | array_any: c -%}
+                    {%- unless c_covered -%}
+                        {%- assign c_label = top_categories | array_detect: slug: c | dig: 'category_name' -%}
+                        {%- unless c_label -%}{%- assign c_label = sub_categories | array_detect: slug: c | dig: 'category_name' -%}{%- endunless -%}
+                        <button type="button" class="filter-chip" data-filter-remove="categories" data-value="{{ c }}">
+                            <span class="filter-chip__text">{{ c_label | default: c | capitalize }}</span>
+                            <i class="icon-close-1" aria-hidden="true"></i>
+                        </button>
+                    {%- endunless -%}
+                {%- endfor -%}
+
+                {%- if params.category and params.category != '' -%}
+                    {%- assign cat_label = sub_categories | array_detect: slug: params.category | dig: 'category_name' -%}
+                    <button type="button" class="filter-chip" data-filter-remove="category" data-value="{{ params.category }}">
+                        <span class="filter-chip__text">{{ cat_label | default: params.category | capitalize }}</span>
+                        <i class="icon-close-1" aria-hidden="true"></i>
+                    </button>
+                {%- elsif params.slug2 and params.slug2 != '' -%}
+                    {%- assign cat_label = top_categories | array_detect: slug: params.slug2 | dig: 'category_name' -%}
+                    <button type="button" class="filter-chip" data-filter-remove="category" data-value="{{ params.slug2 }}">
+                        <span class="filter-chip__text">{{ cat_label | default: params.slug2 | capitalize }}</span>
+                        <i class="icon-close-1" aria-hidden="true"></i>
+                    </button>
+                {%- endif -%}
+
+                {%- for b in sel_brands -%}
+                    <button type="button" class="filter-chip" data-filter-remove="brands" data-value="{{ b }}">
+                        <span class="filter-chip__text">{{ b }}</span>
+                        <i class="icon-close-1" aria-hidden="true"></i>
+                    </button>
+                {%- endfor -%}
+
+                {%- if sel_min != '' or sel_max != '' -%}
+                    <button type="button" class="filter-chip" data-filter-remove="price" data-value="price">
+                        <span class="filter-chip__text">${{ sel_min | default: price_floor }} - ${{ sel_max | default: price_ceil }}</span>
+                        <i class="icon-close-1" aria-hidden="true"></i>
+                    </button>
+                {%- endif -%}
+
+                {%- for a in sel_availability -%}
+                    <button type="button" class="filter-chip" data-filter-remove="availability" data-value="{{ a }}">
+                        <span class="filter-chip__text">{% if a == 'in-stock' %}In Stock{% else %}Out of Stock{% endif %}</span>
+                        <i class="icon-close-1" aria-hidden="true"></i>
+                    </button>
+                {%- endfor -%}
+            </div>
+
+            <button type="button" class="filter-clear-all" data-filter-clear-all>Clear all</button>
+        </div>
+        </ins-accordion-item>
+    </ins-accordion>
+
+    {% comment %} ---------- Categories ---------- {% endcomment %}
+    <ins-accordion class="filter-group" data-group="categories">
+        <ins-accordion-item heading="Categories" active open-icon="icon-plus" close-icon="icon-minus">
+        <div class="filter-group__body filter-cats">
+            {%- assign all_checked = false -%}
+            {%- if sel_categories.size == 0 and params.slug2 == blank and params.category == blank -%}{%- assign all_checked = true -%}{%- endif -%}
+            <div class="filter-check">
+                <ins-checkbox data-filter="categories" data-cat-all label="All products" {% if all_checked %}checked{% endif %}></ins-checkbox>
+                <span class="filter-count">({{ total_products }})</span>
+            </div>
+
+            {%- comment %} Block-based "Show more": "All products" counts as 1, then each parent
+               plus its subcategories is one block. Keep whole blocks until show_limit items are
+               reached (never cutting a parent mid-subcategory); collapse the remaining blocks. {% endcomment %}
+            {%- assign vis_count = 1 -%}
+            {%- assign has_overflow = false -%}
+            {%- for topCat in top_categories -%}
+                {%- liquid
+                    assign t_uuid = topCat.uuid
+                    assign withChild = parent_with_child | array_any: topCat.uuid
+                    assign t_checked = sel_categories | array_any: topCat.slug
+                    assign t_is_path = false
+                    if topCat.slug == params.slug2
+                        assign t_is_path = true
+                    endif
+
+                    comment # Subtree uuids = this parent + each of its subcategories. Both the count
+                    # below and the parent filter span the whole subtree (checking a parent cascades
+                    # to all child slugs in product-list.js), so a parent`s count includes products
+                    # directly in it AND products in its subcategories — matching the filtered result.
+                    # Also computes subcount (the block size used by the Show more logic).
+                    endcomment
+                    assign t_subtree_uuids = '' | split: ','
+                    assign t_subtree_uuids = t_subtree_uuids | array_add: topCat.uuid
+                    assign subcount = 0
+                    for subCat in sub_categories
+                        assign sc_is_child = subCat.parent_category_uuids | array_any: topCat.uuid
+                        if sc_is_child
+                            assign subcount = subcount | plus: 1
+                            assign t_subtree_uuids = t_subtree_uuids | array_add: subCat.uuid
+                        endif
+                    endfor
+
+                    comment # Count each product once if its category_uuids overlap the subtree
+                    # (parent + subcategories). The per-product flag keeps the count unique even
+                    # when a product belongs to the parent and a sub, or to two subs at once.
+                    endcomment
+                    assign t_count = 0
+                    for f in facet_results
+                        assign f_in_subtree = false
+                        for su in t_subtree_uuids
+                            if f.category_uuids contains su
+                                assign f_in_subtree = true
+                            endif
+                        endfor
+                        if f_in_subtree
+                            assign t_count = t_count | plus: 1
+                        endif
+                    endfor
+
+                    assign is_overflow = false
+                    if vis_count >= show_limit
+                        assign is_overflow = true
+                        assign has_overflow = true
+                    else
+                        assign vis_count = vis_count | plus: 1 | plus: subcount
+                    endif
+                -%}
+                {%- assign hide_class = '' -%}
+                {%- if is_overflow -%}{%- assign hide_class = 'is-overflow' -%}{%- endif -%}
+
+                {%- comment -%} Don't render categories with no matching products (unless selected or the current path). {%- endcomment -%}
+                {%- if t_count > 0 or t_checked or t_is_path -%}
+                <div class="filter-cat-item {{ hide_class }}">
+                    <div class="filter-check">
+                        <ins-checkbox data-filter="categories" data-cat-parent value="{{ topCat.slug }}"
+                                      label="{{ topCat.category_name | capitalize }}"
+                                      {% if t_is_path %}data-path-category{% endif %} {% if t_checked or t_is_path %}checked{% endif %}></ins-checkbox>
+                        <span class="filter-count">({{ t_count }})</span>
+                    </div>
+
+                    {%- if withChild -%}
+                        <div class="filter-subcats">
+                            {%- for subCat in sub_categories -%}
+                                {%- assign isChild = subCat.parent_category_uuids | array_any: topCat.uuid -%}
+                                {%- if isChild -%}
+                                    {%- liquid
+                                        assign s_uuid = subCat.uuid
+                                        assign s_count = 0
+                                        for f in facet_results
+                                            if f.category_uuids contains s_uuid
+                                                assign s_count = s_count | plus: 1
+                                            endif
+                                        endfor
+                                        assign s_checked = sel_categories | array_any: subCat.slug
+                                        assign s_is_path = false
+                                        if subCat.slug == params.category
+                                            assign s_is_path = true
+                                        endif
+                                    -%}
+                                    {%- if s_count > 0 or s_checked or s_is_path -%}
+                                    <div class="filter-check filter-check--sub">
+                                        <ins-checkbox data-filter="categories" value="{{ subCat.slug }}"
+                                                      label="{{ subCat.category_name | capitalize }}"
+                                                      {% if s_is_path %}data-path-category{% endif %} {% if s_checked or s_is_path %}checked{% endif %}></ins-checkbox>
+                                        <span class="filter-count">({{ s_count }})</span>
+                                    </div>
+                                    {%- endif -%}
+                                {%- endif -%}
+                            {%- endfor -%}
+                        </div>
+                    {%- endif -%}
+                </div>
+                {%- endif -%}
+            {%- endfor -%}
+
+            {%- assign cat_has_sel = false -%}
+            {%- if sel_categories.size > 0 or params.category != blank or params.slug2 != blank -%}{%- assign cat_has_sel = true -%}{%- endif -%}
+            <div class="filter-group__footer">
+                {%- if has_overflow -%}
+                    <button type="button" class="filter-show-more" data-show-more>Show more</button>
+                    <span class="filter-foot-sep{% unless cat_has_sel %} hide{% endunless %}" data-foot-sep>|</span>
+                {%- endif -%}
+                <button type="button" class="filter-clear{% unless cat_has_sel %} hide{% endunless %}" data-filter-clear="categories">Clear</button>
+            </div>
+        </div>
+        </ins-accordion-item>
+    </ins-accordion>
+
+    {% comment %} ---------- Price ---------- {% endcomment %}
+    <ins-accordion class="filter-group" data-group="price">
+        <ins-accordion-item heading="Price" active open-icon="icon-plus" close-icon="icon-minus">
+        <div class="filter-group__body filter-price">
+            <div class="filter-price__inputs">
+                <ins-input class="filter-price__input" data-price="min" field="number" unit-left="$"
+                           value="{{ sel_min }}" placeholder="{{ price_floor }}" title="Minimum price"></ins-input>
+                <span class="filter-price__dash">-</span>
+                <ins-input class="filter-price__input" data-price="max" field="number" unit-left="$"
+                           value="{{ sel_max }}" placeholder="{{ price_ceil }}" title="Maximum price"></ins-input>
+            </div>
+            <div class="filter-price__slider">
+                <div class="filter-price__track"></div>
+                <div class="filter-price__range" data-price-range></div>
+                <input type="range" class="filter-price__handle" data-price="min"
+                       min="{{ price_floor }}" max="{{ price_ceil }}" step="1"
+                       value="{{ sel_min | default: price_floor }}" aria-label="Minimum price slider">
+                <input type="range" class="filter-price__handle" data-price="max"
+                       min="{{ price_floor }}" max="{{ price_ceil }}" step="1"
+                       value="{{ sel_max | default: price_ceil }}" aria-label="Maximum price slider">
+            </div>
+            {%- assign price_has_sel = false -%}
+            {%- if sel_min != '' or sel_max != '' -%}{%- assign price_has_sel = true -%}{%- endif -%}
+            <div class="filter-group__footer">
+                <button type="button" class="filter-clear{% unless price_has_sel %} hide{% endunless %}" data-filter-clear="price">Clear</button>
+            </div>
+        </div>
+        </ins-accordion-item>
+    </ins-accordion>
+
+    {% comment %} ---------- Brands ---------- {% endcomment %}
+    {%- if brand_names.size > 0 or unbranded_count > 0 -%}
+        <ins-accordion class="filter-group" data-group="brands">
+            <ins-accordion-item heading="Brands" active open-icon="icon-plus" close-icon="icon-minus">
+            <div class="filter-group__body">
+                {%- for b in brand_names -%}
+                    {%- assign b_count = facet_results | where: 'brand', b | size -%}
+                    {%- assign is_checked = sel_brands | array_any: b -%}
+                    {%- assign hide_class = '' -%}
+                    {%- if forloop.index > show_limit -%}{%- assign hide_class = 'is-overflow' -%}{%- endif -%}
+                    <div class="filter-check {{ hide_class }}{% if b_count == 0 %} is-disabled{% endif %}">
+                        <ins-checkbox data-filter="brands" value="{{ b }}" label="{{ b }}" {% if b_count == 0 %}disabled{% endif %} {% if is_checked %}checked{% endif %}></ins-checkbox>
+                        <span class="filter-count">({{ b_count }})</span>
+                    </div>
+                {%- endfor -%}
+                {%- comment -%} "Unbranded" option — products with a null brand_name. Sentinel value
+                    "Unbranded" is translated to brand_exists:false in list.liquid. {%- endcomment -%}
+                {%- if unbranded_count > 0 -%}
+                    {%- assign unbranded_checked = sel_brands | array_any: 'Unbranded' -%}
+                    <div class="filter-check">
+                        <ins-checkbox data-filter="brands" value="Unbranded" label="Unbranded" {% if unbranded_checked %}checked{% endif %}></ins-checkbox>
+                        <span class="filter-count">({{ unbranded_count }})</span>
+                    </div>
+                {%- endif -%}
+                {%- assign brand_has_sel = false -%}
+                {%- if sel_brands.size > 0 -%}{%- assign brand_has_sel = true -%}{%- endif -%}
+                <div class="filter-group__footer">
+                    {%- if brand_names.size > show_limit -%}
+                        <button type="button" class="filter-show-more" data-show-more>Show more</button>
+                        <span class="filter-foot-sep{% unless brand_has_sel %} hide{% endunless %}" data-foot-sep>|</span>
+                    {%- endif -%}
+                    <button type="button" class="filter-clear{% unless brand_has_sel %} hide{% endunless %}" data-filter-clear="brands">Clear</button>
+                </div>
+            </div>
+            </ins-accordion-item>
+        </ins-accordion>
+    {%- endif -%}
+
+    {% comment %} ---------- Availability ---------- {% endcomment %}
+    <ins-accordion class="filter-group" data-group="availability">
+        <ins-accordion-item heading="Availability" active open-icon="icon-plus" close-icon="icon-minus">
+        <div class="filter-group__body">
+            {%- assign in_checked = sel_availability | array_any: 'in-stock' -%}
+            {%- assign out_checked = sel_availability | array_any: 'out-of-stock' -%}
+            {%- comment -%} Hide an availability option with no matching products (unless currently selected). {%- endcomment -%}
+            {%- if in_count > 0 or in_checked -%}
+            <div class="filter-check">
+                <ins-checkbox data-filter="availability" value="in-stock" label="In Stock" {% if in_checked %}checked{% endif %}></ins-checkbox>
+                <span class="filter-count">({{ in_count }})</span>
+            </div>
+            {%- endif -%}
+            {%- if out_count > 0 or out_checked -%}
+            <div class="filter-check">
+                <ins-checkbox data-filter="availability" value="out-of-stock" label="Out of Stock" {% if out_checked %}checked{% endif %}></ins-checkbox>
+                <span class="filter-count">({{ out_count }})</span>
+            </div>
+            {%- endif -%}
+            <div class="filter-group__footer">
+                <button type="button" class="filter-clear{% unless sel_availability.size > 0 %} hide{% endunless %}" data-filter-clear="availability">Clear</button>
+            </div>
+        </div>
+        </ins-accordion-item>
+    </ins-accordion>
+
+</div>

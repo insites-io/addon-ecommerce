@@ -1,0 +1,51 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Menu | Menu Categories (shared data)'
+}
+---
+{% comment %}
+    Shared category data for the header menus. mega_menu (header) and mobile_menu
+    (header_mobile) both render on every page and need the same three category
+    queries. This fetches them ONCE per request and exports the results; whichever
+    menu includes it second reuses the already-fetched data via context.exports
+    (no re-query) — order-independent.
+
+    Exports (read via context.exports.*):
+    - menu_parent_categories   : top-level categories (parent_category_uuids == [])
+    - menu_featured_categories : featured categories (mega/mobile menu columns)
+    - menu_sub_categories       : sub-categories of the featured categories
+
+    Side effect: sets session.parent_categories (consumed by the PLP sidebar filters),
+    preserving the previous behaviour where the menus populated that session value.
+{% endcomment %}
+{%- liquid
+    unless context.exports.menu_sub_categories
+        assign sort_by = '{"properties":[{"name":"category_weighting","order":"ASC"}]}' | parse_json
+        graphql all_categories = 'modules/ecommerce/categories/get_categories', sort_by: sort_by | dig: 'items', 'results'
+        assign menu_parent_categories = all_categories | array_select: parent_category_uuids: '[]'
+        session parent_categories = menu_parent_categories
+
+        graphql menu_featured_categories = 'modules/ecommerce/categories/get_featured_categories' | dig: 'items', 'results'
+        assign featured_uuids = menu_featured_categories | map: 'uuid'
+        graphql menu_sub_categories = 'modules/ecommerce/categories/get_subcategories', parent_category_uuids: featured_uuids | dig: 'items', 'results'
+
+        # Category uuids that have at least one enabled product — drives "show only
+        # categories that have products" in the menus. Reuses the PLP facet query with
+        # an empty keyword (= the full enabled catalog); we only need category_uuids.
+        # Products carry their ancestor category uuids, so a parent appears here when any
+        # product in its subtree exists. Not deduped — `contains` membership is unaffected.
+        assign menu_facet_args = '{"keyword":""}' | parse_json
+        graphql menu_facet_products = 'modules/ecommerce/products/get_product_facets', args: menu_facet_args | dig: 'items', 'results'
+        assign menu_product_category_uuids = '' | split: ','
+        for p in menu_facet_products
+            for cu in p.category_uuids
+                assign menu_product_category_uuids = menu_product_category_uuids | array_add: cu
+            endfor
+        endfor
+
+        export menu_parent_categories
+        export menu_featured_categories
+        export menu_sub_categories
+        export menu_product_category_uuids
+    endunless
+-%}

@@ -1,0 +1,106 @@
+{% comment %} Create Category Custom Field: is_featured {% endcomment %}
+{% parse_json properties%}
+[
+    {
+        "attribute_type": "boolean",
+        "name": "is_featured",
+        "metadata": {
+            "label": "is_featured",
+            "ui_element": "toggle",
+            "weight": 1
+        }
+    }
+]
+{% endparse_json  %}
+
+{% graphql result, properties: properties %}
+mutation save_custom_fields($properties: [NestedPropertyInputType]!) {
+  items: admin_table_update(
+    physical_file_path: "modules/ins_ecommerce/public/schema/category_custom_field.yml"
+    table: { properties: $properties }
+  ) {
+    id
+    name
+    parameterized_name
+    physical_file_path
+    metadata
+    properties {
+      id
+      name
+      attribute_type
+      belongs_to
+      metadata
+      options
+      default_value
+      target_type
+      target_id
+    }
+  }
+}
+
+{% endgraphql %}
+{% log result, type: "SEED DATA: is_featured" %}
+
+
+{% comment %} Add items to category_custom_field — guarded: only seed when the table has no records yet {% endcomment %}
+{%- graphql existing_ccf -%}
+  query {
+    items: records(
+      per_page: 1
+      filter: {
+        table: { value: "modules/ins_ecommerce/category_custom_field" }
+        deleted_at: { exists: false }
+      }
+    ) {
+      total_entries
+    }
+  }
+{%- endgraphql -%}
+{%- assign existing_ccf_count = existing_ccf.items.total_entries | default: 0 -%}
+{%- if existing_ccf_count == 0 -%}
+{% parse_json import_category_custom_field %}
+[
+     {
+          "type_name": "modules/ins_ecommerce/category_custom_field",
+          "properties": {
+               "is_featured": true,
+               "category_uuid": "f0dd8b60-a3d8-4070-b6e4-b7c682f2099d"
+          }
+     },
+     {
+          "type_name": "modules/ins_ecommerce/category_custom_field",
+          "properties": {
+               "is_featured": true,
+               "category_uuid": "cd9882a8-e858-4594-a924-4d6d5689ff94"
+          }
+     },
+     {
+          "type_name": "modules/ins_ecommerce/category_custom_field",
+          "properties": {
+               "is_featured": true,
+               "category_uuid": "b61500a9-9948-483a-be1b-d0cbbc4b530e"
+          }
+     },
+     {
+          "type_name": "modules/ins_ecommerce/category_custom_field",
+          "properties": {
+               "is_featured": true,
+               "category_uuid": "6dc5edbd-5bf8-41d9-a8ae-66017f971eb2"
+          }
+     }
+]
+{% endparse_json %}
+
+{%- graphql results, models: import_category_custom_field -%}
+     mutation ($models: [CustomizationImport!]!) {
+          import_models(
+               models: $models
+          ) {
+               ids
+          }
+     }
+{%- endgraphql -%}
+{% log results, type: "SEED DATA: category_custom_field" %}
+{%- else -%}
+{% log existing_ccf_count, type: "SEED DATA: category_custom_field skipped (records already exist)" %}
+{%- endif -%}

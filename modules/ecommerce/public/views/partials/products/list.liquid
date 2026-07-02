@@ -14,11 +14,40 @@ metadata: {
 {%- comment -%} Filter params {%- endcomment -%}
 {%- assign page_num = params.page | default: 1 | plus: 0 -%}
 {%- assign per_page = params.per_page | default: 9 | plus: 0 -%}
-{%- assign brand = params.brand | default: "" -%}
 {%- assign show = params.show | default: "all" -%}
 {%- assign keyword = params.keyword | default: "" -%}
 {%- assign min_price = params.min_price | default: "" -%}
 {%- assign max_price = params.max_price | default: "" -%}
+
+{%- comment -%} Advanced sidebar filters {%- endcomment -%}
+{%- assign brands_param = params.brands | default: "" -%}
+{%- assign availability = params.availability | default: "" -%}
+{%- liquid
+    assign stock_gt = ""
+    assign stock_lte = ""
+
+    if show == "in-stock"
+        assign stock_gt = "0"
+    endif
+
+    assign avail_instock = false
+    assign avail_outstock = false
+    if availability contains "in-stock"
+        assign avail_instock = true
+    endif
+    if availability contains "out-of-stock"
+        assign avail_outstock = true
+    endif
+
+    if avail_instock and avail_outstock
+        comment # both selected = no stock constraint
+        endcomment
+    elsif avail_instock
+        assign stock_gt = "0"
+    elsif avail_outstock
+        assign stock_lte = "0"
+    endif
+-%}
 
 
 {%- comment -%} Sorting {%- endcomment -%}
@@ -51,42 +80,151 @@ metadata: {
     assign param_cat = params.category | strip
     assign param_slug2 = params.slug2 | strip
 
+    comment # Legacy single category from the path (/products/{slug2}) or ?category= — also scopes the facet counts.
+    endcomment
     if param_cat != ''
         assign category_uuids = all_categories | array_detect: slug: param_cat | dig: 'uuid' | split: ','
         assign category_name = all_categories | array_detect: slug: param_cat | dig: 'category_name'
-    elsif param_slug2 != '' 
+    elsif param_slug2 != ''
         assign category_uuids = all_categories | array_detect: slug: param_slug2 | dig: 'uuid' | split: ','
         assign category_name = all_categories | array_detect: slug: param_slug2 | dig: 'category_name'
     endif
+
+    comment # Multi-select categories from the sidebar checkboxes (?categories=slug1,slug2).
+    # Resolve each slug to a uuid and union with the legacy selection for the product query.
+    endcomment
+    assign filter_cat_uuids = ''
+    if category_uuids.size > 0
+        assign filter_cat_uuids = category_uuids | join: ','
+    endif
+    assign param_categories = params.categories | default: '' | strip
+    if param_categories != ''
+        assign sel_cat_slugs = param_categories | split: ','
+        for s in sel_cat_slugs
+            assign s_uuid = all_categories | array_detect: slug: s | dig: 'uuid'
+            if s_uuid and s_uuid != ''
+                if filter_cat_uuids != ''
+                    assign filter_cat_uuids = filter_cat_uuids | append: ',' | append: s_uuid
+                else
+                    assign filter_cat_uuids = s_uuid
+                endif
+            endif
+        endfor
+    endif
+    assign filter_category_uuids = filter_cat_uuids | split: ',' | uniq
 %}
 
+
+{%- comment -%} Expand the keyword into its synonym group so search matches the same
+    terms as the predictive dropdown (e.g. "parasol" also finds "umbrella"). {%- endcomment -%}
+{%- function search_terms = 'modules/ecommerce/products/expand_search_terms', keyword: keyword -%}
+{%- assign kw2 = search_terms[1] | default: keyword -%}
+{%- assign kw3 = search_terms[2] | default: keyword -%}
+{%- assign kw4 = search_terms[3] | default: keyword -%}
+{%- assign kw5 = search_terms[4] | default: keyword -%}
+{%- assign kw6 = search_terms[5] | default: keyword -%}
+{%- assign kw7 = search_terms[6] | default: keyword -%}
+{%- assign kw8 = search_terms[7] | default: keyword -%}
+{%- assign kw9 = search_terms[8] | default: keyword -%}
+{%- assign kw10 = search_terms[9] | default: keyword -%}
 
 {%- comment -%} Step build parameters to pass to GraphQL {%- endcomment -%}
 {%- parse_json filters -%}
 {
     "page": {{page_num}},
     "size": {{per_page}},
-    "brand": "{{brand}}", 
     "keyword": "{{keyword}}",
-
-    {%- if keyword and keyword != '' -%}
-        "keywords": ["{{keyword}}"],
-    {%- endif -%}
-       
-    {%- if category_uuids.size > 0 -%}
-        "category_uuids": {{ category_uuids }},
-    {%- endif -%}
-
-    {%- comment %} Filter by: show {% endcomment %}
-    {%- if show == "sale" -%}
-        "is_on_sale": true,
-    {%- elsif show == "in-stock" -%}
-        "not_number": "0",
-    {%- endif -%}
-
+    "keyword2": "{{ kw2 }}",
+    "keyword3": "{{ kw3 }}",
+    "keyword4": "{{ kw4 }}",
+    "keyword5": "{{ kw5 }}",
+    "keyword6": "{{ kw6 }}",
+    "keyword7": "{{ kw7 }}",
+    "keyword8": "{{ kw8 }}",
+    "keyword9": "{{ kw9 }}",
+    "keyword10": "{{ kw10 }}",
     "sort":{{ sort_by | json }}
 }
 {%- endparse_json -%}
+
+{%- comment -%} keywords {%- endcomment -%}
+{%- if keyword and keyword != '' -%}
+    {%- parse_json keyword_arr -%}["{{ keyword }}"]{%- endparse_json -%}
+    {%- assign filters = filters | add_hash_key: 'keywords', keyword_arr -%}
+{%- endif -%}
+
+{%- comment -%} Multi-select categories {%- endcomment -%}
+{%- if filter_category_uuids.size > 0 -%}
+    {%- assign filters = filters | add_hash_key: 'category_uuids', filter_category_uuids -%}
+{%- endif -%}
+
+{%- comment -%} Multi-select brands. "Unbranded" is a sentinel (products with a blank
+    brand_name) handled via brand_exists:false (brand_name exists:false) rather than value_in.
+    This matches the sidebar facet, which counts unbranded as a blank brand_name. Cases:
+    - unbranded only  -> brand_exists:false (no `brands`)
+    - named only      -> value_in `brands` (unchanged)
+    - mixed (unbranded + named) -> value_in `brands` AND exists:false would be empty, and
+      the query can't OR them, so this degrades to named-only (unbranded is dropped).
+      A fully-correct OR would need a dynamic-filter refactor of search_products. {%- endcomment -%}
+{%- if brands_param != '' -%}
+    {%- assign brands_arr = brands_param | split: ',' -%}
+    {%- assign named_brands = '' | split: ',' -%}
+    {%- assign has_unbranded = false -%}
+    {%- for b in brands_arr -%}
+        {%- if b == 'Unbranded' -%}
+            {%- assign has_unbranded = true -%}
+        {%- else -%}
+            {%- assign named_brands = named_brands | array_add: b -%}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- if named_brands.size > 0 -%}
+        {%- assign filters = filters | add_hash_key: 'brands', named_brands -%}
+    {%- elsif has_unbranded -%}
+        {%- assign filters = filters | add_hash_key: 'brand_exists', false -%}
+    {%- endif -%}
+{%- endif -%}
+
+{%- comment -%} Price range {%- endcomment -%}
+{%- if min_price != '' -%}
+    {%- assign filters = filters | add_hash_key: 'min_price', min_price -%}
+{%- endif -%}
+{%- if max_price != '' -%}
+    {%- assign filters = filters | add_hash_key: 'max_price', max_price -%}
+{%- endif -%}
+
+{%- comment -%} Filter by: show {%- endcomment -%}
+{%- if show == "sale" -%}
+    {%- assign filters = filters | add_hash_key: 'is_on_sale', true -%}
+{%- endif -%}
+
+{%- comment -%} Availability (in / out of stock) {%- endcomment -%}
+{%- if stock_gt != '' -%}
+    {%- assign filters = filters | add_hash_key: 'not_number', stock_gt -%}
+{%- endif -%}
+{%- if stock_lte != '' -%}
+    {%- assign filters = filters | add_hash_key: 'stock_lte', stock_lte -%}
+{%- endif -%}
+
+
+
+{% comment %} Build filter options + counts from the enabled catalog (category/keyword context) {% endcomment %}
+{%- parse_json facet_args -%}
+{
+    "keyword": "{{ keyword }}",
+    "keyword2": "{{ kw2 }}",
+    "keyword3": "{{ kw3 }}",
+    "keyword4": "{{ kw4 }}",
+    "keyword5": "{{ kw5 }}",
+    "keyword6": "{{ kw6 }}",
+    "keyword7": "{{ kw7 }}",
+    "keyword8": "{{ kw8 }}",
+    "keyword9": "{{ kw9 }}",
+    "keyword10": "{{ kw10 }}"
+    {%- if keyword and keyword != '' -%},"keywords": ["{{ keyword }}"]{%- endif -%}
+    {%- if category_uuids.size > 0 -%},"category_uuids": {{ category_uuids }}{%- endif -%}
+}
+{%- endparse_json -%}
+{%- graphql product_facets = 'modules/ecommerce/products/get_product_facets', args: facet_args -%}
 
 {% comment %} 
     Note: product total_entries and results must be in separate query for optimal performance 
@@ -97,6 +235,19 @@ metadata: {
 
 {% comment %} Get products results {% endcomment %}
 {%- graphql products = 'modules/ecommerce/products/search_products', args: filters -%}
+
+
+{% comment %} Category tree for the sidebar filters — fetched once here and shared
+   across the mobile + desktop sidebar_filters renders (avoids querying it twice). {% endcomment %}
+{%- liquid
+    if context.session.parent_categories.size > 0
+        assign filter_top_categories = context.session.parent_categories
+    else
+        graphql filter_top_categories = 'modules/ecommerce/categories/get_category_parent', parent_category_uuids: '[]' | dig: 'items','results'
+    endif
+    assign filter_topcat_uuids = filter_top_categories | map: 'uuid'
+    graphql filter_sub_categories = 'modules/ecommerce/categories/get_category_uuids', parent_category_uuids: filter_topcat_uuids | dig: 'items','results'
+-%}
 
 
 {% comment %} Title Heading {% endcomment %}
@@ -111,6 +262,8 @@ metadata: {
                 <h1 class="heading-1">All products</h1>
             {%- endif -%}
         {%- endif -%}
+        {%- assign product_total = products_total_entries.items.total_entries | default: 0 -%}
+        <p class="font-color-sub" data-product-count role="status" aria-live="polite">{{ product_total }} {% if product_total == 1 %}product{% else %}products{% endif %}</p>
         <div class="spacer xxx-large hide-for-small-only"></div>
         <div class="spacer large show-for-small-only"></div>
     </div>
@@ -119,26 +272,25 @@ metadata: {
 <div class="product-list grid-x grid-padding-x  {% if total_cat_child == 0 %} align-center {% endif %}">    
     <div class="large-3 medium-12 small-12 cell">
         
-        {% comment %} Drawer Categories for Mobile view {% endcomment %}
+        {% comment %} Filter drawer for Mobile view {% endcomment %}
         <div class="hide-for-large">
-            <ins-button label="Categories" icon="icon-sliders" id="mobile-category-button" outlined></ins-button>
+            <ins-button label="Filters" icon="icon-sliders" id="mobile-category-button" outlined></ins-button>
             <div class="spacer small"></div>
-            <ins-drawer 
+            <ins-drawer
                 custom-width="430px"
                 position="right"
                 bordered=false
                 id="mobile-filter-drawer">
                 <div class="wrap">
-                    {% comment %} copy #sidebar-categories html via javascript {% endcomment %}
-                    {%- include 'modules/ecommerce/products/sidebar_categories_mobile' -%}
+                    {%- include 'modules/ecommerce/products/sidebar_filters', facets: product_facets.items.results, mode: 'mobile', top_categories: filter_top_categories, sub_categories: filter_sub_categories -%}
                 </div>
             </ins-drawer>
-        </div>    
-            
-        {% comment %} Sidebar Categories for Desktop view {% endcomment %}
-        <div class="sidebar-categories show-for-large">        
-            {%- include 'modules/ecommerce/products/sidebar_categories' -%}
-        </div>        
+        </div>
+
+        {% comment %} Sidebar Filters for Desktop view {% endcomment %}
+        <div class="sidebar-categories show-for-large">
+            {%- include 'modules/ecommerce/products/sidebar_filters', facets: product_facets.items.results, mode: 'desktop', top_categories: filter_top_categories, sub_categories: filter_sub_categories -%}
+        </div>
     </div>
     
 
@@ -148,31 +300,15 @@ metadata: {
         
         <div class="spacer"></div>
         
-        {%- if products.items and products.items.results.size > 0 -%}                
-        
+        {% comment %} List grid — AJAX swap target. Contents come from the shared grid partial
+           (server render here, /api/products/list-results for filter/search/pagination updates). {% endcomment %}
         <div id="product-grid" class="product-cards products-grid grid-x grid-padding-x grid-padding-y medium-up-3 small-up-1">
-            
-            {%- for product in products.items.results -%}
-                {% assign fetchpriority = null %}
-                {% if forloop.index < 4 %}
-                    {% assign fetchpriority = 'high' %}
-                {% endif %}
-                {% include "modules/ecommerce/products/product_card", product, all_categories, heading_level: 'h2', fetchpriority: fetchpriority %}
-            {%- endfor -%}
-
+            {%- include 'modules/ecommerce/products/grid', products: products.items.results, all_categories: all_categories -%}
         </div>
 
         <div class="spacer x-large"></div>
 
-        {% include "modules/ecommerce/layout/pagination",  data: products_total_entries.items, label: 'Products per page' %}
-        
-        {%- else -%}
+        {% include "modules/ecommerce/layout/pagination", data: products_total_entries.items, label: 'Products per page', ajax: true %}
 
-        <div class="empty-box">
-            <p class="body-large bold">No results found.</p>
-        </div>
-
-        {%- endif -%}
-    
     </div>
 </div>

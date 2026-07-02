@@ -6,21 +6,11 @@ metadata: {
 
 {% comment %} This partial is used in the app-portal {% endcomment %}
 
-{% parse_json sort_by %}
-{
-  "properties": [
-    { "name": "category_weighting", "order": "ASC" }
-  ]
-}
-{% endparse_json %}
-
- {% graphql all_categories = 'modules/ecommerce/categories/get_categories', 
-            sort_by: sort_by | dig: 'items','results'  %}
-
-{% assign parent_categories = all_categories | array_select: parent_category_uuids: '[]' %}
-
-{% session parent_categories = parent_categories %}
-{% comment %} {% export parent_categories %} {% endcomment %}
+{% comment %} Shared category data — fetched once per request, reused by mobile_menu {% endcomment %}
+{% include 'modules/ecommerce/menu/menu_categories' %}
+{% assign featured_categories = context.exports.menu_featured_categories %}
+{% assign sub_categories = context.exports.menu_sub_categories %}
+{% assign product_category_uuids = context.exports.menu_product_category_uuids %}
 
 
 <ins-modal 
@@ -43,23 +33,25 @@ metadata: {
     </div>
     <div class="featured-categories cell large-9 medium-9 grid-x align-justify">
 
-        {% graphql featured_categories = 'modules/ecommerce/categories/get_featured_categories' | dig: 'items','results' %}
-
-        {% assign parent_category_uuids = featured_categories | map: 'uuid' %}
-        {% graphql sub_categories = 'modules/ecommerce/categories/get_subcategories',
-            parent_category_uuids: parent_category_uuids | dig: 'items','results' %}        
-
+        {%- comment -%} Track subcategories already rendered so one shared across featured parents shows once. {%- endcomment -%}
+        {% assign rendered_subs = '' | split: ',' %}
         {% for parent_category in featured_categories %}
+            {%- comment -%} Only show categories that have products. {%- endcomment -%}
+            {% if product_category_uuids contains parent_category.uuid %}
             <div class="wrap">
-                <a class="heading" href="/products/{{parent_category.slug}}">{{ parent_category.category_name | capitalize }}</a>
+                <a class="heading" href="/products?categories={{parent_category.slug}}">{{ parent_category.category_name | capitalize }}</a>
                 <ul class="subcat">
                     {% for sub_category in sub_categories %}
-                        {% if sub_category.parent_category_uuids contains parent_category.uuid %}
-                            <li><a href="/products/{{parent_category.slug}}?category={{sub_category.slug}}">{{ sub_category.category_name | capitalize }}</a></li>
+                        {% if sub_category.parent_category_uuids contains parent_category.uuid and product_category_uuids contains sub_category.uuid %}
+                            {% unless rendered_subs contains sub_category.uuid %}
+                                <li><a href="/products?categories={{sub_category.slug}}">{{ sub_category.category_name | capitalize }}</a></li>
+                                {% assign rendered_subs = rendered_subs | array_add: sub_category.uuid %}
+                            {% endunless %}
                         {% endif %}
                     {% endfor %}
                 </ul>
             </div>
+            {% endif %}
         {% endfor %}
     </div>
   </div>
@@ -70,17 +62,27 @@ metadata: {
   var megaMenu = document.getElementById('mega-menu');
   var megaMenuBtn = document.getElementById('mega-menu-btn');
 
+  // Expose the trigger's disclosure state to assistive tech (the button opens
+  // the mega-menu dialog). Set once, then kept in sync on open/close below.
+  if (megaMenuBtn) {
+    megaMenuBtn.setAttribute('aria-haspopup', 'dialog');
+    megaMenuBtn.setAttribute('aria-controls', 'mega-menu');
+    megaMenuBtn.setAttribute('aria-expanded', 'false');
+  }
+
   megaMenu.addEventListener('didLoad', () => {
     megaMenu.classList.remove('hide');
   });
-  
+
   megaMenuBtn.addEventListener('insClick', () => {
     megaMenu.open();
-    megaMenuBtn.classList.add('show-modal');    
+    megaMenuBtn.classList.add('show-modal');
+    megaMenuBtn.setAttribute('aria-expanded', 'true');
   });
 
   megaMenu.addEventListener('insClose', () => {
     megaMenuBtn.classList.remove('show-modal');
+    megaMenuBtn.setAttribute('aria-expanded', 'false');
   });
 
   // Close mega menu on scroll (also used in app-portal template)

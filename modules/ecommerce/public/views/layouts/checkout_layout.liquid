@@ -21,16 +21,8 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
     <meta content="authenticity_token" name="csrf-param">
     <meta content="{{ context.authenticity_token }}" name="csrf-token">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    {%- comment -%}
-    <!--
-    Try to limit assets that are part of the head / technical head to minimize page size & improve page performance.
-    Assets like 'Google Map API', should only be referenced as needed.
-    -->
-    {%- endcomment -%}  
 
-
-    {%- include 'modules/insites_cms/seo' -%}
-     
+    {%- include 'modules/insites_cms/seo' -%}     
 
     <!-- [Project Assets] -->
     {% include 'modules/website/layout/technical_head' %}
@@ -45,6 +37,9 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
 </head>
 <body>
     <div class="main-wrap checkout">
+        {% comment %} Promo banner strip — above the header {% endcomment %}
+        {% include 'modules/ecommerce/banners/promo_banner' %}
+
         {% include 'modules/website/layout/header' %}
 
         
@@ -81,15 +76,12 @@ It IS NOT accessable in {{content_for_layout}} which includes the specific page
 
     {% include 'modules/website/layout/footer' %}
 
-    {% comment %}
-    {% include 'modules/website/layout/foot' %}
-     {% endcomment %}
-
+    {%- comment -%} Shared Google Places address lookup from app-portal (new AutocompleteSuggestion API). {%- endcomment -%}
     {%- if context.environment == "staging" -%}
-        <script src="{{ 'modules/ecommerce/scripts/checkout/address-lookup.js' | asset_url }}" defer></script>
+        <script src="{{ 'modules/portal/scripts/address-lookup.js' | asset_url }}" defer></script>
         <script src="{{ 'modules/ecommerce/scripts/checkout/checkout.js' | asset_url }}" defer></script>
     {%- else -%}
-        <script src="{{ 'modules/ecommerce/scripts/checkout/address-lookup.min.js' | asset_url }}" defer></script>
+        <script src="{{ 'modules/portal/scripts/address-lookup.min.js' | asset_url }}" defer></script>
         <script src="{{ 'modules/ecommerce/scripts/checkout/checkout.min.js' | asset_url }}" defer></script>
     {%- endif -%}
 

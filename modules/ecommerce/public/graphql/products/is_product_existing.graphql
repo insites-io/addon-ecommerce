@@ -1,4 +1,4 @@
-query is_product_exist (  
+query is_product_existing (
   $page: Int = 1,
   $size: Int = 1,
   $slug: String!,
