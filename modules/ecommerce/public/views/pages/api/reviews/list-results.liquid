@@ -1,0 +1,37 @@
+---
+slug: api/reviews/list-results
+format: json
+method: get
+searchable: false
+metadata: {
+    "status": "published",
+    "api_endpoint_name": "Reviews | List Results (AJAX)"
+}
+---
+{% comment %}
+    AJAX endpoint for the PDP Reviews tab pagination. Returns the rendered
+    reviews list + pager for a product/page so the tab can swap just the list
+    instead of reloading the page. Approved reviews only (query filters status).
+
+    Params:
+    - product : product uuid (reviewed_product)
+    - page    : page number (default 1)
+{% endcomment %}
+{%- assign page = context.params.page | default: 1 | plus: 0 -%}
+{%- assign per_page = context.params.per_page | default: 5 | plus: 0 -%}
+{%- assign product_uuid = context.params.product | strip -%}
+
+{% comment %} total_entries and results in separate queries for optimal performance {% endcomment %}
+{%- graphql reviews_total_entries = 'modules/ecommerce/reviews/get_reviews_total_entries', reviewed_product: product_uuid, page: page, size: per_page | dig: 'items' -%}
+{%- graphql reviews = 'modules/ecommerce/reviews/get_reviews', reviewed_product: product_uuid, page: page, size: per_page | dig: 'items' -%}
+
+{%- capture html -%}
+{%- include 'modules/ecommerce/reviews/review_list', reviews: reviews -%}
+{%- endcapture -%}
+
+{
+    "html": {{ html | json }},
+    "totalCount": {{ reviews_total_entries.total_entries | default: 0 }},
+    "pageNumber": {{ page }},
+    "pageSize": {{ per_page }}
+}

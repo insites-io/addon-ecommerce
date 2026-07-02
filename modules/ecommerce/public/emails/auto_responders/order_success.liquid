@@ -30,152 +30,164 @@ metadata: {
     {{ platform_context.host }}/order-history/{{ order.id }}
 {%- endcapture -%}
 
-{% parse_json billing_data %}
-  {
-    "id": {{ form.id }},
-    "properties": {
-      {% assign properties = '' %}
-      {% assign props = form.properties %}
+{%- liquid
+    assign props = form.properties
 
-      {% assign billing_company_name = props.billing_company_name | default: '-' %}
-      {% assign properties = properties | append: '"company_name": "' | append: billing_company_name | append: '"' %}
+    ## Build the billing properties as a hash (add_hash_key stores native values — no manual JSON, no injection surface)
+    assign billing_props = '{}' | parse_json
 
-      {% assign first_name = props.billing_contact_first_name | default: '-' %}
-      {% assign last_name = props.billing_contact_last_name | default: '-' %}
-      {% assign full_name = first_name | append: ' ' | append: last_name %}
-      {% assign properties = properties | append: ',' | append: '"name": "' | append: full_name | append: '"' %}
+    assign billing_company_name = props.billing_company_name | default: '-'
+    assign billing_props = billing_props | add_hash_key: 'company_name', billing_company_name
 
-      {% assign phone_number = null %}
-      {% assign mobile_number = props.billing_contact_phone_number %}
-      {% if mobile_number %}
-        {% assign country_code = props.billing_contact_phone_country_code | default: '-' %}
-        {% assign phone_number = country_code |  append: ' ' |  append: mobile_number %}
-      {% endif %}
+    assign first_name = props.billing_contact_first_name | default: '-'
+    assign last_name = props.billing_contact_last_name | default: '-'
+    assign full_name = first_name | append: ' ' | append: last_name
+    assign billing_props = billing_props | add_hash_key: 'name', full_name
 
-      {% assign phone_number = phone_number| default: '-' %}
-      {% assign properties = properties | append: ',' | append: '"phone_number": "' | append: phone_number | append: '"' %}
-      {% assign email = props.billing_contact_email | default: '-' %}
-      {% assign properties = properties | append: ',' | append: '"email_address": "' | append: email | append: '"' %}
+    assign phone_number = null
+    assign mobile_number = props.billing_contact_phone_number
+    if mobile_number
+        assign country_code = props.billing_contact_phone_country_code | default: '-'
+        assign phone_number = country_code | append: ' ' | append: mobile_number
+    endif
+    assign phone_number = phone_number | default: '-'
+    assign billing_props = billing_props | add_hash_key: 'phone_number', phone_number
 
-      {% assign billing_address = null %}
-      {% if props.billing_address_1 and props.billing_address_1 != '' %}
-          {% assign billing_address = billing_address | append: props.billing_address_1 | append: ", " %}
-      {% endif %}
-      {% if props.billing_address_2 and props.billing_address_2 != '' %}
-          {% assign billing_address = billing_address | append: props.billing_address_2 | append: ", " %}
-      {% endif %}
-      {% if props.billing_address_3 and props.billing_address_3 != '' %}
-          {% assign billing_address = billing_address | append: props.billing_address_3 | append: ", " %}
-      {% endif %}
-      {% if props.billing_suburb and props.billing_suburb != '' %}
-          {% assign billing_address = billing_address | append: props.billing_suburb | append: ", " %}
-      {% endif %}
-      {% if props.billing_state and props.billing_state != '' %}
-          {% assign billing_address = billing_address | append: props.billing_state | append: " " %}
-      {% endif %}
-      {% if props.billing_postcode and props.billing_postcode != '' %}
-          {% assign billing_address = billing_address | append: props.billing_postcode | append: ", " %}
-      {% endif %}
-      {% if props.billing_country and props.billing_country != '' %}
-          {% assign billing_address = billing_address | append: props.billing_country | append: " " %}
-      {% endif %}
+    assign email = props.billing_contact_email | default: '-'
+    assign billing_props = billing_props | add_hash_key: 'email_address', email
 
-      {% assign billing_address = billing_address | default: '-' %}
+    assign billing_address = null
+    if props.billing_address_1 and props.billing_address_1 != ''
+        assign billing_address = billing_address | append: props.billing_address_1 | append: ", "
+    endif
+    if props.billing_address_2 and props.billing_address_2 != ''
+        assign billing_address = billing_address | append: props.billing_address_2 | append: ", "
+    endif
+    if props.billing_address_3 and props.billing_address_3 != ''
+        assign billing_address = billing_address | append: props.billing_address_3 | append: ", "
+    endif
+    if props.billing_suburb and props.billing_suburb != ''
+        assign billing_address = billing_address | append: props.billing_suburb | append: ", "
+    endif
+    if props.billing_state and props.billing_state != ''
+        assign billing_address = billing_address | append: props.billing_state | append: " "
+    endif
+    if props.billing_postcode and props.billing_postcode != ''
+        assign billing_address = billing_address | append: props.billing_postcode | append: ", "
+    endif
+    if props.billing_country and props.billing_country != ''
+        assign billing_address = billing_address | append: props.billing_country | append: " "
+    endif
+    assign billing_address = billing_address | default: '-'
+    assign billing_props = billing_props | add_hash_key: 'billing_address', billing_address
 
-      {% assign properties = properties | append: ',' | append: '"billing_address": "' | append: billing_address | append: '"' %}
+    ## Wrap with id + errors
+    assign billing_data = '{}' | parse_json
+    assign billing_data = billing_data | add_hash_key: 'id', form.id
+    assign billing_data = billing_data | add_hash_key: 'properties', billing_props
+    assign billing_data = billing_data | add_hash_key: 'errors', form.errors
+-%}
 
-      {{ properties }}
-    },
-    "errors": {{ form.errors }}
-  }
-{% endparse_json %}
+{%- liquid
+    assign props = form.properties
 
-{% parse_json shipping_data %}
-  {
-    "id": {{ form.id }},
-    "properties": {
-      {% assign properties = '' %}
-      {% assign props = form.properties %}
+    ## Build the shipping properties as a hash (add_hash_key stores native values — no manual JSON, no injection surface)
+    assign shipping_props = '{}' | parse_json
 
-      {% assign shipping_company_name = props.shipping_company_name | default: '-' %}
-      {% assign properties = properties | append: '"company_name": "' | append: shipping_company_name | append: '"' %}
+    assign shipping_company_name = props.shipping_company_name | default: '-'
+    assign shipping_props = shipping_props | add_hash_key: 'company_name', shipping_company_name
 
-      {% assign first_name = props.shipping_contact_first_name | default: '-' %}
-      {% assign last_name = props.shipping_contact_last_name | default: '-' %}
-      {% assign full_name = first_name | append: ' ' | append: last_name %}
-      {% assign properties = properties | append: ',' | append: '"name": "' | append: full_name | append: '"' %}
+    assign first_name = props.shipping_contact_first_name | default: '-'
+    assign last_name = props.shipping_contact_last_name | default: '-'
+    assign full_name = first_name | append: ' ' | append: last_name
+    assign shipping_props = shipping_props | add_hash_key: 'name', full_name
 
-      {% assign phone_number = null %}
-      {% assign mobile_number = props.shipping_contact_phone_number %}
-      {% if mobile_number %}
-        {% assign country_code = props.shipping_contact_phone_country_code | default: '-' %}
-        {% assign phone_number = country_code |  append: ' ' |  append: mobile_number %}
-      {% endif %}
+    assign phone_number = null
+    assign mobile_number = props.shipping_contact_phone_number
+    if mobile_number
+        assign country_code = props.shipping_contact_phone_country_code | default: '-'
+        assign phone_number = country_code | append: ' ' | append: mobile_number
+    endif
+    assign phone_number = phone_number | default: '-'
+    assign shipping_props = shipping_props | add_hash_key: 'phone_number', phone_number
 
-      {% assign phone_number = phone_number| default: '-' %}
-      {% assign properties = properties | append: ',' | append: '"phone_number": "' | append: phone_number | append: '"' %}
-      {% assign email = props.shipping_contact_email | default: '-' %}
-      {% assign properties = properties | append: ',' | append: '"email_address": "' | append: email | append: '"' %}
+    assign email = props.shipping_contact_email | default: '-'
+    assign shipping_props = shipping_props | add_hash_key: 'email_address', email
 
-      {% assign shipping_address = null %}
-      {% if props.shipping_address_1 and props.shipping_address_1 != '' %}
-          {% assign shipping_address = shipping_address | append: props.shipping_address_1 | append: ", " %}
-      {% endif %}
-      {% if props.shipping_address_2 and props.shipping_address_2 != '' %}
-          {% assign shipping_address = shipping_address | append: props.shipping_address_2 | append: ", " %}
-      {% endif %}
-      {% if props.shipping_address_3 and props.shipping_address_3 != '' %}
-          {% assign shipping_address = shipping_address | append: props.shipping_address_3 | append: ", " %}
-      {% endif %}
-      {% if props.shipping_suburb and props.shipping_suburb != '' %}
-          {% assign shipping_address = shipping_address | append: props.shipping_suburb | append: ", " %}
-      {% endif %}
-      {% if props.shipping_state and props.shipping_state != '' %}
-          {% assign shipping_address = shipping_address | append: props.shipping_state | append: " " %}
-      {% endif %}
-      {% if props.shipping_postcode and props.shipping_postcode != '' %}
-          {% assign shipping_address = shipping_address | append: props.shipping_postcode | append: ", " %}
-      {% endif %}
-      {% if props.shipping_country and props.shipping_country != '' %}
-          {% assign shipping_address = shipping_address | append: props.shipping_country | append: " " %}
-      {% endif %}
+    assign shipping_address = null
+    if props.shipping_address_1 and props.shipping_address_1 != ''
+        assign shipping_address = shipping_address | append: props.shipping_address_1 | append: ", "
+    endif
+    if props.shipping_address_2 and props.shipping_address_2 != ''
+        assign shipping_address = shipping_address | append: props.shipping_address_2 | append: ", "
+    endif
+    if props.shipping_address_3 and props.shipping_address_3 != ''
+        assign shipping_address = shipping_address | append: props.shipping_address_3 | append: ", "
+    endif
+    if props.shipping_suburb and props.shipping_suburb != ''
+        assign shipping_address = shipping_address | append: props.shipping_suburb | append: ", "
+    endif
+    if props.shipping_state and props.shipping_state != ''
+        assign shipping_address = shipping_address | append: props.shipping_state | append: " "
+    endif
+    if props.shipping_postcode and props.shipping_postcode != ''
+        assign shipping_address = shipping_address | append: props.shipping_postcode | append: ", "
+    endif
+    if props.shipping_country and props.shipping_country != ''
+        assign shipping_address = shipping_address | append: props.shipping_country | append: " "
+    endif
+    assign shipping_address = shipping_address | default: '-'
+    assign shipping_props = shipping_props | add_hash_key: 'shipping_address', shipping_address
 
-      {% assign shipping_address = shipping_address | default: '-' %}
-      {% assign properties = properties | append: ',' | append: '"shipping_address": "' | append: shipping_address | append: '"' %}
-      
-      {% assign shipping_instructions = props.shipping_instructions | default: '-' %}
-      {% assign properties = properties | append: ',' | append: '"shipping_instructions": "' | append: shipping_instructions | append: '"' %}
+    assign shipping_instructions = props.shipping_instructions | default: '-'
+    assign shipping_props = shipping_props | add_hash_key: 'shipping_instructions', shipping_instructions
 
-      {{ properties }}
-    },
-    "errors": {{ form.errors }}
-  }
-{% endparse_json %}
+    ## Wrap with id + errors
+    assign shipping_data = '{}' | parse_json
+    assign shipping_data = shipping_data | add_hash_key: 'id', form.id
+    assign shipping_data = shipping_data | add_hash_key: 'properties', shipping_props
+    assign shipping_data = shipping_data | add_hash_key: 'errors', form.errors
+-%}
 
-{% parse_json order_details %}
-  {
-    "id": {{ form.id }},
-    "properties": {
-      {% assign properties = '' %}
-      {% assign props = order %}
+{%- liquid
+    ## Derive the amounts the same way the on-site order summary does
+    ## (compute_completed_order_amounts) so the email totals match exactly: net
+    ## subtotal, discount, delivery, GST and the gross total all foot together.
+    ## Reading the raw order fields gave a GROSS subtotal next to a separate tax
+    ## (rows did not reconcile, so tax looked wrong) and omitted the discount.
+    assign order_uuid = order.uuid | default: form.properties.uuid
+    include 'modules/ecommerce/checkout/compute_completed_order_amounts', uuid: order_uuid
+    assign computed = context.exports.computed
 
-      {% assign subtotal_amount = props.subtotal_amount | advanced_format: '%.2f' | pricify | default: '-invalid' %}
-      {% assign properties = properties | append: '"subtotal": "' | append: subtotal_amount | append: '"' %}
-      {% assign total_shipping_amount = props.total_shipping_amount | advanced_format: '%.2f' | pricify | default: '-' %}
-      {% assign properties = properties | append: ','  | append: '"delivery_&_handling": "' | append: total_shipping_amount | append: '"' %}
-      {% assign processing_fee = form.properties.processing_fee | advanced_format: '%.2f' | pricify | default: '-' %}
-      {% assign properties = properties | append: ','  | append: '"processing_fee": "' | append: processing_fee | append: '"' %}
-      {% assign total_tax_amount = props.total_tax_amount | advanced_format: '%.2f' | pricify | default: '-invalid' %}
-      {% assign properties = properties | append: ','  | append: '"tax": "' | append: total_tax_amount | append: '"' %}
-      {% assign total_amount = props.total_amount | advanced_format: '%.2f' | pricify | default: '-invalid' %}
-      {% assign properties = properties | append: ','  | append: '"total": "' | append: total_amount | append: '"' %}
+    ## Build the order amounts as a hash (values are server-derived currency strings)
+    assign order_props = '{}' | parse_json
 
-      {{ properties }}
-      
-    },
-    "errors": {{ form.errors }}
-  }
-{% endparse_json %}
+    assign subtotal_amount = computed.net_subtotal_amount | advanced_format: '%.2f' | pricify | default: '-'
+    assign order_props = order_props | add_hash_key: 'subtotal', subtotal_amount
+
+    assign total_shipping_amount = computed.shipping_amount | advanced_format: '%.2f' | pricify | default: '-'
+    assign order_props = order_props | add_hash_key: 'delivery_&_handling', total_shipping_amount
+
+    ## Discount: pricified value plus the raw number (partial shows the row only when raw > 0)
+    assign total_discount_amount = computed.total_discount_amount | advanced_format: '%.2f' | pricify | default: '-'
+    assign order_props = order_props | add_hash_key: 'discount', total_discount_amount
+    assign order_props = order_props | add_hash_key: 'discount_raw', computed.total_discount_amount
+
+    assign total_tax_amount = computed.tax_amount | advanced_format: '%.2f' | pricify | default: '-'
+    assign order_props = order_props | add_hash_key: 'tax', total_tax_amount
+
+    assign processing_fee = computed.processing_fee | advanced_format: '%.2f' | pricify | default: '-'
+    assign order_props = order_props | add_hash_key: 'processing_fee', processing_fee
+
+    assign total_amount = computed.total_amount | advanced_format: '%.2f' | pricify | default: '-'
+    assign order_props = order_props | add_hash_key: 'total', total_amount
+
+    ## Wrap with id + errors
+    assign order_details = '{}' | parse_json
+    assign order_details = order_details | add_hash_key: 'id', form.id
+    assign order_details = order_details | add_hash_key: 'properties', order_props
+    assign order_details = order_details | add_hash_key: 'errors', form.errors
+-%}
 
 
 {% comment %} <!-------------------------------- HTML --------------------------------> {% endcomment %}
@@ -442,6 +454,3 @@ data-muid="9a6f2278-aafa-434e-9a1f-1bb56840e20e" data-mc-module-version="2019-10
 
 {% comment %} <!-- Spacer --> {% endcomment %}
 {% include 'modules/ecommerce/emails/spacer_table_body', spaceSize: 56 %}
-
-{% comment %} <!-- Footer --> {% endcomment %}
-{% comment %} {% include 'modules/ecommerce/emails/client_footer', global: global %} {% endcomment %}

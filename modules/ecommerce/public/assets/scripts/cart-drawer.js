@@ -54,12 +54,35 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* Add to cart */
-let addToCartBtn = document.querySelectorAll(".add-to-cart-btn");
-addToCartBtn.forEach(btn => {
-    btn.addEventListener('insClick', event => {  
-        addToCartPreProcess(event);
+// Binds add-to-cart + product-card click behaviour. Safe to call repeatedly
+// (e.g. after the product list is swapped in via AJAX) — already-bound nodes are skipped.
+function initProductCardInteractions(root){
+    root = root || document;
+
+    root.querySelectorAll(".add-to-cart-btn").forEach(btn => {
+        if (btn.dataset.cartBound) return;
+        btn.dataset.cartBound = "1";
+        btn.addEventListener('insClick', event => {
+            addToCartPreProcess(event);
+        });
     });
-});
+
+    // Clicking anywhere in a product card (except the add-to-cart button) opens the detail link.
+    root.querySelectorAll('.product-cards .cell').forEach(wrapper => {
+        if (wrapper.dataset.cardBound) return;
+        wrapper.dataset.cardBound = "1";
+        wrapper.addEventListener('click', function (event) {
+            if (!event.target.closest('ins-button.add-to-cart-btn')) {
+                const link = this.querySelector('a');
+                if (link) {
+                    link.click();
+                }
+            }
+        });
+    });
+}
+window.initProductCardInteractions = initProductCardInteractions;
+initProductCardInteractions(document);
 
 async function addToCartPreProcess(event, type){
     
@@ -231,8 +254,7 @@ async function addToCart(data, type){
         const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
         for (const item of data) {
-            item["contact_uuid"] = user_uuid;
-            await delay(1000); 
+            await delay(1000);
             const response = await apiServices.processRequest("post", "/add-to-cart.json", item);
             responses.push(response);
         }
@@ -244,7 +266,7 @@ async function addToCart(data, type){
         // Reload the page to reflect the added items in the cart drawer.            
         location.reload();           
     } else {
-        data["contact_uuid"] = user_uuid;
+        // contact_uuid is resolved server-side from current_user/session.
         goToCartButtonDisabled();
         let response = await apiServices.processRequest("post", "/add-to-cart.json", data);
         if(response.state) {
@@ -438,10 +460,14 @@ function reloadIfShoppingCartPage() {
 
 function formatNumber(num) {
     const value = typeof num === "number" ? num : parseFloat(num);
-    if (isNaN(value)) return "0.00"; // fallback
+    // round_prices (ecommerce_addon_is_price_round_off) toggles whole-number display;
+    // it's set inline in cart_drawer.liquid before this script loads. Defaults off.
+    const roundOff = typeof round_prices !== "undefined" && round_prices;
+    const digits = roundOff ? 0 : 2;
+    if (isNaN(value)) return roundOff ? "0" : "0.00"; // fallback
     return value.toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
     });
 }
 
@@ -511,18 +537,5 @@ function openDrawer(){
 }
 
 
-//Trigger a click event on a child <a> element when clicking anywhere inside an element '.product-cards .cell' 
-//(except for ins-button.add-to-cart-btn element and its children)
-const productWrappers = document.querySelectorAll('.product-cards .cell');
-if(productWrappers){
-    productWrappers.forEach(wrapper => {
-        wrapper.addEventListener('click', function (event) {
-            if (!event.target.closest('ins-button.add-to-cart-btn')) {
-                const link = this.querySelector('a');
-                if (link) {
-                    link.click();
-                }
-            }
-        });
-    });
-}
+// Product-card click handling is wired in initProductCardInteractions() above,
+// which also re-binds cards injected via AJAX on the product list.

@@ -1,15 +1,17 @@
-{%   liquid 
+{%   liquid
      ## Use product details here even if variant is enabled
+     ## Displayed price is the platform-maintained effective_price (the value the
+     ## product list/facets sort + filter on). Strikethrough + tax flag stay derived
+     ## from the sale/regular fields.
      assign price_strikethrough = ''
-     if product.is_on_sale == true 
-          assign price = product.sale_price
+     assign price = product.effective_price
+     if product.is_on_sale == true
           if product.regular_price > 0
                assign price_strikethrough = product.regular_price | pricify: 'USD', no_cents_if_whole: false
           endif
           #Tax
           assign is_tax_included = product.is_sale_price_tax_included
-     else 
-          assign price = product.regular_price        
+     else
           #Tax
           assign is_tax_included = product.is_tax_included
      endif

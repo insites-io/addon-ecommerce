@@ -1,0 +1,27 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Reviews | Review List'
+}
+---
+{% comment %}
+    Swappable reviews list (the AJAX swap target's contents — items only).
+    Rendered initially by review_section.liquid and by api/reviews/list-results.
+    The pager is a separate, persistent ins-table (see review_section.liquid).
+
+    Params:
+    - reviews : get_reviews items ({ results })
+{% endcomment %}
+<div class="review-list">
+    {%- for review in reviews.results -%}
+        <div class="review-item">
+            <div class="review-item__header">
+                <div class="review-item__user">
+                    <span class="review-item__name">{{ review.reviewer_first_name }} {{ review.reviewer_last_name }}</span>
+                    {% include 'modules/ecommerce/reviews/star_rating', rating: review.rating, size: 14 %}
+                </div>
+                <span class="review-item__date">{{ review.created_at | date: '%b %d, %Y' }}</span>
+            </div>
+            <p class="review-item__body">{{ review.review_content }}</p>
+        </div>
+    {%- endfor -%}
+</div>

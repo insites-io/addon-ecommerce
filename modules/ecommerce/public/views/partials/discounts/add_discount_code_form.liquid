@@ -5,8 +5,6 @@ metadata: {
 ---
 {% comment %} This partial is not a form at all but it has input fields and a button for user to enter a discount code. {% endcomment %}
 
-{% function user_uuid = 'modules/ecommerce/user/get_user_uuid' %}
-
 <ins-accordion>
     <ins-accordion-item 
         class="discount-code-form"
@@ -15,15 +13,14 @@ metadata: {
         close-icon="icon-minus">
         
         <div id="discount-code-form">
-     
-                <input type="hidden" value="{{ user_uuid }}" >
 
                 <div class="grid-x gap">
-                    <ins-input 
+                    <ins-input
                         id="discount-code-input"
                         class="flex-child-auto"
                         error-message="Discount code is required"
                         label=""
+                        title="Discount code"
                         placeholder="Enter discount code" >
                     </ins-input>
                     <ins-button 
@@ -39,8 +36,6 @@ metadata: {
 </ins-accordion>
 
 <script>
-     var contact_uuid = contact_uuid || '{{ user_uuid }}';
-     var total_cart_value = {{ total_cart_value | default: 0 }};
      const discountCodeForm = document.getElementById('discount-code-form');
      const applyDiscountBtn = document.getElementById('apply-discount-btn');
      const discountCodeInput = document.getElementById('discount-code-input');     
@@ -49,12 +44,9 @@ metadata: {
         applyDiscountBtn.loading = true;
         let discountCode = await discountCodeInput.getValue();
         let payload = {
-                contact_uuid: contact_uuid,
                 discount_code: discountCode,
-                check_duplicates: true,
-                type: 'add',
-                total_cart_value: total_cart_value
-            }          
+                type: 'add'
+            }
         shoppingCart.methods.validateDiscountCode(payload, discountCodeForm);
      });
 </script>

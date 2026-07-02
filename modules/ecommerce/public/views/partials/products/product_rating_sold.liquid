@@ -1,0 +1,40 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Products | Rating + Sold stats'
+}
+---
+{% comment %}
+    Computes a product's review count, average rating and units-sold count from
+    already-fetched rows, then exports them. Shared by the product card (batch
+    rows from enrich_cards) and the PDP buy-box (single-product queries) so the
+    averaging / summing logic lives in one place.
+
+    Params:
+    - review_list : array of approved-review rows, each with a `.rating` (int)
+    - sold_list   : array of completed-order line items, each with a `.quantity` (int)
+
+    Exports (read via context.exports.*):
+    - review_count : number of reviews
+    - avg_rating   : mean rating (float), 0 when there are no reviews
+    - sold_count   : total units sold
+{% endcomment %}
+{%- liquid
+    assign review_count = review_list | size
+    assign rating_sum = 0
+    for rv in review_list
+        assign rating_sum = rating_sum | plus: rv.rating
+    endfor
+    assign avg_rating = 0
+    if review_count > 0
+        assign avg_rating = rating_sum | times: 1.0 | divided_by: review_count
+    endif
+
+    assign sold_count = 0
+    for si in sold_list
+        assign sold_count = sold_count | plus: si.quantity
+    endfor
+
+    export review_count
+    export avg_rating
+    export sold_count
+-%}

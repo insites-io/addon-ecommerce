@@ -9,7 +9,7 @@ metadata: {
         assign product = item.product
         if item.sku == product.sku
             assign selected_prop = product
-        else 
+        else
             for variant in product.variants
                 if item.sku == variant.sku
                     assign selected_prop = variant
@@ -22,13 +22,18 @@ metadata: {
         assign label_add_tocart_btn = 'Select Variant'
         assign selected_prop = product.variant
         assign product_variant_uuid = product.variant.uuid
-    else 
+    else
         assign class_add_to_cart_btn = 'add-to-cart-btn'
-        assign label_add_tocart_btn = 'Add to Cart'
         assign selected_prop = product
         assign product_variant_uuid = null
+        ## Out-of-stock simple products can still be ordered ahead — show "Pre-Order".
+        if product.stock_level < 1 or product.stock_level == blank
+            assign label_add_tocart_btn = 'Pre-Order'
+        else
+            assign label_add_tocart_btn = 'Add to Cart'
+        endif
     endif
-    
+
 
     ## Pricing
     ## Use product details here even if the variant is enabled
@@ -37,36 +42,112 @@ metadata: {
     assign price_strikethrough = context.exports.price_strikethrough
     assign is_tax_included = context.exports.is_tax_included
 
+    ## TEMP diagnostic: raw gross price (regular/sale) exposed in a title attr below,
+    ## alongside the applicable tax-included flag (is_tax_included already encodes
+    ## is_sale_price_tax_included when on sale), to compare vs the net effective_price.
+    assign diag_price = product.regular_price
+    if product.is_on_sale == true
+        assign diag_price = product.sale_price
+    endif
+    if product.is_product_variant_enabled
+        if selected_prop.is_on_sale == true
+            assign diag_price = selected_prop.sale_price
+        else
+            assign diag_price = selected_prop.regular_price
+        endif
+    endif
+    ## Tax amount + fixed/percent type (variant overrides product-level, like price).
+    assign diag_tax_amount = product.tax_amount
+    assign diag_is_fixed = product.is_fixed_tax_amount
+    if product.is_product_variant_enabled
+        assign diag_tax_amount = selected_prop.tax_amount
+        assign diag_is_fixed = selected_prop.is_fixed_tax_amount
+    endif
+    assign diag_tax_type = 'percent'
+    if diag_is_fixed == true
+        assign diag_tax_type = 'fixed'
+    endif
+    ## Print 'null' explicitly for unset values. Liquid renders nil as blank, and the
+    ## `default` filter cannot be used (it also fires on false/0). `== null` matches only
+    ## nil — NOT false — unlike `== blank`, which treats false as blank too.
+    assign diag_tax = is_tax_included
+    if is_tax_included == null
+        assign diag_tax = 'null'
+    endif
+    if diag_price == null
+        assign diag_price = 'null'
+    endif
+    if diag_tax_amount == null
+        assign diag_tax_amount = 'null'
+    endif
+
     ## If price is empty and the item is a variant, then use the variant pricing
     if price == '' or price == blank
         if product.is_product_variant_enabled
-            if selected_prop.is_on_sale == true 
-                assign price = selected_prop.sale_price
+            assign price = selected_prop.effective_price
+            if selected_prop.is_on_sale == true
                 assign price_strikethrough = selected_prop.regular_price
-            else 
-                assign price = selected_prop.regular_price
+            else
                 assign price_strikethrough = ''
             endif
         endif
     endif
-%}    
+
+    ## Whole-number strikethrough source: raw regular price (variant overrides product).
+    ## Used instead of the pre-formatted price_strikethrough so the card can render it
+    ## whole without changing pricing.liquid (which the PDP also uses).
+    assign strike_raw = product.regular_price
+    if product.is_product_variant_enabled
+        assign strike_raw = selected_prop.regular_price
+    endif
+
+    ## Price round-off is toggled by the ecommerce_addon_is_price_round_off constant
+    ## (default true). When on, prices show as whole numbers; when off, prior behaviour.
+    assign round_prices = false
+    if context.constants.ecommerce_addon_is_price_round_off == 'true'
+        assign round_prices = true
+    endif
+    if round_prices
+        assign price_out = price | round: 0 | pricify: 'USD', no_cents_if_whole: true
+        assign strike_out = strike_raw | round: 0 | pricify: 'USD', no_cents_if_whole: true
+    else
+        assign price_out = price | pricify
+        assign strike_out = price_strikethrough
+    endif
+
+    ## ── Card enrichment (looked up from the page-level batch fetches in grid.liquid) ──
+    ## Custom fields: tags + per-product low-stock override
+    assign cf = cf_rows | where: 'product_uuid', product.uuid | first
+    assign product_tags = cf.tags
+    assign low_override = cf.low_stock_override
+
+    ## Stock indicator state is computed inside products/stock_indicator (shared with the PDP);
+    ## low_override + selected_prop are passed through below.
+
+    ## Rating + sold stats — computed in products/product_rating_sold (shared with the PDP)
+    ## from this product`s rows in the page-level batch fetches (enrich_cards).
+    assign my_reviews = review_rows | where: 'reviewed_product', product.uuid
+    assign my_sold = sold_rows | where: 'product_uuid', product.uuid
+    include 'modules/ecommerce/products/product_rating_sold', review_list: my_reviews, sold_list: my_sold
+    assign review_count = context.exports.review_count
+    assign avg_rating = context.exports.avg_rating
+    assign sold_count = context.exports.sold_count
+%}
     <div class="cell">
         <div class="wrap grid-y">
             <div class="img-wrap">
             {% if selected_prop.stock_level < 1 or selected_prop.stock_level == blank %}
                 <div class="out-of-stock"></div>
             {% endif %}
-            {% if selected_prop.is_on_sale == true %}
-                <div class="sale-tag">SALE</div>
-            {% endif %}
+            {% include 'modules/ecommerce/products/product_tags', tags: product_tags %}
             {% if product.product_image.url %}
-                {% assign image_url = product.product_image.url | replace: ' ', '%20' | escape %}                               
+                {% assign image_url = product.product_image.url | replace: ' ', '%20' | escape %}
                 {%- capture img_cache_key -%} product_image-{{ product.id }}-{{ product.updated_at }} {%- endcapture -%}
                 {% cache img_cache_key %}
                 {% if fetchpriority == 'high' %}
-                <img src="{{ image_url }}" alt="{{ product.product_name }}" fetchpriority="high" width="300" height="286">
+                <img src="{{ image_url }}" alt="{{ product.product_name }}" fetchpriority="high" width="300" height="300">
                 {% else %}
-                <img src="{{ image_url }}" alt="{{ product.product_name }}" loading="lazy" width="300" height="286">
+                <img src="{{ image_url }}" alt="{{ product.product_name }}" loading="lazy" width="300" height="300">
                 {% endif %}
                 {% endcache %}
             {% else %}
@@ -76,26 +157,39 @@ metadata: {
             <div class="spacer medium"></div>
             <div class="container grid-y flex-grow-1">
                 <div class="details">
+                    <p class="product-brand">{{ product.brand | default: 'Unbranded' }}</p>
+                    <div class="spacer x-small"></div>
                     {% if heading_level == 'h2' %}
                         <h2 class="heading-6">{{ product.product_name }}</h2>
                     {% elsif heading_level == 'h3' %}
-                        <h3 class="heading-6">{{ product.product_name }}</h3>  
+                        <h3 class="heading-6">{{ product.product_name }}</h3>
                     {% elsif heading_level == 'h4' %}
-                        <h4 class="heading-6">{{ product.product_name }}</h4>  
+                        <h4 class="heading-6">{{ product.product_name }}</h4>
                     {% elsif heading_level == 'h5' %}
-                        <h5 class="heading-6">{{ product.product_name }}</h5>  
+                        <h5 class="heading-6">{{ product.product_name }}</h5>
                     {% else %}
                         <h6>{{ product.product_name }}</h6>
                     {% endif %}
                     <div class="spacer x-small"></div>
-                    {% assign category = all_categories | array_detect: uuid: product.category_uuids[0] %}
-                    <p class="body-x-small">{{ category.category_name | capitalize }}</p>
+                    <div class="product-meta">
+                        {%- comment -%} Always show the rating; products with no reviews yet read as empty stars + "(0)". {%- endcomment -%}
+                        <span class="product-rating">
+                            {% include 'modules/ecommerce/reviews/star_rating', rating: avg_rating, size: 16 %}
+                            <span class="product-rating__count body-small bold">({{ review_count }})</span>
+                        </span>
+                        {%- if sold_count > 0 -%}
+                            <span class="product-sold body"><span class="product-sold__count">{{ sold_count }}</span> sold</span>
+                        {%- endif -%}
+                    </div>
                     <div class="spacer"></div>
-                    <p class="product-current-price">{{ price | pricify }}
+                    <p class="product-current-price" title="price={{ diag_price }}; tax_included?={{ diag_tax }}; tax_amount={{ diag_tax_amount }}; tax_type={{ diag_tax_type }}">{{ price_out }}
                         {% if product.is_on_sale == true or variant.is_on_sale == true %}
-                        <span class="body-x-small strikethrough">{{ price_strikethrough }}</span>
+                        <span class="show-for-sr">Original price </span>
+                        <span class="body-x-small strikethrough">{{ strike_out }}</span>
                         {% endif %}
                     </p>
+                    <div class="spacer x-small"></div>
+                    {% include 'modules/ecommerce/products/stock_indicator', selected_prop: selected_prop, product: product, low_override: low_override %}
                     <div class="spacer"></div>
                     {% if purchase_date  %}
                     <p class="body-x-small">Purchase Date: {{purchase_date | date: '%d/%m/%Y'}}</p>
@@ -107,16 +201,16 @@ metadata: {
                     {
                         "id": "{{ selected_prop.id }}",
                         "slug": "{{ product.slug }}",
-                        "product_name": "{{ product.product_name | replace: "'", "`"}}",
+                        "product_name": {{ product.product_name | default: '' | strip_html | json }},
                         "image": "{{ image_url }}",
                         "product_sku": "{{ selected_prop.sku }}",
-                        "product_uuid": "{{ product.uuid }}",                        
-                        "product_variant_uuid": "{{ product_variant_uuid }}",                     
-                        "price": {{ price | default: 0 | advanced_format: '%.2f' }},                        
+                        "product_uuid": "{{ product.uuid }}",
+                        "product_variant_uuid": "{{ product_variant_uuid }}",
+                        "price": {{ price | default: 0 | advanced_format: '%.2f' }},
                         "stock_level": {{ selected_prop.stock_level | default: 0 }},
                         "tax_amount": {{ product.tax_amount | default: 0 }},
                         "is_tax_included": {{ is_tax_included | default: false }},
-                        "is_fixed_tax_amount": {{ product.is_fixed_tax_amount | default: false }}                        
+                        "is_fixed_tax_amount": {{ product.is_fixed_tax_amount | default: false }}
                     }
                     {% endparse_json %}
 
@@ -129,8 +223,8 @@ metadata: {
 
                     <ins-button class="full {{class_add_to_cart_btn}}" label="{{ label_add_tocart_btn }}" data='{{ data }}' solid color="blue" icon="icon-shopping-cart"></ins-button>
                     <div class="spacer x-small"></div>
-                    <a href="/products/{{ product.slug }}">
-                        <ins-button class="full" label="View details" outlined icon="icon-eye"></ins-button>
+                    <a href="/products/{{ product.slug }}" aria-label="View details for {{ product.product_name | strip_html | escape }}">
+                        <ins-button class="full" label="View details" outlined icon="icon-eye" aria-hidden="true"></ins-button>
                     </a>
                 </div>
             </div>

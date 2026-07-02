@@ -14,17 +14,26 @@ metadata: {
     "sitemap_change_frequency": "monthly"    
 }
 dynamic_cache:
-  layout: false
+  layout: true
   key: |-
     {%- parse_json models -%}
     [
       "modules/insites_ecommerce/category",
       "modules/insites_ecommerce/product",
-      "modules/insites_ecommerce/product_variant"
+      "modules/insites_ecommerce/product_variant",
+      "modules/insites_core/attachment",
+      "modules/ins_ecommerce/product_custom_field",
+      "modules/insites_ecommerce/order",
+      "modules/insites_ecommerce/order_item",
+      "modules/ecommerce/reviews",
+      "modules/ecommerce/product_search_synonym",
+      "modules/ecommerce/promo_banner",
+      "modules/insites_ecommerce/cart",
+      "modules/insites_ecommerce/cart_item"
     ]
-    {%- endparse_json -%}   
+    {%- endparse_json -%}
     {%- include "modules/website/cache/generate_cache_key", models: models -%}
-    {{ context.current_user.id }} 
+    {{ context.current_user.id }}-{{ context.session.guest_temp_uuid }}
 ---
 {% comment -%} 
 URL Structures: 
@@ -86,8 +95,10 @@ URL Structures:
 
 {% if is_product_detail == false %}
     {%- if context.environment == "staging" -%}
+        <script src="{{ 'modules/ecommerce/scripts/predictive-search.js' | asset_url }}" defer></script>
         <script src="{{ 'modules/ecommerce/scripts/product-list.js' | asset_url }}" defer></script>
     {% else %}
+        <script src="{{ 'modules/ecommerce/scripts/predictive-search.min.js' | asset_url }}" defer></script>
         <script src="{{ 'modules/ecommerce/scripts/product-list.min.js' | asset_url }}" defer></script>
     {% endif %}
 {% endif %}

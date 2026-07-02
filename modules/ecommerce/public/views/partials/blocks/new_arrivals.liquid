@@ -14,12 +14,20 @@ metadata: {
     {% comment %} This export will be used in 'Whats Hot' block to eliminate the need to fetch the categories again {% endcomment %}
     {% export all_categories %}
 
+    {% comment %} Card enrichment (tags, rating, sold) — batched once, reused across the 3 carousels {% endcomment %}
+    {%- include 'modules/ecommerce/products/enrich_cards', products: products -%}
+    {%- assign cf_rows = context.exports.cf_rows -%}
+    {%- assign review_rows = context.exports.review_rows -%}
+    {%- assign sold_rows = context.exports.sold_rows -%}
+
 <section class="wrapper">
     <div class="spacer xxxx-large"></div>
-    <div class="product-carousel">
-        
+    <div class="product-carousel is-loading">
+
+        {%- include 'modules/ecommerce/blocks/carousel_skeleton' -%}
+
         <!-- desktop carousel -->
-        <ins-carousel 
+        <ins-carousel
             id="newArrivalsCarouselDesktop"
             class="newArrivalsCarousel carouselDesktop show-for-large"
             layout="1"
@@ -31,7 +39,7 @@ metadata: {
             <div class="spacer xx-large"></div>
             <div id="newArrivalCardsDesktop" class="product-cards">
                 {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, heading_level: 'h3' %}
+                    {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, cf_rows: cf_rows, review_rows: review_rows, sold_rows: sold_rows, heading_level: 'h3' %}
                 {% endfor %}
             </div>
             
@@ -56,7 +64,7 @@ metadata: {
             <div class="spacer xx-large"></div>
             <div id="newArrivalCardsTablet" class="product-cards">
                 {% for product in products %}
-                    {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, heading_level: 'h3' %}
+                    {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, cf_rows: cf_rows, review_rows: review_rows, sold_rows: sold_rows, heading_level: 'h3' %}
                 {% endfor %}
             </div>
         </ins-carousel>
@@ -77,7 +85,7 @@ metadata: {
                 <div class="spacer"></div>
                 <div id="newArrivalCardsMobile" class="product-cards">
                     {% for product in products %}
-                        {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, heading_level: 'h3' %}
+                        {% include "modules/ecommerce/products/product_card", product: product, all_categories: all_categories, cf_rows: cf_rows, review_rows: review_rows, sold_rows: sold_rows, heading_level: 'h3' %}
                     {% endfor %}
                 </div>
             </ins-carousel>
@@ -92,19 +100,30 @@ metadata: {
 var newArrivalsCarousel = document.querySelectorAll('.newArrivalsCarousel');
 var showAllLink = {};
 
+function newArrivalsReveal() {
+    var wrap = document.querySelector('#newArrivalsCarouselDesktop')
+        && document.querySelector('#newArrivalsCarouselDesktop').closest('.product-carousel');
+    if (wrap) wrap.classList.remove('is-loading');
+}
+
 newArrivalsCarousel.forEach(carousel => {
     var carouselID = carousel.id;
-    carousel.addEventListener('didLoad', event => {     
-        var carouselCtrlBtns = document.querySelector(`#${carouselID} .ins-carousel_ctrl-btns`);  
-        if(carouselCtrlBtns && showAllLink[carouselID] !== true){            
+    carousel.addEventListener('didLoad', event => {
+        // Carousel has hydrated — drop the skeleton overlay.
+        newArrivalsReveal();
+        var carouselCtrlBtns = document.querySelector(`#${carouselID} .ins-carousel_ctrl-btns`);
+        if(carouselCtrlBtns && showAllLink[carouselID] !== true){
             var newLink = document.createElement('a');
                 newLink.href = "/products";
                 newLink.textContent = "Shop all";
-                newLink.className = "shop-all-link"; 
-            carouselCtrlBtns.appendChild(newLink);  
-            showAllLink[carouselID] = true;           
-        }               
-    });          
+                newLink.className = "shop-all-link";
+            carouselCtrlBtns.appendChild(newLink);
+            showAllLink[carouselID] = true;
+        }
+    });
 });
+
+// Safety net: never leave the skeleton up if didLoad doesn't fire.
+setTimeout(newArrivalsReveal, 4000);
 </script>
 {% endif %}

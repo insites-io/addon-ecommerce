@@ -6,12 +6,10 @@ let shoppingCart = (function () {
             async removeDiscountCode(ev) {
                 let discountEl = ev.target.parentElement;
                 let uuid = discountEl.getAttribute('data-uuid');
-                let contact_uuid = discountEl.getAttribute('data-contact-uuid');
                 if(uuid && !isDeleting) {
                     isDeleting = true;
                     let payload = {
-                        "uuid": uuid,
-                        "contact_uuid": contact_uuid
+                        "uuid": uuid
                     };
                     let response = await apiServices.removeDiscountCode({ payload });
                     if(response.state) {

@@ -1,0 +1,35 @@
+query get_eligible_popups(
+  $size: Int = 20
+){
+  ## All enabled popups, lowest weighting first. The scheduled-window check
+  ## (now within start_at/end_at, with null bounds treated as open-ended) is
+  ## done in Liquid so an unscheduled-but-enabled popup is always eligible.
+  ## The first eligible record in this order is the one shown.
+  items: records(
+    per_page: $size
+    filter: {
+      table: { value: "modules/ecommerce/popup_modal" }
+      deleted_at: { exists: false }
+      properties: [
+        { name: "is_popup_enabled", value_boolean: true }
+      ]
+    }
+    sort: [
+      { properties: [{ name: "popup_weight", order: ASC }] }
+    ]
+  ){
+    results {
+      id
+      popup_heading: property(name: "popup_heading")
+      popup_content: property(name: "popup_content")
+      popup_button_label: property(name: "popup_button_label")
+      popup_button_url: property(name: "popup_button_url")
+      popup_weight: property_int(name: "popup_weight")
+      popup_start_at: property(name: "popup_start_at")
+      popup_end_at: property(name: "popup_end_at")
+      popup_image: property_upload(name: "popup_image") {
+        url
+      }
+    }
+  }
+}

@@ -5,12 +5,13 @@ metadata: {
 ---
 {% comment %}
 payload: {
-    check_duplicates: Boolean
-    contact_uuid: ID! / String!
     discount_code: String!
-    type: String!
-    total_cart_value: Float
+    type: String!              ## 'add' when applying a new code; blank on re-validate
 }
+## contact_uuid is resolved server-side (get_user_uuid), not taken from payload.
+## check_duplicates / delete_invalid are derived from type, not taken from payload.
+## total_cart_value (for the minimum_cart_value check) is computed server-side from
+## the cart, not taken from payload.
 {% endcomment %}
 {% comment %} 
     This partial is used to validate discount code for:
@@ -19,14 +20,33 @@ payload: {
 {% endcomment %}
 
 
-{%- assign contact_uuid = payload.contact_uuid | default: blank -%}
+{%- comment -%} Resolve the cart owner server-side. Never trust payload.contact_uuid:
+    this partial is reached from the public validate-discount-code endpoint, and a
+    client-supplied uuid would let a caller apply/validate discounts against another
+    users cart. get_user_uuid returns the logged-in members uuid or the guests session
+    uuid — the same value the checkout order-summary caller already passes. {%- endcomment -%}
+{%- function contact_uuid = 'modules/ecommerce/user/get_user_uuid' -%}
 {%- assign discount_code = payload.discount_code | default: blank -%}
 {%- assign type = payload.type | default: blank -%}
-{%- assign check_duplicates = payload.check_duplicates | default: false -%}
-{%- assign delete_invalid = payload.delete_invalid | default: false -%}
+{%- comment -%} Derive the duplicate check from type; never trust a client flag. When
+    adding a code we must reject one already in the cart — otherwise a tampered
+    check_duplicates=false lets the same code be applied twice (percentage codes are
+    not de-duped in compute_order_summary, so they would stack). {%- endcomment -%}
+{%- comment -%} Both flags below are derived from type, never trusted from the client.
+    check_duplicates: reject a code already in the cart when adding, so a tampered
+    false cannot apply the same code twice (percentage codes are not de-duped in
+    compute_order_summary, so they would stack).
+    delete_invalid: auto-remove an expired/disabled code that is still in the cart.
+    This runs on the re-validate pass (type != add) and is what stops an expired code
+    from applying at checkout; deriving it guarantees the cleanup regardless of input. {%- endcomment -%}
+{%- assign check_duplicates = false -%}
+{%- assign delete_invalid = true -%}
+{%- if type == 'add' -%}
+    {%- assign check_duplicates = true -%}
+    {%- assign delete_invalid = false -%}
+{%- endif -%}
 {%- assign is_valid = true -%}
 {%- assign is_duplicate = false -%}
-{%- assign total_cart_value = payload.total_cart_value | default: 0 -%}
 
 
 {% comment %} Step 1: Check if code exist {% endcomment %}
@@ -95,10 +115,27 @@ payload: {
         {%- endif -%}
         
 
-        {% comment %} Step 3.3: If valid, validate if discount.minimum_cart_value => total_cart_value {% endcomment %}
-        {% if discount.minimum_cart_value and discount.minimum_cart_value > 0 and total_cart_value < discount.minimum_cart_value %}
-            {% capture message %}Your cart total must be at least {{ discount.minimum_cart_value }}. Please add more items.{% endcapture %}
-            {% assign is_valid = "minimum_cart_value did not meet" %}
+        {% comment %} Step 3.3: enforce the discounts minimum cart value. Compute the cart
+           subtotal server-side (never trust a client-supplied total) by summing price*qty
+           over the cart items via cart_item_details — the same gross basis that
+           compute_order_summary gates minimum_cart_value on at checkout. Computed lazily,
+           only when the discount actually has a minimum. {% endcomment %}
+        {% if discount.minimum_cart_value and discount.minimum_cart_value > 0 %}
+            {% liquid
+                assign total_cart_value = 0
+                graphql min_check_cart = 'modules/ecommerce/carts/get_cart', contact_uuid: contact_uuid | dig: 'items','results' | first
+                assign min_check_items = min_check_cart.cart_items
+                assign min_check_uuids = min_check_items | array_map: 'product_uuid' | array_flatten
+                graphql min_check_products = 'modules/ecommerce/products/get_cart_products', uuid: min_check_uuids, size: min_check_items.size | dig: 'items','results'
+            %}
+            {% for item in min_check_items %}
+                {% include 'modules/ecommerce/carts/cart_item_details', products: min_check_products, item: item %}
+                {% assign total_cart_value = total_cart_value | plus: context.exports.cart.item_total_price %}
+            {% endfor %}
+            {% if total_cart_value < discount.minimum_cart_value %}
+                {% capture message %}Your cart total must be at least {{ discount.minimum_cart_value }}. Please add more items.{% endcapture %}
+                {% assign is_valid = "minimum_cart_value did not meet" %}
+            {% endif %}
         {% endif %}
 
 

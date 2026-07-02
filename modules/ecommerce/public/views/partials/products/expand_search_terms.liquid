@@ -1,0 +1,45 @@
+{%- comment -%}
+    Expand a search keyword into its full synonym group using the admin-managed
+    product_search_synonym table, so the server-side product-list search matches the
+    same terms the predictive dropdown does (e.g. "parasol" also finds "umbrella").
+
+    Matching is bidirectional: the typed keyword matches a row by its `term` OR by
+    appearing in that row's comma-separated `synonyms`, and every member of a
+    matched group is added. Returns an array of lowercased terms (the keyword first),
+    capped at 10 (the number of keyword slots in search_products). An empty keyword
+    returns [""] so the caller's `contains ""` matches all products (no-search state).
+
+    Usage:
+      {%- function search_terms = 'modules/ecommerce/products/expand_search_terms', keyword: keyword -%}
+{%- endcomment -%}
+{%- liquid
+    assign kw = keyword | default: '' | downcase | strip
+    assign terms = '' | split: ','
+-%}
+{%- if kw == '' -%}
+    {%- assign terms = terms | array_add: '' -%}
+    {%- return terms -%}
+{%- endif -%}
+{%- assign terms = terms | array_add: kw -%}
+{%- graphql syn = 'modules/ecommerce/products/get_product_search_synonyms' -%}
+{%- for row in syn.items.results -%}
+    {%- assign group = '' | split: ',' -%}
+    {%- assign row_term = row.term | downcase | strip -%}
+    {%- assign group = group | array_add: row_term -%}
+    {%- assign row_syns = row.synonyms | downcase | split: ',' -%}
+    {%- for s in row_syns -%}
+        {%- assign s_clean = s | strip -%}
+        {%- if s_clean != '' -%}
+            {%- assign group = group | array_add: s_clean -%}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- if group contains kw -%}
+        {%- for g in group -%}
+            {%- unless terms contains g -%}
+                {%- assign terms = terms | array_add: g -%}
+            {%- endunless -%}
+        {%- endfor -%}
+    {%- endif -%}
+{%- endfor -%}
+{%- assign terms = terms | slice: 0, 10 -%}
+{%- return terms -%}

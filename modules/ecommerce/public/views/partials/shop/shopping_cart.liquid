@@ -47,14 +47,14 @@ metadata: {
                         
                         <p>
                             <span class="body-x-small-bold">Price:</span>
-                            <span class="body-x-small item-price">{{ cart.price | pricify }}</span>
+                            <span class="body-x-small item-price">{{ cart.price_display | pricify }}</span>
                             {% if cart.selected_prop.is_on_sale == true %}
                             <span class="body-x-small strikethrough">{{ cart.price_strikethrough | pricify }}</span>
                             {% endif %}
                         </p>
                     </div>
                     <div class="btn-wrap grid-y">
-                        <p class="cart-price compute-price">{{ cart.item_total_price | pricify: 'USD', no_cents_if_whole: false }}</p>
+                        <p class="cart-price compute-price">{{ cart.item_total_display | pricify: 'USD', no_cents_if_whole: false }}</p>
                         <div class="spacer small"></div>
                         <ins-input-stepper
                             class="cart-stepper" 
@@ -104,8 +104,8 @@ metadata: {
             <div class="empty-box">
                 <span>Your cart is empty.</span>
                 <div class="spacer"></div>
-                <a href="/products">
-                    <ins-button type="button" label="Go to shop" solid></ins-button>
+                <a href="/products" aria-label="Go to shop">
+                    <ins-button type="button" label="Go to shop" solid aria-hidden="true"></ins-button>
                 </a>
             </div>
         </div>

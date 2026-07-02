@@ -115,42 +115,42 @@ default_payload: >
     {%- assign subtotal_amount = computed.sub_total_amount | minus: computed.sub_total_tax_included -%}
     {
         "properties_attributes": {
-            "shipping_company_name": "{{context.session.shipping_company_name | default: ''}}",
-            "shipping_contact_first_name": "{{context.session.shipping_contact_first_name | default: ''}}",
-            "shipping_contact_last_name": "{{context.session.shipping_contact_last_name | default: ''}}",
-            "shipping_contact_email": "{{context.session.shipping_contact_email | default: ''}}",
+            "shipping_company_name": {{ context.session.shipping_company_name | default: '' | json }},
+            "shipping_contact_first_name": {{ context.session.shipping_contact_first_name | default: '' | json }},
+            "shipping_contact_last_name": {{ context.session.shipping_contact_last_name | default: '' | json }},
+            "shipping_contact_email": {{ context.session.shipping_contact_email | default: '' | json }},
             "shipping_contact_phone_number": "{{context.session.shipping_contact_phone_number}}",
             "shipping_contact_phone_country_code": "{{context.session.shipping_contact_phone_country_code}}",
             "shipping_address_id": "{{context.session.shipping_address_id | default: ''}}",
-            "shipping_address_1": "{{context.session.shipping_address_1 | default: ''}}",
-            "shipping_address_2": "{{context.session.shipping_address_2 | default: ''}}",
-            "shipping_address_3": "{{context.session.shipping_address_3 | default: ''}}",
-            "shipping_suburb": "{{context.session.shipping_suburb | default: ''}}",
-            "shipping_state": "{{context.session.shipping_state | default: ''}}",
-            "shipping_postcode": "{{context.session.shipping_postcode | default: ''}}",
-            "shipping_country": "{{context.session.shipping_country | default: ''}}",
-            "shipping_instructions": "{{context.session.shipping_instructions | default: ''}}",
-            "billing_company_name": "{{context.session.billing_company_name | default: ''}}",
-            "billing_contact_first_name": "{{context.session.billing_contact_first_name | default: ''}}",
-            "billing_contact_last_name": "{{context.session.billing_contact_last_name | default: ''}}",
-            "billing_contact_email": "{{context.session.billing_contact_email | default: ''}}",
+            "shipping_address_1": {{ context.session.shipping_address_1 | default: '' | json }},
+            "shipping_address_2": {{ context.session.shipping_address_2 | default: '' | json }},
+            "shipping_address_3": {{ context.session.shipping_address_3 | default: '' | json }},
+            "shipping_suburb": {{ context.session.shipping_suburb | default: '' | json }},
+            "shipping_state": {{ context.session.shipping_state | default: '' | json }},
+            "shipping_postcode": {{ context.session.shipping_postcode | default: '' | json }},
+            "shipping_country": {{ context.session.shipping_country | default: '' | json }},
+            "shipping_instructions": {{ context.session.shipping_instructions | default: '' | json }},
+            "billing_company_name": {{ context.session.billing_company_name | default: '' | json }},
+            "billing_contact_first_name": {{context.session.billing_contact_first_name | default: '' | json }},
+            "billing_contact_last_name": {{ context.session.billing_contact_last_name | default: '' | json }},
+            "billing_contact_email": {{ context.session.billing_contact_email | default: '' | json }},
             "billing_contact_phone_number": "{{context.session.billing_contact_phone_number}}",
             "billing_contact_phone_country_code": "{{context.session.billing_contact_phone_country_code}}",
             "billing_address_id": "{{context.session.billing_address_id | default: ''}}",
-            "billing_address_1": "{{context.session.billing_address_1 | default: ''}}",
-            "billing_address_2": "{{context.session.billing_address_2 | default: ''}}",
-            "billing_address_3": "{{context.session.billing_address_3 | default: ''}}",
-            "billing_suburb": "{{context.session.billing_suburb | default: ''}}",
-            "billing_state": "{{context.session.billing_state | default: ''}}",
-            "billing_postcode": "{{context.session.billing_postcode | default: ''}}",
-            "billing_country": "{{context.session.billing_country | default: ''}}",
+            "billing_address_1": {{ context.session.billing_address_1 | default: '' | json }},
+            "billing_address_2": {{ context.session.billing_address_2 | default: '' | json }},
+            "billing_address_3": {{ context.session.billing_address_3 | default: '' | json }},
+            "billing_suburb": {{ context.session.billing_suburb | default: '' | json }},
+            "billing_state": {{ context.session.billing_state | default: '' | json }},
+            "billing_postcode": {{ context.session.billing_postcode | default: '' | json }},
+            "billing_country": {{ context.session.billing_country | default: '' | json }},
             "order_reference": "{{ '' | uuid | split: '-' | first }}", 
             "order_company_uuid": "{{ context.session.company_uuid }}", 
-            "order_company_name": "{{ context.session.contact_company_name }}", 
+            "order_company_name": {{ context.session.contact_company_name | default: '' | json }},
             "order_contact_uuid": "{{ order_contact_uuid }}", 
-            "order_contact_first_name": "{{ order_contact_first_name }}", 
-            "order_contact_last_name": "{{ order_contact_last_name }}", 
-            "order_contact_email": "{{ order_contact_email }}", 
+            "order_contact_first_name": {{ order_contact_first_name | default: '' | json }},
+            "order_contact_last_name": {{ order_contact_last_name | default: '' | json }},
+            "order_contact_email": {{ order_contact_email | default: '' | json }},
             "order_contact_phone_number": "{{ context.session.contact_phone_number }}", 
             "order_contact_phone_country_code": "{{ context.session.contact_phone_country_code }}", 
             "order_status": "Open", 
@@ -159,15 +159,14 @@ default_payload: >
             "date_time": "", 
             "notes": "", 
             "currency": "{{ settings.currency | default: 'AUD' }}", 
-            "processing_fee": "{{ computed.processing_fee }}",
-            "subtotal_amount": "{{ subtotal_amount }}",
-            "total_tax_amount": "{{ computed.tax_amount }}",
-            "total_shipping_amount": "{{ computed.shipping_amount  }}",
-            "total_discount_amount": "{{ computed.total_discount_amount }}",
-            "total_amount_paid": "{{ computed.total_amount }}",
+            "subtotal_amount": {{ subtotal_amount }},
+            "total_tax_amount": {{ computed.tax_amount }},
+            "total_shipping_amount": {{ computed.shipping_amount }},
+            "total_discount_amount": {{ computed.total_discount_amount }},
+            "total_amount_paid": {{ computed.total_amount }},
             "processing_fee": {{ computed.processing_fee }},
-            "order_total": "{{ computed.total_amount }}",
-            "total_amount": "{{ computed.total_amount }}",
+            "order_total": {{ computed.total_amount }},
+            "total_amount": {{ computed.total_amount }},
             "uuid": "{{ '' | uuid }}"                       
         }
     }
@@ -281,7 +280,7 @@ callback_actions: >
                     {% comment %} Use block stripe form for Guest Chackout {% endcomment %}
                     <div class="spacer x-small"></div>
                     <div id="guest-add-card-form" class="temp {% if cards.results.size > 0 %}hide{% endif %}">
-                        {% include 'modules/ecommerce/forms/stripe_form', cards: cards %}
+                        {% include 'modules/ecommerce/forms/stripe/stripe_form', cards: cards %}
                     </div>
                 {%- endif -%}
             {% endif %}
@@ -331,10 +330,10 @@ callback_actions: >
         height="255px" 
         width="520px"
         heading="Add new card">
-            {% include 'modules/ecommerce/forms/stripe_form', has_profile %}
+            {% include 'modules/ecommerce/forms/stripe/stripe_form', has_profile %}
     </ins-modal>
 {% endif %}
-{%- include 'modules/ecommerce/forms/stripe_element',
+{%- include 'modules/ecommerce/forms/stripe/stripe_element',
     cc_field_id: "stripe-card",
     public_key: stripe_settings.pk_key,
     has_profile: has_profile -%}

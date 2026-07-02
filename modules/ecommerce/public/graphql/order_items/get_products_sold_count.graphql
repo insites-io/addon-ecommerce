@@ -1,0 +1,34 @@
+query get_products_sold_count(
+  $product_uuids: [String!],
+  $size: Int = 2000
+){
+  ## Batch fetch of order_item rows (keyed by product_uuid) whose parent order
+  ## is completed, so the PLP card can show the units-sold count per product in
+  ## one query instead of an N+1 per-product aggregation. Quantities are summed
+  ## per product in Liquid. per_page is capped at $size.
+  items: records(
+    page: 1
+    per_page: $size
+    filter: {
+      table: { value: "modules/insites_ecommerce/order_item" }
+      deleted_at: { exists: false }
+      properties: [
+        { name: "product_uuid", value_in: $product_uuids }
+      ]
+      related_records: {
+        join: { foreign_property: "uuid", join_on_property: "order_uuid" }
+        filter: {
+          table: { value: "modules/insites_ecommerce/order" }
+          properties: [
+            { name: "order_status", value_in: ["complete", "completed"] }
+          ]
+        }
+      }
+    }
+  ){
+    results {
+      product_uuid: property(name: "product_uuid")
+      quantity: property_int(name: "quantity")
+    }
+  }
+}

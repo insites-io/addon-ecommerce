@@ -1,0 +1,73 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Popups | Promotional Popup'
+}
+---
+{% comment %}
+    Promotional popup modal (website storefront).
+    Renders the single eligible Popup Modal record: enabled, lowest weighting,
+    and (in Liquid) within its scheduled window — null start/end = open-ended.
+    Reuses <ins-modal> for the backdrop / close / click-outside; the delayed
+    trigger, session-suppress cookie, ESC and focus trap live in promo-popup.js.
+
+    Include from the website layout, gated by the ecommerce_addon flag.
+{% endcomment %}
+
+{%- graphql popups_res = 'modules/ecommerce/popups/get_eligible_popups' | dig: 'items', 'results' -%}
+
+{%- liquid
+    assign now_ts = 'now' | date: '%s' | plus: 0
+    assign chosen = null
+    for p in popups_res
+        assign ok = true
+        if p.popup_start_at and p.popup_start_at != blank
+            assign start_ts = p.popup_start_at | date: '%s' | plus: 0
+            if now_ts < start_ts
+                assign ok = false
+            endif
+        endif
+        if p.popup_end_at and p.popup_end_at != blank
+            assign end_ts = p.popup_end_at | date: '%s' | plus: 0
+            if now_ts > end_ts
+                assign ok = false
+            endif
+        endif
+        if ok
+            assign chosen = p
+            break
+        endif
+    endfor
+-%}
+
+{%- if chosen -%}
+<ins-modal id="promo-popup" class="promo-popup-modal" with-backdrop no-button width="690px" height="auto" data-popup-id="{{ chosen.id }}">
+    <div class="promo-popup">
+        <div class="promo-popup__content">
+            <h2 class="promo-popup__heading heading-2-small">{{ chosen.popup_heading }}</h2>
+            {%- if chosen.popup_content and chosen.popup_content != blank -%}
+                {%- comment -%} multi_line field; html_safe so admin inline emphasis (e.g. <strong>80% OFF</strong>) renders, matching product long_description {%- endcomment -%}
+                <div class="promo-popup__body">{{ chosen.popup_content | html_safe }}</div>
+            {%- endif -%}
+            {%- if chosen.popup_button_label != blank and chosen.popup_button_url != blank -%}
+                <a href="{{ chosen.popup_button_url | escape }}" class="promo-popup__cta" aria-label="{{ chosen.popup_button_label | strip_html | escape }}">
+                    <ins-button label="{{ chosen.popup_button_label }}" solid color="primary" aria-hidden="true"></ins-button>
+                </a>
+            {%- endif -%}
+        </div>
+        {%- if chosen.popup_image.url -%}
+            <div class="promo-popup__media">
+                <img src="{{ chosen.popup_image.url | replace: ' ', '%20' | escape }}" alt="{{ chosen.popup_heading | escape }}" fetchpriority="high">
+            </div>
+        {%- endif -%}
+    </div>
+</ins-modal>
+
+<script>
+    window.EcommercePromoPopup = { id: "{{ chosen.id }}", delay: 1500 };
+</script>
+{%- if context.environment == "staging" -%}
+    <script src="{{ 'modules/ecommerce/scripts/promo-popup.js' | asset_url }}"></script>
+{%- else -%}
+    <script src="{{ 'modules/ecommerce/scripts/promo-popup.min.js' | asset_url }}"></script>
+{%- endif -%}
+{%- endif -%}

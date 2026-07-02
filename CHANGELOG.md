@@ -1,4 +1,89 @@
  ## Change Log
+ ## App - Add-on Ecommerce V1.2.0
+
+- Predictive Search (Products)
+  - Added predictive/typeahead search to the products filter (`#filter-keyword`): suggestions appear as you type, with product thumbnail, name and price
+  - Intent-aware matching tolerant of word order, abbreviations, plurals and synonyms (e.g. "extra large" ⟷ "xl", "tee" ⟷ "t-shirt"); closest matches ranked highest
+  - Admin-managed synonyms via a new `product_search_synonym` database ("Product Search Synonyms") — terms can be added/edited without code changes; synonyms are bidirectional
+  - Keyboard (↑/↓/Enter/Esc) and mouse navigation, load-more on scroll; pressing Enter with no suggestion highlighted runs the standard results-page search
+  - New lightweight GraphQL query (`search_products_lite`) and JSON endpoint (`api/products/predictive-search`); ranking is performed client-side
+  - Synonyms now also apply to the full results page: previously typing a synonym (e.g. "parasol") showed matches in the dropdown, but pressing Enter returned an empty list. The server-side product search now expands the keyword to its synonym group so the results page, result count and sidebar facet counts stay in sync with the dropdown
+  - New shared `expand_search_terms` partial; `search_products`, `search_products_total_entries` and `get_product_facets` gained keyword slots for the expanded terms
+
+- Product List — Sidebar Filters
+  - New advanced sidebar filters: multi-select categories, price range slider, brands, and availability — with a "Refine by" summary showing applied-filter chips and a clear-all
+  - Each filter option shows a live count of matching products; filters with no matches are disabled
+  - Fixed availability counts to match the results returned: "In Stock" counts products with stock on hand (`stock_level > 0`); "Out of Stock" counts zero and untracked (null) stock
+  - New `get_product_facets` GraphQL query providing the catalog data used to build the filter options
+
+- Product List — AJAX Result Loading
+  - Filtering, search, sorting and pagination now update only the product grid via AJAX instead of reloading the whole page
+  - URL query params are kept in sync so results are shareable and back/forward navigation works
+  - Added a total product count below the page heading (e.g. "3 products"), kept up to date as filters change
+  - New JSON endpoint (`api/products/list-results`) returns the rendered grid and result count for the current filters
+
+- Product Reviews
+  - Customers can write a product review from the product page via a modal form: interactive star rating (1–5), review text, and reviewer details; supports both logged-in users (details pre-filled) and guests
+  - Submitted reviews are saved with a "Pending" status and only appear publicly once approved (Pending / Approved / Rejected), giving admins moderation control
+  - New "Reviews" tab on the product page shows a rating summary (average score + stars + total count), the list of approved reviews (reviewer, stars, date, comment), and an empty state with a call-to-action when there are none
+  - Reviews list paginates via AJAX (with a per-page selector and skeleton loading) so only the list updates, and the view scrolls back to the tab
+  - New `reviews` database for storing reviews, with GraphQL queries for the list and summary, and a write-a-review platform form
+
+- Product Card Enhancements
+  - Product cards now show the **brand name** above the title, an average **star rating** with review count, and a **units-sold** count
+  - **Highlighted tags** (e.g. "New Arrival", "Sale", "Staff Pick", "Limited", "Bestseller") render as coloured chips overlaid on the product image; tag colours follow the design-system semantic colours. Replaces the old hardcoded "SALE" tag (cards and product page)
+  - **Stock-level indicator** under the price: "In stock (N)", "Low stock (N)", "Very low stock (N)", or "Out of stock" — driven by a per-product low-stock override; coloured for WCAG AA contrast
+  - Tags are admin-managed per product (`tags` + `low_stock_override` custom fields); rating is pulled from approved reviews and sold count from completed orders
+  - Enhancements apply everywhere the product card is used: Product List, New Arrivals, What's Hot, and You May Also Like
+  - Card data is fetched in batched, per-page queries (keyed by the page's products) to avoid extra per-product lookups
+
+- Promotional Popup
+  - A promotional popup can now be shown across the storefront to highlight a sale, offer, or campaign — image, heading, body line (with optional emphasis like a red "80% OFF"), and a call-to-action button
+  - Managed by a new **Popup Modal** database: each popup has an image, heading, content, button label/URL, enabled toggle, weighting, and optional start/end dates — no code changes needed to launch, schedule, or retire one
+  - Appears automatically ~1.5 seconds after the page loads; closeable via the ✕, clicking outside, or pressing Esc, and traps focus while open
+  - Only shows when enabled and within its scheduled window; blank start/end dates mean no limit (an enabled popup with no dates always shows). When multiple popups qualify, the lowest weighting wins
+  - Once dismissed it stays hidden for the rest of the browsing session, so it doesn't repeatedly interrupt visitors
+  - New eligible-popup GraphQL query and a default (disabled) sample record seeded on install
+
+- Promo Banner Strip
+  - A dismissible promotional strip can now be shown sitewide at the very top of the storefront, above the header — e.g. "Free shipping on orders over $500!" — with an optional clickable link
+  - Managed by a new **Promo Banner** database: each banner has a message, optional link + link label, enabled toggle, weighting, rotation interval, and optional start/end dates — no code changes needed to launch, schedule, or retire one
+  - Only shows when enabled and within its scheduled window; blank start/end dates mean no limit. When multiple banners qualify they rotate in weighting order, each shown for its configured interval
+  - Closing it (✕) hides the strip for the rest of the browsing session across all pages; it re-appears if the configured banner set changes
+  - Appears across the storefront — home, product list/detail, and checkout pages
+  - New eligible-banners GraphQL query and a default (disabled) sample record seeded on install
+  - Renders correctly on first paint — no longer flashes unstyled with its rotation messages briefly stacked while styles load; the banner script is deferred so it no longer blocks page rendering (improves FCP)
+
+- Micro-animations / Interaction Polish
+  - Buttons now fill with their hover colour in a left-to-right sweep instead of changing instantly (applies across all buttons; colours unchanged)
+  - The product **sort dropdown** opens with a smooth top-to-bottom reveal; when it flips upward (near the bottom of the screen) the reveal direction and position adjust to match, so it no longer covers the button
+  - **Sidebar filter** groups slide open and closed instead of snapping, and the "Show more" option still expands the full list
+  - The **filter sidebar** fades in once it's ready instead of briefly showing blank rows while its controls load
+  - Promo carousels (**New Arrivals**, **What's Hot**) and the **You May Also Like** grid show a shimmer placeholder while loading, then reveal the real cards — no more flash of partial or unstyled content
+  - All animations respect the operating-system "reduce motion" accessibility setting
+
+- Checkout & Orders — Hardening & Fixes
+  - Fixed: signed-in members could continue past the shipping/billing step without choosing a saved address — a browser auto-filler could populate the hidden field and bypass the check; a card selection is now properly required (guests, members with no saved addresses, and billing-same-as-shipping are unaffected)
+  - Checkout now handles names and addresses containing special characters (`"`, `<`, `>`, `&`) correctly across the payment, callback, order-email and Stripe payloads — previously these could break the order
+  - Order amounts are emitted as numeric JSON values in checkout data
+  - Fixed the order-history access policy (`order_created_date_valid`) to validate against the order details
+
+- Demo / Seed Data
+  - Installing the add-on now seeds a sample furniture catalogue so the storefront is populated out of the box: 25 categories, 30 products (with highlighted tags + low-stock overrides), 133 product reviews, 4 featured categories, a promo banner, a promo popup, and 49 search synonyms
+  - Every seed is guarded — it runs only when its table is empty, so it never overwrites real data. Seed migrations are organised one entity per file and ordered by dependency (constants → categories → category custom fields → products → product custom fields → reviews → search synonyms)
+  - Constants are provisioned from a single migration; added `insites_stripe_sk_live_key` / `insites_stripe_sk_test_key` (seeded with placeholders, set per-site after install)
+
+- Code Cleanup
+  - Category menus now fetch their GraphQL data once per request (shared `menu_categories` partial) instead of running the query twice (desktop + mobile) on every page
+  - Product list fetches the category tree once and shares it between the desktop and mobile sidebar filters
+  - Extracted the duplicated checkout address step (shipping/billing) into a single shared partial
+  - Removed dead, unreferenced sidebar category partials (`sidebar_categories`, `sidebar_categories_mobile`)
+
+- W3C / HTML Validation
+  - Resolved all storefront HTML-validation errors flagged by the W3C Nu Html Checker on the product list, product detail and cart pages (product list and cart now pass with no errors)
+  - Removed invalid in-`<body>` `<style>` blocks: the promo banner's critical CSS now lives in the layout `<head>`, and the skeleton/sidebar no-JS fallbacks moved to `ecommerce.css` (driven by the layout's `no-js`→`js` flag) — same first-paint/no-JS behaviour, valid markup
+  - Fixed invalid `aria-label` on the price-range filter inputs and corrected heading-level order (cart "Order summary"/empty-cart and the product-page "Write a review" headings) so document outlines no longer skip levels
+
  ## App - Add-on Ecommerce V1.1.1
 
 - Module Updates

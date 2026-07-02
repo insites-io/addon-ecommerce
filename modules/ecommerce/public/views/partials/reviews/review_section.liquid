@@ -1,0 +1,73 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Reviews | Review Section'
+}
+---
+{% comment %}
+    Reviews tab body: rating summary, reviews list + pagination, or empty state.
+    Approved reviews only (queries filter status=Approved).
+
+    Params:
+    - product : the product (uses product.uuid)
+{% endcomment %}
+{%- liquid
+    assign page = context.params.page | default: 1 | plus: 0
+    assign per_page = context.params.per_page | default: 5 | plus: 0
+
+    ## Summary: average + count over all approved ratings (reuse the caller`s fetch if passed)
+    unless summary
+        graphql summary = 'modules/ecommerce/reviews/get_review_summary', reviewed_product: product.uuid | dig: 'items'
+    endunless
+    assign rating_count = summary.results.size
+
+    assign sum = 0
+    for r in summary.results
+        assign sum = sum | plus: r.rating
+    endfor
+    assign average = 0
+    if rating_count > 0
+        assign average = sum | times: 1.0 | divided_by: rating_count
+    endif
+    assign average_display = average | round: 1
+-%}
+
+{%- if rating_count == 0 -%}
+    {% comment %} Empty state {% endcomment %}
+    <div class="review-empty">
+        <p class="body-large bold">No reviews yet</p>
+        <div class="spacer x-small"></div>
+        <p class="body-small">We'd love to hear from you. Leave a review and let us know how we did.</p>
+        <div class="spacer"></div>
+        <ins-button label="Write a review" outlined color="primary" class="review-open-btn"></ins-button>
+    </div>
+{%- else -%}
+    {% comment %} Rating summary {% endcomment %}
+    <div class="review-summary">
+        <div class="review-summary__rating">
+            <p class="review-summary__avg">{{ average_display }}</p>
+            <div class="review-summary__details">
+                {% include 'modules/ecommerce/reviews/star_rating', rating: average, size: 18 %}
+                <p class="body-small review-summary__count">Based on {{ rating_count }} review{% unless rating_count == 1 %}s{% endunless %}</p>
+            </div>
+        </div>
+        <ins-button label="Write a review" outlined color="primary" class="review-open-btn"></ins-button>
+    </div>
+
+    {% comment %} Reviews list (swap target — items only). total_entries and results in separate queries for optimal performance {% endcomment %}
+    {%- graphql reviews_total_entries = 'modules/ecommerce/reviews/get_reviews_total_entries', reviewed_product: product.uuid, page: page, size: per_page | dig: 'items' -%}
+    {%- graphql reviews = 'modules/ecommerce/reviews/get_reviews', reviewed_product: product.uuid, page: page, size: per_page | dig: 'items' -%}
+    <div id="review-list-results" data-product-uuid="{{ product.uuid }}">
+        {% include 'modules/ecommerce/reviews/review_list', reviews: reviews %}
+    </div>
+    {%- comment -%} Announces AJAX page changes to screen readers (the list itself isn't a live region to avoid re-reading every review). {%- endcomment -%}
+    <div class="show-for-sr" role="status" aria-live="polite" data-review-status></div>
+
+    {% comment %} Pager: persistent ins-table in AJAX mode (insPaginationChange handled in detail.liquid), with a 5/10/20 per-page selector {% endcomment %}
+    {%- assign pagination_data = '{}' | parse_json -%}
+    {%- assign pagination_data = pagination_data | add_hash_key: 'total_entries', reviews_total_entries.total_entries -%}
+    {%- assign pagination_data = pagination_data | add_hash_key: 'current_page', page -%}
+    {%- assign pagination_data = pagination_data | add_hash_key: 'per_page', per_page -%}
+    <div class="review-pagination">
+        {% include 'modules/ecommerce/layout/pagination', data: pagination_data, label: 'Reviews per page', page_size_options: '[5,10,20]', ajax: true %}
+    </div>
+{%- endif -%}

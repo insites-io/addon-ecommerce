@@ -14,36 +14,13 @@ metadata: {
 
 <div class="hide-for-small-only spacer xxxx-large"></div>
 <div class="show-for-small-only spacer x-large"></div>
-<h3 class="heading-1">Shipping</h3>
+<h1 class="heading-1">Shipping</h1>
 <div class="hide-for-small-only spacer xxx-large"></div>
 <div class="show-for-small-only spacer "></div>
 
 <div class="grid-x grid-padding-x">
     <div class="large-7 medium-12 small-12 cell">
-        {% comment %} Use Add form for shipping address, do not pass id {% endcomment %}
-        {% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
-        {% assign company_uuid = context.exports.current_user.user.crm_contact[0].company_uuid %}
-
-        {% if has_profile %}
-
-            {% comment %} Get user's and company's addresses {% endcomment %}
-            {% assign related_uuid = '' |  split: ',' %}
-            {% assign related_uuid = related_uuid | array_add: context.current_user.external_id %}
-            {% if company_uuid %}
-                {% assign related_uuid = related_uuid | array_add: company_uuid %}
-            {% endif %}
-            {%- graphql addresses = 'modules/ecommerce/address/get_address', 
-                related_uuid: related_uuid | dig: 'items','results' -%}
-            
-            {% comment %} Use any address found for user, it won't edit any properties anyway. {% endcomment %}
-            {%- include_form 'modules/ecommerce/checkout_shipping_address', id: addresses[0].id, addresses -%}
-        {% elsif context.session.shipping_address_id %}
-            {% comment %} Guest user: Edit Shipping {% endcomment %}
-            {%- include_form 'modules/ecommerce/checkout_shipping_address_guest', id: context.session.shipping_address_id -%}
-        {% else %}
-            {% comment %} Guest user: Add Shipping {% endcomment %}
-            {%- include_form 'modules/ecommerce/checkout_shipping_address_guest' -%}
-        {% endif %}
+        {%- include 'modules/ecommerce/checkout/address_step', type: 'shipping' -%}
     </div>
     <div class="large-4 large-offset-1 medium-12 small-12 cell">
         <div class="hide-for-large spacer xxx-large"></div>

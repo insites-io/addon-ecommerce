@@ -1,6 +1,6 @@
 {% comment %} Shipping contact {% endcomment %}
 <div id="shipping-details" class="insites-form">
-  <h4>Shipping contact</h4>
+  <h2 class="heading-4">Shipping contact</h2>
   <div class="hide-for-small-only spacer x-large"></div>
   <div class="show-for-small-only spacer small"></div>
 
@@ -32,7 +32,7 @@
         placeholder="First Name"
         name="{{ prop.shipping_contact_first_name.name }}" 
         id="shipping-first-name" 
-        value="{{ context.session.shipping_contact_first_name | default: ''}}"
+        value="{{ context.session.shipping_contact_first_name | default: '' | escape }}"
         error-message="First name is required.">
       </ins-input>
     </div>

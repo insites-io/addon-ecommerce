@@ -1,0 +1,382 @@
+{% comment %}
+    Seed Product Search Synonyms (furniture catalogue) on install. Guarded: only runs
+    when the table has no records yet, so it never duplicates admin-added synonyms.
+    The product_search_synonym table itself is provisioned from
+    schema/product_search_synonym.yml on deploy.
+{% endcomment %}
+{%- graphql existing_synonyms -%}
+  query {
+    items: records(
+      per_page: 1
+      filter: {
+        table: { value: "modules/ecommerce/product_search_synonym" }
+        deleted_at: { exists: false }
+      }
+    ) {
+      total_entries
+    }
+  }
+{%- endgraphql -%}
+{%- assign existing_synonyms_count = existing_synonyms.items.total_entries | default: 0 -%}
+{%- if existing_synonyms_count == 0 -%}
+{% parse_json import_synonyms %}
+[
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "sofa",
+               "synonyms": "couch, lounge, settee, sectional"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "couch",
+               "synonyms": "sofa, lounge, settee"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "lounge",
+               "synonyms": "sofa, couch"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "sectional",
+               "synonyms": "sectional sofa, corner sofa, modular sofa"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "loveseat",
+               "synonyms": "2 seater sofa, two seater, love seat"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "recliner",
+               "synonyms": "reclining chair, armchair, lounge chair"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "chair",
+               "synonyms": "seat, armchair, accent chair"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "armchair",
+               "synonyms": "chair, accent chair, occasional chair"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "ottoman",
+               "synonyms": "footstool, pouffe, footrest"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "footstool",
+               "synonyms": "ottoman, footrest, pouffe"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "rug",
+               "synonyms": "carpet, mat, floor rug"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "carpet",
+               "synonyms": "rug, mat"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "bathtub",
+               "synonyms": "bath, tub, soaking tub"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "tub",
+               "synonyms": "bathtub, bath"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "sink",
+               "synonyms": "basin, vessel sink, washbasin"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "basin",
+               "synonyms": "sink, washbasin"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "faucet",
+               "synonyms": "tap, mixer, spout"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "tap",
+               "synonyms": "faucet, mixer"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "shower head",
+               "synonyms": "showerhead, shower, hand shower"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "showerhead",
+               "synonyms": "shower head, shower"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "bed",
+               "synonyms": "bed frame, bedframe"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "bed frame",
+               "synonyms": "bed, bedframe"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "daybed",
+               "synonyms": "day bed, lounger, sofa bed"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "nightstand",
+               "synonyms": "bedside table, night table, bedside cabinet"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "cabinet",
+               "synonyms": "cupboard, storage cabinet, cupboards"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "cupboard",
+               "synonyms": "cabinet, storage cabinet"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "drawers",
+               "synonyms": "chest of drawers, dresser"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "dresser",
+               "synonyms": "drawers, chest of drawers"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "bookshelf",
+               "synonyms": "bookcase, book shelves, shelves, shelf"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "bookcase",
+               "synonyms": "bookshelf, book shelves, shelves"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "shelves",
+               "synonyms": "shelf, bookshelf, bookcase, book shelves"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "side table",
+               "synonyms": "end table, accent table"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "end table",
+               "synonyms": "side table, accent table"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "tv stand",
+               "synonyms": "tv unit, media console, entertainment unit, tv cabinet"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "credenza",
+               "synonyms": "sideboard, buffet, storage credenza"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "sideboard",
+               "synonyms": "credenza, buffet"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "dining set",
+               "synonyms": "dining table set, table and chairs, dining table"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "stool",
+               "synonyms": "bar stool, bar tools"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "bar stool",
+               "synonyms": "stool, bar tools"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "vase",
+               "synonyms": "vases, flower vase"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "umbrella",
+               "synonyms": "parasol, patio umbrella, sunshade"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "parasol",
+               "synonyms": "umbrella, sunshade"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "art",
+               "synonyms": "wall art, artwork, framed art, print, painting"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "cookware",
+               "synonyms": "cooking ware, pots and pans, kitchenware"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "pampas grass",
+               "synonyms": "dried grass, grass arrangement, dried flowers"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "color",
+               "synonyms": "colour"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "colour",
+               "synonyms": "color"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "grey",
+               "synonyms": "gray"
+          }
+     },
+     {
+          "type_name": "modules/ecommerce/product_search_synonym",
+          "properties": {
+               "term": "gray",
+               "synonyms": "grey"
+          }
+     }
+]
+{% endparse_json %}
+
+{%- graphql results, models: import_synonyms -%}
+     mutation ($models: [CustomizationImport!]!) {
+          import_models(
+               models: $models
+          ) {
+               ids
+          }
+     }
+{%- endgraphql -%}
+{% log results, type: "SEED DATA: Product Search Synonyms" %}
+{%- else -%}
+{% log existing_synonyms_count, type: "SEED DATA: Product Search Synonyms skipped (records already exist)" %}
+{%- endif -%}

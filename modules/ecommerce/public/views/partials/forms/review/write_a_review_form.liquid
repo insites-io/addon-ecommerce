@@ -1,0 +1,290 @@
+{%- include 'modules/insites_forms/form_code' -%}
+
+{%- parse_json localisation -%}{%- include 'modules/insites_forms/form_localisation' -%}{%- endparse_json -%}
+{%- assign form_uuid = '' | uuid -%}
+{%- assign reviewer_name = context.current_user.name | default: context.current_user.first_name -%}
+<div class="insites-form-wrap">
+{%- form html-class: 'insites-form insites-form-code write-review-form' html-novalidate: 'novalidate' html-data-uuid: form_uuid -%}
+
+<ins-alert-box type="error" class="validation-error" close-icon="icon-close-1" hidden>
+	<div>Failed to submit form. Please fix the error(s) found.</div>
+</ins-alert-box>
+<ins-alert-box type="error" class="api-error" close-icon="icon-close-1" hidden>
+	<div>Failed to submit form. Please try again.</div>
+</ins-alert-box>
+
+<div class="insites-form-grid">
+
+	{%- if has_profile -%}
+	<!-- Reviewer identity (logged-in) -->
+	<div class="review-reviewing-as column-1">
+		<p class="body-x-small">Reviewing as</p>
+		<p class="body-small"><strong>{{ reviewer_name }}</strong> ({{ context.current_user.email }})</p>
+	</div>
+	{%- endif -%}
+
+	<!-- Field: Rating (star input writes into the named rating field) -->
+	<div class="rating column-1">
+		<label class="review-field-label" id="review-rating-label-{{ form_uuid }}">Overall Ratings*</label>
+		<div class="review-stars" id="review-stars-{{ form_uuid }}" role="radiogroup" aria-labelledby="review-rating-label-{{ form_uuid }}" data-rating="0">
+			{% for i in (1..5) %}
+			<button type="button" class="review-star" data-value="{{ i }}" role="radio" aria-checked="false" aria-label="{{ i }} star{% if i > 1 %}s{% endif %}">
+				<span class="icon-star-full" aria-hidden="true"></span>
+			</button>
+			{% endfor %}
+		</div>
+		{%- comment -%} Hidden real field: the processor reads rating via stepper.getValue(); the stars drive it with setValue(). {%- endcomment -%}
+		<div class="review-rating-field" hidden>
+			<ins-input-stepper
+				class="review-rating-value"
+				min="0"
+				field="number"
+				step="1"
+				data-type="integer"
+				data-ui="stepper"
+				data-properties="properties.rating"
+				label="Rating"
+				check-load check-value
+				required
+				name="{{ form.fields.properties.rating.name }}"
+				value="{{ form.fields.properties.rating.value }}"
+				error-message="{{ form.errors['properties.rating'] }}"
+				{% if form.errors['properties.rating'] != nil %} has-error {% endif %}>
+			</ins-input-stepper>
+		</div>
+		<p class="review-error has-error-text" data-rating-error {% unless form.errors['properties.rating'] %}hidden{% endunless %}>
+			{{ form.errors['properties.rating'] | default: 'Please select a rating.' }}
+		</p>
+	</div>
+
+	<!-- Field: Reviewed Product (hidden ins-input so the processor's getValue() works; prefilled with the current product uuid) -->
+	<div class="reviewed_product" hidden>
+		<ins-input
+			data-type="string"
+			data-ui="input"
+			data-properties="properties.reviewed_product"
+			check-value
+			name="{{ form.fields.properties.reviewed_product.name }}"
+			value="{{ reviewed_product }}">
+		</ins-input>
+	</div>
+
+	<!-- Field: Review Content -->
+	<div class="review_content column-1">
+		<ins-textarea
+			data-type="string"
+			data-ui="multi_line"
+			data-properties="properties.review_content"
+			label="Review*"
+			placeholder="Tell us what you liked or disliked about this product..."
+			maxlength="500"
+			check-load check-value
+			required
+			class="review-content-input"
+			name="{{ form.fields.properties.review_content.name }}"
+			value="{{ form.fields.properties.review_content.value }}"
+			error-message="{{ form.errors['properties.review_content'] }}"
+			{% if form.errors['properties.review_content'] != nil %} has-error {% endif %}>
+		</ins-textarea>
+		<p class="review-char-count body-x-small text-right" data-char-count>0/500</p>
+	</div>
+
+	<!-- Field: Status (hidden; defaults to Pending. ins-input so the processor's getValue() works) -->
+	<div class="status" hidden>
+		<ins-input
+			data-type="string"
+			data-ui="input"
+			data-properties="properties.status"
+			check-value
+			name="{{ form.fields.properties.status.name }}"
+			value="Pending">
+		</ins-input>
+	</div>
+
+	{%- comment -%} Reviewer fields always submit. For logged-in users they're hidden, readonly and prefilled from the account; guests fill them in. {%- endcomment -%}
+	<!-- Field: Reviewer First Name -->
+	<div class="reviewer_first_name column-2" {% if has_profile %}hidden{% endif %}>
+		<ins-input
+			data-type="string"
+			data-ui="input"
+			data-properties="properties.reviewer_first_name"
+			label="Reviewer First Name*"
+			check-load check-value
+			{% unless has_profile %}required{% endunless %}
+			{% if has_profile %}readonly{% endif %}
+			name="{{ form.fields.properties.reviewer_first_name.name }}"
+			value="{% if has_profile %}{{ context.current_user.first_name }}{% else %}{{ form.fields.properties.reviewer_first_name.value }}{% endif %}"
+			error-message="{{ form.errors['properties.reviewer_first_name'] }}"
+			{% if form.errors['properties.reviewer_first_name'] != nil %} has-error {% endif %}  >
+		</ins-input>
+	</div>
+
+	<!-- Field: Reviewer Last Name -->
+	<div class="reviewer_last_name column-2" {% if has_profile %}hidden{% endif %}>
+		<ins-input
+			data-type="string"
+			data-ui="input"
+			data-properties="properties.reviewer_last_name"
+			label="Reviewer Last Name*"
+			check-load check-value
+			{% unless has_profile %}required{% endunless %}
+			{% if has_profile %}readonly{% endif %}
+			name="{{ form.fields.properties.reviewer_last_name.name }}"
+			value="{% if has_profile %}{{ context.current_user.last_name }}{% else %}{{ form.fields.properties.reviewer_last_name.value }}{% endif %}"
+			error-message="{{ form.errors['properties.reviewer_last_name'] }}"
+			{% if form.errors['properties.reviewer_last_name'] != nil %} has-error {% endif %}  >
+		</ins-input>
+	</div>
+
+	<!-- Field: Reviewer Email -->
+	<div class="reviewer_email column-1" {% if has_profile %}hidden{% endif %}>
+		<ins-input
+			data-type="string"
+			data-ui="input"
+			data-properties="properties.reviewer_email"
+			label="Reviewer Email*"
+			check-load check-value
+			{% unless has_profile %}required{% endunless %}
+			{% if has_profile %}readonly{% endif %}
+			name="{{ form.fields.properties.reviewer_email.name }}"
+			value="{% if has_profile %}{{ context.current_user.email }}{% else %}{{ form.fields.properties.reviewer_email.value }}{% endif %}"
+			error-message="{{ form.errors['properties.reviewer_email'] }}"
+			{% if form.errors['properties.reviewer_email'] != nil %} has-error {% endif %}  >
+		</ins-input>
+	</div>
+
+	<!-- Field: Is Guest (hidden; true for guests, false for logged-in) -->
+	<div class="is_guest" hidden>
+		<ins-toggle-switch
+			data-type="boolean"
+			data-ui="toggle"
+			data-properties="properties.is_guest"
+			label="Is Guest"
+			input-label="Is Guest"
+			check-load check-value			
+			{% unless has_profile %}checked{% endunless %}
+			name="{{ form.fields.properties.is_guest.name }}"
+			value="{% if has_profile %}false{% else %}true{% endif %}"
+			error-message="{{ form.errors['properties.is_guest'] }}"
+			{% if form.errors['properties.is_guest'] != nil %} has-error {% endif %}>
+		</ins-toggle-switch>
+	</div>
+
+</div>
+
+<div class="insites-form-grid">
+	<!-- start reCAPTCHA -->
+	<div class="column-2">
+		{%- spam_protection 'recaptcha_v2' -%}
+	</div>
+	<!-- end reCAPTCHA -->
+</div>
+
+<div class="insites-form-grid">
+	<div class="insites-form-buttons column-1 right">
+		<ins-button type="button" label="Cancel" icon="icon-close-1" outlined color="primary" class="review-cancel-btn"></ins-button>
+		<ins-button type="submit" label="Submit review" icon="icon-check-2" solid color="primary" class="form-type-submit"></ins-button>
+	</div>
+</div>
+
+{%- endform -%}
+</div>
+
+<script id="{{ form_uuid }}">
+	InsitesFormProcessor.initialize("{{ form_uuid }}", "{{ context.authenticity_token }}", {%- include "modules/insites_forms/form_properties", form: form -%}, {{ form.metadata.form_steps | default: "[]" }}, { "redirect_to": "/products/{{ context.params.slug2 }}?review_submitted=true" });
+</script>
+
+<script>
+	{% if context.params.review_submitted == "true" -%}
+	setTimeout(() => {
+		App.events.notyf('success', "Thanks for your review. It will appear once approved.");
+	}, 200);
+	// Strip ?review_submitted=true so the toast doesn't re-fire on refresh.
+	if (window.history && window.history.replaceState) {
+		window.history.replaceState({}, document.title, window.location.pathname);
+	}
+	{% endif -%}
+
+	(function () {
+		var stars = document.getElementById('review-stars-{{ form_uuid }}');
+		var ratingInput = document.querySelector('.review-rating-value');
+		var ratingError = document.querySelector('[data-rating-error]');
+		var textarea = document.querySelector('.review-content-input');
+		var counter = document.querySelector('[data-char-count]');
+		var cancelBtn = document.querySelector('.review-cancel-btn');
+		var submitBtn = document.querySelector('.form-type-submit');
+		var reviewModal = document.getElementById('review-modal');
+
+		function currentRating() {
+			return parseInt(stars && stars.getAttribute('data-rating'), 10) || 0;
+		}
+
+		function setRating(value) {
+			value = parseInt(value, 10) || 0;
+			if (ratingInput) {
+				var v = value ? String(value) : '';
+				// Keep the attribute in sync so the value survives hydration...
+				ratingInput.setAttribute('value', v);
+				// ...and drive the stepper via its own API so getValue() returns it.
+				if (typeof ratingInput.setValue === 'function') {
+					ratingInput.setValue(v);
+				} else {
+					ratingInput.value = v;
+					ratingInput.dispatchEvent(new Event('input', { bubbles: true }));
+					ratingInput.dispatchEvent(new Event('change', { bubbles: true }));
+				}
+			}
+			if (stars) {
+				stars.setAttribute('data-rating', value);
+				var buttons = stars.querySelectorAll('.review-star');
+				for (var i = 0; i < buttons.length; i++) {
+					var on = (i + 1) <= value;
+					buttons[i].classList.toggle('is-active', on);
+					buttons[i].setAttribute('aria-checked', on ? 'true' : 'false');
+				}
+			}
+			if (value > 0 && ratingError) ratingError.hidden = true;
+		}
+
+		function preview(value) {
+			if (!stars) return;
+			var buttons = stars.querySelectorAll('.review-star');
+			for (var i = 0; i < buttons.length; i++) {
+				buttons[i].classList.toggle('is-hovered', (i + 1) <= value);
+			}
+		}
+
+		function updateCount() {
+			if (!textarea || !counter) return;
+			var max = textarea.getAttribute('maxlength') || 500;
+			counter.textContent = (textarea.value || '').length + '/' + max;
+		}
+
+		if (stars) {
+			var buttons = stars.querySelectorAll('.review-star');
+			Array.prototype.forEach.call(buttons, function (btn) {
+				btn.addEventListener('click', function () { setRating(btn.getAttribute('data-value')); });
+				btn.addEventListener('mouseenter', function () { preview(parseInt(btn.getAttribute('data-value'), 10)); });
+			});
+			stars.addEventListener('mouseleave', function () { preview(parseInt(stars.getAttribute('data-rating'), 10) || 0); });
+		}
+
+		if (textarea) {
+			textarea.addEventListener('input', updateCount);
+			textarea.addEventListener('insInput', updateCount);
+			updateCount();
+		}
+
+		if (cancelBtn && reviewModal) {
+			cancelBtn.addEventListener('insClick', function () { reviewModal.close(); });
+		}
+
+		// Show the inline rating message when submit is attempted with no star selected
+		// (the processor blocks the submit; this surfaces the reason next to the stars).
+		if (submitBtn && ratingError) {
+			submitBtn.addEventListener('click', function () {
+				ratingError.hidden = currentRating() >= 1;
+			});
+		}
+	})();
+</script>

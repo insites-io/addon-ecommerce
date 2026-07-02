@@ -1,0 +1,48 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Products | Stock Indicator'
+}
+---
+{% comment %}
+    Stock-state indicator pill, shared by the product card and the PDP buy-box.
+    Computes the state from purchasable stock vs the per-product low-stock
+    override, then renders the coloured "In stock / Low stock / Very low stock /
+    Out of stock" line.
+
+    Params:
+    - selected_prop : product or active variant (stock_level is read from here)
+    - product       : fallback for stock_level when selected_prop is blank
+    - low_override  : per-product low_stock_override (int, optional)
+    - id            : optional element id (the PDP buy-box passes 'stock-indicator')
+{% endcomment %}
+{%- liquid
+    assign si_stock = selected_prop.stock_level
+    if si_stock == blank
+        assign si_stock = product.stock_level
+    endif
+    assign si_stock = si_stock | default: 0 | plus: 0
+    assign si_state = 'in'
+    if si_stock <= 0
+        assign si_state = 'out'
+    elsif low_override == blank
+        assign si_state = 'in'
+    else
+        assign si_half = low_override | times: 1.0 | divided_by: 2.0
+        if si_half > si_stock
+            assign si_state = 'very-low'
+        elsif low_override >= si_stock
+            assign si_state = 'low'
+        else
+            assign si_state = 'in'
+        endif
+    endif
+-%}
+<p {% if id %}id="{{ id }}" {% endif %}class="stock-indicator stock-indicator--{{ si_state }} body-small">
+    {%- case si_state -%}
+        {%- comment -%} Out-of-stock is already shown via the image overlay, so the text is left empty here. {%- endcomment -%}
+        {%- when 'out' -%}
+        {%- when 'low' -%}Low stock ({{ si_stock }})
+        {%- when 'very-low' -%}Very low stock ({{ si_stock }})
+        {%- else -%}In stock ({{ si_stock }})
+    {%- endcase -%}
+</p>

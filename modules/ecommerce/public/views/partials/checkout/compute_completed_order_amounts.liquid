@@ -22,26 +22,31 @@ metadata: {
     ## processing_fee = back-calculated from stored total
     assign processing_fee = total_amount | times: 0.017 | divided_by: 1.017
 
-    ## sub_total_amount = sum of display prices (unit_price × quantity) from order items
-    ## This matches what compute_order_summary shows as "Subtotal"
+    ## sub_total_amount = sum of GROSS display prices (unit_price × quantity).
+    ## net_subtotal_amount = sum of NET prices (item_price × quantity) — the ex-tax
+    ## basis now shown as "Subtotal" (line items render item_price, GST is a separate
+    ## line, Total stays the gross amount paid).
     assign sub_total_amount = 0
-    assign sub_total_tax_included = 0
-    assign sub_total_tax_not_included = 0
+    assign net_subtotal_amount = 0
     for order_item in order_items_result
         assign line_total = order_item.unit_price | times: order_item.quantity
         assign sub_total_amount = sub_total_amount | plus: line_total
-
-        if order_item.unit_price_includes_tax == true
-            assign sub_total_tax_included = sub_total_tax_included | plus: order_item.line_item_tax
-        else
-            assign sub_total_tax_not_included = sub_total_tax_not_included | plus: order_item.line_item_tax
-        endif
+        assign net_line_total = order_item.item_price | times: order_item.quantity
+        assign net_subtotal_amount = net_subtotal_amount | plus: net_line_total
     endfor
 
-    if sub_total_tax_not_included != 0 and sub_total_tax_included != 0
-        assign tax_applied = "both"
+    ## Tax value comes from the order record`s total_tax_amount (sub_total_tax) — the
+    ## discount-adjusted GST stored at checkout.
+    ## Inclusive vs exclusive label: the display subtotal (gross) sits above the stored
+    ## net subtotal_amount only when tax is baked into the prices. So
+    ##   gross > net  → tax-inclusive  → "Includes tax" (already in Subtotal, info only)
+    ##   gross == net → tax-exclusive  → "Tax" (added on top)
+    assign sub_total_tax_included = 0
+    assign sub_total_tax_not_included = 0
+    if sub_total_amount > order_amounts.subtotal_amount
+        assign sub_total_tax_included = sub_total_tax
     else
-        assign tax_applied = "single"
+        assign sub_total_tax_not_included = sub_total_tax
     endif
 
     assign is_minimum_charge = false
@@ -51,27 +56,24 @@ metadata: {
 
     ## When minimum cap fired, the processing fee was on a near-zero subtotal.
     ## Zero it out so it matches compute_order_summary display.
-    ## Also zero out GST splits — stored line_item_tax values are pre-discount
-    ## and no longer reflect the correct discounted base.
     if is_minimum_charge == true
         assign processing_fee = 0
         assign sub_total_tax_included = 0
         assign sub_total_tax_not_included = 0
         assign sub_total_tax = 0
-        assign tax_applied = "single"
     endif
 %}
 
 {% parse_json computed %}
 {
     "sub_total_amount": {{ sub_total_amount | default: 0 }},
+    "net_subtotal_amount": {{ net_subtotal_amount | default: 0 }},
     "shipping_amount": {{ sub_total_shipping | default: 0 }},
     "total_discount_amount": {{ sub_total_discount | default: 0 }},
     "processing_fee": {{ processing_fee | default: 0 }},
     "tax_amount": {{ sub_total_tax | default: 0 }},
     "sub_total_tax_included": {{ sub_total_tax_included | default: 0 }},
     "sub_total_tax_not_included": {{ sub_total_tax_not_included | default: 0 }},
-    "tax_applied": "{{ tax_applied }}",
     "total_amount": {{ total_amount | default: 0 }},
     "is_minimum_charge": {{ is_minimum_charge | default: false }}
 }

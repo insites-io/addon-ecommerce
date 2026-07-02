@@ -1,0 +1,24 @@
+query get_orders_total_entries_by_status (
+  $page: Int = 1,
+  $size: Int = 1,
+  $order_company_uuid: String,
+  $order_contact_uuid: String,
+  $orderStatus: [String!]
+) {
+  items: records (
+    per_page: $size,
+    page: $page,
+    filter: {
+      table: {
+        value: "modules/insites_ecommerce/order"
+      },
+      properties: [
+        { name: "order_company_uuid", value: $order_company_uuid }
+        { name: "order_contact_uuid", value: $order_contact_uuid }
+        { name: "order_status", value_in: $orderStatus }
+      ]
+    }
+  ) {          
+    total_entries
+  }
+}

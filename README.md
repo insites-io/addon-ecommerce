@@ -1,75 +1,186 @@
-# Ecommerce Addon
-Latest `v1.1.0`
+# Insites Ecommerce Add-on
 
+> Turn an Insites **Website & Portal** deployment into a full-featured online store — product catalogue, cart, checkout, discounts, and customer order history.
+
+**Version:** `v1.2.0` · **Platform:** [PlatformOS](https://www.platformos.com/) · **License:** Proprietary (Insites)
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Project Structure](#project-structure)
+- [Development](#development)
+- [Documentation](#documentation)
+
+---
 
 ## Overview
-The Ecommerce Add-on is a powerful solution that transforms your website into a full-fledged online store by providing two key components: the public-facing Website for your customers and a secure Portal that serves as your private command center for managing everything behind the scenes.
 
+The Ecommerce Add-on layers a storefront on top of an existing Insites app-portal
+deployment. It delivers two complementary experiences:
+
+- **Website (storefront)** — public-facing catalogue, search & filtering, shopping
+  cart, and a multi-step checkout (shipping → billing → payment → confirmation).
+- **Portal (account)** — a signed-in customer area for order history and re-ordering.
+
+The add-on is enabled per-instance via the `ecommerce_addon` constant and does **not**
+ship its own layout, header, footer, or base styles — those are inherited from the
+host Website & Portal application.
+
+## Features
+
+- **Products** — catalogue with predictive/typeahead search (synonym-aware, in both the
+  dropdown and the results page), advanced sidebar filters (categories, price range, brands,
+  availability), AJAX result loading, and product reviews.
+- **Cart** — slide-out cart drawer and full cart page.
+- **Discounts** — admin-managed discount codes applied at checkout.
+- **Checkout** — multi-step flow with address lookup; supports guest checkout.
+- **Pre-order** — purchase items not yet in stock.
+- **Order History** — portal view of past orders with "purchase again".
+
+See [CHANGELOG.md](CHANGELOG.md) for the full release history.
 
 ## Tech Stack
-It is assumed that the developers or users have knowledge of using these tech stacks:
 
- - Insites Components and Modules
- - Liquid
- - GraphQL
- - YAML
- - Javascript
- - CSS / SCSS
- - HTML
- 
+Familiarity with the following is assumed:
 
-## Application Dependencies
-Please ensure this application is installed from the Insites Marketplace.
+- Insites Components (web components v2) & Modules
+- Liquid (server-side templates)
+- GraphQL (data fetching)
+- YAML (schemas / form definitions)
+- JavaScript (ES5 IIFE, Axios — no build step)
+- HTML / CSS
 
- - Website and Portal `v1.3.0`
+## Prerequisites
 
+This add-on is **layered on top of** an Insites deployment — install the base
+application first.
 
- ## Module Dependencies
- - API 5.2.1
- - CMS 5.7.0
- - CRM 5.13.2
- - Ecommerce 5.11.1
+**Application dependency**
 
+| Application          | Version  |
+| -------------------- | -------- |
+| Website and Portal   | `v1.3.0` |
 
- ## Features
-- Products
-- Cart
-- Discounts
-- Checkout
-- Pre-order
-- Order History
+**Module dependencies**
 
+| Module    |
+| --------- |
+| API       |
+| CMS       |
+| CRM       |
+| Ecommerce |
 
-## Custom Fields
-- Ecommerce
--- Categories
---- is_featured
+## Installation
 
+1. Install the **Website and Portal** application from the Insites Marketplace.
+2. Install the **Ecommerce** add-on from the Insites Marketplace.
+3. Log in to IIA via `console.insites.io` SSO and configure integrations:
+   - **Integration → Google Maps** — add the `Google Maps API Key`.
+   - **Integration → Stripe** — set up the Stripe Account ID and keys.
 
-## Constants
-- ecommerce_addon = true
+## Configuration
 
+### Constants
 
-## Manual add Constants after installation
-- insites_stripe_sk_live_key
-- insites_stripe_sk_test_key
+Set automatically on install:
 
+| Constant                            | Value  | Purpose                                                                                |
+| ----------------------------------- | ------ | -------------------------------------------------------------------------------------- |
+| `ecommerce_addon`                   | `true`       | Enables the add-on per-instance                                                        |
+| `ecommerce_addon_is_price_round_off` | `true`       | Display prices as whole numbers (no cents) on product-list cards and the cart drawer; set to `false` to show cents |
+| `insites_stripe_sk_live_key`        | `sk_live_key` | Stripe live secret key (Stripe Connect) — replace per-site in the admin                |
+| `insites_stripe_sk_test_key`        | `sk_test_key` | Stripe test secret key (Stripe Connect) — replace per-site in the admin                |
 
-## Installation steps
-1. Install the `Website and Portal` application from the Marketplace.
-2. Install the `Ecommerce` addon from the Marketplace.
-3. Login to IIA via console.insites.io SSO
- - Go to Integration -> Google Maps then add the `Google Maps API Key`
- - Go to Integration -> Stripe then set up the Stripe Account ID and keys
+The Stripe keys are seeded with a placeholder (`sk_live_key` / `sk_test_key`)
+rather than an empty value because `constant_set` rejects a blank value. Replace
+them with the real keys per-site after installation.
 
+### Databases
 
-## Google Maps API Key
-This is used for adding addresses in the shipping and billing address forms.
+The add-on provisions its own tables on install (from `modules/ecommerce/public/schema/*.yml`).
+Each is managed from the Insites admin — no code changes needed to add or edit records.
 
+| Table (`name`)            | Admin label             | Purpose                                                                 |
+| ------------------------- | ----------------------- | ----------------------------------------------------------------------- |
+| `reviews`                 | Reviews                 | Product reviews (rating, content, Pending/Approved/Rejected, reviewer)  |
+| `product_search_synonym`  | Product Search Synonyms | Admin-managed synonym groups for predictive + results-page search       |
+| `popup_modal`             | Popup Modal             | Promotional popup campaigns                                             |
+| `promo_banner`            | Promo Banner            | Sitewide promo strip shown above the header                             |
 
-## Stripe
-We use Stripe as a third-party payment gateway to securely handle payments during checkout.
+> The core ecommerce tables (products, categories, carts, orders, discounts, …)
+> are provided by the **Ecommerce module** prerequisite, not by this add-on.
 
+### Custom Fields
+
+| Module    | Entity     | Field                 | Type    |
+| --------- | ---------- | --------------------- | ------- |
+| Ecommerce | Categories | `is_featured`         | boolean |
+| Ecommerce | Products   | `tags`                | array   |
+| Ecommerce | Products   | `low_stock_override`  | integer |
+
+### Seed Data
+
+Installing the add-on seeds a sample furniture catalogue so the storefront is
+populated out of the box. Each seed migration is **guarded** — it runs only when its
+table is empty, so it never overwrites real data — and they run in dependency order:
+
+| Migration | Seeds |
+| --------- | ----- |
+| `…_constants` | `ecommerce_addon`, price round-off, Stripe key placeholders |
+| `…_categories` | 25 categories (with parent/child hierarchy) |
+| `…_custom_fields_category` | `is_featured` field + 4 featured categories |
+| `…_products` | 30 products |
+| `…_custom_fields_product` | `tags` + `low_stock_override` fields + 30 rows |
+| `…_reviews` | 133 product reviews |
+| `…_product_search_synonyms` | 49 search synonyms |
+| `…_popup_modal_seed` | 1 promo popup |
+| `…_promo_banner_seed` | 2 promo banners |
+
+### Third-party Integrations
+
+- **Google Maps** — powers address autocomplete in the shipping and billing forms.
+- **Stripe** — third-party payment gateway used to securely process payments at checkout.
+
+## Project Structure
+
+All code lives under `modules/`. The primary module is `modules/ecommerce/`:
+
+```
+modules/ecommerce/public/
+├── assets/
+│   ├── scripts/        # JS source (.js only — .min.js auto-built)
+│   └── styles/         # ecommerce.css (.css only — .min.css auto-built)
+├── views/
+│   ├── pages/          # Full page views (shop/, checkout/, orders/, api/)
+│   └── partials/       # Reusable components
+├── forms/              # Form definitions (checkout/*)
+├── schema/             # Data model definitions (.yml)
+├── graphql/            # GraphQL queries (products/, carts/, orders/, ...)
+├── migrations/
+├── emails/
+└── authorization_policies/
+```
+
+> **No build step** — only edit `.js` / `.css` source files. The `.min.js` / `.min.css`
+> versions are generated automatically by the VSCode extension; never hand-edit them.
+
+## Development
+
+- **Indentation:** 2 spaces (see [.editorconfig](.editorconfig)).
+- **Components:** prefer Insites web components (`<ins-input>`, `<ins-button>`, etc.)
+  over raw HTML elements.
+- **Styles:** reuse the host app's base classes before adding to `ecommerce.css`.
+- Target instances are configured in [.insites](.insites) (staging/dev environments).
 
 ## Documentation
-[Click Here](https://docs.google.com/document/d/1PwxzrroQ2Bdqj0nAkevEGdX-gxmB6-kWw_WbUpmFJgE/edit?usp=sharing)
+
+- Full add-on documentation:
+  [Google Doc](https://docs.google.com/document/d/1PwxzrroQ2Bdqj0nAkevEGdX-gxmB6-kWw_WbUpmFJgE/edit?usp=sharing)
+- Insites web components v2: https://docs.insites.io/web-components/overview-v2

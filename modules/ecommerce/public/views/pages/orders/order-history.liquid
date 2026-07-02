@@ -17,10 +17,13 @@ dynamic_cache:
         [
           "modules/insites_ecommerce/order",
           "modules/insites_ecommerce/order_item",
+          "modules/insites_ecommerce/payment",
           "modules/insites_ecommerce/product",
           "modules/insites_ecommerce/product_variant",
+          "modules/insites_ecommerce/cart",
+          "modules/insites_ecommerce/cart_item",
           "modules/insites_core/crm_contact",
-          "modules/insites_core/company"
+          "modules/insites_core/crm_company"
         ]
         {%- endparse_json -%}
         {%- include "modules/website/cache/generate_cache_key", models: models -%}
@@ -30,7 +33,7 @@ authorization_policies:
 ---
     
 {% if context.params.slug2 %} 
-    {% include 'modules/ecommerce/client_portal/orders/order_history_tabs' %}
+    {% include 'modules/ecommerce/portal/orders/order_history_tabs' %}
 {% else %}
-    {% include 'modules/ecommerce/client_portal/orders/order_history' %}
+    {% include 'modules/ecommerce/portal/orders/order_history' %}
 {% endif %}

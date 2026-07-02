@@ -1,0 +1,25 @@
+query get_review_summary(
+  $reviewed_product: String,
+  $size: Int = 1000
+){
+  ## Returns every approved rating for a product so the front-end can compute
+  ## the average, the count (results size), and the star distribution.
+  ## per_page is capped at $size (default 1000) - revisit with a server-side
+  ## aggregation if any product is expected to exceed that.
+  items: records(
+    page: 1
+    per_page: $size
+    filter: {
+      table: { value: "modules/ecommerce/reviews" }
+      deleted_at: { exists: false }
+      properties: [
+        { name: "reviewed_product", value: $reviewed_product }
+        { name: "status", value: "Approved" }
+      ]
+    }
+  ){
+    results {
+      rating: property_int(name: "rating")
+    }
+  }
+}

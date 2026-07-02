@@ -1,0 +1,79 @@
+name: promo_banner
+metadata:
+  label: "Promo Banner"
+  groups: [{"id":"9238a9f7-3c7f-433b-b168-4f5912b6d7de","name":"Promo Banner","weight":0}]
+  is_archived: false
+properties:
+- name: promo_message
+  type: string
+  metadata:
+    label: "Promo Message"
+    weight: 0
+    group_id: "9238a9f7-3c7f-433b-b168-4f5912b6d7de"
+    ui_element: "multi_line"
+    is_required: true
+    is_searchable: true
+    is_shown_in_table: true
+- name: promo_link
+  type: string
+  metadata:
+    label: "Promo Link"
+    weight: 1
+    group_id: "9238a9f7-3c7f-433b-b168-4f5912b6d7de"
+    ui_element: "input"
+    is_required: false
+- name: promo_link_label
+  type: string
+  metadata:
+    label: "Promo Link Label"
+    weight: 2
+    group_id: "9238a9f7-3c7f-433b-b168-4f5912b6d7de"
+    ui_element: "input"
+    is_required: false
+- name: is_promo_enabled
+  type: boolean
+  metadata:
+    label: "Is Promo Enabled"
+    weight: 3
+    group_id: "9238a9f7-3c7f-433b-b168-4f5912b6d7de"
+    ui_element: "toggle"
+    is_required: true
+    is_shown_in_table: true
+- name: promo_weight
+  type: integer
+  metadata:
+    label: "Promo Weight"
+    weight: 4
+    group_id: "9238a9f7-3c7f-433b-b168-4f5912b6d7de"
+    ui_element: "number"
+    is_required: false
+    is_sortable: true
+    is_shown_in_table: true
+- name: promo_interval_ms
+  type: integer
+  metadata:
+    label: "Promo Interval Millisecond"
+    weight: 5
+    group_id: "9238a9f7-3c7f-433b-b168-4f5912b6d7de"
+    ui_element: "number"
+    is_required: false
+- name: promo_start_at
+  type: datetime
+  metadata:
+    label: "Promo Start At"
+    weight: 6
+    group_id: "9238a9f7-3c7f-433b-b168-4f5912b6d7de"
+    ui_element: "date_time"
+    is_required: false
+    is_sortable: true
+    is_shown_in_table: true
+- name: promo_end_at
+  type: datetime
+  metadata:
+    label: "Promo End At"
+    weight: 7
+    group_id: "9238a9f7-3c7f-433b-b168-4f5912b6d7de"
+    ui_element: "date_time"
+    is_required: false
+    is_sortable: true
+    is_shown_in_table: true

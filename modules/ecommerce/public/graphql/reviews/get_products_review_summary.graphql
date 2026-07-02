@@ -1,0 +1,27 @@
+query get_products_review_summary(
+  $product_uuids: [String!],
+  $size: Int = 2000
+){
+  ## Batch fetch of approved ratings for a page of products (keyed by
+  ## reviewed_product) so the PLP card can compute the average + count per
+  ## product in one query instead of an N+1 per-product summary call.
+  ## per_page is capped at $size - revisit with a server-side aggregation if a
+  ## single page's products are expected to exceed that combined review count.
+  items: records(
+    page: 1
+    per_page: $size
+    filter: {
+      table: { value: "modules/ecommerce/reviews" }
+      deleted_at: { exists: false }
+      properties: [
+        { name: "reviewed_product", value_in: $product_uuids }
+        { name: "status", value: "Approved" }
+      ]
+    }
+  ){
+    results {
+      reviewed_product: property(name: "reviewed_product")
+      rating: property_int(name: "rating")
+    }
+  }
+}

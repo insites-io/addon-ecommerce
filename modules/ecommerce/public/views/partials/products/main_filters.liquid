@@ -5,11 +5,36 @@ metadata: {
 ---
 {% assign params = context.params %}
 
-        <div class="filter">                                        
+{%- comment -%}
+    Admin-managed synonyms for the predictive search dropdown.
+    Built into a { "term": ["syn", ...] } map and exposed to predictive-search.js.
+    Falls back to the script's built-in defaults when no rows exist.
+{%- endcomment -%}
+{%- graphql product_synonyms = 'modules/ecommerce/products/get_product_search_synonyms' -%}
+{%- assign synonym_rows = product_synonyms.items.results -%}
+{%- if synonym_rows.size > 0 -%}
+    {%- capture synonym_json -%}
+    {
+    {%- for row in synonym_rows -%}
+        {%- assign term = row.term | strip | downcase | replace: '"', '' -%}
+        {%- assign synonym_parts = row.synonyms | split: ',' -%}
+        "{{ term }}": [
+        {%- for part in synonym_parts -%}
+            "{{ part | strip | downcase | replace: '"', '' }}"{%- unless forloop.last -%},{%- endunless -%}
+        {%- endfor -%}
+        ]{%- unless forloop.last -%},{%- endunless -%}
+    {%- endfor -%}
+    }
+    {%- endcapture -%}
+    <script>window.PRODUCT_SEARCH_SYNONYMS = {{ synonym_json }};</script>
+{%- endif -%}
+
+        <div class="filter">
             <ins-input
                 id="filter-keyword"
                 class="filter-keyword"
                 icon-event
+                title="Search products"
                 placeholder="Search"
                 value="{{ params.keyword | default: '' }}"
                 field="search"
@@ -20,34 +45,7 @@ metadata: {
 
             <div class="grid-x">
                 <div class="main-filters large-auto small-12 cell grid-x flex-container align-justify">
-                    <div class="main-filter-by align-middle grid-x large-10 medium-12 small-12">
-                        <span class="form-label">Filter by:</span>
-
-                        {% graphql product_brands = 'modules/ecommerce/products/get_product_brand_uuid', args: filters 
-                            | dig: 'items','results' | map: 'brand' | array_uniq %}
-                        
-                        <ins-button-select 
-                            id="brandSelect"
-                            label="Brand"
-                            placeholder="{{ params.brand | default: 'All' }}" 
-                            small>
-                                <ins-button-select-option label="All" value="" {% if params.brand == blank %}activated{% endif %}></ins-button-select-option>
-                            {% for product_brand in product_brands %}
-                                <ins-button-select-option label="{{product_brand}}" value="{{product_brand}}" {% if params.brand == product_brand %}activated{% endif %}></ins-button-select-option>
-                            {% endfor %}
-                        </ins-button-select >
-                        <div class="show-for-small-only spacer x-small cell"></div>
-
-                        <ins-button-select 
-                            id="showSelect"
-                            label="Show" 
-                            placeholder="{{ params.show | capitalize | default: 'All' }}" 
-                            small>
-                            <ins-button-select-option label="All" value="all" {% if params.show == "all" %}activated{% endif %}></ins-button-select-option>
-                            <ins-button-select-option label="Sale" value="sale" {% if params.show == "sale" %}activated{% endif %}></ins-button-select-option>
-                            <ins-button-select-option label="In Stock" value="in-stock" {% if params.show == "in-stock" %}activated{% endif %}></ins-button-select-option>
-                        </ins-button-select>
-                        
+                    <div class="main-filter-by align-middle grid-x large-10 medium-12 small-12">                                               
                         {%  liquid
                             if params.sort == 'price-ascending'
                                 assign sortText = 'Price: Low-High'
@@ -70,8 +68,8 @@ metadata: {
                     </div>
                     <div class="main-filter-views align-middle align-right grid-x hide-for-small-only">
                         <div><p class="form-label pr-8 text">View:</p></div>
-                        <ins-button id="view-grid-btn" icon="icon-grid" color="white" size="normal" label="" class="view-button active"></ins-button>
-                        <ins-button id="view-list-btn" icon="icon-list" color="white" size="normal" label="" class="view-button"></ins-button>
+                        <ins-button id="view-grid-btn" icon="icon-grid" color="white" size="normal" label="" title="Grid view" class="view-button active"></ins-button>
+                        <ins-button id="view-list-btn" icon="icon-list" color="white" size="normal" label="" title="List view" class="view-button"></ins-button>
                     </div>
                 </div>
             </div>

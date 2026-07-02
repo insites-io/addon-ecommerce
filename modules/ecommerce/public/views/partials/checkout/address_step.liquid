@@ -1,0 +1,53 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Checkout | Address Step'
+}
+---
+{% comment %}
+    Shared form column for the shipping + billing checkout steps (their page bodies
+    were ~identical). Logged-in users edit any existing user/company address; guests
+    add a new address or edit the one stored in their session.
+
+    The form names and session keys are literal-branched by type because include_form
+    requires a literal form path on this platform.
+
+    Params:
+    - type : 'shipping' | 'billing'  (default 'shipping')
+{% endcomment %}
+{%- assign type = type | default: 'shipping' -%}
+
+{% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
+{% assign company_uuid = context.exports.current_user.user.crm_contact[0].company_uuid %}
+
+{% if has_profile %}
+    {% comment %} Get user's and company's addresses {% endcomment %}
+    {% assign related_uuid = '' | split: ',' %}
+    {% assign related_uuid = related_uuid | array_add: context.current_user.external_id %}
+    {% if company_uuid %}
+        {% assign related_uuid = related_uuid | array_add: company_uuid %}
+    {% endif %}
+    {%- graphql addresses = 'modules/ecommerce/address/get_address',
+        related_uuid: related_uuid | dig: 'items','results' -%}
+
+    {% comment %} Use any address found for user, it won't edit any properties anyway. {% endcomment %}
+    {%- if type == 'billing' -%}
+        {%- include_form 'modules/ecommerce/checkout_billing_address', id: addresses[0].id, addresses -%}
+    {%- else -%}
+        {%- include_form 'modules/ecommerce/checkout_shipping_address', id: addresses[0].id, addresses -%}
+    {%- endif -%}
+{% else %}
+    {% comment %} Guest user: edit the session-stored address if present, else add a new one {% endcomment %}
+    {%- if type == 'billing' -%}
+        {%- if context.session.billing_address_id -%}
+            {%- include_form 'modules/ecommerce/checkout_billing_address_guest', id: context.session.billing_address_id -%}
+        {%- else -%}
+            {%- include_form 'modules/ecommerce/checkout_billing_address_guest' -%}
+        {%- endif -%}
+    {%- else -%}
+        {%- if context.session.shipping_address_id -%}
+            {%- include_form 'modules/ecommerce/checkout_shipping_address_guest', id: context.session.shipping_address_id -%}
+        {%- else -%}
+            {%- include_form 'modules/ecommerce/checkout_shipping_address_guest' -%}
+        {%- endif -%}
+    {%- endif -%}
+{% endif %}

@@ -1,0 +1,178 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Client Portal | Order History Tabs'
+}
+---
+<div>
+    <div class="spacer x-large show-for-small-only"></div>
+    <a href="/order-history" aria-label="Back to order history">
+        <ins-button label="Go back" icon="icon-arrow-back" class="inline" aria-hidden="true"></ins-button>
+    </a>
+</div>
+<div class="spacer xxx-large"></div>
+
+{%  liquid
+
+  graphql order = "modules/ecommerce/orders/get_order_details", id: context.params.slug2, is_shipping_info_needed: true | dig: 'items','results' | first
+
+  ## Access control: the order id comes straight from the URL (params.slug2) and ids
+  ## are sequential, so without this check any logged-in user could read any order.
+  ## Mirror the list view scope: allow orders belonging to the viewers company; also
+  ## allow the viewers own orders (covers individual accounts with no company). Anything
+  ## else is treated as not-found (/404) so we do not leak that the order exists.
+  graphql viewer_company_uuid = 'modules/ecommerce/account/get_current_user' | dig: 'current_user','crm_contact' | first | dig: 'company_uuid'
+  assign is_owner = false
+  if viewer_company_uuid != blank and viewer_company_uuid != '' and order.order_company_uuid == viewer_company_uuid
+    assign is_owner = true
+  elsif order.order_contact_uuid != blank and order.order_contact_uuid == context.current_user.external_id
+    assign is_owner = true
+  endif
+  ## Only fetch/format the order for an authorised viewer; the HTML body below is
+  ## gated on is_owner and non-owners are redirected to /404 (see the wrapping
+  ## if/else), so another persons order is never rendered into the response.
+  if is_owner
+    function localisation_date_format = 'modules/ecommerce/localisation/get_localisation'
+    if localisation_date_format == 'DD/MM/YYYY'
+      assign date_time = order.date_time | date: '%d/%m/%Y'
+    else
+      assign date_time = order.date_time | date: '%m/%d/%Y'
+    endif
+
+    comment
+      Get products info
+    endcomment
+    graphql ordered_items = 'modules/ecommerce/order_items/get_order_items', order_uuid: order.uuid, is_product_info_needed: true | dig: 'items','results'
+  endif
+
+%}
+
+{%- if is_owner -%}
+
+ {% comment %} Get items to be reordered {% endcomment %}
+{% assign reorder_items = '' | split: ',' %}
+{% assign total_active_products = 0 %}
+<script>
+  console.log('ordered_items', {{ ordered_items | json }});
+</script>
+
+{% for item in ordered_items %}
+  {% liquid
+
+      assign selected_prop = ''
+
+      if item.sku == item.product.sku
+        assign selected_prop = item.product
+        assign is_variant = false
+
+        ## The product is not active anymore, do not reorder this item
+        if item.product.status != 'enabled'
+          continue 
+        endif
+      else 
+        for variant in item.product.variants
+          if item.sku == variant.sku
+            assign selected_prop = variant
+            assign is_variant = true
+          endif
+        endfor
+      endif
+
+      if selected_prop.is_on_sale == true 
+          assign price = selected_prop.sale_price
+      else 
+          assign price = selected_prop.regular_price
+      endif
+
+      ## Check if the product or variant is still active
+      if selected_prop == '' or selected_prop == blank
+        continue        
+      else
+        assign total_active_products = total_active_products | plus: 1
+      endif
+  %}       
+
+  {% parse_json reorder_data %}
+  {      
+      {% if is_variant == true %}
+      "product_variant_uuid": "{{ item.product_variant_uuid }}",
+      {% endif %}
+      "product_uuid": "{{ item.product_uuid }}",
+      "quantity": "{{ item.quantity | default: 1 }}"
+  }
+  {% endparse_json %}
+  {% assign reorder_items = reorder_items | array_add: reorder_data %}
+
+{% endfor %}
+{% comment %} END - Get items to be reordered {% endcomment %}
+
+<script>
+  console.log('reorder_items', {{ reorder_items | json }});
+</script>
+
+<div class="grid-x">
+  <div class="grid-y large-7 medium-12 small-12">
+    <h1 class="heading-1">Order number: {{ context.params.slug2 }}</h1>
+    <div class="spacer small"></div>
+    <p><span class="font-color-head bold">Date ordered:</span> {{ date_time }}</p>
+  </div>  
+
+  <div class="spacer hide-for-large cell"></div>
+
+  <div class="large-5 medium-12 small-12 text-right reorder-btn-container">
+
+    {% if total_active_products > 0 %}
+      <ins-button label="Re-order" id="reorder-btn" class="reorder-btn" data='{{ reorder_items }}' icon="icon-shopping-cart" outlined ></ins-button>
+    {% endif %}
+    
+
+      <div class="spacer x-small hide-for-large cell"></div>
+
+      {% comment %} Downloads {% endcomment %}
+      {% comment %} Uncomment the code below to enable 'Downloads' {% endcomment %}
+      {% comment %}  
+      <ins-dropdown 
+        id="downloads-dropdown"     
+        class="button-large"
+        lined   
+        label="More">
+        <ins-dropdown-item
+          label="Download Invoice" 
+          link="#">
+        </ins-dropdown-item>
+        <ins-dropdown-item
+          label="Download Proof of Delivery" 
+          link="#">
+        </ins-dropdown-item>
+      </ins-dropdown>
+      {% endcomment %}
+  </div>
+</div>
+<div class="spacer xxx-large"></div>
+
+<ins-tab id="order-tab">
+
+  <ins-tab-item label="Order details" >
+    {% include 'modules/ecommerce/portal/orders/order_history_detail', order %}
+  </ins-tab-item>
+    
+  <ins-tab-item label="Order summary">
+    {% include 'modules/ecommerce/portal/orders/order_history_summary', order, ordered_items %}
+  </ins-tab-item>
+
+</ins-tab>
+
+
+{% comment %} Reorder - Cart {% endcomment %}
+<script>
+  const reorderBtn = document.getElementById("reorder-btn");
+  if(reorderBtn){
+    reorderBtn.addEventListener('insClick', async event => {
+      reorderBtn.loading = true;
+      await addToCartPreProcess(event, 'reorder');
+    });
+  }
+</script>
+
+{%- else -%}
+  {%- redirect_to '/404' -%}
+{%- endif -%}

@@ -1,0 +1,107 @@
+---
+metadata: {
+    partial_name: 'Ecommerce | Banners | Promo Banner Strip'
+}
+---
+{% comment %}
+    Sitewide promotional banner strip (website storefront) — rendered above the
+    main header. Shows every eligible Promo Banner record: enabled, and (in Liquid)
+    within its scheduled window (null start/end = open-ended), in promo_weight ASC
+    order. A single eligible banner is static; multiple banners rotate (each shown
+    for its own promo_interval_ms) — the rotation, the per-session dismiss cookie
+    and the anti-flash hide live in promo-banner.js.
+
+    Include from the website layout, ABOVE the header, gated by the ecommerce_addon
+    flag. Kept outside the header fragment cache so the dismiss cookie behaves
+    per-request.
+{% endcomment %}
+
+{%- graphql banners_res = 'modules/ecommerce/banners/get_eligible_banners' | dig: 'items', 'results' -%}
+
+{%- comment -%} Pass 1: count eligible + build a stable signature of their ids (for the dismiss cookie). {%- endcomment -%}
+{%- liquid
+    assign now_ts = 'now' | date: '%s' | plus: 0
+    assign eligible_count = 0
+    assign sig = ''
+    for b in banners_res
+        assign ok = true
+        if b.promo_start_at and b.promo_start_at != blank
+            assign start_ts = b.promo_start_at | date: '%s' | plus: 0
+            if now_ts < start_ts
+                assign ok = false
+            endif
+        endif
+        if b.promo_end_at and b.promo_end_at != blank
+            assign end_ts = b.promo_end_at | date: '%s' | plus: 0
+            if now_ts > end_ts
+                assign ok = false
+            endif
+        endif
+        if ok
+            assign eligible_count = eligible_count | plus: 1
+            assign sig = sig | append: b.id | append: '-'
+        endif
+    endfor
+-%}
+
+{%- if eligible_count > 0 -%}
+{%- comment -%}
+    The strip's critical CSS is inlined in the layout <head>
+    (modules/website/layout/project_assets, gated by ecommerce_addon) so it paints
+    correctly on first paint while the async-loaded ecommerce.css catches up — no
+    flash, no layout shift, no JS needed. It lives in <head> (not inline here)
+    because <style> is invalid in <body> (W3C). promo-banner.js is deferred.
+{%- endcomment -%}
+<div class="promo-banner" id="promo-banner" role="region" aria-label="Promotional banner" data-banner-key="{{ sig | escape }}">
+    <div class="promo-banner__viewport">
+        {%- comment -%} Pass 2: render each eligible banner; first one is active, rest hidden for JS rotation. {%- endcomment -%}
+        {%- assign rendered = 0 -%}
+        {%- for b in banners_res -%}
+            {%- assign ok = true -%}
+            {%- if b.promo_start_at and b.promo_start_at != blank -%}
+                {%- assign start_ts = b.promo_start_at | date: '%s' | plus: 0 -%}
+                {%- if now_ts < start_ts -%}{%- assign ok = false -%}{%- endif -%}
+            {%- endif -%}
+            {%- if b.promo_end_at and b.promo_end_at != blank -%}
+                {%- assign end_ts = b.promo_end_at | date: '%s' | plus: 0 -%}
+                {%- if now_ts > end_ts -%}{%- assign ok = false -%}{%- endif -%}
+            {%- endif -%}
+            {%- if ok -%}
+                <div class="promo-banner__slide{% if rendered == 0 %} is-active{% endif %}" data-interval="{{ b.promo_interval_ms | default: 5000 }}" {% if rendered != 0 %}aria-hidden="true"{% endif %}>
+                    <span class="promo-banner__message">{{ b.promo_message }}</span>
+                    {%- if b.promo_link != blank and b.promo_link_label != blank -%}
+                        <a class="promo-banner__link" href="{{ b.promo_link | escape }}">{{ b.promo_link_label }}</a>
+                    {%- endif -%}
+                </div>
+                {%- assign rendered = rendered | plus: 1 -%}
+            {%- endif -%}
+        {%- endfor -%}
+    </div>
+    <button type="button" class="promo-banner__close" aria-label="Dismiss banner">
+        <span class="icon-close-1" aria-hidden="true"></span>
+    </button>
+</div>
+
+<script>
+    // Anti-flash: hide synchronously (before paint) if already dismissed this session.
+    (function () {
+        var el = document.getElementById('promo-banner');
+        if (!el) return;
+        var m = document.cookie.match('(?:^|; )ecom_promo_banner=([^;]*)');
+        if (m && decodeURIComponent(m[1]) === el.getAttribute('data-banner-key')) {
+            el.style.display = 'none';
+        } else {
+            // Banner is showing — it pushes the header down by its height. Expose that
+            // height so viewport-fixed overlays anchored to the header (the mega-menu)
+            // can drop by the same amount. Cleared on dismiss in promo-banner.js.
+            document.documentElement.style.setProperty('--promo-banner-h', el.offsetHeight + 'px');
+        }
+    })();
+</script>
+{%- comment -%} Deferred: rotation/dismiss only — must not block rendering of the page below. {%- endcomment -%}
+{%- if context.environment == "staging" -%}
+    <script src="{{ 'modules/ecommerce/scripts/promo-banner.js' | asset_url }}" defer></script>
+{%- else -%}
+    <script src="{{ 'modules/ecommerce/scripts/promo-banner.min.js' | asset_url }}" defer></script>
+{%- endif -%}
+{%- endif -%}

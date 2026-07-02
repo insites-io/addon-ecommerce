@@ -13,36 +13,13 @@ metadata: {
 ---
 <div class="spacer xxxx-large hide-for-small-only"></div>
 <div class="spacer x-large show-for-small-only"></div>
-<h3 class="heading-1">Billing</h3>
+<h1 class="heading-1">Billing</h1>
 <div class="spacer xxx-large hide-for-small-only"></div>
 <div class="spacer show-for-small-only"></div>
 
 <div class="grid-x grid-padding-x">
     <div class="large-7 medium-12 small-12 cell">
-        
-        {% function has_profile = "modules/website/layout/check_if_user_has_profile" %}
-        {% assign company_uuid = context.exports.current_user.user.crm_contact[0].company_uuid %}
-
-        {% if has_profile %}
-
-            {% comment %} Get user's and company's addresses {% endcomment %}
-            {% assign related_uuid = '' |  split: ',' %}
-            {% assign related_uuid = related_uuid | array_add: context.current_user.external_id %}
-            {% if company_uuid %}
-                {% assign related_uuid = related_uuid | array_add: company_uuid %}
-            {% endif %}
-            {%- graphql addresses = 'modules/ecommerce/address/get_address', 
-                related_uuid: related_uuid | dig: 'items','results' -%}
-            
-            {% comment %} Use any address found for user, it won't edit any properties anyway. {% endcomment %}
-            {%- include_form 'modules/ecommerce/checkout_billing_address', id: addresses[0].id, addresses -%}
-        {% elsif context.session.billing_address_id %}
-            {% comment %} Guest user: Edit Billing {% endcomment %}
-            {%- include_form 'modules/ecommerce/checkout_billing_address_guest', id: context.session.billing_address_id -%}
-        {% else %}
-            {% comment %} Guest user: Add Billing {% endcomment %}
-            {%- include_form 'modules/ecommerce/checkout_billing_address_guest' -%}
-        {% endif %}
+        {%- include 'modules/ecommerce/checkout/address_step', type: 'billing' -%}
     </div>
     <div class="large-4 large-offset-1 medium-12 small-12 cell">
         <div class="hide-for-large spacer xxx-large"></div>

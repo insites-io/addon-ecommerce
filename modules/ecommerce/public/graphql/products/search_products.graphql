@@ -2,11 +2,25 @@ query search_products(
   $page: Int = 1,
   $size: Int = 10,
   $keyword : String,
+  $keyword2 : String,
+  $keyword3 : String,
+  $keyword4 : String,
+  $keyword5 : String,
+  $keyword6 : String,
+  $keyword7 : String,
+  $keyword8 : String,
+  $keyword9 : String,
+  $keyword10 : String,
   $keywords : [String!],
   $category_uuids: [String!],
   $brand: String,
+  $brands: [String!],
+  $brand_exists: Boolean,
   $is_on_sale: Boolean,
   $not_number: String,
+  $stock_lte: String,
+  $min_price: String,
+  $max_price: String,
   $sort:[RecordsSortInput!] = [
     { updated_at: { order: DESC } }
   ]
@@ -18,10 +32,19 @@ query search_products(
       table:{ value:"modules/insites_ecommerce/product" }
       properties:[
       	{ name: "status", value: "enabled"}
-        { name: "category_uuids", value_in: $category_uuids }
+        { name: "category_uuids", array_overlaps: $category_uuids }
         { name: "is_on_sale", value_boolean: $is_on_sale }
         { name: "stock_level", range: { gt: $not_number } }
+        { name: "stock_level", range: { lte: $stock_lte } }
+        ## Brand filter — all three key on brand_name so search matches the sidebar facet,
+        ## which counts "Unbranded" as a blank brand_name (see sidebar_filters.liquid). Using
+        ## brand_uuid for unbranded diverged from the facet (products with a blank brand_name
+        ## but a non-null brand_uuid FK were miscounted). The three are mutually exclusive in
+        ## practice — see list.liquid.
         { name: "brand_name", contains: $brand }
+        { name: "brand_name", value_in: $brands }
+        { name: "brand_name", exists: $brand_exists }
+        { name: "effective_price", range: { gte: $min_price, lte: $max_price } }
       ]
       or:[
         {
@@ -32,7 +55,88 @@ query search_products(
         },
         {
           properties: { name: "short_description", contains: $keyword}           
-        }
+        },
+        {
+          properties: { name: "product_name", contains: $keyword2}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword2}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword2}
+        },
+        {
+          properties: { name: "product_name", contains: $keyword3}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword3}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword3}
+        },
+        {
+          properties: { name: "product_name", contains: $keyword4}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword4}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword4}
+        },
+        {
+          properties: { name: "product_name", contains: $keyword5}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword5}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword5}
+        },
+        {
+          properties: { name: "product_name", contains: $keyword6}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword6}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword6}
+        },
+        {
+          properties: { name: "product_name", contains: $keyword7}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword7}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword7}
+        },
+        {
+          properties: { name: "product_name", contains: $keyword8}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword8}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword8}
+        },
+        {
+          properties: { name: "product_name", contains: $keyword9}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword9}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword9}
+        },
+        {
+          properties: { name: "product_name", contains: $keyword10}
+        },
+        {
+          properties: { name: "long_description", contains: $keyword10}
+        },
+        {
+          properties: { name: "short_description", contains: $keyword10}
+        },
         {
           properties: { name: "keywords", array_contains: $keywords}           
         }
@@ -53,6 +157,7 @@ query search_products(
       is_on_sale: property_boolean(name: "is_on_sale")
       regular_price: property_float(name: "regular_price")
       sale_price: property_float(name: "sale_price")
+      effective_price: property_float(name: "effective_price")
       brand: property(name: "brand_name")
       category_uuids: property_array(name: "category_uuids")
       product_image: property_upload(name: "product_image") {
@@ -77,9 +182,10 @@ query search_products(
         id
         uuid: property(name: "uuid")
         is_on_sale: property_boolean(name: "is_on_sale")
-        sale_price: property_float(name: "sale_price")  
-        regular_price: property_float(name: "regular_price") 
-        stock_level: property_int(name: "stock_level") 
+        sale_price: property_float(name: "sale_price")
+        regular_price: property_float(name: "regular_price")
+        effective_price: property_float(name: "effective_price")
+        stock_level: property_int(name: "stock_level")
         sku: property(name: "product_sku")
         product_options: property_array(name: "product_options")
         tax_amount: property_float( name: "tax_amount")

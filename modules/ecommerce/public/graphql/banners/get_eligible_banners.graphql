@@ -1,0 +1,33 @@
+query get_eligible_banners(
+  $size: Int = 20
+){
+  ## All enabled promo banners, lowest weighting first. Unlike the popup (which
+  ## shows a single record), every eligible banner is returned so the strip can
+  ## rotate through them in weighting order. The scheduled-window check (now within
+  ## start_at/end_at, with null bounds treated as open-ended) is done in Liquid so
+  ## an unscheduled-but-enabled banner is always eligible.
+  items: records(
+    per_page: $size
+    filter: {
+      table: { value: "modules/ecommerce/promo_banner" }
+      deleted_at: { exists: false }
+      properties: [
+        { name: "is_promo_enabled", value_boolean: true }
+      ]
+    }
+    sort: [
+      { properties: [{ name: "promo_weight", order: ASC }] }
+    ]
+  ){
+    results {
+      id
+      promo_message: property(name: "promo_message")
+      promo_link: property(name: "promo_link")
+      promo_link_label: property(name: "promo_link_label")
+      promo_weight: property_int(name: "promo_weight")
+      promo_interval_ms: property_int(name: "promo_interval_ms")
+      promo_start_at: property(name: "promo_start_at")
+      promo_end_at: property(name: "promo_end_at")
+    }
+  }
+}

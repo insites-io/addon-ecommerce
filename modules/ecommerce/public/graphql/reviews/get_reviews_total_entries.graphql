@@ -1,0 +1,22 @@
+query get_reviews_total_entries(
+  $reviewed_product: String,
+  $page: Int = 1,
+  $size: Int = 10
+){
+  items: records(
+    page: $page
+    per_page: $size
+    filter: {
+      table: { value: "modules/ecommerce/reviews" }
+      deleted_at: { exists: false }
+      properties: [
+        { name: "reviewed_product", value: $reviewed_product }
+        { name: "status", value: "Approved" }
+      ]
+    }
+  ){
+    total_entries
+    current_page
+    per_page
+  }
+}

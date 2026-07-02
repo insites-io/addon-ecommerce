@@ -4,28 +4,32 @@ metadata: {
 }
 ---
 
-{% comment %} 
+{% comment %}
     Required parameters from parent:
     - data
     - label
+    Optional:
+    - ajax : when true, skip the full-page-reload handler so the caller (e.g.
+             product-list.js) can listen to insPaginationChange and update only the list.
 {% endcomment %}
 
 <ins-table no-wrap
     static-table
     class="for-pagination-only"
     id="insBaseTable"
-    without-search>    
+    without-search>
 </ins-table>
 
 <script>
     var insBaseTable = document.getElementById('insBaseTable');
 
-    insBaseTable.pageSizeOptions = [9,15,30];
+    insBaseTable.pageSizeOptions = {{ page_size_options | default: '[9,15,30]' }};
     insBaseTable.totalCount = {{ data.total_entries }};
     insBaseTable.pageNumber = {{ data.current_page }};
     insBaseTable.pageSize = {{ data.per_page |  default: 10}};
-    insBaseTable.paginationText = "{{ label }}";    
-    
+    insBaseTable.paginationText = "{{ label }}";
+
+    {%- unless ajax -%}
     insBaseTable.addEventListener('insPaginationChange', tablePaginationHandler);
 
     function tablePaginationHandler(event) {
@@ -52,4 +56,5 @@ metadata: {
         // Redirect to the new URL
         window.location.href = url.toString();
     }
+    {%- endunless -%}
 </script>

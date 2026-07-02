@@ -370,7 +370,21 @@ let Checkout = (function () {
                     Checkout.methods.updateShippingContact(true);
                 }
                 Checkout.methods.extractPhoneNumbers(shippingPhone);
-                                                      
+
+                // Member checkout: require a selected address card. Check the actual card
+                // selection (not the hidden field value) so a form auto-filler that populates
+                // the hidden input can't bypass this.
+                if (shippingAddressID) {
+                    const shipCards = document.querySelectorAll('ins-checkbox-card[name="shipping-address-cards"]');
+                    const shipHasSelection = Array.from(shipCards).some(c => c.selected || c.hasAttribute('selected'));
+                    if (shipCards.length > 0 && !shipHasSelection) {
+                        shippingAddressID.hasError = true;
+                        shippingSubmitBtn.loading = false;
+                        return false;
+                    }
+                    shippingAddressID.hasError = false;
+                }
+
                 if (await App.validation.validateForm(form)) {
                     if(Checkout.events.saveSessionApi('shipping')){
                         //Add delay to allow the session to be saved
@@ -391,8 +405,22 @@ let Checkout = (function () {
 
                 if(billingSamewithShippingFlag){
                     Checkout.methods.updateBillingContact(true);
-                }                
-                Checkout.methods.extractPhoneNumbers(billingPhone);                                     
+                }
+                Checkout.methods.extractPhoneNumbers(billingPhone);
+
+                // Member checkout: require a selected billing address card (skip when billing
+                // is same as shipping, where the cards aren't shown). Check the actual card
+                // selection, not the hidden field value, so an auto-filler can't bypass it.
+                if (billingAddressID && !billingSamewithShippingFlag) {
+                    const billCards = document.querySelectorAll('ins-checkbox-card[name="billing-address-cards"]');
+                    const billHasSelection = Array.from(billCards).some(c => c.selected || c.hasAttribute('selected'));
+                    if (billCards.length > 0 && !billHasSelection) {
+                        billingAddressID.hasError = true;
+                        billingSubmitBtn.loading = false;
+                        return false;
+                    }
+                    billingAddressID.hasError = false;
+                }
 
                 if (await App.validation.validateForm(form)) {
                     if(Checkout.events.saveSessionApi('billing')){
