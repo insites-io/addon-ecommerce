@@ -102,6 +102,21 @@ The Stripe keys are seeded with a placeholder (`sk_live_key` / `sk_test_key`)
 rather than an empty value because `constant_set` rejects a blank value. Replace
 them with the real keys per-site after installation.
 
+### Databases
+
+The add-on provisions its own tables on install (from `modules/ecommerce/public/schema/*.yml`).
+Each is managed from the Insites admin — no code changes needed to add or edit records.
+
+| Table (`name`)            | Admin label             | Purpose                                                                 |
+| ------------------------- | ----------------------- | ----------------------------------------------------------------------- |
+| `reviews`                 | Reviews                 | Product reviews (rating, content, Pending/Approved/Rejected, reviewer)  |
+| `product_search_synonym`  | Product Search Synonyms | Admin-managed synonym groups for predictive + results-page search       |
+| `popup_modal`             | Popup Modal             | Promotional popup campaigns                                             |
+| `promo_banner`            | Promo Banner            | Sitewide promo strip shown above the header                             |
+
+> The core ecommerce tables (products, categories, carts, orders, discounts, …)
+> are provided by the **Ecommerce module** prerequisite, not by this add-on.
+
 ### Custom Fields
 
 | Module    | Entity     | Field                 | Type    |
