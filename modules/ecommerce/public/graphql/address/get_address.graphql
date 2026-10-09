@@ -10,7 +10,7 @@ query get_address(
     per_page: $size
     filter:{
       id:{ value: $id }
-      table: { value: "modules/insites_core/crm_address" } 
+      table: { value: "modules/insites_crm/crm_address" } 
       deleted_at: { exists: false }
       properties:[
         { name:"related_uuid", value_in: $related_uuid }

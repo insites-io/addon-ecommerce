@@ -8,7 +8,7 @@ query get_company(
       per_page: $size
       filter: {
         deleted_at: { exists: false }
-        table: { value: "modules/insites_core/crm_company" }
+        table: { value: "modules/insites_crm/crm_company" }
         properties: [
           	{ name: "uuid", value: $uuid }
         ]

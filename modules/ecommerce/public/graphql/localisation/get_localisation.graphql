@@ -7,7 +7,7 @@ query get_localisation (
     page: $page,
     filter: {
       table: {
-        value: "modules/insites_core/localisation"
+        value: "modules/insites_crm/localisation"
       },
     }
   ) {            

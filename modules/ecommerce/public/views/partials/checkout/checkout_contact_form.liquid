@@ -1,6 +1,6 @@
 {% assign fields = form.fields %}
 {% assign prop = fields.properties %}
-{% assign profiles_prop = fields.profiles['modules/insites_core/crm_contact'].properties %}
+{% assign profiles_prop = fields.profiles['modules/insites_crm/crm_contact'].properties %}
 
 {% if guest != true and context.current_user %}
   {% comment %} guest flag prevents falling into this branch during guest checkout even when context.current_user is present {% endcomment %}

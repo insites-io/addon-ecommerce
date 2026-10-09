@@ -66,7 +66,7 @@ query get_product (
       }     
       
       gallery_1: related_records(
-        table: "modules/insites_core/attachment"
+        table: "modules/insites_crm/attachment"
         join_on_property: "gallery_1"
         foreign_property: "uuid"
       ){
@@ -76,7 +76,7 @@ query get_product (
       }
 
       gallery_2: related_records(
-        table: "modules/insites_core/attachment"
+        table: "modules/insites_crm/attachment"
         join_on_property: "gallery_2"
         foreign_property: "uuid"
       ){
