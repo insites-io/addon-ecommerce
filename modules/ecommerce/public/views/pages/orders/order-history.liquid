@@ -22,8 +22,8 @@ dynamic_cache:
           "modules/insites_ecommerce/product_variant",
           "modules/insites_ecommerce/cart",
           "modules/insites_ecommerce/cart_item",
-          "modules/insites_core/crm_contact",
-          "modules/insites_core/crm_company"
+          "modules/insites_crm/crm_contact",
+          "modules/insites_crm/crm_company"
         ]
         {%- endparse_json -%}
         {%- include "modules/website/cache/generate_cache_key", models: models -%}

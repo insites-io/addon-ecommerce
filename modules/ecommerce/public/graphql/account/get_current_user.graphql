@@ -9,13 +9,13 @@ query get_current_user {
 
     ## CRM Contact
     crm_contact: profiles(
-      profile_type: "modules/insites_core/crm_contact"
+      profile_type: "modules/insites_crm/crm_contact"
     ) {      
       mobile_phone_country_code: property(name: "mobile_phone_country_code")
       mobile_phone_number: property(name: "mobile_phone_number")  
       company_uuid: property(name: "company_uuid")
       crm_company: related_record(
-        table: "modules/insites_core/crm_company"
+        table: "modules/insites_crm/crm_company"
         join_on_property: "company_uuid"
         foreign_property: "uuid"
       ){
